@@ -1,257 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[每天都是新起点]]></title>
   
-  <title>每天都是新起点</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="每天都是新起点">
-<meta property="og:url" content="http://qinghua.github.io/index.html">
-<meta property="og:site_name" content="每天都是新起点">
-<meta property="og:description">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="每天都是新起点">
-<meta name="twitter:description">
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://qinghua.github.io/"/>
+  <updated>2016-01-01T09:08:51.000Z</updated>
+  <id>http://qinghua.github.io/</id>
   
-    <link rel="alternate" href="/atom.xml" title="每天都是新起点" type="application/atom+xml">
+  <author>
+    <name><![CDATA[Qinghua Gao]]></name>
+    <email><![CDATA[ggggqh666@163.com]]></email>
+  </author>
   
+  <generator uri="http://hexo.io/">Hexo</generator>
   
-    <link rel="icon" href="/favicon.png">
-  
-  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="/css/style.css" type="text/css">
-  
-
-</head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">每天都是新起点</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qinghua.github.io"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-kubernetes-in-mesos-2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/01/kubernetes-in-mesos-2/" class="article-date">
-  <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished">2016-01-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/01/kubernetes-in-mesos-2/">如果有10000台机器，你想怎么玩？（二）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
+  <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（二）]]></title>
+    <link href="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/"/>
+    <id>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/</id>
+    <published>2016-01-01T09:07:07.000Z</published>
+    <updated>2016-01-01T09:08:51.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
 <p>高可用的情况下，由于用户的命令直接操作的是API Server，所以当API Server挂掉的时候，需要能自动重启。我们可以使用k8s客户端上现成的Kubelet来满足这个需求。Kubelet有一个Standalone模式，把启动API Server的描述文件丢到Kubelet的监视文件夹里就好了。当Kubelet发现API Server挂掉了，就会自动再启动一个API Server，反正新旧API Server连接的存储etcd还是原来那一个。API Server高可用了，要是Kubelet挂了呢？这个…还得监视一下Kubelet…可以用monit之类的东东，这边就不细说了。当然etcd也需要高可用，但是作为分布式存储来说，它的高可用相对而言较为简单并且跟k8s关联不大，这里也不提了。</p>
 <p>刚刚提到的都是进程或容器挂掉的高可用。但是万一整个机器都完蛋了，咋办呢？最直接的做法就是整它好几个服务端，一个挂了还有其他的嘛。好几个服务端就有好几个API Server，其中一个为主，其他为从，简单地挂在一个负载均衡如HAProxy上就可以了。如果还嫌HAProxy上可能有单点故障，那就再做负载均衡集群好了，本文不再赘述。API Server可以跑多份，但是Controller Manager和Scheduler现在不建议跑多份。怎么做到呢？官方提供了一个叫做podmaster的镜像，用它启动的容器可以连接到etcd上。当它从etcd上发现当前机器的API Server为主机的时候，便会把Controller Manager和Scheduler的描述文件丢到Kubelet的监视文件夹里，于是Kubelet就会把这俩启动起来。若当前机器的API Server为从机时，它会把Controller Manager和Scheduler的描述文件从Kubelet的监视文件夹里删掉，这样就可以保证整个集群中Controller Manager和Scheduler各只有一份。</p>
 <p>和mesos配合的话，k8s还有<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/ha.md" target="_blank" rel="external">另一种高可用方式</a>。这种方式会给Scheduler増加一个叫做–ha的参数，于是Scheduler就能多个同时工作。但是官方也说了，不建议同时起2个以上的Scheduler。这种高可用方式的其它配置还是跟上文所说的一样，照样得使用podmaster，只不过它这回只用管Controller Manager一个而已。</p>
 <p>做了这么多，终于把k8s master搞定了。但是还没完，node们还在等着我们呢！如果没用mesos，那就需要把node们的Kubelet重启一下，让它们连接到API Server的负载均衡上去。要是用了mesos就会简单一点儿，因为node们的Kubelet就是由Scheduler帮忙起起来的。记得吗？服务器端我们已经搞定了~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/" data-id="ciivgi6h2000058zv6dcar35f" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kubernetes-in-mesos-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/01/kubernetes-in-mesos-1/" class="article-date">
-  <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished">2016-01-01</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务]]>
+    </summary>
     
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
     
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
     
-      <header class="article-header">
-        
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/01/kubernetes-in-mesos-1/">如果有10000台机器，你想怎么玩？（一）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
+  <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（一）]]></title>
+    <link href="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/"/>
+    <id>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/</id>
+    <published>2016-01-01T08:21:06.000Z</published>
+    <updated>2016-01-01T09:08:38.000Z</updated>
+    <content type="html"><![CDATA[<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
 <p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。</p>
 <p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
 <p>集群操作系统和容器编排工具都有了，假设我们需要一个mysql服务。用k8s启动一个docker hub下的官方镜像，于是它就会被mesos分配在某台有资源的机器上。用户并不关心到底被分配到哪台机器上，只关心服务能不能用，好不好用。现在问题来了：要是服务挂掉，数据会不会丢失？那么应该怎么做持久化？这里需要引入k8s的另外两个概念：<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolume</a>（PV）和<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolumeClaim</a>（PVC）。简单说来，PV就是存储资源，它表示一块存储区域。比如：nfs上的、可读写的、10G空间。PVC就是对PV的请求，比如需要–可读写的1G空间。我们的mysql直接挂载在需要的PVC上就可以了，k8s自己会帮这个PVC寻找适配的PV。就算mysql挂掉或者是被停掉不用了，PVC仍然存在并可被其他pod使用，数据不会丢失。</p>
 <p>现在数据库也有了，需要一个tomcat服务来使用刚才创建的mysql服务并把自己暴露到公网上。传统上说，要使用数据库那就得在自己应用的xml或config文件中配置一下数据库的链接，java平台上一般是酱紫滴：jdbc:mysql://localhost:3306/dbname。可是mysql服务并不在localhost上，我们也不知道它被分配到哪台机器上去了，怎么写这个链接呢？这里边就涉及到k8s服务发现的概念了。一种方法是，k8s在新启动一个pod的时候，会把当前所有的服务都写到这个pod的容器的环境变量里去。于是就可以使用环境变量来“发现”这个服务。但是这种做法并不推荐，因为它要求在启动pod的时候，它所需要的服务已经存在。是啊，如果服务不存在，怎么知道往环境变量写什么呢？由于环境变量大法严重依赖于启动顺序，所以一般使用DNS大法。k8s提供了kube2sky和skydns的插件，当mysql服务启动后，这哥俩就会监听到mysql服务，并为之提供dns服务。所以只要这么配：jdbc:mysql://mysql.default.svc.cluster.local:3306/dbname便可以解决服务发现的问题了。</p>
 <p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/" data-id="ciivf785l000133zvgsmuoium" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-</section>
-        
-          <aside id="sidebar">
-  
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
+<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我]]>
+    </summary>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li></ul>
-    </div>
-  </div>
-
-
-  
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-    </div>
-  </div>
-
-
-  
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/kubernetes/" style="font-size: 10px;">kubernetes</a> <a href="/tags/mesos/" style="font-size: 10px;">mesos</a>
-    </div>
-  </div>
-
-  
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
-    </div>
-  </div>
-
-
+  </entry>
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recents</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2016/01/01/kubernetes-in-mesos-2/">如果有10000台机器，你想怎么玩？（二）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/01/kubernetes-in-mesos-1/">如果有10000台机器，你想怎么玩？（一）</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
-  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
-
-
-<script src="/js/script.js" type="text/javascript"></script>
-
-  </div>
-</body>
-</html>
+</feed>
