@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-01T09:08:51.000Z</updated>
+  <updated>2016-01-02T03:54:02.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,42 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[用容器轻松搭建ceph实验环境]]></title>
+    <link href="http://qinghua.github.io/2016/01/02/ceph-demo/"/>
+    <id>http://qinghua.github.io/2016/01/02/ceph-demo/</id>
+    <published>2016-01-02T01:07:33.000Z</published>
+    <updated>2016-01-02T03:54:02.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
+<p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host -v /etc/ceph:/etc/ceph -e MON_IP=192.168.0.20 -e CEPH_NETWORK=192.168.0.0/24 --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
+<p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
+<p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== 192.168.0.20:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
+<p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
+<p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认pool为rbd。每个pool里面可以有多个image，相当于一个文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common&#10;yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
+<p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg 128</span><br></pre></td></tr></table></figure></p>
+<p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure></p>
+<p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size 1024</span><br></pre></td></tr></table></figure></p>
+<p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph/demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd ls ggg&#10;rbd info ggg/qqq</span><br></pre></td></tr></table></figure></p>
+<p>接下来要把qqq image映射到块设备中，可能需要root权限：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rbd map ggg/qqq</span><br></pre></td></tr></table></figure></p>
+<p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure></p>
+<p>格式化之：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/rbd/qqq&#10;sudo mount /dev/rbd1 /mnt/rbd/qqq&#10;ls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure></p>
+<p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq&#10;sudo rbd unmap /dev/rbd1&#10;rbd rm ggg/qqq&#10;ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
+<p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
+<p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure></p>
+<p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f ceph&#10;docker rmi ceph/demo</span><br></pre></td></tr></table></figure></p>
+<p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http]]>
+    </summary>
+    
+      <category term="ceph" scheme="http://qinghua.github.io/tags/ceph/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（二）]]></title>
@@ -44,7 +80,7 @@
     <link href="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-01-01T09:08:38.000Z</updated>
+    <updated>2016-01-01T09:18:44.000Z</updated>
     <content type="html"><![CDATA[<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
 <p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。</p>
 <p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
