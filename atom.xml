@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-02T03:54:02.000Z</updated>
+  <updated>2016-01-05T09:59:30.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,31 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（三）]]></title>
+    <link href="http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/"/>
+    <id>http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/</id>
+    <published>2016-01-05T12:06:33.000Z</published>
+    <updated>2016-01-05T09:59:30.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
+<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
+<p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks" target="_blank" rel="external">container hook</a>。目前支持<a href="http://kubernetes.io/v1.1/docs/api-reference/v1/definitions.html#_v1_lifecycle" target="_blank" rel="external">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是相当于重新自己来一套，并不划算。</p>
+<p>第二个方案：还是容器化的mesos slave，但是使用<a href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/" target="_blank" rel="external">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
+<p>第三个方案：放弃mesos slave的容器化。回顾问题的根源，一切的一切都是因为引入mesos slave的容器造成的。如果把mesos slave还原成系统进程，那么这一堆存储问题都将不复存在。我们仍然有其他手段来实现mesos slave部署和升级的便利性，如自动化脚本、数据用容器等。虽然这样可能引入更大的部署工作量，但这可能是针对这个问题来说更加正统的解决方案。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
+<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如n]]>
+    </summary>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[用容器轻松搭建ceph实验环境]]></title>
