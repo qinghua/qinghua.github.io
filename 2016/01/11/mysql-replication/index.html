@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>基于docker的MySQL主从复制（replication） | 每天都是新起点</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
+binary logging方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于docker的MySQL主从复制（replication）">
+<meta property="og:url" content="http://qinghua.github.io/2016/01/11/mysql-replication/index.html">
+<meta property="og:site_name" content="每天都是新起点">
+<meta property="og:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
+binary logging方">
+<meta property="og:updated_time" content="2016-01-11T14:10:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于docker的MySQL主从复制（replication）">
+<meta name="twitter:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
+binary logging方">
+  
+    <link rel="alternate" href="/atom.xml" title="每天都是新起点" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">每天都是新起点</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-mysql-replication" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/11/mysql-replication/" class="article-date">
+  <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished">2016-01-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/db/">db</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      基于docker的MySQL主从复制（replication）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">更新的方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
+<h2 id="binary_logging_u65B9_u5F0F"><a href="#binary_logging_u65B9_u5F0F" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a href="https://hub.docker.com/r/library/mysql/" target="_blank" rel="external">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> --name=mysql mysql:<span class="number">5.7</span></span><br><span class="line">docker cp mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure></p>
+<p>master的配置在<code>my.cnf</code>文件中是这样的，改完后另存为<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin # 使用binary logging，mysql-bin是log文件名的前缀</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
+<p>slave的配置就更简单了，改完后另存为<code>/vagrant/mysql/myslave.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
+<p>slave没有必要非得用binary logging，但是如果用了，除了binary logging带来的好处以外，还能使这个slave成为其他slave的master。现在我们重新启动mysql master和slave：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> mysql</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br></pre></td></tr></table></figure></p>
+<p>在master创建一个复制用的用户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">'repl'</span>@<span class="string">'%'</span> <span class="keyword">IDENTIFIED</span> <span class="keyword">BY</span> <span class="string">'123456'</span>;</span>       <span class="comment">-- '%'意味着所有的终端都可以用这个用户登录</span></span><br><span class="line"><span class="operator"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>,<span class="keyword">REPLICATION</span> <span class="keyword">SLAVE</span> <span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">'repl'</span>@<span class="string">'%'</span>;</span> <span class="comment">-- SELECT权限是为了让repl可以读取到数据，生产环境建议创建另一个用户</span></span><br></pre></td></tr></table></figure>
+<p>在slave用新创建的用户连接master（记得把MASTER_HOST改为自己的主机IP）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span>       <span class="comment">-- \G用来代替";"，能把查询结果按键值的方式显示</span></span></span><br></pre></td></tr></table></figure>
+<p>如果一切正常，应该在<code>Last_Error</code>中能看到<code>Can&#39;t create database &#39;mysql&#39;</code>的错误。这是因为slave也是像master一样正常地启动，mysql数据库已经被创建了，所以不能再将master的mysql数据库同步过来。有4种解决办法：</p>
+<ol>
+<li><p>通过在slave上运行SQL来跳过这个复制操作的方式来实现。在slave上运行：</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">STOP</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> SQL_SLAVE_SKIP_COUNTER = <span class="number">1</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
+<p> 不出意外的话，上面的错误应该已经换成了其他错误（例如：<code>Duplicate entry &#39;row_evaluate_cost&#39; for key &#39;PRIMARY&#39;</code>），都是跟mysql这个数据库有关。反复运行上面的SQL直至错误消失。</p>
+</li>
+<li><p>通过在slave上面配置log文件名及位置的方式来实现。在master上运行：</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">FLUSH</span> <span class="keyword">TABLES</span> <span class="keyword">WITH</span> <span class="keyword">READ</span> <span class="keyword">LOCK</span>;</span> <span class="comment">--防止有人对master做更新操作使Position持续变化，先锁表</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">MASTER</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
+<p> 可以看到<code>File: mysql-bin.000003</code>和<code>Position: 154</code>这样的行。删掉这个旧的slave并重新启动一个新的容器，然后运行：</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> slave</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">STOP</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>, MASTER_LOG_FILE=<span class="string">'mysql-bin.000003'</span>, MASTER_LOG_POS=<span class="number">154</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
+<p> 我们将会看到<code>Slave_IO_Running: Yes</code>和<code>Slave_SQL_Running: Yes</code>。这两项说明我们的slave已经成功启动了。如果先前锁了master的表，记得在master上运行<code>UNLOCK TABLES;</code>来恢复。</p>
+</li>
+<li><p>通过不记录<code>mysql</code>数据库binary logging的方式来实现。既然<code>mysql</code>不在binary logging里，那它也无法被同步到slave上。在<code>/vagrant/mysql/mymaster.cnf</code>里增加一个参数，如果有多个数据库，可以复制多行：</p>
+ <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">binlog-ignore-db=<span class="value">mysql</span></span></span><br></pre></td></tr></table></figure>
+<p> 删除master和slave容器然后再重新创建之：</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> master</span><br><span class="line">docker rm <span class="operator">-f</span> slave</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br></pre></td></tr></table></figure>
+<p> 然后根据上文所述在master创建一个复制用的用户并在slave用新创建的用户连接master，最后观察<code>Slave_IO_Running</code>和<code>Slave_SQL_Running</code>。</p>
+</li>
+<li><p>通过不复制<code>mysql</code>数据库binary logging的方式来实现。这种方式很类似上面一种方法，只不过配置在slave端而非master端而已。在<code>/vagrant/mysql/myslave.cnf</code>里增加一个参数，删除master和slave容器然后再重新创建之：</p>
+ <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">replicate-ignore-db=<span class="value">mysql</span></span></span><br></pre></td></tr></table></figure>
+<p> 其余操作同方法3。</p>
+</li>
+</ol>
+<p>既然slave已经成功启动了，我们便可以测试一下。看看在master上创建一个新数据库是否能同步到slave上：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> master mysql -uroot -p123456 <span class="operator">-e</span> <span class="string">"CREATE DATABASE ggg"</span></span><br><span class="line">docker <span class="built_in">exec</span> slave mysql -uroot -p123456 <span class="operator">-e</span> <span class="string">"SHOW DATABASES"</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="GTIDs_u65B9_u5F0F"><a href="#GTIDs_u65B9_u5F0F" class="headerlink" title="GTIDs方式"></a>GTIDs方式</h2><p>下面介绍一下GTIDs方式的主从复制方法。需要修改<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span></span></span></span><br><span class="line"><span class="setting">gtid-mode=<span class="value"><span class="keyword">on</span></span></span></span><br><span class="line"><span class="setting">enforce-gtid-consistency=<span class="value"><span class="keyword">true</span></span></span></span><br></pre></td></tr></table></figure></p>
+<p>还需要修改<code>/vagrant/mysql/myslave.cnf</code>（MySQL 5.7.4及之前的版本还需要开启log-bin）：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span></span></span></span><br><span class="line"><span class="setting">replicate-ignore-db=<span class="value">mysql</span></span></span><br><span class="line"><span class="setting">gtid-mode=<span class="value"><span class="keyword">on</span></span></span></span><br><span class="line"><span class="setting">enforce-gtid-consistency=<span class="value"><span class="keyword">true</span></span></span></span><br></pre></td></tr></table></figure></p>
+<p>启动容器，创建复制的用户都和上面一样，在slave增加<code>MASTER_AUTO_POSITION</code>参数来连接master（记得把MASTER_HOST改为自己的主机IP）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>, MASTER_AUTO_POSITION=<span class="number">1</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
+<p>搞定！这样就不需要用到<code>MASTER_LOG_FILE</code>和<code>MASTER_LOG_POS</code>了，省事儿啊。在<code>START SLAVE</code>之前master的其它更新也都会被同步到slave。</p>
+<h2 id="u5176_u4ED6_u6280_u5DE7"><a href="#u5176_u4ED6_u6280_u5DE7" class="headerlink" title="其他技巧"></a>其他技巧</h2><p>最后再介绍一些实用技巧：</p>
+<ol>
+<li>如果master已经有数据了，怎么新增slave：可以先把master的数据导入到slave，再启动slave。具体可以参考<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-setup-slaves.html#replication-howto-existingdata" target="_blank" rel="external">这里</a>。</li>
+<li>如果已经有主从复制了，怎么增加slave：思路同上，不过不需要使用master的数据，直接用已有的slave数据就可以了。不需要停止master，新slave使用新的<code>server-id</code>。具体可以参考<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html" target="_blank" rel="external">这里</a>。</li>
+<li><p>slave设置只读操作：在<code>/vagrant/mysql/myslave.cnf</code>里增加参数即可。    <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">read-only=<span class="value"><span class="number">1</span>       # 除非有SUPER权限，否则只读</span></span></span><br><span class="line"><span class="setting">super-read-only=<span class="value"><span class="number">1</span> # SUPER权限也是只读</span></span></span><br></pre></td></tr></table></figure></p>
+</li>
+<li><p>前面介绍的都是主从，如果需要slave也能同步到master就要设置主主复制：也就是说反过来再做一遍。</p>
+</li>
+<li>当slave比较多得时候，master的负载可能会成为问题。可以用主从多级复制：以slave为master来再引入新的slave。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://qinghua.github.io/2016/01/11/mysql-replication/" data-id="cij9djpoe000076jwrraqdmta" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/01/05/kubernetes-in-mesos-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">如果有10000台机器，你想怎么玩？（三）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+  <section id="comments">
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="post-mysql-replication" data-title="基于docker的MySQL主从复制（replication）" data-url="http://qinghua.github.io/2016/01/11/mysql-replication/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:'ggggqh666'};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+      </script>
+    <!-- 多说公共JS代码 end -->
+  </section>
+  </section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ceph/" style="font-size: 10px;">ceph</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/mesos/" style="font-size: 20px;">mesos</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/01/11/mysql-replication/">基于docker的MySQL主从复制（replication）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/05/kubernetes-in-mesos-3/">如果有10000台机器，你想怎么玩？（三）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/02/ceph-demo/">用容器轻松搭建ceph实验环境</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/01/kubernetes-in-mesos-2/">如果有10000台机器，你想怎么玩？（二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/01/kubernetes-in-mesos-1/">如果有10000台机器，你想怎么玩？（一）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
