@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-14T06:32:23.000Z</updated>
+  <updated>2016-01-15T09:41:04.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（四）]]></title>
+    <link href="http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/"/>
+    <id>http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/</id>
+    <published>2016-01-15T11:12:59.000Z</published>
+    <updated>2016-01-15T09:41:04.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。</p>
+<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
+<p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
+<h2 id="u6570_u636E_u5B58_u50A8"><a href="#u6570_u636E_u5B58_u50A8" class="headerlink" title="数据存储"></a>数据存储</h2><p><a href="https://influxdata.com/time-series-platform/influxdb/" target="_blank" rel="external">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a href="http://www.infoq.com/cn/articles/database-timestamp-01" target="_blank" rel="external">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg" alt=""></p>
+<h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
+<p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
+<h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所应当的。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。</p>
+<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h]]>
+    </summary>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[传统企业敏捷转型纪实]]></title>
