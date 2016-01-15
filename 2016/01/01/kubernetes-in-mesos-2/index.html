@@ -1,16 +1,22 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   
-  <title>如果有10000台机器，你想怎么玩？（二） | 每天都是新起点</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
+    <title>如果有10000台机器，你想怎么玩？（二） | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
 作为背景知识，先介绍一下k8s的架构（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个po">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（二）">
 <meta property="og:url" content="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/index.html">
-<meta property="og:site_name" content="每天都是新起点">
+<meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
 作为背景知识，先介绍一下k8s的架构（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个po">
 <meta property="og:updated_time" content="2016-01-01T09:08:51.000Z">
@@ -18,216 +24,227 @@
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（二）">
 <meta name="twitter:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
 作为背景知识，先介绍一下k8s的架构（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个po">
-  
-    <link rel="alternate" href="/atom.xml" title="每天都是新起点" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="/css/style.css" type="text/css">
-  
 
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">每天都是新起点</a>
-      </h1>
+  <body>
+    <header>
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qinghua.github.io"></form>
-      </div>
-    </div>
-  </div>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:qinghua.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/01/01/kubernetes-in-mesos-2/" title="如果有10000台机器，你想怎么玩？（二）" itemprop="url">如果有10000台机器，你想怎么玩？（二）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished"> 发表于 2016-01-01</time>
+    
+  </p>
 </header>
-      <div class="outer">
-        <section id="main"><article id="post-kubernetes-in-mesos-2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/01/kubernetes-in-mesos-2/" class="article-date">
-  <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished">2016-01-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      如果有10000台机器，你想怎么玩？（二）
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			
+		
+		</div>
+		
+		<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
 <p>高可用的情况下，由于用户的命令直接操作的是API Server，所以当API Server挂掉的时候，需要能自动重启。我们可以使用k8s客户端上现成的Kubelet来满足这个需求。Kubelet有一个Standalone模式，把启动API Server的描述文件丢到Kubelet的监视文件夹里就好了。当Kubelet发现API Server挂掉了，就会自动再启动一个API Server，反正新旧API Server连接的存储etcd还是原来那一个。API Server高可用了，要是Kubelet挂了呢？这个…还得监视一下Kubelet…可以用monit之类的东东，这边就不细说了。当然etcd也需要高可用，但是作为分布式存储来说，它的高可用相对而言较为简单并且跟k8s关联不大，这里也不提了。</p>
 <p>刚刚提到的都是进程或容器挂掉的高可用。但是万一整个机器都完蛋了，咋办呢？最直接的做法就是整它好几个服务端，一个挂了还有其他的嘛。好几个服务端就有好几个API Server，其中一个为主，其他为从，简单地挂在一个负载均衡如HAProxy上就可以了。如果还嫌HAProxy上可能有单点故障，那就再做负载均衡集群好了，本文不再赘述。API Server可以跑多份，但是Controller Manager和Scheduler现在不建议跑多份。怎么做到呢？官方提供了一个叫做podmaster的镜像，用它启动的容器可以连接到etcd上。当它从etcd上发现当前机器的API Server为主机的时候，便会把Controller Manager和Scheduler的描述文件丢到Kubelet的监视文件夹里，于是Kubelet就会把这俩启动起来。若当前机器的API Server为从机时，它会把Controller Manager和Scheduler的描述文件从Kubelet的监视文件夹里删掉，这样就可以保证整个集群中Controller Manager和Scheduler各只有一份。</p>
 <p>和mesos配合的话，k8s还有<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/ha.md" target="_blank" rel="external">另一种高可用方式</a>。这种方式会给Scheduler増加一个叫做–ha的参数，于是Scheduler就能多个同时工作。但是官方也说了，不建议同时起2个以上的Scheduler。这种高可用方式的其它配置还是跟上文所说的一样，照样得使用podmaster，只不过它这回只用管Controller Manager一个而已。</p>
 <p>做了这么多，终于把k8s master搞定了。但是还没完，node们还在等着我们呢！如果没用mesos，那就需要把node们的Kubelet重启一下，让它们连接到API Server的负载均衡上去。要是用了mesos就会简单一点儿，因为node们的Kubelet就是由Scheduler帮忙起起来的。记得吗？服务器端我们已经搞定了~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/" data-id="ciivhtj4r000779zvea7zvmcf" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
 
-    </footer>
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2016/01/02/ceph-demo/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          用容器轻松搭建ceph实验环境
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2016/01/01/kubernetes-in-mesos-1/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">如果有10000台机器，你想怎么玩？（一）</div>
-    </a>
-  
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/" data-title="如果有10000台机器，你想怎么玩？（二） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/01/02/ceph-demo/" title="用容器轻松搭建ceph实验环境">
+  <strong>上一篇：</strong><br/>
+  <span>
+  用容器轻松搭建ceph实验环境</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/01/01/kubernetes-in-mesos-1/"  title="如果有10000台机器，你想怎么玩？（一）">
+ <strong>下一篇：</strong><br/> 
+ <span>如果有10000台机器，你想怎么玩？（一）
+</span>
+</a>
+</div>
+
 </nav>
 
-  
-</article>
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/01/01/kubernetes-in-mesos-2/" data-title="如果有10000台机器，你想怎么玩？（二）" data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/"></div>
+</section>
 
 
-  <section id="comments">
-    <!-- 多说评论框 start -->
-    <div class="ds-thread" data-thread-key="post-kubernetes-in-mesos-2" data-title="如果有10000台机器，你想怎么玩？（二）" data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/"></div>
-    <!-- 多说评论框 end -->
-    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-    <script type="text/javascript">
-    var duoshuoQuery = {short_name:'ggggqh666'};
-      (function() {
-        var ds = document.createElement('script');
-        ds.type = 'text/javascript';ds.async = true;
-        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-        ds.charset = 'UTF-8';
-        (document.getElementsByTagName('head')[0] 
-         || document.getElementsByTagName('body')[0]).appendChild(ds);
-      })();
-      </script>
-    <!-- 多说公共JS代码 end -->
-  </section>
-  </section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li></ul>
-    </div>
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ 
+ 
   </div>
 
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
 
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-  </div>
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>5</sup></a></li>
+		  
+		
+		  
+		
+		</ul>
+</div>
 
 
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/agile/" style="font-size: 10px;">agile</a> <a href="/tags/ceph/" style="font-size: 10px;">ceph</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/mesos/" style="font-size: 20px;">mesos</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a>
-    </div>
-  </div>
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
-    </div>
-  </div>
 
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recents</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2016/01/15/kubernetes-in-mesos-4/">如果有10000台机器，你想怎么玩？（四）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/13/waterfall-to-agile/">传统企业敏捷转型纪实</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/11/mysql-replication/">基于docker的MySQL主从复制（replication）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/05/kubernetes-in-mesos-3/">如果有10000台机器，你想怎么玩？（三）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/02/ceph-demo/">用容器轻松搭建ceph实验环境</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
 </aside>
-        
-      </div>
-      <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
 <footer id="footer">
   
@@ -242,29 +259,258 @@
       </span>
       <br>
       &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
     </div>
   </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
   
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
-  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
 
 
-<script src="/js/script.js" type="text/javascript"></script>
 
-  </div>
-</body>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
 </html>

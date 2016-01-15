@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/about/index.html</loc>
+    <lastmod>2016-01-15T14:55:21.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/</loc>
     <lastmod>2016-01-15T09:41:04.000Z</lastmod>
   </url>

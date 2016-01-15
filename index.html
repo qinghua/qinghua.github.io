@@ -1,549 +1,294 @@
-<!DOCTYPE html>
-<html>
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   
-  <title>每天都是新起点</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
+    <title>懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description">
 <meta property="og:type" content="website">
-<meta property="og:title" content="每天都是新起点">
+<meta property="og:title" content="懒程序员改变世界">
 <meta property="og:url" content="http://qinghua.github.io/index.html">
-<meta property="og:site_name" content="每天都是新起点">
+<meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="每天都是新起点">
+<meta name="twitter:title" content="懒程序员改变世界">
 <meta name="twitter:description">
-  
-    <link rel="alternate" href="/atom.xml" title="每天都是新起点" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="/css/style.css" type="text/css">
-  
 
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">每天都是新起点</a>
-      </h1>
+  <body>
+    <header>
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:qinghua.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main">
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/15/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）" itemprop="url">
+  
+    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（四）</h1>
+    
+     
+           <p itemprop="description" >这次聊聊mesos+k8s的监控告警方案。
+数据采集cAdvisor由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：kub</p>
         
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qinghua.github.io"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-kubernetes-in-mesos-4" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/15/kubernetes-in-mesos-4/" class="article-date">
-  <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished">2016-01-15</time>
-</a>
     
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/15/kubernetes-in-mesos-4/">如果有10000台机器，你想怎么玩？（四）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这次聊聊mesos+k8s的监控告警方案。</p>
-<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
-<p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
-<h2 id="u6570_u636E_u5B58_u50A8"><a href="#u6570_u636E_u5B58_u50A8" class="headerlink" title="数据存储"></a>数据存储</h2><p><a href="https://influxdata.com/time-series-platform/influxdb/" target="_blank" rel="external">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a href="http://www.infoq.com/cn/articles/database-timestamp-01" target="_blank" rel="external">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg" alt=""></p>
-<h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
-<p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
-<h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所应当的。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/" data-id="cijf22axg0000wezvcp7wx4pl" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-waterfall-to-agile" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/13/waterfall-to-agile/" class="article-date">
-  <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished">2016-01-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/agile/">agile</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/13/waterfall-to-agile/">传统企业敏捷转型纪实</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。这篇文章写的是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。</p>
-<h2 id="u56E2_u961F_u6784_u5EFA"><a href="#u56E2_u961F_u6784_u5EFA" class="headerlink" title="团队构建"></a>团队构建</h2><p>这个部门由四个团队组成，各自主管产品的一部分。每个团队都有对交付负责的人，称为PO（Product Owner）。Ken的第一步是让所有团队选出一名SPO（Super Product Owner），来对整个产品负责。SPO不做兼职，负责解决各种问题，其最重要的任务是做决策。而对于一款探索性的产品来说，决策是没有对错之分的，只是它需要靠执行力和客户反馈来修正。PO们需要力挺SPO，充分信任SPO的决策，并以团队的执行力来保证决策的执行。所以有个PO与SPO隔空喊话效忠的过程。</p>
-<p>这个部门比较特殊的地方在于，大部分成员属于两个外包公司，其中有不少新人。大家对敏捷都没有什么概念，对要做的事也心有疑虑。有鉴于此，Ken让两个外包公司的人各选出1名leader来当<a href="http://scaledagileframework.com/scrum-master/" target="_blank" rel="external">SM</a>（scrum master）。如果团队成员士气低落，不管任何原因，都可以找SM沟通。如果涉及到甲方公司，便由SM来沟通PO处理。这样做的目的是让每个团队成员都有渠道摆脱自己受到的干扰，增加工作效率。团队成员也需要在团队中建立起自己的人脉，好让自己遇到问题时容易找人帮忙。SM主要负责沟通，PO带领团队前进。这样的构建适用于200~300人以下的团队。</p>
-<h2 id="u4E86_u89E3_u4EA7_u54C1"><a href="#u4E86_u89E3_u4EA7_u54C1" class="headerlink" title="了解产品"></a>了解产品</h2><p>要做好产品，首先需要让团队成员理解产品，建立共识。如果只见树木不见森林，那么人人都只是开发自己的那一亩三分地，根本无从得知自己的工作在整个产品中处于什么样的位置，那怎么能做好这个产品呢？现实中，这个产品有着非常复杂的架构，甚至没有一个人能完整地解释整个架构图。Ken建议SPO找几个资深人员，专门抽出一天时间给所有人都讲清楚架构。这很重要，如果你连孩子是男是女都不知道，怎么抚养ta？团队成员需要非常了解产品，而不仅仅是某个需求或者某个版本。要做产品，不是为了做事而做事。同时，Ken也建议所有成员都花时间在架构课之前自学其中的一些重要技术，以便让自己能够在架构课上更加清除对方究竟在讲什么。也就是预习，省的回头听不懂。</p>
-<h2 id="u65E5_u7A0B_u7BA1_u7406"><a href="#u65E5_u7A0B_u7BA1_u7406" class="headerlink" title="日程管理"></a>日程管理</h2><p>接下来用倒推法确定迭代截止日。假设产品5月底上线，需要提前一个月也就是4月底出beta版。需要3周的SIT时间，所以差不多是4月8号所有迭代完成。如果每两周一个迭代，从下周一算第一迭代开始，扣去春节，那么正好有5个迭代。如何能保证按时交付呢？需求可能发生变化，环境可能有问题，心情可能不太好影响了效率。迭代的意义在于提早发现风险。所以每个团队成员遇到问题时，需要尽快把这个问题暴露出来，否则，按时完成是不太可能的。</p>
-<h2 id="u4F30_u7B97_u5DE5_u4F5C_u91CF"><a href="#u4F30_u7B97_u5DE5_u4F5C_u91CF" class="headerlink" title="估算工作量"></a>估算工作量</h2><p>因为是从瀑布开发模式转过来的，所以现在每个团队手里都有一大堆需求。这里使用估点的方式来估算每个需求的工作量，转化成各个<a href="https://en.wikipedia.org/wiki/User_story" target="_blank" rel="external">User Story</a>。先找一个清晰的需求，最好半天就能开发完成，再半天测试完成。对这个story估点为1。以其为基准，其他的story与它相比较，得到其他story的估点。估的点数是在一个斐波那契数列里的：<a href="https://en.wikipedia.org/wiki/Planning_poker" target="_blank" rel="external">1，2，3，5，8，13，20，40，100</a>（当然后面几个不是）。例如基准story是3点，如果一个story感觉比它难上两个等级，那这个story应该是8个点。如果比它容易一个等级，那应该是2个点。如果难上4个等级呢？因为估点是个主观的过程，而且是比较不精确的。所以当差别很大的时候误差也会很大的。20，40，100这三个数虽然不是斐波那契数列，但也有它的含义。如果一个story只有一行字，谁也说不清它包含着什么，那就是100点。如果知道一部分，那就是40点。如果知道得更多，那就是20点。当然这也是非常主观且粗糙的，但是当你看到这3个数的时候自然就知道应该先把需求搞清楚。</p>
-<p>值得一提的是如果一个story估点为8，并不意味着它需要在整8天的时候做完。这个story和其他story一样，需要在最短的时间内有质量地完成。8代表着这个story的复杂度，或者说它是一个风险识别指标。如果做这个story的时候出了问题，需要开发人员尽快把这个问题暴露出来，就像上面讲的那样。而PO、SPO应该要想办法解决这个问题。如果问题超出SPO的权力，那就需要SPO的决策–可以选择不做这个story，或者只做一部分，或者绕过去。估点往往需要很长的时间。为了效率起见，当<a href="https://en.wikipedia.org/wiki/Business_analyst" target="_blank" rel="external">Business Analyst</a>讲完story时，团队成员应该有意识地思考：这个story有什么业务价值？是必须要做的吗？只有必要的story才估点。估点时新人由于还不熟悉背景，可以仅旁观不参与。参与的成员们同时伸手指表示点数，如果一样就记下点数，跳到下一个story。否则，大家就需要解释为什么自己估的点数是这个数，最后由PO拍脑袋做决策。</p>
-<p>估点是个很费时，但又很重要的事情，所以先由一个团队演示几个story，其他团队观看，等大家都了解了，再由所有团队自行估点。</p>
-<h2 id="u8FED_u4EE3_u8BA1_u5212"><a href="#u8FED_u4EE3_u8BA1_u5212" class="headerlink" title="迭代计划"></a>迭代计划</h2><p>最后就是安排工作量了。先要确认所有人力是否可以100%地投入。资深成员可以算全职，新人算半职，资深成员但还兼其他工作安排的也算半职。假如说最后我们得到了这样的数：</p>
-<ul>
-<li>全职开发：3个</li>
-<li>半职开发：4个</li>
-<li>全职测试：1个</li>
-<li>半职测试：2个</li>
-</ul>
-<p>如果第一迭代有10个工作日，那么我们就能计算出来最大工作量：<code>(3+1)×10+(4+2)×10÷2=70</code>。由于是春节，可能请假会比较多，扣去请假天数，也许得到60点。然后是打折，由各组PO和SPO商量，得到一个折扣。这个折扣可能是：我们组对外部环境依赖很多，第一迭代刚开始效率会很低，春节假期效率不高，团队成员都是单身需要相亲无心干活等等等等。比如说第一迭代打个7折，就能得到合理工作量：<code>60×7=42</code>。由此，我们就得到最大工作量和合理工作量。算出各个迭代的工作量，把它们写在显眼处。最后将先前估好点的story按优先级及依赖顺序往里安排，点数到合理工作量即可。至此，一个看似合理的、由团队成员做出的计划便产生了。项目启动会议完成。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/13/waterfall-to-agile/" data-id="cijczlb9l0000r08gi184vsi5" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/agile/">agile</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-mysql-replication" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/11/mysql-replication/" class="article-date">
-  <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished">2016-01-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/db/">db</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/11/mysql-replication/">基于docker的MySQL主从复制（replication）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">更新的方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
-<h2 id="binary_logging_u65B9_u5F0F"><a href="#binary_logging_u65B9_u5F0F" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a href="https://hub.docker.com/r/library/mysql/" target="_blank" rel="external">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> --name=mysql mysql:<span class="number">5.7</span></span><br><span class="line">docker cp mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure></p>
-<p>master的配置在<code>my.cnf</code>文件中是这样的，改完后另存为<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin # 使用binary logging，mysql-bin是log文件名的前缀</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
-<p>slave的配置就更简单了，改完后另存为<code>/vagrant/mysql/myslave.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
-<p>slave没有必要非得用binary logging，但是如果用了，除了binary logging带来的好处以外，还能使这个slave成为其他slave的master。现在我们重新启动mysql master和slave：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> mysql</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br></pre></td></tr></table></figure></p>
-<p>在master创建一个复制用的用户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">'repl'</span>@<span class="string">'%'</span> <span class="keyword">IDENTIFIED</span> <span class="keyword">BY</span> <span class="string">'123456'</span>;</span>       <span class="comment">-- '%'意味着所有的终端都可以用这个用户登录</span></span><br><span class="line"><span class="operator"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>,<span class="keyword">REPLICATION</span> <span class="keyword">SLAVE</span> <span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">'repl'</span>@<span class="string">'%'</span>;</span> <span class="comment">-- SELECT权限是为了让repl可以读取到数据，生产环境建议创建另一个用户</span></span><br></pre></td></tr></table></figure>
-<p>在slave用新创建的用户连接master（记得把MASTER_HOST改为自己的主机IP）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span>       <span class="comment">-- \G用来代替";"，能把查询结果按键值的方式显示</span></span></span><br></pre></td></tr></table></figure>
-<p>如果一切正常，应该在<code>Last_Error</code>中能看到<code>Can&#39;t create database &#39;mysql&#39;</code>的错误。这是因为slave也是像master一样正常地启动，mysql数据库已经被创建了，所以不能再将master的mysql数据库同步过来。有4种解决办法：</p>
-<ol>
-<li><p>通过在slave上运行SQL来跳过这个复制操作的方式来实现。在slave上运行：</p>
- <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">STOP</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> SQL_SLAVE_SKIP_COUNTER = <span class="number">1</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
-<p> 不出意外的话，上面的错误应该已经换成了其他错误（例如：<code>Duplicate entry &#39;row_evaluate_cost&#39; for key &#39;PRIMARY&#39;</code>），都是跟mysql这个数据库有关。反复运行上面的SQL直至错误消失。</p>
-</li>
-<li><p>通过在slave上面配置log文件名及位置的方式来实现。在master上运行：</p>
- <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
- <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">FLUSH</span> <span class="keyword">TABLES</span> <span class="keyword">WITH</span> <span class="keyword">READ</span> <span class="keyword">LOCK</span>;</span> <span class="comment">--防止有人对master做更新操作使Position持续变化，先锁表</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">MASTER</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
-<p> 可以看到<code>File: mysql-bin.000003</code>和<code>Position: 154</code>这样的行。删掉这个旧的slave并重新启动一个新的容器，然后运行：</p>
- <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> slave</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
- <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">STOP</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>, MASTER_LOG_FILE=<span class="string">'mysql-bin.000003'</span>, MASTER_LOG_POS=<span class="number">154</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
-<p> 我们将会看到<code>Slave_IO_Running: Yes</code>和<code>Slave_SQL_Running: Yes</code>。这两项说明我们的slave已经成功启动了。如果先前锁了master的表，记得在master上运行<code>UNLOCK TABLES;</code>来恢复。</p>
-</li>
-<li><p>通过不记录<code>mysql</code>数据库binary logging的方式来实现。既然<code>mysql</code>不在binary logging里，那它也无法被同步到slave上。在<code>/vagrant/mysql/mymaster.cnf</code>里增加一个参数，如果有多个数据库，可以复制多行：</p>
- <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">binlog-ignore-db=<span class="value">mysql</span></span></span><br></pre></td></tr></table></figure>
-<p> 删除master和slave容器然后再重新创建之：</p>
- <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> master</span><br><span class="line">docker rm <span class="operator">-f</span> slave</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=slave \</span><br><span class="line">  <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:<span class="number">5.7</span></span><br></pre></td></tr></table></figure>
-<p> 然后根据上文所述在master创建一个复制用的用户并在slave用新创建的用户连接master，最后观察<code>Slave_IO_Running</code>和<code>Slave_SQL_Running</code>。</p>
-</li>
-<li><p>通过不复制<code>mysql</code>数据库binary logging的方式来实现。这种方式很类似上面一种方法，只不过配置在slave端而非master端而已。在<code>/vagrant/mysql/myslave.cnf</code>里增加一个参数，删除master和slave容器然后再重新创建之：</p>
- <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">replicate-ignore-db=<span class="value">mysql</span></span></span><br></pre></td></tr></table></figure>
-<p> 其余操作同方法3。</p>
-</li>
-</ol>
-<p>既然slave已经成功启动了，我们便可以测试一下。看看在master上创建一个新数据库是否能同步到slave上：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> master mysql -uroot -p123456 <span class="operator">-e</span> <span class="string">"CREATE DATABASE ggg"</span></span><br><span class="line">docker <span class="built_in">exec</span> slave mysql -uroot -p123456 <span class="operator">-e</span> <span class="string">"SHOW DATABASES"</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="GTIDs_u65B9_u5F0F"><a href="#GTIDs_u65B9_u5F0F" class="headerlink" title="GTIDs方式"></a>GTIDs方式</h2><p>下面介绍一下GTIDs方式的主从复制方法。需要修改<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span></span></span></span><br><span class="line"><span class="setting">gtid-mode=<span class="value"><span class="keyword">on</span></span></span></span><br><span class="line"><span class="setting">enforce-gtid-consistency=<span class="value"><span class="keyword">true</span></span></span></span><br></pre></td></tr></table></figure></p>
-<p>还需要修改<code>/vagrant/mysql/myslave.cnf</code>（MySQL 5.7.4及之前的版本还需要开启log-bin）：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span></span></span></span><br><span class="line"><span class="setting">replicate-ignore-db=<span class="value">mysql</span></span></span><br><span class="line"><span class="setting">gtid-mode=<span class="value"><span class="keyword">on</span></span></span></span><br><span class="line"><span class="setting">enforce-gtid-consistency=<span class="value"><span class="keyword">true</span></span></span></span><br></pre></td></tr></table></figure></p>
-<p>启动容器，创建复制的用户都和上面一样，在slave增加<code>MASTER_AUTO_POSITION</code>参数来连接master（记得把MASTER_HOST改为自己的主机IP）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CHANGE</span> <span class="keyword">MASTER</span> <span class="keyword">TO</span> MASTER_HOST=<span class="string">'192.168.33.32'</span>, MASTER_USER=<span class="string">'repl'</span>, MASTER_PASSWORD=<span class="string">'123456'</span>, MASTER_AUTO_POSITION=<span class="number">1</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">START</span> <span class="keyword">SLAVE</span>;</span></span><br><span class="line"><span class="operator"><span class="keyword">SHOW</span> <span class="keyword">SLAVE</span> <span class="keyword">STATUS</span>\<span class="keyword">G</span></span></span><br></pre></td></tr></table></figure>
-<p>搞定！这样就不需要用到<code>MASTER_LOG_FILE</code>和<code>MASTER_LOG_POS</code>了，省事儿啊。在<code>START SLAVE</code>之前master的其它更新也都会被同步到slave。</p>
-<h2 id="u5176_u4ED6_u6280_u5DE7"><a href="#u5176_u4ED6_u6280_u5DE7" class="headerlink" title="其他技巧"></a>其他技巧</h2><p>最后再介绍一些实用技巧：</p>
-<ol>
-<li>如果master已经有数据了，怎么新增slave：可以先把master的数据导入到slave，再启动slave。具体可以参考<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-setup-slaves.html#replication-howto-existingdata" target="_blank" rel="external">这里</a>。</li>
-<li>如果已经有主从复制了，怎么增加slave：思路同上，不过不需要使用master的数据，直接用已有的slave数据就可以了。不需要停止master，新slave使用新的<code>server-id</code>。具体可以参考<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html" target="_blank" rel="external">这里</a>。</li>
-<li><p>slave设置只读操作：在<code>/vagrant/mysql/myslave.cnf</code>里增加参数即可。    <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">read-only=<span class="value"><span class="number">1</span>       # 除非有SUPER权限，否则只读</span></span></span><br><span class="line"><span class="setting">super-read-only=<span class="value"><span class="number">1</span> # SUPER权限也是只读</span></span></span><br></pre></td></tr></table></figure></p>
-</li>
-<li><p>前面介绍的都是主从，如果需要slave也能同步到master就要设置主主复制：也就是说反过来再做一遍。</p>
-</li>
-<li>当slave比较多得时候，master的负载可能会成为问题。可以用主从多级复制：以slave为master来再引入新的slave。</li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/11/mysql-replication/" data-id="cij9djpoe000076jwrraqdmta" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kubernetes-in-mesos-3" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/05/kubernetes-in-mesos-3/" class="article-date">
-  <time datetime="2016-01-05T12:06:33.000Z" itemprop="datePublished">2016-01-05</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/05/kubernetes-in-mesos-3/">如果有10000台机器，你想怎么玩？（三）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
-<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
-<p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks" target="_blank" rel="external">container hook</a>。目前支持<a href="http://kubernetes.io/v1.1/docs/api-reference/v1/definitions.html#_v1_lifecycle" target="_blank" rel="external">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是需要主机的root权限，或者是hook挂上http请求去外部挂载，不管怎样都相当于重新自己来一套，并不划算。</p>
-<p>第二个方案：还是容器化的mesos slave，但是使用<a href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/" target="_blank" rel="external">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>，从而无法轻易释放<code>/var/lib/docker/aufs</code>的磁盘资源等等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
-<p>第三个方案：放弃mesos slave的容器化。回顾问题的根源，一切的一切都是因为引入mesos slave的容器造成的。如果把mesos slave还原成系统进程，那么这一堆存储问题都将不复存在。我们仍然有其他手段来实现mesos slave部署和升级的便利性，如自动化脚本、数据用容器等。虽然这样可能引入更大的部署工作量，但这可能是针对这个问题来说更加正统的解决方案。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/" data-id="cij262ixx00006qzvy2a86x43" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-ceph-demo" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/02/ceph-demo/" class="article-date">
-  <time datetime="2016-01-02T01:07:33.000Z" itemprop="datePublished">2016-01-02</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/02/ceph-demo/">用容器轻松搭建ceph实验环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
-<p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
-<p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
-<p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== <span class="number">192.168</span>.<span class="number">0.20</span>:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
-<p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
-<p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
-<p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg <span class="number">128</span></span><br></pre></td></tr></table></figure></p>
-<p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure></p>
-<p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size <span class="number">1024</span></span><br></pre></td></tr></table></figure></p>
-<p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph/demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rbd ls ggg</span><br><span class="line">rbd info ggg/qqq</span><br></pre></td></tr></table></figure></p>
-<p>接下来要把qqq image映射到块设备中，可能需要root权限：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rbd map ggg/qqq</span><br></pre></td></tr></table></figure></p>
-<p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure></p>
-<p>格式化之：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure></p>
-<p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/rbd/qqq</span><br><span class="line">sudo mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line">ls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure></p>
-<p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
-<p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
-<p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure></p>
-<p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure></p>
-<p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/02/ceph-demo/" data-id="ciiwhewof0000lczvw45jmicb" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ceph/">ceph</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kubernetes-in-mesos-2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/01/kubernetes-in-mesos-2/" class="article-date">
-  <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished">2016-01-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/01/kubernetes-in-mesos-2/">如果有10000台机器，你想怎么玩？（二）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
-<p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
-<p>高可用的情况下，由于用户的命令直接操作的是API Server，所以当API Server挂掉的时候，需要能自动重启。我们可以使用k8s客户端上现成的Kubelet来满足这个需求。Kubelet有一个Standalone模式，把启动API Server的描述文件丢到Kubelet的监视文件夹里就好了。当Kubelet发现API Server挂掉了，就会自动再启动一个API Server，反正新旧API Server连接的存储etcd还是原来那一个。API Server高可用了，要是Kubelet挂了呢？这个…还得监视一下Kubelet…可以用monit之类的东东，这边就不细说了。当然etcd也需要高可用，但是作为分布式存储来说，它的高可用相对而言较为简单并且跟k8s关联不大，这里也不提了。</p>
-<p>刚刚提到的都是进程或容器挂掉的高可用。但是万一整个机器都完蛋了，咋办呢？最直接的做法就是整它好几个服务端，一个挂了还有其他的嘛。好几个服务端就有好几个API Server，其中一个为主，其他为从，简单地挂在一个负载均衡如HAProxy上就可以了。如果还嫌HAProxy上可能有单点故障，那就再做负载均衡集群好了，本文不再赘述。API Server可以跑多份，但是Controller Manager和Scheduler现在不建议跑多份。怎么做到呢？官方提供了一个叫做podmaster的镜像，用它启动的容器可以连接到etcd上。当它从etcd上发现当前机器的API Server为主机的时候，便会把Controller Manager和Scheduler的描述文件丢到Kubelet的监视文件夹里，于是Kubelet就会把这俩启动起来。若当前机器的API Server为从机时，它会把Controller Manager和Scheduler的描述文件从Kubelet的监视文件夹里删掉，这样就可以保证整个集群中Controller Manager和Scheduler各只有一份。</p>
-<p>和mesos配合的话，k8s还有<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/ha.md" target="_blank" rel="external">另一种高可用方式</a>。这种方式会给Scheduler増加一个叫做–ha的参数，于是Scheduler就能多个同时工作。但是官方也说了，不建议同时起2个以上的Scheduler。这种高可用方式的其它配置还是跟上文所说的一样，照样得使用podmaster，只不过它这回只用管Controller Manager一个而已。</p>
-<p>做了这么多，终于把k8s master搞定了。但是还没完，node们还在等着我们呢！如果没用mesos，那就需要把node们的Kubelet重启一下，让它们连接到API Server的负载均衡上去。要是用了mesos就会简单一点儿，因为node们的Kubelet就是由Scheduler帮忙起起来的。记得吗？服务器端我们已经搞定了~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/" data-id="ciivhtj4r000779zvea7zvmcf" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kubernetes-in-mesos-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/01/kubernetes-in-mesos-1/" class="article-date">
-  <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished">2016-01-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/devops/">devops</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/01/kubernetes-in-mesos-1/">如果有10000台机器，你想怎么玩？（一）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
-<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。</p>
-<p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
-<p>集群操作系统和容器编排工具都有了，假设我们需要一个mysql服务。用k8s启动一个docker hub下的官方镜像，于是它就会被mesos分配在某台有资源的机器上。用户并不关心到底被分配到哪台机器上，只关心服务能不能用，好不好用。现在问题来了：要是服务挂掉，数据会不会丢失？那么应该怎么做持久化？这里需要引入k8s的另外两个概念：<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolume</a>（PV）和<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolumeClaim</a>（PVC）。简单说来，PV就是存储资源，它表示一块存储区域。比如：nfs上的、可读写的、10G空间。PVC就是对PV的请求，比如需要–可读写的1G空间。我们的mysql直接挂载在需要的PVC上就可以了，k8s自己会帮这个PVC寻找适配的PV。就算mysql挂掉或者是被停掉不用了，PVC仍然存在并可被其他pod使用，数据不会丢失。</p>
-<p>现在数据库也有了，需要一个tomcat服务来使用刚才创建的mysql服务并把自己暴露到公网上。传统上说，要使用数据库那就得在自己应用的xml或config文件中配置一下数据库的链接，java平台上一般是酱紫滴：jdbc:mysql://localhost:3306/dbname。可是mysql服务并不在localhost上，我们也不知道它被分配到哪台机器上去了，怎么写这个链接呢？这里边就涉及到k8s服务发现的概念了。一种方法是，k8s在新启动一个pod的时候，会把当前所有的服务都写到这个pod的容器的环境变量里去。于是就可以使用环境变量来“发现”这个服务。但是这种做法并不推荐，因为它要求在启动pod的时候，它所需要的服务已经存在。是啊，如果服务不存在，怎么知道往环境变量写什么呢？由于环境变量大法严重依赖于启动顺序，所以一般使用DNS大法。k8s提供了kube2sky和skydns的插件，当mysql服务启动后，这哥俩就会监听到mysql服务，并为之提供dns服务。所以只要这么配：jdbc:mysql://mysql.default.svc.cluster.local:3306/dbname便可以解决服务发现的问题了。</p>
-<p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/" data-id="ciivhtj4h000079zvdtilju52" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mesos/">mesos</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
+    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished">2016-01-15</time>
+  </a>
 </section>
-        
-          <aside id="sidebar">
+
+
+
+
+
+
   
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/13/waterfall-to-agile/" title="传统企业敏捷转型纪实" itemprop="url">
+  
+    <h1 itemprop="name">传统企业敏捷转型纪实</h1>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li></ul>
-    </div>
-  </div>
-
-
-  
+     
+           <p itemprop="description" >这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。这篇文章写的是在培训完敏捷的基本思想后，PI Planni</p>
+        
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-  </div>
+    <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished">2016-01-13</time>
+  </a>
+</section>
+
+
+
+
 
 
   
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/11/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">
+  
+    <h1 itemprop="name">基于docker的MySQL主从复制（replication）</h1>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/agile/" style="font-size: 10px;">agile</a> <a href="/tags/ceph/" style="font-size: 10px;">ceph</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/mesos/" style="font-size: 20px;">mesos</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a>
-    </div>
-  </div>
-
-  
+     
+           <p itemprop="description" >MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（globa</p>
+        
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
-    </div>
-  </div>
+    <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished">2016-01-11</time>
+  </a>
+</section>
+
+
+
+
 
 
   
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/05/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）" itemprop="url">
+  
+    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（三）</h1>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recents</h3>
-    <div class="widget">
-      <ul>
+     
+           <p itemprop="description" >这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
+为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的</p>
         
-          <li>
-            <a href="/2016/01/15/kubernetes-in-mesos-4/">如果有10000台机器，你想怎么玩？（四）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/13/waterfall-to-agile/">传统企业敏捷转型纪实</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/11/mysql-replication/">基于docker的MySQL主从复制（replication）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/05/kubernetes-in-mesos-3/">如果有10000台机器，你想怎么玩？（三）</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/02/ceph-demo/">用容器轻松搭建ceph实验环境</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+    
+    <time datetime="2016-01-05T12:06:33.000Z" itemprop="datePublished">2016-01-05</time>
+  </a>
+</section>
+
+
+
+
+
 
   
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/02/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">
+  
+    <h1 itemprop="name">用容器轻松搭建ceph实验环境</h1>
+    
+     
+           <p itemprop="description" >Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以</p>
+        
+    
+    <time datetime="2016-01-02T01:07:33.000Z" itemprop="datePublished">2016-01-02</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/01/kubernetes-in-mesos-2/" title="如果有10000台机器，你想怎么玩？（二）" itemprop="url">
+  
+    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（二）</h1>
+    
+     
+           <p itemprop="description" >这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
+作为背景知识，先介绍一下k8s的架构（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controlle</p>
+        
+    
+    <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished">2016-01-01</time>
+  </a>
+</section>
+
+
+
+
+
+
+  
+<section class="post" itemscope itemprop="blogitem">
+  
+    <a href="/2016/01/01/kubernetes-in-mesos-1/" title="如果有10000台机器，你想怎么玩？（一）" itemprop="url">
+  
+    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（一）</h1>
+    
+     
+           <p itemprop="description" >少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？
+不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个</p>
+        
+    
+    <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished">2016-01-01</time>
+  </a>
+</section>
+
+
+
+
+
+
+
+</div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>5</sup></a></li>
+		  
+		
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
 </aside>
-        
-      </div>
-      <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
 <footer id="footer">
   
@@ -558,29 +303,169 @@
       </span>
       <br>
       &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
     </div>
   </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
   
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
-  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
 
 
-<script src="/js/script.js" type="text/javascript"></script>
 
-  </div>
-</body>
-</html>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+ </html>
