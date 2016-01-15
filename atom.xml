@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-15T09:41:04.000Z</updated>
+  <updated>2016-01-15T09:43:05.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/"/>
     <id>http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-01-15T09:41:04.000Z</updated>
+    <updated>2016-01-15T09:43:05.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。</p>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
 <p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
