@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-15T09:43:05.000Z</updated>
+  <updated>2016-01-16T04:04:49.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -16,11 +16,18 @@
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（四）]]></title>
-    <link href="http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/"/>
-    <id>http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/</id>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-4/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-01-15T09:43:05.000Z</updated>
-    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。</p>
+    <updated>2016-01-16T04:04:49.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+</li>
+</ul>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
 <p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
 <h2 id="u6570_u636E_u5B58_u50A8"><a href="#u6570_u636E_u5B58_u50A8" class="headerlink" title="数据存储"></a>数据存储</h2><p><a href="https://influxdata.com/time-series-platform/influxdb/" target="_blank" rel="external">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a href="http://www.infoq.com/cn/articles/database-timestamp-01" target="_blank" rel="external">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg" alt=""></p>
@@ -29,8 +36,13 @@
 <h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所应当的。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。</p>
-<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h]]>
+    <![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+    
     </summary>
     
       <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
@@ -43,11 +55,11 @@
   
   <entry>
     <title><![CDATA[传统企业敏捷转型纪实]]></title>
-    <link href="http://qinghua.github.io/2016/01/13/waterfall-to-agile/"/>
-    <id>http://qinghua.github.io/2016/01/13/waterfall-to-agile/</id>
+    <link href="http://qinghua.github.io/waterfall-to-agile/"/>
+    <id>http://qinghua.github.io/waterfall-to-agile/</id>
     <published>2016-01-13T13:39:15.000Z</published>
-    <updated>2016-01-14T06:32:23.000Z</updated>
-    <content type="html"><![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。这篇文章写的是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。</p>
+    <updated>2016-01-16T03:50:15.000Z</updated>
+    <content type="html"><![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。<br><a id="more"></a></p>
 <h2 id="u56E2_u961F_u6784_u5EFA"><a href="#u56E2_u961F_u6784_u5EFA" class="headerlink" title="团队构建"></a>团队构建</h2><p>这个部门由四个团队组成，各自主管产品的一部分。每个团队都有对交付负责的人，称为PO（Product Owner）。Ken的第一步是让所有团队选出一名SPO（Super Product Owner），来对整个产品负责。SPO不做兼职，负责解决各种问题，其最重要的任务是做决策。而对于一款探索性的产品来说，决策是没有对错之分的，只是它需要靠执行力和客户反馈来修正。PO们需要力挺SPO，充分信任SPO的决策，并以团队的执行力来保证决策的执行。所以有个PO与SPO隔空喊话效忠的过程。</p>
 <p>这个部门比较特殊的地方在于，大部分成员属于两个外包公司，其中有不少新人。大家对敏捷都没有什么概念，对要做的事也心有疑虑。有鉴于此，Ken让两个外包公司的人各选出1名leader来当<a href="http://scaledagileframework.com/scrum-master/" target="_blank" rel="external">SM</a>（scrum master）。如果团队成员士气低落，不管任何原因，都可以找SM沟通。如果涉及到甲方公司，便由SM来沟通PO处理。这样做的目的是让每个团队成员都有渠道摆脱自己受到的干扰，增加工作效率。团队成员也需要在团队中建立起自己的人脉，好让自己遇到问题时容易找人帮忙。SM主要负责沟通，PO带领团队前进。这样的构建适用于200~300人以下的团队。</p>
 <h2 id="u4E86_u89E3_u4EA7_u54C1"><a href="#u4E86_u89E3_u4EA7_u54C1" class="headerlink" title="了解产品"></a>了解产品</h2><p>要做好产品，首先需要让团队成员理解产品，建立共识。如果只见树木不见森林，那么人人都只是开发自己的那一亩三分地，根本无从得知自己的工作在整个产品中处于什么样的位置，那怎么能做好这个产品呢？现实中，这个产品有着非常复杂的架构，甚至没有一个人能完整地解释整个架构图。Ken建议SPO找几个资深人员，专门抽出一天时间给所有人都讲清楚架构。这很重要，如果你连孩子是男是女都不知道，怎么抚养ta？团队成员需要非常了解产品，而不仅仅是某个需求或者某个版本。要做产品，不是为了做事而做事。同时，Ken也建议所有成员都花时间在架构课之前自学其中的一些重要技术，以便让自己能够在架构课上更加清除对方究竟在讲什么。也就是预习，省的回头听不懂。</p>
@@ -65,7 +77,8 @@
 <p>如果第一迭代有10个工作日，那么我们就能计算出来最大工作量：<code>(3+1)×10+(4+2)×10÷2=70</code>。由于是春节，可能请假会比较多，扣去请假天数，也许得到60点。然后是打折，由各组PO和SPO商量，得到一个折扣。这个折扣可能是：我们组对外部环境依赖很多，第一迭代刚开始效率会很低，春节假期效率不高，团队成员都是单身需要相亲无心干活等等等等。比如说第一迭代打个7折，就能得到合理工作量：<code>60×7=42</code>。由此，我们就得到最大工作量和合理工作量。算出各个迭代的工作量，把它们写在显眼处。最后将先前估好点的story按优先级及依赖顺序往里安排，点数到合理工作量即可。至此，一个看似合理的、由团队成员做出的计划便产生了。项目启动会议完成。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。这篇文章写的是在培训完敏捷的基本思想后，<a hre]]>
+    <![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。<br>]]>
+    
     </summary>
     
       <category term="agile" scheme="http://qinghua.github.io/tags/agile/"/>
@@ -76,11 +89,12 @@
   
   <entry>
     <title><![CDATA[基于docker的MySQL主从复制（replication）]]></title>
-    <link href="http://qinghua.github.io/2016/01/11/mysql-replication/"/>
-    <id>http://qinghua.github.io/2016/01/11/mysql-replication/</id>
+    <link href="http://qinghua.github.io/mysql-replication/"/>
+    <id>http://qinghua.github.io/mysql-replication/</id>
     <published>2016-01-11T02:20:35.000Z</published>
-    <updated>2016-01-11T14:10:31.000Z</updated>
-    <content type="html"><![CDATA[<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">更新的方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
+    <updated>2016-01-16T03:51:33.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。<br><a id="more"></a></p>
+<p>MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">另一种方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
 <h2 id="binary_logging_u65B9_u5F0F"><a href="#binary_logging_u65B9_u5F0F" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a href="https://hub.docker.com/r/library/mysql/" target="_blank" rel="external">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> --name=mysql mysql:<span class="number">5.7</span></span><br><span class="line">docker cp mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure></p>
 <p>master的配置在<code>my.cnf</code>文件中是这样的，改完后另存为<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin # 使用binary logging，mysql-bin是log文件名的前缀</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
 <p>slave的配置就更简单了，改完后另存为<code>/vagrant/mysql/myslave.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
@@ -132,7 +146,8 @@
 </ol>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以]]>
+    <![CDATA[<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。<br>]]>
+    
     </summary>
     
       <category term="mysql" scheme="http://qinghua.github.io/tags/mysql/"/>
@@ -143,11 +158,18 @@
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（三）]]></title>
-    <link href="http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/"/>
-    <id>http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/</id>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-3/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-3/</id>
     <published>2016-01-05T12:06:33.000Z</published>
-    <updated>2016-01-06T04:08:08.000Z</updated>
+    <updated>2016-01-16T04:04:47.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+</li>
+</ul>
 <p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
 <p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks" target="_blank" rel="external">container hook</a>。目前支持<a href="http://kubernetes.io/v1.1/docs/api-reference/v1/definitions.html#_v1_lifecycle" target="_blank" rel="external">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是需要主机的root权限，或者是hook挂上http请求去外部挂载，不管怎样都相当于重新自己来一套，并不划算。</p>
 <p>第二个方案：还是容器化的mesos slave，但是使用<a href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/" target="_blank" rel="external">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>，从而无法轻易释放<code>/var/lib/docker/aufs</code>的磁盘资源等等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
@@ -155,7 +177,12 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
-<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如n]]>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+    
     </summary>
     
       <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
@@ -168,16 +195,17 @@
   
   <entry>
     <title><![CDATA[用容器轻松搭建ceph实验环境]]></title>
-    <link href="http://qinghua.github.io/2016/01/02/ceph-demo/"/>
-    <id>http://qinghua.github.io/2016/01/02/ceph-demo/</id>
+    <link href="http://qinghua.github.io/ceph-demo/"/>
+    <id>http://qinghua.github.io/ceph-demo/</id>
     <published>2016-01-02T01:07:33.000Z</published>
-    <updated>2016-01-14T09:57:34.000Z</updated>
-    <content type="html"><![CDATA[<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
-<p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
+    <updated>2016-01-16T04:06:13.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br><a id="more"></a></p>
+<p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
+<h2 id="cephfs_u65B9_u5F0F"><a href="#cephfs_u65B9_u5F0F" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
 <p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
 <p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== <span class="number">192.168</span>.<span class="number">0.20</span>:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
 <p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
-<p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
+<h2 id="rbd_u65B9_u5F0F"><a href="#rbd_u65B9_u5F0F" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
 <p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg <span class="number">128</span></span><br></pre></td></tr></table></figure></p>
 <p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure></p>
 <p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size <span class="number">1024</span></span><br></pre></td></tr></table></figure></p>
@@ -186,14 +214,15 @@
 <p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure></p>
 <p>格式化之：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure></p>
 <p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/rbd/qqq</span><br><span class="line">sudo mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line">ls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure></p>
-<p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
+<h2 id="u8FD8_u539F_u73AF_u5883"><a href="#u8FD8_u539F_u73AF_u5883" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
 <p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
 <p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure></p>
 <p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure></p>
 <p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http]]>
+    <![CDATA[<p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br>]]>
+    
     </summary>
     
       <category term="ceph" scheme="http://qinghua.github.io/tags/ceph/"/>
@@ -204,19 +233,32 @@
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（二）]]></title>
-    <link href="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/"/>
-    <id>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/</id>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-2/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-2/</id>
     <published>2016-01-01T09:07:07.000Z</published>
-    <updated>2016-01-01T09:08:51.000Z</updated>
+    <updated>2016-01-16T04:15:56.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
-<p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+</li>
+</ul>
+<p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>。<br><img src="http://kubernetes.io/v1.1/docs/design/architecture.png?raw=true" alt=""><br>它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
 <p>高可用的情况下，由于用户的命令直接操作的是API Server，所以当API Server挂掉的时候，需要能自动重启。我们可以使用k8s客户端上现成的Kubelet来满足这个需求。Kubelet有一个Standalone模式，把启动API Server的描述文件丢到Kubelet的监视文件夹里就好了。当Kubelet发现API Server挂掉了，就会自动再启动一个API Server，反正新旧API Server连接的存储etcd还是原来那一个。API Server高可用了，要是Kubelet挂了呢？这个…还得监视一下Kubelet…可以用monit之类的东东，这边就不细说了。当然etcd也需要高可用，但是作为分布式存储来说，它的高可用相对而言较为简单并且跟k8s关联不大，这里也不提了。</p>
-<p>刚刚提到的都是进程或容器挂掉的高可用。但是万一整个机器都完蛋了，咋办呢？最直接的做法就是整它好几个服务端，一个挂了还有其他的嘛。好几个服务端就有好几个API Server，其中一个为主，其他为从，简单地挂在一个负载均衡如HAProxy上就可以了。如果还嫌HAProxy上可能有单点故障，那就再做负载均衡集群好了，本文不再赘述。API Server可以跑多份，但是Controller Manager和Scheduler现在不建议跑多份。怎么做到呢？官方提供了一个叫做podmaster的镜像，用它启动的容器可以连接到etcd上。当它从etcd上发现当前机器的API Server为主机的时候，便会把Controller Manager和Scheduler的描述文件丢到Kubelet的监视文件夹里，于是Kubelet就会把这俩启动起来。若当前机器的API Server为从机时，它会把Controller Manager和Scheduler的描述文件从Kubelet的监视文件夹里删掉，这样就可以保证整个集群中Controller Manager和Scheduler各只有一份。</p>
+<p>刚刚提到的都是进程或容器挂掉的高可用。但是万一整个机器都完蛋了，咋办呢？最直接的做法就是整它好几个服务端，一个挂了还有其他的嘛。好几个服务端就有好几个API Server，其中一个为主，其他为从，简单地挂在一个负载均衡如HAProxy上就可以了。如果还嫌HAProxy上可能有单点故障，那就再做负载均衡集群好了，本文不再赘述。API Server可以跑多份，但是Controller Manager和Scheduler现在不建议跑多份。怎么做到呢？官方提供了一个叫做podmaster的镜像，用它启动的容器可以连接到etcd上。当它从etcd上发现当前机器的API Server为主机的时候，便会把Controller Manager和Scheduler的描述文件丢到Kubelet的监视文件夹里，于是Kubelet就会把这俩启动起来。若当前机器的API Server为从机时，它会把Controller Manager和Scheduler的描述文件从Kubelet的监视文件夹里删掉，这样就可以保证整个集群中Controller Manager和Scheduler各只有一份。上面说的这些画到图里就是这样滴：<br><img src="http://kubernetes.io/v1.1/docs/admin/high-availability/ha.png" alt=""></p>
 <p>和mesos配合的话，k8s还有<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/ha.md" target="_blank" rel="external">另一种高可用方式</a>。这种方式会给Scheduler増加一个叫做–ha的参数，于是Scheduler就能多个同时工作。但是官方也说了，不建议同时起2个以上的Scheduler。这种高可用方式的其它配置还是跟上文所说的一样，照样得使用podmaster，只不过它这回只用管Controller Manager一个而已。</p>
 <p>做了这么多，终于把k8s master搞定了。但是还没完，node们还在等着我们呢！如果没用mesos，那就需要把node们的Kubelet重启一下，让它们连接到API Server的负载均衡上去。要是用了mesos就会简单一点儿，因为node们的Kubelet就是由Scheduler帮忙起起来的。记得吗？服务器端我们已经搞定了~</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务]]>
+    <![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+    
     </summary>
     
       <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
@@ -229,20 +271,33 @@
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（一）]]></title>
-    <link href="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/"/>
-    <id>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/</id>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-01-01T09:18:44.000Z</updated>
-    <content type="html"><![CDATA[<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
-<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。</p>
+    <updated>2016-01-16T04:18:21.000Z</updated>
+    <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+</li>
+</ul>
+<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
+<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。一般情况下我们看到的mesos主页是这样子滴：<br><img src="/img/mesos.jpg" alt=""></p>
 <p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
 <p>集群操作系统和容器编排工具都有了，假设我们需要一个mysql服务。用k8s启动一个docker hub下的官方镜像，于是它就会被mesos分配在某台有资源的机器上。用户并不关心到底被分配到哪台机器上，只关心服务能不能用，好不好用。现在问题来了：要是服务挂掉，数据会不会丢失？那么应该怎么做持久化？这里需要引入k8s的另外两个概念：<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolume</a>（PV）和<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolumeClaim</a>（PVC）。简单说来，PV就是存储资源，它表示一块存储区域。比如：nfs上的、可读写的、10G空间。PVC就是对PV的请求，比如需要–可读写的1G空间。我们的mysql直接挂载在需要的PVC上就可以了，k8s自己会帮这个PVC寻找适配的PV。就算mysql挂掉或者是被停掉不用了，PVC仍然存在并可被其他pod使用，数据不会丢失。</p>
 <p>现在数据库也有了，需要一个tomcat服务来使用刚才创建的mysql服务并把自己暴露到公网上。传统上说，要使用数据库那就得在自己应用的xml或config文件中配置一下数据库的链接，java平台上一般是酱紫滴：jdbc:mysql://localhost:3306/dbname。可是mysql服务并不在localhost上，我们也不知道它被分配到哪台机器上去了，怎么写这个链接呢？这里边就涉及到k8s服务发现的概念了。一种方法是，k8s在新启动一个pod的时候，会把当前所有的服务都写到这个pod的容器的环境变量里去。于是就可以使用环境变量来“发现”这个服务。但是这种做法并不推荐，因为它要求在启动pod的时候，它所需要的服务已经存在。是啊，如果服务不存在，怎么知道往环境变量写什么呢？由于环境变量大法严重依赖于启动顺序，所以一般使用DNS大法。k8s提供了kube2sky和skydns的插件，当mysql服务启动后，这哥俩就会监听到mysql服务，并为之提供dns服务。所以只要这么配：jdbc:mysql://mysql.default.svc.cluster.local:3306/dbname便可以解决服务发现的问题了。</p>
 <p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
-<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我]]>
+    <![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+    
     </summary>
     
       <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>

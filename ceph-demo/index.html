@@ -12,17 +12,17 @@
     
 
     
-    <meta name="description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRA">
+    <meta name="description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用容器轻松搭建ceph实验环境">
-<meta property="og:url" content="http://qinghua.github.io/2016/01/02/ceph-demo/index.html">
+<meta property="og:url" content="http://qinghua.github.io/ceph-demo/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRA">
+<meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
 <meta property="og:image" content="http://docs.ceph.com/docs/master/_images/stack.png">
-<meta property="og:updated_time" content="2016-01-14T09:57:34.000Z">
+<meta property="og:updated_time" content="2016-01-16T04:06:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建ceph实验环境">
-<meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRA">
+<meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -81,7 +81,7 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2016/01/02/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">用容器轻松搭建ceph实验环境</a>
+      <a href="/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">用容器轻松搭建ceph实验环境</a>
   </h1>
   <p class="article-author">By
        
@@ -97,16 +97,17 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#cephfs_u65B9_u5F0F"><span class="toc-number">1.</span> <span class="toc-text">cephfs方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rbd_u65B9_u5F0F"><span class="toc-number">2.</span> <span class="toc-text">rbd方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD8_u539F_u73AF_u5883"><span class="toc-number">3.</span> <span class="toc-text">还原环境</span></a></li></ol>
 		
 		</div>
 		
-		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
-<p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
+		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br><a id="more"></a></p>
+<p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
+<h2 id="cephfs_u65B9_u5F0F"><a href="#cephfs_u65B9_u5F0F" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
 <p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
 <p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== <span class="number">192.168</span>.<span class="number">0.20</span>:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
 <p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
-<p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
+<h2 id="rbd_u65B9_u5F0F"><a href="#rbd_u65B9_u5F0F" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
 <p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg <span class="number">128</span></span><br></pre></td></tr></table></figure></p>
 <p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure></p>
 <p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size <span class="number">1024</span></span><br></pre></td></tr></table></figure></p>
@@ -115,7 +116,7 @@
 <p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure></p>
 <p>格式化之：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure></p>
 <p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/rbd/qqq</span><br><span class="line">sudo mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line">ls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure></p>
-<p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
+<h2 id="u8FD8_u539F_u73AF_u5883"><a href="#u8FD8_u539F_u73AF_u5883" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
 <p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
 <p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure></p>
 <p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure></p>
@@ -142,7 +143,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/2016/01/02/ceph-demo/" data-title="用容器轻松搭建ceph实验环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/ceph-demo/" data-title="用容器轻松搭建ceph实验环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -156,7 +157,7 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2016/01/05/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）">
+ <a href="/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）">
   <strong>上一篇：</strong><br/>
   <span>
   如果有10000台机器，你想怎么玩？（三）</span>
@@ -165,7 +166,7 @@
 
 
 <div class="next">
-<a href="/2016/01/01/kubernetes-in-mesos-2/"  title="如果有10000台机器，你想怎么玩？（二）">
+<a href="/kubernetes-in-mesos-2/"  title="如果有10000台机器，你想怎么玩？（二）">
  <strong>下一篇：</strong><br/> 
  <span>如果有10000台机器，你想怎么玩？（二）
 </span>
@@ -176,7 +177,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/01/02/ceph-demo/" data-title="用容器轻松搭建ceph实验环境" data-url="http://qinghua.github.io/2016/01/02/ceph-demo/"></div>
+	<div class="ds-thread" data-thread-key="ceph-demo/" data-title="用容器轻松搭建ceph实验环境" data-url="http://qinghua.github.io/ceph-demo/"></div>
 </section>
 
 
@@ -186,7 +187,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#cephfs_u65B9_u5F0F"><span class="toc-number">1.</span> <span class="toc-text">cephfs方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rbd_u65B9_u5F0F"><span class="toc-number">2.</span> <span class="toc-text">rbd方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD8_u539F_u73AF_u5883"><span class="toc-number">3.</span> <span class="toc-text">还原环境</span></a></li></ol>
  
   </div>
 

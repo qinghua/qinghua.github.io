@@ -75,144 +75,468 @@
     <div id="container">
       <div id="main">
 
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/15/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）" itemprop="url">
-  
-    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（四）</h1>
+   
     
-     
-           <p itemprop="description" >这次聊聊mesos+k8s的监控告警方案。
-数据采集cAdvisor由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：kub</p>
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）" itemprop="url">如果有10000台机器，你想怎么玩？（四）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished"> 发表于 2016-01-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
         
-    
-    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished">2016-01-15</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/13/waterfall-to-agile/" title="传统企业敏捷转型纪实" itemprop="url">
-  
-    <h1 itemprop="name">传统企业敏捷转型纪实</h1>
-    
-     
-           <p itemprop="description" >这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。这篇文章写的是在培训完敏捷的基本思想后，PI Planni</p>
+        <p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>
         
-    
-    <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished">2016-01-13</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/11/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">
-  
-    <h1 itemprop="name">基于docker的MySQL主从复制（replication）</h1>
-    
-     
-           <p itemprop="description" >MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（globa</p>
         
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-in-mesos-4/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-in-mesos-4/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-4/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
     
-    <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished">2016-01-11</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/05/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）" itemprop="url">
-  
-    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（三）</h1>
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
     
-     
-           <p itemprop="description" >这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的</p>
+      <a href="/waterfall-to-agile/" title="传统企业敏捷转型纪实" itemprop="url">传统企业敏捷转型纪实</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished"> 发表于 2016-01-13</time>
+    
+  </p>
+</header>
+    <div class="article-content">
         
-    
-    <time datetime="2016-01-05T12:06:33.000Z" itemprop="datePublished">2016-01-05</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/02/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">
-  
-    <h1 itemprop="name">用容器轻松搭建ceph实验环境</h1>
-    
-     
-           <p itemprop="description" >Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。这是它的模块架构图：最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以</p>
+        <p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。<br>
         
-    
-    <time datetime="2016-01-02T01:07:33.000Z" itemprop="datePublished">2016-01-02</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/01/kubernetes-in-mesos-2/" title="如果有10000台机器，你想怎么玩？（二）" itemprop="url">
-  
-    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（二）</h1>
-    
-     
-           <p itemprop="description" >这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
-作为背景知识，先介绍一下k8s的架构（怎么都逃不了啊）。它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controlle</p>
         
+        <p class="article-more-link">
+          
+            <a href="/waterfall-to-agile/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/agile/">agile</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/agile/">agile</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/waterfall-to-agile/#comments" class="ds-thread-count comments-count-link" data-thread-key="waterfall-to-agile/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
     
-    <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished">2016-01-01</time>
-  </a>
-</section>
-
-
-
-
-
-
-  
-<section class="post" itemscope itemprop="blogitem">
-  
-    <a href="/2016/01/01/kubernetes-in-mesos-1/" title="如果有10000台机器，你想怎么玩？（一）" itemprop="url">
-  
-    <h1 itemprop="name">如果有10000台机器，你想怎么玩？（一）</h1>
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
     
-     
-           <p itemprop="description" >少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？
-不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个</p>
+      <a href="/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">基于docker的MySQL主从复制（replication）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished"> 发表于 2016-01-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
         
+        <p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/mysql-replication/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/db/">db</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/mysql-replication/#comments" class="ds-thread-count comments-count-link" data-thread-key="mysql-replication/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
     
-    <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished">2016-01-01</time>
-  </a>
-</section>
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）" itemprop="url">如果有10000台机器，你想怎么玩？（三）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-05T12:06:33.000Z" itemprop="datePublished"> 发表于 2016-01-05</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-in-mesos-3/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-in-mesos-3/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-3/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">用容器轻松搭建ceph实验环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-02T01:07:33.000Z" itemprop="datePublished"> 发表于 2016-01-02</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/ceph-demo/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ceph/">ceph</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/ceph-demo/#comments" class="ds-thread-count comments-count-link" data-thread-key="ceph-demo/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-in-mesos-2/" title="如果有10000台机器，你想怎么玩？（二）" itemprop="url">如果有10000台机器，你想怎么玩？（二）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-01T09:07:07.000Z" itemprop="datePublished"> 发表于 2016-01-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-in-mesos-2/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-in-mesos-2/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-2/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-in-mesos-1/" title="如果有10000台机器，你想怎么玩？（一）" itemprop="url">如果有10000台机器，你想怎么玩？（一）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished"> 发表于 2016-01-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-in-mesos-1/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-in-mesos-1/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-1/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
 
 
 

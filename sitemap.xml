@@ -2,43 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
+    <lastmod>2016-01-16T04:18:21.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-2/</loc>
+    <lastmod>2016-01-16T04:15:56.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/ceph-demo/</loc>
+    <lastmod>2016-01-16T04:06:13.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-4/</loc>
+    <lastmod>2016-01-16T04:04:49.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-3/</loc>
+    <lastmod>2016-01-16T04:04:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/mysql-replication/</loc>
+    <lastmod>2016-01-16T03:51:33.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/waterfall-to-agile/</loc>
+    <lastmod>2016-01-16T03:50:15.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/about/index.html</loc>
     <lastmod>2016-01-15T14:55:21.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/15/kubernetes-in-mesos-4/</loc>
-    <lastmod>2016-01-15T09:43:05.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/02/ceph-demo/</loc>
-    <lastmod>2016-01-14T09:57:34.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/13/waterfall-to-agile/</loc>
-    <lastmod>2016-01-14T06:32:23.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/11/mysql-replication/</loc>
-    <lastmod>2016-01-11T14:10:31.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/05/kubernetes-in-mesos-3/</loc>
-    <lastmod>2016-01-06T04:08:08.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/</loc>
-    <lastmod>2016-01-01T09:18:44.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-2/</loc>
-    <lastmod>2016-01-01T09:08:51.000Z</lastmod>
   </url>
   
 </urlset>

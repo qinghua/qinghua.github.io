@@ -5,26 +5,42 @@
   <meta name="baidu-site-verification" content="EXHJyZtvnK" />
   <meta charset="UTF-8">
   
-    <title>如果有10000台机器，你想怎么玩？（一） | 懒程序员改变世界</title>
+    <title>如果有10000台机器，你想怎么玩？（四） | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？
-不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了">
+    <meta name="description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+
+如果有10000台机器，你想怎么玩？（一）
+如果有10000台机器，你想怎么玩？（二）
+如果有10000台机器，你想怎么玩？（三）
+如果有10000台机器，你想怎么玩？（四）">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如果有10000台机器，你想怎么玩？（一）">
-<meta property="og:url" content="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/index.html">
+<meta property="og:title" content="如果有10000台机器，你想怎么玩？（四）">
+<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-4/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？
-不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了">
-<meta property="og:updated_time" content="2016-01-01T09:18:44.000Z">
+<meta property="og:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+
+如果有10000台机器，你想怎么玩？（一）
+如果有10000台机器，你想怎么玩？（二）
+如果有10000台机器，你想怎么玩？（三）
+如果有10000台机器，你想怎么玩？（四）">
+<meta property="og:image" content="http://qinghua.github.io/img/cAdvisor.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/InfluxDB.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/Grafana.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/kubedash.jpg">
+<meta property="og:updated_time" content="2016-01-16T04:04:49.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（一）">
-<meta name="twitter:description" content="少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？
-不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了">
+<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（四）">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+
+如果有10000台机器，你想怎么玩？（一）
+如果有10000台机器，你想怎么玩？（二）
+如果有10000台机器，你想怎么玩？（三）
+如果有10000台机器，你想怎么玩？（四）">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -83,32 +99,33 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2016/01/01/kubernetes-in-mesos-1/" title="如果有10000台机器，你想怎么玩？（一）" itemprop="url">如果有10000台机器，你想怎么玩？（一）</a>
+      <a href="/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）" itemprop="url">如果有10000台机器，你想怎么玩？（四）</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-01-01T08:21:06.000Z" itemprop="datePublished"> 发表于 2016-01-01</time>
+    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished"> 发表于 2016-01-15</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目录</strong>
-		
-			
-		
-		</div>
-		
-		<p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
-<p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。</p>
-<p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
-<p>集群操作系统和容器编排工具都有了，假设我们需要一个mysql服务。用k8s启动一个docker hub下的官方镜像，于是它就会被mesos分配在某台有资源的机器上。用户并不关心到底被分配到哪台机器上，只关心服务能不能用，好不好用。现在问题来了：要是服务挂掉，数据会不会丢失？那么应该怎么做持久化？这里需要引入k8s的另外两个概念：<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolume</a>（PV）和<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolumeClaim</a>（PVC）。简单说来，PV就是存储资源，它表示一块存储区域。比如：nfs上的、可读写的、10G空间。PVC就是对PV的请求，比如需要–可读写的1G空间。我们的mysql直接挂载在需要的PVC上就可以了，k8s自己会帮这个PVC寻找适配的PV。就算mysql挂掉或者是被停掉不用了，PVC仍然存在并可被其他pod使用，数据不会丢失。</p>
-<p>现在数据库也有了，需要一个tomcat服务来使用刚才创建的mysql服务并把自己暴露到公网上。传统上说，要使用数据库那就得在自己应用的xml或config文件中配置一下数据库的链接，java平台上一般是酱紫滴：jdbc:mysql://localhost:3306/dbname。可是mysql服务并不在localhost上，我们也不知道它被分配到哪台机器上去了，怎么写这个链接呢？这里边就涉及到k8s服务发现的概念了。一种方法是，k8s在新启动一个pod的时候，会把当前所有的服务都写到这个pod的容器的环境变量里去。于是就可以使用环境变量来“发现”这个服务。但是这种做法并不推荐，因为它要求在启动pod的时候，它所需要的服务已经存在。是啊，如果服务不存在，怎么知道往环境变量写什么呢？由于环境变量大法严重依赖于启动顺序，所以一般使用DNS大法。k8s提供了kube2sky和skydns的插件，当mysql服务启动后，这哥俩就会监听到mysql服务，并为之提供dns服务。所以只要这么配：jdbc:mysql://mysql.default.svc.cluster.local:3306/dbname便可以解决服务发现的问题了。</p>
-<p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
+		<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
+<p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
+<h2 id="u6570_u636E_u5B58_u50A8"><a href="#u6570_u636E_u5B58_u50A8" class="headerlink" title="数据存储"></a>数据存储</h2><p><a href="https://influxdata.com/time-series-platform/influxdb/" target="_blank" rel="external">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a href="http://www.infoq.com/cn/articles/database-timestamp-01" target="_blank" rel="external">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg" alt=""></p>
+<h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
+<p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
+<h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所应当的。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -131,7 +148,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/" data-title="如果有10000台机器，你想怎么玩？（一） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-4/" data-title="如果有10000台机器，你想怎么玩？（四） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -144,32 +161,25 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2016/01/01/kubernetes-in-mesos-2/" title="如果有10000台机器，你想怎么玩？（二）">
-  <strong>上一篇：</strong><br/>
-  <span>
-  如果有10000台机器，你想怎么玩？（二）</span>
+
+<div class="next">
+<a href="/waterfall-to-agile/"  title="传统企业敏捷转型纪实">
+ <strong>下一篇：</strong><br/> 
+ <span>传统企业敏捷转型纪实
+</span>
 </a>
 </div>
-
 
 </nav>
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/01/01/kubernetes-in-mesos-1/" data-title="如果有10000台机器，你想怎么玩？（一）" data-url="http://qinghua.github.io/2016/01/01/kubernetes-in-mesos-1/"></div>
+	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-4/" data-title="如果有10000台机器，你想怎么玩？（四）" data-url="http://qinghua.github.io/kubernetes-in-mesos-4/"></div>
 </section>
 
 
 </div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
-
-  <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目录</strong>
- 
- 
- 
-  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -336,8 +346,6 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
-      
-      $('#toc.toc-aside').css('display', 'none');
         
     }
   });

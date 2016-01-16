@@ -12,19 +12,16 @@
     
 
     
-    <meta name="description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
-binary logging方">
+    <meta name="description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于docker的MySQL主从复制（replication）">
-<meta property="og:url" content="http://qinghua.github.io/2016/01/11/mysql-replication/index.html">
+<meta property="og:url" content="http://qinghua.github.io/mysql-replication/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
-binary logging方">
-<meta property="og:updated_time" content="2016-01-11T14:10:31.000Z">
+<meta property="og:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。">
+<meta property="og:updated_time" content="2016-01-16T03:51:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于docker的MySQL主从复制（replication）">
-<meta name="twitter:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。传统的方法是master使用binary logging，slave复制并重放日志中的事件。更新的方法是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。
-binary logging方">
+<meta name="twitter:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -83,7 +80,7 @@ binary logging方">
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2016/01/11/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">基于docker的MySQL主从复制（replication）</a>
+      <a href="/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">基于docker的MySQL主从复制（replication）</a>
   </h1>
   <p class="article-author">By
        
@@ -103,7 +100,8 @@ binary logging方">
 		
 		</div>
 		
-		<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">更新的方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
+		<p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html" target="_blank" rel="external">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。<br><a id="more"></a></p>
+<p>MySQL 5.7支持多种复制方法。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html" target="_blank" rel="external">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="external">另一种方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
 <h2 id="binary_logging_u65B9_u5F0F"><a href="#binary_logging_u65B9_u5F0F" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a href="https://hub.docker.com/r/library/mysql/" target="_blank" rel="external">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> --name=mysql mysql:<span class="number">5.7</span></span><br><span class="line">docker cp mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure></p>
 <p>master的配置在<code>my.cnf</code>文件中是这样的，改完后另存为<code>/vagrant/mysql/mymaster.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">log-bin=<span class="value">mysql-bin # 使用binary logging，mysql-bin是log文件名的前缀</span></span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">1</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
 <p>slave的配置就更简单了，改完后另存为<code>/vagrant/mysql/myslave.cnf</code>：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">server-id=<span class="value"><span class="number">2</span>       # 唯一服务器ID，非<span class="number">0</span>整数，不能和其他服务器的server-id重复</span></span></span><br></pre></td></tr></table></figure></p>
@@ -175,7 +173,7 @@ binary logging方">
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/2016/01/11/mysql-replication/" data-title="基于docker的MySQL主从复制（replication） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/mysql-replication/" data-title="基于docker的MySQL主从复制（replication） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -189,7 +187,7 @@ binary logging方">
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2016/01/13/waterfall-to-agile/" title="传统企业敏捷转型纪实">
+ <a href="/waterfall-to-agile/" title="传统企业敏捷转型纪实">
   <strong>上一篇：</strong><br/>
   <span>
   传统企业敏捷转型纪实</span>
@@ -198,7 +196,7 @@ binary logging方">
 
 
 <div class="next">
-<a href="/2016/01/05/kubernetes-in-mesos-3/"  title="如果有10000台机器，你想怎么玩？（三）">
+<a href="/kubernetes-in-mesos-3/"  title="如果有10000台机器，你想怎么玩？（三）">
  <strong>下一篇：</strong><br/> 
  <span>如果有10000台机器，你想怎么玩？（三）
 </span>
@@ -209,7 +207,7 @@ binary logging方">
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/01/11/mysql-replication/" data-title="基于docker的MySQL主从复制（replication）" data-url="http://qinghua.github.io/2016/01/11/mysql-replication/"></div>
+	<div class="ds-thread" data-thread-key="mysql-replication/" data-title="基于docker的MySQL主从复制（replication）" data-url="http://qinghua.github.io/mysql-replication/"></div>
 </section>
 
 
