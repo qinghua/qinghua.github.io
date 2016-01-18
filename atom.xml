@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-16T04:04:49.000Z</updated>
+  <updated>2016-01-18T09:58:44.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -15,17 +15,67 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（五）]]></title>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-5/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-5/</id>
+    <published>2016-01-18T11:59:00.000Z</published>
+    <updated>2016-01-18T09:58:44.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
+<ul>
+<li>收集：通常以代理的形式运行在各个节点上，负责收集日志。我们希望能尽可能地实时，因为当我们重现一个bug的时候，不会愿意再等上好几分钟才能看到当时的操作日志。</li>
+<li>传输：把收集到的日志传给存储。这个阶段关注的是可靠性。万一日志丢失的话那可就麻烦了。</li>
+<li>存储：按需选择用什么形式的存储。比如要存多久时间？要不要支持扩容？找历史数据的可能性有多大？</li>
+<li>分析：不同的分析工具适用于不同的存储。这个也包含可视化的分析及报表导出等等。</li>
+<li>告警：出现错误日志的时候通知运维人员。最好还能聚合相同的错误，因为作为运维来说，实在是不想看到同一个类型的错误不停地骚扰过来。</li>
+</ul>
+<h2 id="u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848"><a href="#u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a href="http://www.splunk.com/" target="_blank" rel="external">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a href="https://www.sumologic.com/" target="_blank" rel="external">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a href="https://www.elastic.co/webinars/introduction-elk-stack" target="_blank" rel="external">ELK</a>和Apache的<a href="http://flume.apache.org/" target="_blank" rel="external">Flume</a>+<a href="http://kafka.apache.org/" target="_blank" rel="external">Kafka</a>+<a href="http://storm.apache.org/" target="_blank" rel="external">Storm</a>。</p>
+<p>ELK是<a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elastic search</a>、<a href="https://www.elastic.co/products/logstash" target="_blank" rel="external">Logstash</a>和<a href="https://www.elastic.co/products/kibana" target="_blank" rel="external">Kibana</a>三个开源软件的组合。其中logstash可以对日志进行收集、过滤和简单处理，并将其存储到elastic search上，最终供kibana展示（和上一篇的监控很类似啊）。这套方案可以参考<a href="http://dockone.io/article/505" target="_blank" rel="external">新浪的实时日志架构</a>。这一本<a href="http://kibana.logstash.es/content/" target="_blank" rel="external">ELKstack 中文指南</a>也写得非常详细。</p>
+<p>Apache的flume扮演者类似logstash的角色来收集数据，storm可以对flume采集到的数据进行实时分析。由于数据的采集和处理速度可能不一致，因此用消息中间件kafka来作为缓冲。但是kafka不可能存储所有的日志数据，所以会用其他的存储系统来负责持久化，如同样由Apache提供的<a href="https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html" target="_blank" rel="external">HDFS</a>。这套方案可以参考<a href="http://tech.meituan.com/mt-log-system-arch.html" target="_blank" rel="external">美团的日志收集系统架构</a>。如果需要对分析后的结果持久化，还可以引入<a href="https://www.mysql.com/" target="_blank" rel="external">mysql</a>等数据库。</p>
+<h2 id="kubernetes_u65B9_u6848"><a href="#kubernetes_u65B9_u6848" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a href="http://www.fluentd.org/" target="_blank" rel="external">fluentd</a>（有<a href="http://www.tuicool.com/articles/7FzqeeI" target="_blank" rel="external">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es" target="_blank" rel="external">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg" alt=""></p>
+<p>还可以根据日志来配置各种图表，生成很炫的Dashboard。这个是官方的<a href="http://demo.elastic.co/packetbeat/" target="_blank" rel="external">demo</a>：<br><img src="/img/kibana-official.jpg" alt=""></p>
+<p>如果日志不是写到文件系统，而是写到stdout或者stderr，那么kubernetes直接就可以用logs命令看到，就不需要这一整套了。但是一个复杂的web应用，通常还是有复杂的日志文件配置的。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a>]]>
+    
+    </summary>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（四）]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-4/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-01-16T04:04:49.000Z</updated>
+    <updated>2016-01-18T02:26:29.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
@@ -41,7 +91,8 @@
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a>]]>
     
     </summary>
     
@@ -161,13 +212,14 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-3/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-3/</id>
     <published>2016-01-05T12:06:33.000Z</published>
-    <updated>2016-01-16T04:04:47.000Z</updated>
+    <updated>2016-01-18T02:26:25.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
 </li>
 </ul>
 <p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
@@ -181,7 +233,8 @@
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a>]]>
     
     </summary>
     
@@ -236,13 +289,14 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-2/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-2/</id>
     <published>2016-01-01T09:07:07.000Z</published>
-    <updated>2016-01-16T04:15:56.000Z</updated>
+    <updated>2016-01-18T02:26:22.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
 </li>
 </ul>
 <p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>。<br><img src="http://kubernetes.io/v1.1/docs/design/architecture.png?raw=true" alt=""><br>它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
@@ -257,7 +311,8 @@
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a>]]>
     
     </summary>
     
@@ -274,18 +329,19 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-01-16T04:18:21.000Z</updated>
+    <updated>2016-01-18T10:00:30.000Z</updated>
     <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
 </li>
 </ul>
 <p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
 <p>不管这些机器是虚拟还是实体，是啥操作系统，实际上我拥有的是一堆的资源，如cpu、内存、硬盘等。当有人需要某个服务的时候，我从这堆资源中启动某个服务给对方即可。在单机环境中，操作系统有能力帮我们做这样的事情。当我们需要一个服务时，我们就启动一个应用，这个应用使用了操作系统的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。在集群环境中，<a href="http://mesos.apache.org/" target="_blank" rel="external">mesos</a>有能力帮我们做这样的事情。它就像一个操作系统，告诉我们现在集群中有多少的资源。当我们需要一个服务时，我们就启动一个任务，这个任务使用了集群环境的一些资源，为我们提供服务。剩下的资源可以为我们提供其他的服务。一般情况下我们看到的mesos主页是这样子滴：<br><img src="/img/mesos.jpg" alt=""></p>
-<p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。</p>
+<p>我们不希望各个任务太不一样，因为那管理起来很麻烦。神一般的<a href="http://www.docker.com/" target="_blank" rel="external">docker</a>把各种任务都抽象成一个容器，这样启动一个任务就变成启动一个容器了，大大解放了我们的双手，让我还有时间在这里码码字。尽管如此，我们还是需要管理我们的容器。<a href="http://kubernetes.io/" target="_blank" rel="external">Kubernetes</a>就是这样一个容器编排工具。大家叫它k8s，听起来就像i18n那么的亲切。它有自己的一些概念：首先是<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html" target="_blank" rel="external">pod</a>，它里头可以含着多个容器的实例，是k8s调度的原子单元。其次是<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html" target="_blank" rel="external">Replication Controller</a>简称rc，它关联一个pod和一个pod数量。最后是<a href="http://http//kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">service</a>，它通过rc暴露出来。这三个概念听起来没啥，混合起来使用威力十足。举个栗子：pod里面有一个nginx容器，有一个rc关联到这个pod，并暴露出服务以使外界可以访问这个nginx。当访问量很大的时候，运维人员可以把rc的pod数量这个值从1调整成10，k8s会自动把pod变成10份，从而让nginx容器也启动10份，而服务则会自动在这10份pod中做负载均衡（截稿为止，这个负载均衡的算法是随机）。一条命令就能轻易实现扩容，当然前提是mesos那头有足够的资源。Kubernetes有一个kube-ui的插件可以可视化当前的主机、资源、pod、rc、服务等：<br><img src="/img/kube-ui.jpg" alt=""></p>
 <p>集群操作系统和容器编排工具都有了，假设我们需要一个mysql服务。用k8s启动一个docker hub下的官方镜像，于是它就会被mesos分配在某台有资源的机器上。用户并不关心到底被分配到哪台机器上，只关心服务能不能用，好不好用。现在问题来了：要是服务挂掉，数据会不会丢失？那么应该怎么做持久化？这里需要引入k8s的另外两个概念：<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolume</a>（PV）和<a href="http://kubernetes.io/v1.1/docs/user-guide/persistent-volumes.html" target="_blank" rel="external">PersistentVolumeClaim</a>（PVC）。简单说来，PV就是存储资源，它表示一块存储区域。比如：nfs上的、可读写的、10G空间。PVC就是对PV的请求，比如需要–可读写的1G空间。我们的mysql直接挂载在需要的PVC上就可以了，k8s自己会帮这个PVC寻找适配的PV。就算mysql挂掉或者是被停掉不用了，PVC仍然存在并可被其他pod使用，数据不会丢失。</p>
 <p>现在数据库也有了，需要一个tomcat服务来使用刚才创建的mysql服务并把自己暴露到公网上。传统上说，要使用数据库那就得在自己应用的xml或config文件中配置一下数据库的链接，java平台上一般是酱紫滴：jdbc:mysql://localhost:3306/dbname。可是mysql服务并不在localhost上，我们也不知道它被分配到哪台机器上去了，怎么写这个链接呢？这里边就涉及到k8s服务发现的概念了。一种方法是，k8s在新启动一个pod的时候，会把当前所有的服务都写到这个pod的容器的环境变量里去。于是就可以使用环境变量来“发现”这个服务。但是这种做法并不推荐，因为它要求在启动pod的时候，它所需要的服务已经存在。是啊，如果服务不存在，怎么知道往环境变量写什么呢？由于环境变量大法严重依赖于启动顺序，所以一般使用DNS大法。k8s提供了kube2sky和skydns的插件，当mysql服务启动后，这哥俩就会监听到mysql服务，并为之提供dns服务。所以只要这么配：jdbc:mysql://mysql.default.svc.cluster.local:3306/dbname便可以解决服务发现的问题了。</p>
 <p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
@@ -296,7 +352,8 @@
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a>]]>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a>]]>
     
     </summary>
     

@@ -5,14 +5,14 @@
   <meta name="baidu-site-verification" content="EXHJyZtvnK" />
   <meta charset="UTF-8">
   
-    <title>如果有10000台机器，你想怎么玩？（四） | 懒程序员改变世界</title>
+    <title>如果有10000台机器，你想怎么玩？（五） | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+    <meta name="description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
 
 如果有10000台机器，你想怎么玩？（一）
 如果有10000台机器，你想怎么玩？（二）
@@ -20,24 +20,22 @@
 如果有10000台机器，你想怎么玩？（四）
 如果有10000台机器，你想怎么玩？（五）">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如果有10000台机器，你想怎么玩？（四）">
-<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-4/index.html">
+<meta property="og:title" content="如果有10000台机器，你想怎么玩？（五）">
+<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-5/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+<meta property="og:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
 
 如果有10000台机器，你想怎么玩？（一）
 如果有10000台机器，你想怎么玩？（二）
 如果有10000台机器，你想怎么玩？（三）
 如果有10000台机器，你想怎么玩？（四）
 如果有10000台机器，你想怎么玩？（五）">
-<meta property="og:image" content="http://qinghua.github.io/img/cAdvisor.jpg">
-<meta property="og:image" content="http://qinghua.github.io/img/InfluxDB.jpg">
-<meta property="og:image" content="http://qinghua.github.io/img/Grafana.jpg">
-<meta property="og:image" content="http://qinghua.github.io/img/kubedash.jpg">
-<meta property="og:updated_time" content="2016-01-18T02:26:29.000Z">
+<meta property="og:image" content="http://qinghua.github.io/img/kibana.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/kibana-official.jpg">
+<meta property="og:updated_time" content="2016-01-18T09:58:44.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（四）">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
+<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（五）">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
 
 如果有10000台机器，你想怎么玩？（一）
 如果有10000台机器，你想怎么玩？（二）
@@ -102,20 +100,20 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）" itemprop="url">如果有10000台机器，你想怎么玩？（四）</a>
+      <a href="/kubernetes-in-mesos-5/" title="如果有10000台机器，你想怎么玩？（五）" itemprop="url">如果有10000台机器，你想怎么玩？（五）</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished"> 发表于 2016-01-15</time>
+    <time datetime="2016-01-18T11:59:00.000Z" itemprop="datePublished"> 发表于 2016-01-18</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
+		<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
@@ -124,12 +122,20 @@
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
-<p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a href="https://github.com/kubernetes/heapster" target="_blank" rel="external">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
-<h2 id="u6570_u636E_u5B58_u50A8"><a href="#u6570_u636E_u5B58_u50A8" class="headerlink" title="数据存储"></a>数据存储</h2><p><a href="https://influxdata.com/time-series-platform/influxdb/" target="_blank" rel="external">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a href="http://www.infoq.com/cn/articles/database-timestamp-01" target="_blank" rel="external">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg" alt=""></p>
-<h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
-<p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
-<h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所应当的。</p>
+<h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
+<ul>
+<li>收集：通常以代理的形式运行在各个节点上，负责收集日志。我们希望能尽可能地实时，因为当我们重现一个bug的时候，不会愿意再等上好几分钟才能看到当时的操作日志。</li>
+<li>传输：把收集到的日志传给存储。这个阶段关注的是可靠性。万一日志丢失的话那可就麻烦了。</li>
+<li>存储：按需选择用什么形式的存储。比如要存多久时间？要不要支持扩容？找历史数据的可能性有多大？</li>
+<li>分析：不同的分析工具适用于不同的存储。这个也包含可视化的分析及报表导出等等。</li>
+<li>告警：出现错误日志的时候通知运维人员。最好还能聚合相同的错误，因为作为运维来说，实在是不想看到同一个类型的错误不停地骚扰过来。</li>
+</ul>
+<h2 id="u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848"><a href="#u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a href="http://www.splunk.com/" target="_blank" rel="external">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a href="https://www.sumologic.com/" target="_blank" rel="external">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a href="https://www.elastic.co/webinars/introduction-elk-stack" target="_blank" rel="external">ELK</a>和Apache的<a href="http://flume.apache.org/" target="_blank" rel="external">Flume</a>+<a href="http://kafka.apache.org/" target="_blank" rel="external">Kafka</a>+<a href="http://storm.apache.org/" target="_blank" rel="external">Storm</a>。</p>
+<p>ELK是<a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elastic search</a>、<a href="https://www.elastic.co/products/logstash" target="_blank" rel="external">Logstash</a>和<a href="https://www.elastic.co/products/kibana" target="_blank" rel="external">Kibana</a>三个开源软件的组合。其中logstash可以对日志进行收集、过滤和简单处理，并将其存储到elastic search上，最终供kibana展示（和上一篇的监控很类似啊）。这套方案可以参考<a href="http://dockone.io/article/505" target="_blank" rel="external">新浪的实时日志架构</a>。这一本<a href="http://kibana.logstash.es/content/" target="_blank" rel="external">ELKstack 中文指南</a>也写得非常详细。</p>
+<p>Apache的flume扮演者类似logstash的角色来收集数据，storm可以对flume采集到的数据进行实时分析。由于数据的采集和处理速度可能不一致，因此用消息中间件kafka来作为缓冲。但是kafka不可能存储所有的日志数据，所以会用其他的存储系统来负责持久化，如同样由Apache提供的<a href="https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html" target="_blank" rel="external">HDFS</a>。这套方案可以参考<a href="http://tech.meituan.com/mt-log-system-arch.html" target="_blank" rel="external">美团的日志收集系统架构</a>。如果需要对分析后的结果持久化，还可以引入<a href="https://www.mysql.com/" target="_blank" rel="external">mysql</a>等数据库。</p>
+<h2 id="kubernetes_u65B9_u6848"><a href="#kubernetes_u65B9_u6848" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a href="http://www.fluentd.org/" target="_blank" rel="external">fluentd</a>（有<a href="http://www.tuicool.com/articles/7FzqeeI" target="_blank" rel="external">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es" target="_blank" rel="external">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg" alt=""></p>
+<p>还可以根据日志来配置各种图表，生成很炫的Dashboard。这个是官方的<a href="http://demo.elastic.co/packetbeat/" target="_blank" rel="external">demo</a>：<br><img src="/img/kibana-official.jpg" alt=""></p>
+<p>如果日志不是写到文件系统，而是写到stdout或者stderr，那么kubernetes直接就可以用logs命令看到，就不需要这一整套了。但是一个复杂的web应用，通常还是有复杂的日志文件配置的。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -152,7 +158,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-4/" data-title="如果有10000台机器，你想怎么玩？（四） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-5/" data-title="如果有10000台机器，你想怎么玩？（五） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -165,19 +171,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/kubernetes-in-mesos-5/" title="如果有10000台机器，你想怎么玩？（五）">
-  <strong>上一篇：</strong><br/>
-  <span>
-  如果有10000台机器，你想怎么玩？（五）</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/waterfall-to-agile/"  title="传统企业敏捷转型纪实">
+<a href="/kubernetes-in-mesos-4/"  title="如果有10000台机器，你想怎么玩？（四）">
  <strong>下一篇：</strong><br/> 
- <span>传统企业敏捷转型纪实
+ <span>如果有10000台机器，你想怎么玩？（四）
 </span>
 </a>
 </div>
@@ -186,7 +184,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-4/" data-title="如果有10000台机器，你想怎么玩？（四）" data-url="http://qinghua.github.io/kubernetes-in-mesos-4/"></div>
+	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-5/" data-title="如果有10000台机器，你想怎么玩？（五）" data-url="http://qinghua.github.io/kubernetes-in-mesos-5/"></div>
 </section>
 
 
