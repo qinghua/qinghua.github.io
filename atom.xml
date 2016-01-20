@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-01-18T09:58:44.000Z</updated>
+  <updated>2016-01-20T14:53:48.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,148 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[传统企业敏捷转型纪实（二）]]></title>
+    <link href="http://qinghua.github.io/waterfall-to-agile-2/"/>
+    <id>http://qinghua.github.io/waterfall-to-agile-2/</id>
+    <published>2016-01-20T12:11:05.000Z</published>
+    <updated>2016-01-20T14:53:48.000Z</updated>
+    <content type="html"><![CDATA[<p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
+<ul>
+<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
+<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u8FED_u4EE3_u5F00_u59CB"><a href="#u8FED_u4EE3_u5F00_u59CB" class="headerlink" title="迭代开始"></a>迭代开始</h2><p>上次刚刚理清楚了各组自己的需求，但是组员们并不是都完全了解。Ken先把所有人都召集起来，告诉大家：现在需求不仅仅是BA的事情了，需求不清是开发和测试的责任，大家有义务互相协作，把需求理清楚。各个PO开始讲依赖：有没有依赖于其他组的story？有没有依赖其他人（比如整个大组只有一位安全专家，可能有些story会对这个人有依赖）？PO们讲完了，有的组可能就凭空多了几张被别的组所依赖的卡，优先级还都比较高。所以需要重新安排一下迭代。计划调整完后，各个PO依次大致地给SPO讲一下自己组第一迭代的主要功能和风险，在获得SPO的认可之后，第一个迭代的计划就算确定下来。</p>
+<p>然后就该每个组员认领story了。Ken要求每个story都要有对应的开发和测试人员，从新人开始认领。每个成员自己想学什么，想做什么，职业规划是什么，按照它们来决定自己要开发的story。这样的目的是激发每个人的潜能，提高团队的能力，而不仅仅是着眼于这个版本的交付。同样的，每个成员，都不仅仅是开发这个版本，而是开发一个产品。现实中，可能会出现胡乱挑卡的情况，比如说A卡可能很适合甲来做，但是乙是新人，抢先把卡挑走了，这时候就需要PO来与大家沟通，做决策。</p>
+<p>落实完了每个人的工作，Ken又把大家叫到一起，问：你们对按时发布有没有信心？5分就是信心指数最高，1分最低，大家一起伸手指示意。大部分人都举4或者5，也许是无所谓，也许是还没适应一个有话就应该讲出来的环境。有个别成员伸3个指头的，就需要解释一下为什么信心不足，SPO需要当场把问题解决，尽量做到所有人都信心爆棚，起码看上去得是这样。</p>
+<h2 id="u9700_u6C42_u5206_u6790"><a href="#u9700_u6C42_u5206_u6790" class="headerlink" title="需求分析"></a>需求分析</h2><p>到了具体开发阶段了，怎么做呢？第二天就是一堂需求分析的课程。大家探讨一下开发和测试怎么协作，需求应该怎么分析，测试用例应该怎么写。对于一个story，开发人员需要知道怎么测，做出来的东西由谁来用，才有能力开发。Ken引入了场景树来做需求分析。举个栗子：一个<strong>买手机</strong>的story。看起来好像需求很明确，但是具体做就会有各种问题：到底对方要的是什么样的手机？所以开发前必须搞清楚，这个story的目的是什么。买手机是内容，不是目的。用5个为什么来深挖，可能就能得到这样的目的：<strong>女朋友手机坏了，让我买个新手机</strong>。然后我们可以画出这样的图：<br><img src="/img/scene-tree-1.png" alt=""></p>
+<p>第一个步骤可能就是去取款准备买手机。这个步骤可以用<strong>活动</strong>、<strong>实体</strong>、<strong>结果</strong>来建模。活动应该是动词，描述一个活动：取款。它产生了一个名词实体：人民币。校验这个实体可以得到结果，结果具有若干维度。有点晕？看图：<br><img src="/img/scene-tree-2.png" alt=""></p>
+<p>取款这个活动，产生了人民币这个实体。结果的维度是金额。取完款之后，去手机店的动作，产生了手机店这个实体。结果的维度有哪家店和日期时间。到店之后，购买手机的活动产生了手机这个实体。结果的维度有品牌、型号、价格等等。这些维度越清晰，这个需求分析的质量越好。如图：<br><img src="/img/scene-tree-3.png" alt=""></p>
+<p>有的朋友可能会问：除了最后得到新手机，是不是也得校验我取的款花了多少，那怎么体现在图里呢？这个还是看需求。如果必要的话，可以在购买完手机后増加一个计算余额的活动。</p>
+<h2 id="u6D4B_u8BD5_u7528_u4F8B"><a href="#u6D4B_u8BD5_u7528_u4F8B" class="headerlink" title="测试用例"></a>测试用例</h2><p>画完场景图之后，就能比较容易地根据实体和维度导出测试用例来。还是以买手机为例：首先验证第一个实体：人民币。画张表格如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:right">金额</th>
+<th style="text-align:center">预期结果</th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">人民币</td>
+<td style="text-align:right">1000</td>
+<td style="text-align:center">OK</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">人民币</td>
+<td style="text-align:right">0</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">银行账户余额不足</td>
+</tr>
+</tbody>
+</table>
+<p>从Given、When、Then的角度上看，再加上Given，这就是一个很具体的单元测试用例。然后是手机店：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">哪家店</th>
+<th style="text-align:center">日期时间</th>
+<th style="text-align:center">预期结果</th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">手机店</td>
+<td style="text-align:center">国美</td>
+<td style="text-align:center">2016/01/20 10:00:00</td>
+<td style="text-align:center">OK</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">手机店</td>
+<td style="text-align:center">苏宁</td>
+<td style="text-align:center">2016/01/20 22:00:00</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">下班了</td>
+</tr>
+<tr>
+<td style="text-align:center">手机店</td>
+<td style="text-align:center">苏美</td>
+<td style="text-align:center">2016/01/20 10:00:00</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">没有这家店</td>
+</tr>
+</tbody>
+</table>
+<p>最后是新手机：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">品牌</th>
+<th style="text-align:center">型号</th>
+<th style="text-align:right">价格</th>
+<th style="text-align:center">预期结果</th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">新手机</td>
+<td style="text-align:center">小米</td>
+<td style="text-align:center">Mi Note</td>
+<td style="text-align:right">1999</td>
+<td style="text-align:center">OK</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">新手机</td>
+<td style="text-align:center">魅族</td>
+<td style="text-align:center">MX-5</td>
+<td style="text-align:right">1799</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">没有这个型号</td>
+</tr>
+<tr>
+<td style="text-align:center">新手机</td>
+<td style="text-align:center">华为</td>
+<td style="text-align:center">Mate8</td>
+<td style="text-align:right">-3199</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">价格不正确</td>
+</tr>
+<tr>
+<td style="text-align:center">新手机</td>
+<td style="text-align:center">小魅</td>
+<td style="text-align:center">MiMX</td>
+<td style="text-align:right">999</td>
+<td style="text-align:center">NG</td>
+<td style="text-align:left">没有这个品牌</td>
+</tr>
+</tbody>
+</table>
+<p>从上面这几张表我们也能看出来，维度越多，测试案例也就越多，所以说需求的质量就会越高。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
+<ul>
+<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
+<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>]]>
+    
+    </summary>
+    
+      <category term="agile" scheme="http://qinghua.github.io/tags/agile/"/>
+    
+      <category term="agile" scheme="http://qinghua.github.io/categories/agile/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（五）]]></title>
@@ -105,12 +247,17 @@
   </entry>
   
   <entry>
-    <title><![CDATA[传统企业敏捷转型纪实]]></title>
-    <link href="http://qinghua.github.io/waterfall-to-agile/"/>
-    <id>http://qinghua.github.io/waterfall-to-agile/</id>
+    <title><![CDATA[传统企业敏捷转型纪实（一）]]></title>
+    <link href="http://qinghua.github.io/waterfall-to-agile-1/"/>
+    <id>http://qinghua.github.io/waterfall-to-agile-1/</id>
     <published>2016-01-13T13:39:15.000Z</published>
-    <updated>2016-01-16T03:50:15.000Z</updated>
-    <content type="html"><![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。<br><a id="more"></a></p>
+    <updated>2016-01-20T14:51:17.000Z</updated>
+    <content type="html"><![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。本系列目前有两篇：</p>
+<ul>
+<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
+<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a><a id="more"></a>
+</li>
+</ul>
 <h2 id="u56E2_u961F_u6784_u5EFA"><a href="#u56E2_u961F_u6784_u5EFA" class="headerlink" title="团队构建"></a>团队构建</h2><p>这个部门由四个团队组成，各自主管产品的一部分。每个团队都有对交付负责的人，称为PO（Product Owner）。Ken的第一步是让所有团队选出一名SPO（Super Product Owner），来对整个产品负责。SPO不做兼职，负责解决各种问题，其最重要的任务是做决策。而对于一款探索性的产品来说，决策是没有对错之分的，只是它需要靠执行力和客户反馈来修正。PO们需要力挺SPO，充分信任SPO的决策，并以团队的执行力来保证决策的执行。所以有个PO与SPO隔空喊话效忠的过程。</p>
 <p>这个部门比较特殊的地方在于，大部分成员属于两个外包公司，其中有不少新人。大家对敏捷都没有什么概念，对要做的事也心有疑虑。有鉴于此，Ken让两个外包公司的人各选出1名leader来当<a href="http://scaledagileframework.com/scrum-master/" target="_blank" rel="external">SM</a>（scrum master）。如果团队成员士气低落，不管任何原因，都可以找SM沟通。如果涉及到甲方公司，便由SM来沟通PO处理。这样做的目的是让每个团队成员都有渠道摆脱自己受到的干扰，增加工作效率。团队成员也需要在团队中建立起自己的人脉，好让自己遇到问题时容易找人帮忙。SM主要负责沟通，PO带领团队前进。这样的构建适用于200~300人以下的团队。</p>
 <h2 id="u4E86_u89E3_u4EA7_u54C1"><a href="#u4E86_u89E3_u4EA7_u54C1" class="headerlink" title="了解产品"></a>了解产品</h2><p>要做好产品，首先需要让团队成员理解产品，建立共识。如果只见树木不见森林，那么人人都只是开发自己的那一亩三分地，根本无从得知自己的工作在整个产品中处于什么样的位置，那怎么能做好这个产品呢？现实中，这个产品有着非常复杂的架构，甚至没有一个人能完整地解释整个架构图。Ken建议SPO找几个资深人员，专门抽出一天时间给所有人都讲清楚架构。这很重要，如果你连孩子是男是女都不知道，怎么抚养ta？团队成员需要非常了解产品，而不仅仅是某个需求或者某个版本。要做产品，不是为了做事而做事。同时，Ken也建议所有成员都花时间在架构课之前自学其中的一些重要技术，以便让自己能够在架构课上更加清除对方究竟在讲什么。也就是预习，省的回头听不懂。</p>
@@ -128,7 +275,10 @@
 <p>如果第一迭代有10个工作日，那么我们就能计算出来最大工作量：<code>(3+1)×10+(4+2)×10÷2=70</code>。由于是春节，可能请假会比较多，扣去请假天数，也许得到60点。然后是打折，由各组PO和SPO商量，得到一个折扣。这个折扣可能是：我们组对外部环境依赖很多，第一迭代刚开始效率会很低，春节假期效率不高，团队成员都是单身需要相亲无心干活等等等等。比如说第一迭代打个7折，就能得到合理工作量：<code>60×7=42</code>。由此，我们就得到最大工作量和合理工作量。算出各个迭代的工作量，把它们写在显眼处。最后将先前估好点的story按优先级及依赖顺序往里安排，点数到合理工作量即可。至此，一个看似合理的、由团队成员做出的计划便产生了。项目启动会议完成。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。<br>]]>
+    <![CDATA[<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。本系列目前有两篇：</p>
+<ul>
+<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
+<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>]]>
     
     </summary>
     
@@ -329,7 +479,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-01-18T10:00:30.000Z</updated>
+    <updated>2016-01-18T12:44:26.000Z</updated>
     <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>

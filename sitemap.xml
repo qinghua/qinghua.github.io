@@ -2,8 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/waterfall-to-agile-2/</loc>
+    <lastmod>2016-01-20T14:53:48.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/waterfall-to-agile-1/</loc>
+    <lastmod>2016-01-20T14:51:17.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
-    <lastmod>2016-01-18T10:00:30.000Z</lastmod>
+    <lastmod>2016-01-18T12:44:26.000Z</lastmod>
   </url>
   
   <url>
@@ -34,11 +44,6 @@
   <url>
     <loc>http://qinghua.github.io/mysql-replication/</loc>
     <lastmod>2016-01-16T03:51:33.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/waterfall-to-agile/</loc>
-    <lastmod>2016-01-16T03:50:15.000Z</lastmod>
   </url>
   
   <url>
