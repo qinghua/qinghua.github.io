@@ -479,8 +479,8 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-01-18T12:44:26.000Z</updated>
-    <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
+    <updated>2016-01-20T15:00:18.000Z</updated>
+    <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有五篇：</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
@@ -497,7 +497,7 @@
 <p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。目前有四篇：</p>
+    <![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有五篇：</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
