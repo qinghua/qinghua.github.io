@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/ansible-large-scale-cluster/</loc>
+    <lastmod>2016-01-21T06:47:42.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
     <lastmod>2016-01-20T15:00:18.000Z</lastmod>
   </url>

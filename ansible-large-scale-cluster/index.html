@@ -5,41 +5,23 @@
   <meta name="baidu-site-verification" content="EXHJyZtvnK" />
   <meta charset="UTF-8">
   
-    <title>如果有10000台机器，你想怎么玩？（三） | 懒程序员改变世界</title>
+    <title>用ansible管理大规模集群 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
+    <meta name="description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如果有10000台机器，你想怎么玩？（三）">
-<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-3/index.html">
+<meta property="og:title" content="用ansible管理大规模集群">
+<meta property="og:url" content="http://qinghua.github.io/ansible-large-scale-cluster/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
-<meta property="og:updated_time" content="2016-01-18T02:26:25.000Z">
+<meta property="og:description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
+<meta property="og:updated_time" content="2016-01-21T06:47:42.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（三）">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
+<meta name="twitter:title" content="用ansible管理大规模集群">
+<meta name="twitter:description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -98,32 +80,50 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/kubernetes-in-mesos-3/" title="如果有10000台机器，你想怎么玩？（三）" itemprop="url">如果有10000台机器，你想怎么玩？（三）</a>
+      <a href="/ansible-large-scale-cluster/" title="用ansible管理大规模集群" itemprop="url">用ansible管理大规模集群</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-01-05T12:06:33.000Z" itemprop="datePublished"> 发表于 2016-01-05</time>
+    <time datetime="2016-01-21T00:23:45.000Z" itemprop="datePublished"> 发表于 2016-01-21</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><span class="toc-number">1.</span> <span class="toc-text">增加并行进程数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5F02_u6B65"><span class="toc-number">2.</span> <span class="toc-text">异步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pull_u6A21_u5F0F"><span class="toc-number">3.</span> <span class="toc-text">Pull模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u591A_u7EA7_u8C03_u5EA6"><span class="toc-number">4.</span> <span class="toc-text">多级调度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599"><span class="toc-number">5.</span> <span class="toc-text">其他参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://www.ansible.com/get-started" target="_blank" rel="external">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)" target="_blank" rel="external">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。<br><a id="more"></a></p>
+<h2 id="u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><a href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570" class="headerlink" title="增加并行进程数"></a>增加并行进程数</h2><p>Ansible提供一个<a href="http://docs.ansible.com/ansible/intro_configuration.html#forks" target="_blank" rel="external">forks</a>的属性，可以设置运行并行进程数。这个值默认比较保守，只有5个并行进程。我们可以根据自己的机器性能以及网络情况来设定，很多人使用50，也有用500以上的。如果有很多机器要管理的话，可以尝试先增加这个值，看看效果。有三个地方可以设置forks的数量：</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
-</li>
+<li>环境变量：<code>export ANSIBLE_FORKS=100</code></li>
+<li>ansible.cfg这个配置文件里设置：<code>forks=100</code></li>
+<li>运行ansible命令时增加参数：<code>-f 100</code></li>
 </ul>
-<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
-<p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks" target="_blank" rel="external">container hook</a>。目前支持<a href="http://kubernetes.io/v1.1/docs/api-reference/v1/definitions.html#_v1_lifecycle" target="_blank" rel="external">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是需要主机的root权限，或者是hook挂上http请求去外部挂载，不管怎样都相当于重新自己来一套，并不划算。</p>
-<p>第二个方案：还是容器化的mesos slave，但是使用<a href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/" target="_blank" rel="external">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>，从而无法轻易释放<code>/var/lib/docker/aufs</code>的磁盘资源等等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
-<p>第三个方案：放弃mesos slave的容器化。回顾问题的根源，一切的一切都是因为引入mesos slave的容器造成的。如果把mesos slave还原成系统进程，那么这一堆存储问题都将不复存在。我们仍然有其他手段来实现mesos slave部署和升级的便利性，如自动化脚本、数据用容器等。虽然这样可能引入更大的部署工作量，但这可能是针对这个问题来说更加正统的解决方案。</p>
+<h2 id="u5F02_u6B65"><a href="#u5F02_u6B65" class="headerlink" title="异步"></a>异步</h2><p>有时候执行某个任务可能需要很长的时间，在集群规模较大的情况下慢得让人无法忍受。这时可以考虑使用<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式</a>。在<code>tasks</code>里增加<code>async</code>的属性，设成某个数字，比如60，意思就是这个任务最大运行时间不能超过60秒。也可以设成0，意思是不管任务运行多久，一直等待即可。如果没有指定<code>async</code>，则默认为同步模式。还可以设定<code>poll</code>，默认值为10，意思就是每隔10秒轮询查看结果。如果不需要查看结果，设为0就好了。还可以通过<code>register</code>和<code>async_status</code>设定暂时不查看结果，等需要的时候再查看。具体做法可以参考上面的<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式官网文档</a>，也可以看<a href="http://www.ansible.com.cn/docs/playbooks_async.html" target="_blank" rel="external">翻译的中文文档</a>。</p>
+<h2 id="Pull_u6A21_u5F0F"><a href="#Pull_u6A21_u5F0F" class="headerlink" title="Pull模式"></a>Pull模式</h2><p>有些配置管理工具比如<a href="https://www.chef.io/chef/" target="_blank" rel="external">Chef</a>和<a href="https://puppetlabs.com/" target="_blank" rel="external">Puppet</a>，是基于拉模式的。所谓拉模式，是酱紫的：</p>
+<ul>
+<li>管理员写脚本</li>
+<li>管理员上传脚本</li>
+<li>agent定时取脚本（例如每隔1分钟）</li>
+<li>agent运行新脚本</li>
+</ul>
+<p>Ansible是没有agent的，它默认基于推模式，也就是说：</p>
+<ul>
+<li>管理员写脚本</li>
+<li>管理员运行脚本</li>
+<li>ansible连接各主机运行脚本</li>
+</ul>
+<p>一般来说，拉模式能轻松应付大规模集群，因为每台机器都是自己去拉取脚本来完成任务。不过也有人用ansible的推模式管理着上千台机器。Ansible提供了<a href="http://docs.ansible.com/ansible/playbooks_intro.html#ansible-pull" target="_blank" rel="external">ansible-pull</a>的工具，能把它变成拉模式。官方资料不多，<a href="https://www.stavros.io/posts/automated-large-scale-deployments-ansibles-pull-mo/" target="_blank" rel="external">这篇文章</a>写得比较详细。大致思路是新建一个<a href="http://git-scm.com/" target="_blank" rel="external">git</a>的仓库，每台机器运行一个cron定时任务（扮演者agent的角色）每隔一段时间去仓库取最新脚本，然后运行之。在<a href="https://raw.githubusercontent.com/ansible/ansible/stable-2.0/CHANGELOG.md" target="_blank" rel="external">ansible 2.0</a>里<code>ansible-pull</code>也有若干改进。</p>
+<h2 id="u591A_u7EA7_u8C03_u5EA6"><a href="#u591A_u7EA7_u8C03_u5EA6" class="headerlink" title="多级调度"></a>多级调度</h2><p>还有一种想法是：如果一台主机的性能只能撑100<code>forks</code>，那么10台主机应该就能撑1000台机器。将这1000台机器分区，比如A区到J区。所以由一台主机分发命令给10台主机，让它们各自运行<code>ansible-playbook</code>，而每台主机根据不同的<a href="http://docs.ansible.com/ansible/intro_inventory.html" target="_blank" rel="external">inventory</a>或者是不同的<a href="http://allandenot.com/devops/2015/01/16/ansible-with-multiple-inventory-files.html" target="_blank" rel="external">limit方式</a>来控制不同区的机器并返回结果。理论上这样的多级调度是能够撑起大规模集群的，就是脚本写起来比较麻烦，需要考虑一级主机和二级主机。</p>
+<h2 id="u5176_u4ED6_u53C2_u8003_u8D44_u6599"><a href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599" class="headerlink" title="其他参考资料"></a>其他参考资料</h2><p>说到底，如果运行得快，那么集群规模大一点也可以。<a href="http://www.ansible.com/blog/ansible-performance-tuning" target="_blank" rel="external">这篇文章</a>介绍了一些ansible性能调优的方法。<br><a href="https://mackerel.io/" target="_blank" rel="external">Mackerel</a>是一个监控平台。<a href="http://yuuki.hatenablog.com/entry/ansible-mackerel-1000" target="_blank" rel="external">这篇日文文章</a>介绍了使用Ansible和Mackerel API管理1000台规模集群的方法。<a href="http://www.ansible.com/tower" target="_blank" rel="external">Ansible tower</a>也提供了类似的可视化管理页面，官方出品，是不是更靠谱呢。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -137,7 +137,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  <span></span> <a href="/tags/ansible/">ansible</a>
   </div>
 
 </div>
@@ -146,7 +146,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-3/" data-title="如果有10000台机器，你想怎么玩？（三） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/ansible-large-scale-cluster/" data-title="用ansible管理大规模集群 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -159,19 +159,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/mysql-replication/" title="基于docker的MySQL主从复制（replication）">
-  <strong>上一篇：</strong><br/>
-  <span>
-  基于docker的MySQL主从复制（replication）</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/ceph-demo/"  title="用容器轻松搭建ceph实验环境">
+<a href="/waterfall-to-agile-2/"  title="传统企业敏捷转型纪实（二）">
  <strong>下一篇：</strong><br/> 
- <span>用容器轻松搭建ceph实验环境
+ <span>传统企业敏捷转型纪实（二）
 </span>
 </a>
 </div>
@@ -180,12 +172,19 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-3/" data-title="如果有10000台机器，你想怎么玩？（三）" data-url="http://qinghua.github.io/kubernetes-in-mesos-3/"></div>
+	<div class="ds-thread" data-thread-key="ansible-large-scale-cluster/" data-title="用ansible管理大规模集群" data-url="http://qinghua.github.io/ansible-large-scale-cluster/"></div>
 </section>
 
 
 </div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><span class="toc-number">1.</span> <span class="toc-text">增加并行进程数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5F02_u6B65"><span class="toc-number">2.</span> <span class="toc-text">异步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pull_u6A21_u5F0F"><span class="toc-number">3.</span> <span class="toc-text">Pull模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u591A_u7EA7_u8C03_u5EA6"><span class="toc-number">4.</span> <span class="toc-text">多级调度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599"><span class="toc-number">5.</span> <span class="toc-text">其他参考资料</span></a></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -356,6 +355,8 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
