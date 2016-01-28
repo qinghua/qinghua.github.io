@@ -120,7 +120,7 @@
     <link href="http://qinghua.github.io/ansible-large-scale-cluster/"/>
     <id>http://qinghua.github.io/ansible-large-scale-cluster/</id>
     <published>2016-01-21T00:23:45.000Z</published>
-    <updated>2016-01-21T06:47:42.000Z</updated>
+    <updated>2016-01-28T02:22:02.000Z</updated>
     <content type="html"><![CDATA[<p><a href="http://www.ansible.com/get-started" target="_blank" rel="external">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)" target="_blank" rel="external">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。<br><a id="more"></a></p>
 <h2 id="u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><a href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570" class="headerlink" title="增加并行进程数"></a>增加并行进程数</h2><p>Ansible提供一个<a href="http://docs.ansible.com/ansible/intro_configuration.html#forks" target="_blank" rel="external">forks</a>的属性，可以设置运行并行进程数。这个值默认比较保守，只有5个并行进程。我们可以根据自己的机器性能以及网络情况来设定，很多人使用50，也有用500以上的。如果有很多机器要管理的话，可以尝试先增加这个值，看看效果。有三个地方可以设置forks的数量：</p>
 <ul>
@@ -128,6 +128,7 @@
 <li>ansible.cfg这个配置文件里设置：<code>forks=100</code></li>
 <li>运行ansible命令时增加参数：<code>-f 100</code></li>
 </ul>
+<p>当机器数量比较大的时候，难免会有几台机器不能正常执行。这时候ansible会有提示<code>to retry, use: --limit @/xxx/xxx.retry</code>，把它增加到上个命令的后面就好了。</p>
 <h2 id="u5F02_u6B65"><a href="#u5F02_u6B65" class="headerlink" title="异步"></a>异步</h2><p>有时候执行某个任务可能需要很长的时间，在集群规模较大的情况下慢得让人无法忍受。这时可以考虑使用<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式</a>。在<code>tasks</code>里增加<code>async</code>的属性，设成某个数字，比如60，意思就是这个任务最大运行时间不能超过60秒。也可以设成0，意思是不管任务运行多久，一直等待即可。如果没有指定<code>async</code>，则默认为同步模式。还可以设定<code>poll</code>，默认值为10，意思就是每隔10秒轮询查看结果。如果不需要查看结果，设为0就好了。还可以通过<code>register</code>和<code>async_status</code>设定暂时不查看结果，等需要的时候再查看。具体做法可以参考上面的<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式官网文档</a>，也可以看<a href="http://www.ansible.com.cn/docs/playbooks_async.html" target="_blank" rel="external">翻译的中文文档</a>。</p>
 <h2 id="Pull_u6A21_u5F0F"><a href="#Pull_u6A21_u5F0F" class="headerlink" title="Pull模式"></a>Pull模式</h2><p>有些配置管理工具比如<a href="https://www.chef.io/chef/" target="_blank" rel="external">Chef</a>和<a href="https://puppetlabs.com/" target="_blank" rel="external">Puppet</a>，是基于拉模式的。所谓拉模式，是酱紫的：</p>
 <ul>
