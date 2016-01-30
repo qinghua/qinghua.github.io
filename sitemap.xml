@@ -2,6 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/docker-storage/</loc>
+    <lastmod>2016-01-30T12:14:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/ceph-demo/</loc>
+    <lastmod>2016-01-28T06:38:15.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/ansible-large-scale-cluster/</loc>
     <lastmod>2016-01-28T02:22:02.000Z</lastmod>
   </url>
@@ -44,11 +54,6 @@
   <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-2/</loc>
     <lastmod>2016-01-18T02:26:22.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/ceph-demo/</loc>
-    <lastmod>2016-01-16T04:06:13.000Z</lastmod>
   </url>
   
   <url>
