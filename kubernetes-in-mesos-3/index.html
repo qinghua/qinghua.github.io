@@ -19,7 +19,8 @@
 如果有10000台机器，你想怎么玩？（二）
 如果有10000台机器，你想怎么玩？（三）
 如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
+如果有10000台机器，你想怎么玩？（五）
+如果有1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（三）">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-3/index.html">
@@ -30,8 +31,9 @@
 如果有10000台机器，你想怎么玩？（二）
 如果有10000台机器，你想怎么玩？（三）
 如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
-<meta property="og:updated_time" content="2016-01-18T02:26:25.000Z">
+如果有10000台机器，你想怎么玩？（五）
+如果有1">
+<meta property="og:updated_time" content="2016-02-02T13:30:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（三）">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
@@ -40,7 +42,8 @@
 如果有10000台机器，你想怎么玩？（二）
 如果有10000台机器，你想怎么玩？（三）
 如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）">
+如果有10000台机器，你想怎么玩？（五）
+如果有1">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -118,7 +121,8 @@
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
 <li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
 </li>
 </ul>
 <p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
@@ -206,7 +210,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>9</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>10</sup></a></li>
 		  
 		
 		</ul>
@@ -219,11 +223,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>5</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>5</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>6</sup></a></li>
 			
 		
 			
