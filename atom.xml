@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-02-02T13:37:31.000Z</updated>
+  <updated>2016-02-03T09:04:00.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -15,19 +15,87 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（七）]]></title>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-7/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-7/</id>
+    <published>2016-02-03T10:41:27.000Z</published>
+    <updated>2016-02-03T09:04:00.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
+<ul>
+<li><code>LivenessProbe</code>：如果健康检查失败，就把这个容器杀掉，然后kubelet根据预先设置的<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#restartpolicy" target="_blank" rel="external">重启规则</a>来决定怎么处理：啥也不干、挂了才重启或者总是重启。</li>
+<li><code>ReadinessProbe</code>：如果健康检查失败，这个pod的IP地址将会从endpoints里移除，所以相当于屏蔽这个pod提供的服务而不是将它杀掉。</li>
+</ul>
+<p>那健康检查怎么做呢？可以是一段脚本，返回非0就代表错误；可以说一个http请求，返回200~400之间代表成功；还可以是一个tcp端口，打开即算成功。可以通过设置kubelet的参数<code>--sync-frequency</code>来设置健康检查的间隔时间。还可以在设置probe的时候指定健康检查的超时时间和第一次健康检查的延时（从容器启动完毕开始）。</p>
+<h2 id="u94A9_u5B50_uFF08hook_uFF09"><a href="#u94A9_u5B50_uFF08hook_uFF09" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a href="http://kubernetes.io/v1.1/docs/user-guide/container-environment.html#container-hooks" target="_blank" rel="external">钩子</a>来做这样的事：</p>
+<ul>
+<li>postStart：当一个容器被创建成功的时候</li>
+<li>preStop：当一个容器即将被关闭的时候</li>
+</ul>
+<p>钩子的设计理念是“宁滥毋缺”，所以某些情况下它是有可能被执行多次的，设计自己的钩子时需要考虑这样的情况，尽量使操作“无状态”。</p>
+<h2 id="u4E00_u6B21_u6027_u4EFB_u52A1"><a href="#u4E00_u6B21_u6027_u4EFB_u52A1" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/jobs.md" target="_blank" rel="external">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2" target="_blank" rel="external">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
+<ul>
+<li>非并行：就是启动一个pod，当pod成功结束了就算是job完成了</li>
+<li>固定数量并行：并行启动固定数量个pod，每个pod都成功结束了就算是job完成了</li>
+<li>工作队列并行：行启动多个pod，其中一个pod成功结束了，其他pod就开始停止运行。当全部pod都停止了就算是job完成了</li>
+</ul>
+<p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
+<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
+<h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
+<p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png" alt=""></p>
+<p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png" alt=""></p>
+<p>继续增加新pod：<br><img src="/img/rolling-update-4.png" alt=""></p>
+<p>继续停掉旧pod：<br><img src="/img/rolling-update-5.png" alt=""></p>
+<p>增加新pod：<br><img src="/img/rolling-update-6.png" alt=""></p>
+<p>停掉旧pod，再把没用了的旧rc也删掉：<br><img src="/img/rolling-update-7.png" alt=""></p>
+<p>这样新服务就起来了！中间的替换速度是可以由我们设定的，还支持回滚。在<a href="http://kubernetes.io/v1.1/docs/user-guide/update-demo/README.html" target="_blank" rel="external">这里</a>有一个例子可供参考。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
+    
+    </summary>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（六）]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-6/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-6/</id>
     <published>2016-02-02T11:52:32.000Z</published>
-    <updated>2016-02-02T13:37:31.000Z</updated>
+    <updated>2016-02-03T12:26:31.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
@@ -46,17 +114,19 @@
 <p>Mesos+Kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#scheduling" target="_blank" rel="external">分配算法</a>现在还很原始：一个offer只会运行一个pod。所以如果请求启动的大量的pod的时候，就需要很多个offer来运行这些pod。为了提高性能，一个办法是在一个offer里安排多个pods，这个是kubernetes的未来计划，现在还不是我们的菜。另一个办法是提高mesos master的offer频率。虽然把<code>--allocation_interval</code>调低可以增加offer发送频率，但是如果offer回流得很慢，那又有什么意义呢。所以kubernetes的scheduler处理得越久，offer的流动性就越差，pod的启动速度就越慢。接着往下走，如何提高scheduler的处理速度呢？最简单的处理办法：换高配！4C8G的虚拟机撑死能扛住250台mesos slave。软件上就还得靠优化scheduler的流程了。另外，mesos master由于要不断发offer出去，还要处理被接受或拒绝的offer，也需要比较强的配置，但是kubernetes master的配置影响力更大，需要相对更好的配置。</p>
 <p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning" target="_blank" rel="external">看一看</a>。</p>
 <h3 id="u7EAFkubernetes"><a href="#u7EAFkubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
-<h2 id="u6D4B_u8BD5_u7ED3_u679C_uFF08_u6570_u636E_uFF09"><a href="#u6D4B_u8BD5_u7ED3_u679C_uFF08_u6570_u636E_uFF09" class="headerlink" title="测试结果（数据）"></a>测试结果（数据）</h2><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。</p>
+<h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos+Kubernetes-1"><a href="#Mesos+Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
+<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     
@@ -509,15 +579,16 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-5/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-5/</id>
     <published>2016-01-18T11:59:00.000Z</published>
-    <updated>2016-02-02T13:30:44.000Z</updated>
+    <updated>2016-02-03T12:26:35.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
@@ -538,12 +609,13 @@
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     
@@ -560,15 +632,16 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-4/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-02-02T13:30:42.000Z</updated>
+    <updated>2016-02-03T12:26:39.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
@@ -581,12 +654,13 @@
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     
@@ -714,15 +788,16 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-3/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-3/</id>
     <published>2016-01-05T12:06:33.000Z</published>
-    <updated>2016-02-02T13:30:39.000Z</updated>
+    <updated>2016-02-03T12:26:45.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
@@ -733,12 +808,13 @@
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     
@@ -795,15 +871,16 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-2/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-2/</id>
     <published>2016-01-01T09:07:07.000Z</published>
-    <updated>2016-02-02T13:30:35.000Z</updated>
+    <updated>2016-02-03T12:26:50.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>。<br><img src="http://kubernetes.io/v1.1/docs/design/architecture.png?raw=true" alt=""><br>它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
@@ -815,12 +892,13 @@
     <summary type="html">
     <![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     
@@ -837,15 +915,16 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-02-02T13:30:33.000Z</updated>
-    <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有五篇：</p>
+    <updated>2016-02-03T12:26:58.000Z</updated>
+    <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有七篇：</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <p>少年，10000台机器只是哄你进来看看而已。这是个虚数，想做的事情其实是：我有那么几台虚拟机，要对外提供容器化PaaS服务，你想怎么玩？</p>
@@ -856,14 +935,15 @@
 <p>接着往下走，还会涉及到外部负载均衡、高可用、多租户、监控、安全等一系列挑战，你想怎么玩？</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有五篇：</p>
+    <![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有七篇：</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a>]]>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
     
     </summary>
     

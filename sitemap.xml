@@ -2,33 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-6/</loc>
-    <lastmod>2016-02-02T13:37:31.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-5/</loc>
-    <lastmod>2016-02-02T13:30:44.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-4/</loc>
-    <lastmod>2016-02-02T13:30:42.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-3/</loc>
-    <lastmod>2016-02-02T13:30:39.000Z</lastmod>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
+    <lastmod>2016-02-03T12:26:58.000Z</lastmod>
   </url>
   
   <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-2/</loc>
-    <lastmod>2016-02-02T13:30:35.000Z</lastmod>
+    <lastmod>2016-02-03T12:26:50.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
-    <lastmod>2016-02-02T13:30:33.000Z</lastmod>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-3/</loc>
+    <lastmod>2016-02-03T12:26:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-4/</loc>
+    <lastmod>2016-02-03T12:26:39.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-5/</loc>
+    <lastmod>2016-02-03T12:26:35.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-6/</loc>
+    <lastmod>2016-02-03T12:26:31.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
+    <lastmod>2016-02-03T09:04:00.000Z</lastmod>
   </url>
   
   <url>

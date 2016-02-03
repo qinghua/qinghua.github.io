@@ -15,36 +15,33 @@
     
     <meta name="description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
 
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）
-如果有">
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（六）">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-6/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
 
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）
-如果有">
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎">
 <meta property="og:image" content="http://qinghua.github.io/img/mesos-architecture.jpg">
-<meta property="og:updated_time" content="2016-02-02T13:37:31.000Z">
+<meta property="og:updated_time" content="2016-02-03T12:26:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（六）">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
 
-如果有10000台机器，你想怎么玩？（一）
-如果有10000台机器，你想怎么玩？（二）
-如果有10000台机器，你想怎么玩？（三）
-如果有10000台机器，你想怎么玩？（四）
-如果有10000台机器，你想怎么玩？（五）
-如果有">
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -118,12 +115,13 @@
 		
 		<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
@@ -142,7 +140,8 @@
 <p>Mesos+Kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#scheduling" target="_blank" rel="external">分配算法</a>现在还很原始：一个offer只会运行一个pod。所以如果请求启动的大量的pod的时候，就需要很多个offer来运行这些pod。为了提高性能，一个办法是在一个offer里安排多个pods，这个是kubernetes的未来计划，现在还不是我们的菜。另一个办法是提高mesos master的offer频率。虽然把<code>--allocation_interval</code>调低可以增加offer发送频率，但是如果offer回流得很慢，那又有什么意义呢。所以kubernetes的scheduler处理得越久，offer的流动性就越差，pod的启动速度就越慢。接着往下走，如何提高scheduler的处理速度呢？最简单的处理办法：换高配！4C8G的虚拟机撑死能扛住250台mesos slave。软件上就还得靠优化scheduler的流程了。另外，mesos master由于要不断发offer出去，还要处理被接受或拒绝的offer，也需要比较强的配置，但是kubernetes master的配置影响力更大，需要相对更好的配置。</p>
 <p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning" target="_blank" rel="external">看一看</a>。</p>
 <h3 id="u7EAFkubernetes"><a href="#u7EAFkubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
-<h2 id="u6D4B_u8BD5_u7ED3_u679C_uFF08_u6570_u636E_uFF09"><a href="#u6D4B_u8BD5_u7ED3_u679C_uFF08_u6570_u636E_uFF09" class="headerlink" title="测试结果（数据）"></a>测试结果（数据）</h2><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。</p>
+<h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos+Kubernetes-1"><a href="#Mesos+Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
+<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -178,6 +177,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/kubernetes-in-mesos-7/" title="如果有10000台机器，你想怎么玩？（七）">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如果有10000台机器，你想怎么玩？（七）</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/docker-storage/"  title="Docker的存储是怎么工作的">
@@ -216,7 +223,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>10</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>11</sup></a></li>
 		  
 		
 		</ul>
@@ -229,11 +236,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>6</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>6</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>7</sup></a></li>
 			
 		
 			
