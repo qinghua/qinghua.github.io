@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-02-03T09:04:00.000Z</updated>
+  <updated>2016-02-03T13:27:40.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（七）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（七）生命周期]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-7/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-7/</id>
     <published>2016-02-03T10:41:27.000Z</published>
-    <updated>2016-02-03T09:04:00.000Z</updated>
+    <updated>2016-02-03T13:27:40.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -82,11 +82,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（六）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（六）性能]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-6/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-6/</id>
     <published>2016-02-02T11:52:32.000Z</published>
-    <updated>2016-02-03T12:26:31.000Z</updated>
+    <updated>2016-02-03T13:27:35.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -575,11 +575,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（五）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（五）日志]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-5/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-5/</id>
     <published>2016-01-18T11:59:00.000Z</published>
-    <updated>2016-02-03T12:26:35.000Z</updated>
+    <updated>2016-02-03T13:27:31.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -628,11 +628,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（四）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（四）监控]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-4/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-02-03T12:26:39.000Z</updated>
+    <updated>2016-02-03T13:27:23.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -784,11 +784,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（三）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（三）持久化]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-3/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-3/</id>
     <published>2016-01-05T12:06:33.000Z</published>
-    <updated>2016-02-03T12:26:45.000Z</updated>
+    <updated>2016-02-03T13:27:19.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -867,11 +867,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（二）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（二）高可用]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-2/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-2/</id>
     <published>2016-01-01T09:07:07.000Z</published>
-    <updated>2016-02-03T12:26:50.000Z</updated>
+    <updated>2016-02-03T13:27:15.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊k8s的<a href="http://kubernetes.io/v1.1/docs/admin/high-availability.html" target="_blank" rel="external">高可用性</a>是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -911,11 +911,11 @@
   </entry>
   
   <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（一）]]></title>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（一）概述]]></title>
     <link href="http://qinghua.github.io/kubernetes-in-mesos-1/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-1/</id>
     <published>2016-01-01T08:21:06.000Z</published>
-    <updated>2016-02-03T12:26:58.000Z</updated>
+    <updated>2016-02-03T13:27:08.000Z</updated>
     <content type="html"><![CDATA[<p>这一系列文章主要是关于kubernetes和mesos集群管理的内容，里面不会说用啥命令，怎么操作，而是了解一些基本概念，理清思路。本系列目前有七篇：</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
