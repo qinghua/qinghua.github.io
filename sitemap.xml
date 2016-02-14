@@ -2,13 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
-    <lastmod>2016-02-03T13:27:40.000Z</lastmod>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-6/</loc>
+    <lastmod>2016-02-14T11:02:14.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-6/</loc>
-    <lastmod>2016-02-03T13:27:35.000Z</lastmod>
+    <loc>http://qinghua.github.io/docker-registry-delete/</loc>
+    <lastmod>2016-02-14T07:51:48.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
+    <lastmod>2016-02-03T13:27:40.000Z</lastmod>
   </url>
   
   <url>
