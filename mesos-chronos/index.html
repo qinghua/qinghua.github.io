@@ -1,0 +1,565 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器轻松搭建Chronos运行环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器轻松搭建Chronos运行环境">
+<meta property="og:url" content="http://qinghua.github.io/mesos-chronos/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+<meta property="og:image" content="http://qinghua.github.io/img/chronos.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/chronos-run-job.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/chronos-graph.png">
+<meta property="og:updated_time" content="2016-02-15T14:40:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器轻松搭建Chronos运行环境">
+<meta name="twitter:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= null ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/mesos-chronos/" title="用容器轻松搭建Chronos运行环境" itemprop="url">用容器轻松搭建Chronos运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-15T13:04:31.000Z" itemprop="datePublished"> 发表于 2016-02-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+		
+		</div>
+		
+		<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
+<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ch \</span><br><span class="line">    mesosphere/chronos:chronos-<span class="number">2.4</span>.<span class="number">0</span>-<span class="number">0.1</span>.<span class="number">20150828104228</span>.ubuntu1404-mesos-<span class="number">0.27</span>.<span class="number">0</span>-<span class="number">0.2</span>.<span class="number">190</span>.ubuntu1404 \</span><br><span class="line">    usr/bin/chronos \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk_hosts zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon \</span><br><span class="line">    --cluster_name ggg</span><br></pre></td></tr></table></figure></p>
+<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg" alt=""></p>
+<h2 id="u8FD0_u884C_u4F5C_u4E1A"><a href="#u8FD0_u884C_u4F5C_u4E1A" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
+<ul>
+<li>NAME：test</li>
+<li>COMMAND：docker run -d busybox sleep 30</li>
+<li>SCHEDULE P：T1M</li>
+</ul>
+<p>如下图所示：<br><img src="/img/chronos-run-job.jpg" alt=""></p>
+<p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
+<h2 id="u7BA1_u7406_u4F5C_u4E1A"><a href="#u7BA1_u7406_u4F5C_u4E1A" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
+<p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
+<ul>
+<li>NAME：test2</li>
+<li>COMMAND：date &gt;&gt; /tmp/test.txt</li>
+<li>PARENTS: test</li>
+</ul>
+<p>这回我们并没有设置SCHEDULE，而是设置了一个PARENTS为<strong>test</strong>，它的意思就是当test运行成功时，运行这个test2的作业。等1分钟，test作业再次运行后，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到当前时间已经被写进<code>/tmp/test.txt</code>文件中，test2作业也被成功运行了。</p>
+<p>我们再创建第三个作业：</p>
+<ul>
+<li>NAME：test3</li>
+<li>COMMAND：echo “hello world” &gt;&gt; /tmp/test.txt</li>
+<li>PARENTS: test, test2</li>
+</ul>
+<p>这次test3依赖于test和test2，那么它们之间是“或”还是“和”的关系呢？我们强制运行一次test，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到增加了一行日期和一行hello world。强制运行一次test2，却只增加了一行日期而没有增加hello world。由此推断，只有当test2和test全部被执行后，才会执行一次test3。那如果我们要“或”的关系怎么办呢？首先把test3的PARENTS修改为test，记得作业是有一个复制功能的吧？再复制一份test3把它的PARENTS设成test2就好啦。</p>
+<p>最后介绍一下那个<strong>Graph</strong>按钮，它可以显示一幅图来表示作业之间的依赖关系。对于我们的示例来说，这图应该是长这样的：<br><img src="/img/chronos-graph.png" alt=""></p>
+<p>对于一个非常复杂的作业系统来说，这样的图能让我们很容易找到并分析作业间的依赖关系，从而采取优化措施。许多持续集成系统也都能提供类似的依赖图供管理员决策。</p>
+<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li>这个版本的chronos页面上有一些bug，会导致有时候侧面的作业详细信息栏显示有问题，刷新一下整个页面或者尝试多点击几次左边的作业表就好了。</li>
+<li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
+<li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">parents</span>": <span class="value">[</span><br><span class="line">    <span class="string">"test"</span></span><br><span class="line">  ]</span>,</span><br><span class="line">  "<span class="attribute">name</span>": <span class="value"><span class="string">"test4"</span></span>,</span><br><span class="line">  "<span class="attribute">command</span>": <span class="value"><span class="string">"echo test4 &gt;&gt; /tmp/test.txt"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>然后运行以下命令来发送请求给chronos：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/dependency <span class="operator">-d</span> @<span class="built_in">test</span>4.json -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/job/<span class="built_in">test</span>4 -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/chronos/">chronos</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/mesos-marathon/"  title="用容器轻松搭建Marathon运行环境">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建Marathon运行环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境" data-url="http://qinghua.github.io/mesos-chronos/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>14</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

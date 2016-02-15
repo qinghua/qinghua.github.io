@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-02-14T07:51:48.000Z</updated>
+  <updated>2016-02-15T14:40:51.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,118 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[用容器轻松搭建Chronos运行环境]]></title>
+    <link href="http://qinghua.github.io/mesos-chronos/"/>
+    <id>http://qinghua.github.io/mesos-chronos/</id>
+    <published>2016-02-15T13:04:31.000Z</published>
+    <updated>2016-02-15T14:40:51.000Z</updated>
+    <content type="html"><![CDATA[<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
+<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ch \</span><br><span class="line">    mesosphere/chronos:chronos-<span class="number">2.4</span>.<span class="number">0</span>-<span class="number">0.1</span>.<span class="number">20150828104228</span>.ubuntu1404-mesos-<span class="number">0.27</span>.<span class="number">0</span>-<span class="number">0.2</span>.<span class="number">190</span>.ubuntu1404 \</span><br><span class="line">    usr/bin/chronos \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk_hosts zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon \</span><br><span class="line">    --cluster_name ggg</span><br></pre></td></tr></table></figure></p>
+<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg" alt=""></p>
+<h2 id="u8FD0_u884C_u4F5C_u4E1A"><a href="#u8FD0_u884C_u4F5C_u4E1A" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
+<ul>
+<li>NAME：test</li>
+<li>COMMAND：docker run -d busybox sleep 30</li>
+<li>SCHEDULE P：T1M</li>
+</ul>
+<p>如下图所示：<br><img src="/img/chronos-run-job.jpg" alt=""></p>
+<p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
+<h2 id="u7BA1_u7406_u4F5C_u4E1A"><a href="#u7BA1_u7406_u4F5C_u4E1A" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
+<p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
+<ul>
+<li>NAME：test2</li>
+<li>COMMAND：date &gt;&gt; /tmp/test.txt</li>
+<li>PARENTS: test</li>
+</ul>
+<p>这回我们并没有设置SCHEDULE，而是设置了一个PARENTS为<strong>test</strong>，它的意思就是当test运行成功时，运行这个test2的作业。等1分钟，test作业再次运行后，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到当前时间已经被写进<code>/tmp/test.txt</code>文件中，test2作业也被成功运行了。</p>
+<p>我们再创建第三个作业：</p>
+<ul>
+<li>NAME：test3</li>
+<li>COMMAND：echo “hello world” &gt;&gt; /tmp/test.txt</li>
+<li>PARENTS: test, test2</li>
+</ul>
+<p>这次test3依赖于test和test2，那么它们之间是“或”还是“和”的关系呢？我们强制运行一次test，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到增加了一行日期和一行hello world。强制运行一次test2，却只增加了一行日期而没有增加hello world。由此推断，只有当test2和test全部被执行后，才会执行一次test3。那如果我们要“或”的关系怎么办呢？首先把test3的PARENTS修改为test，记得作业是有一个复制功能的吧？再复制一份test3把它的PARENTS设成test2就好啦。</p>
+<p>最后介绍一下那个<strong>Graph</strong>按钮，它可以显示一幅图来表示作业之间的依赖关系。对于我们的示例来说，这图应该是长这样的：<br><img src="/img/chronos-graph.png" alt=""></p>
+<p>对于一个非常复杂的作业系统来说，这样的图能让我们很容易找到并分析作业间的依赖关系，从而采取优化措施。许多持续集成系统也都能提供类似的依赖图供管理员决策。</p>
+<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li>这个版本的chronos页面上有一些bug，会导致有时候侧面的作业详细信息栏显示有问题，刷新一下整个页面或者尝试多点击几次左边的作业表就好了。</li>
+<li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
+<li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">parents</span>": <span class="value">[</span><br><span class="line">    <span class="string">"test"</span></span><br><span class="line">  ]</span>,</span><br><span class="line">  "<span class="attribute">name</span>": <span class="value"><span class="string">"test4"</span></span>,</span><br><span class="line">  "<span class="attribute">command</span>": <span class="value"><span class="string">"echo test4 &gt;&gt; /tmp/test.txt"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>然后运行以下命令来发送请求给chronos：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/dependency <span class="operator">-d</span> @<span class="built_in">test</span>4.json -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/job/<span class="built_in">test</span>4 -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。<br>]]>
+    
+    </summary>
+    
+      <category term="chronos" scheme="http://qinghua.github.io/tags/chronos/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[用容器轻松搭建Marathon运行环境]]></title>
+    <link href="http://qinghua.github.io/mesos-marathon/"/>
+    <id>http://qinghua.github.io/mesos-marathon/</id>
+    <published>2016-02-15T10:36:59.000Z</published>
+    <updated>2016-02-15T09:26:10.000Z</updated>
+    <content type="html"><![CDATA[<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Marathon是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>slave</strong>，它的IP是<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"master"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"slave"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"slave"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh slave</span><br></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在master的虚拟机上启动zookeeper：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    <span class="operator">-e</span> MYID=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> SERVERS=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    mesoscloud/zookeeper:<span class="number">3.4</span>.<span class="number">6</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>可以用<code>docker ps</code>看到名为zk的容器已经启动起来了。有兴趣的话，可以用下面的命令验证：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it zk zkCli.sh -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure></p>
+<p>这里就不详细介绍zookeeper的命令了，<code>ls /</code>可以查看根节点，<code>help</code>可以查看所有命令，<code>quit</code>退出客户端。</p>
+<p>接下来在master的虚拟机上启动mesos master：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=mm \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_ZK=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_QUORUM=<span class="number">1</span> \</span><br><span class="line">    mesoscloud/mesos-master:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>顺利的话，打开<code>http://192.168.33.18:5050/</code>应该能看到下图：<br><img src="/img/mesos-master-init.png" alt=""></p>
+<p>然后在slave的虚拟机上启动mesos slave：<br><figure class="highlight sh"><figcaption><span>slave</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --pid=host \</span><br><span class="line">    --privileged=<span class="literal">true</span> \</span><br><span class="line">    --name=ms1 \</span><br><span class="line">    -v /usr/bin/docker:/usr/bin/docker \</span><br><span class="line">    -v /dev:/dev \</span><br><span class="line">    -v /usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:/usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:ro \</span><br><span class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">    -v /var/<span class="built_in">log</span>/mesos:/var/<span class="built_in">log</span>/mesos \</span><br><span class="line">    -v /tmp/mesos:/tmp/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_MASTER=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_CONTAINERIZERS=docker,mesos \</span><br><span class="line">    mesoscloud/mesos-slave:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>点击mesos页面上的<strong>Slaves</strong>应该能看到下图，这说明slave节点已经关联到mesos master了：<br><img src="/img/mesos-slaves.png" alt=""></p>
+<p>最后在master的虚拟机上启动marathon：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.<span class="number">15.0</span> \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon</span><br></pre></td></tr></table></figure></p>
+<p>点击mesos页面上的<strong>Frameworks</strong>应该能看到下图，这说明marathon已经作为一个framework关联到mesos master了：<br><img src="/img/mesos-frameworks.png" alt=""></p>
+<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下marathon：<br><img src="/img/marathon.png" alt=""></p>
+<h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>在marathon的页面上，点击<strong>Create Application</strong>按钮，然后填入如下参数：</p>
+<ul>
+<li>ID：test</li>
+<li>Command：sleep 30</li>
+<li>Image：busybox</li>
+</ul>
+<p>如下图所示：<br><img src="/img/marathon-run-docker.png" alt=""></p>
+<p>点击<strong>+ Create</strong>按钮，不一会儿，就能看见有一个名为<strong>test</strong>的应用程序正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为我们只让这个容器<code>sleep 30</code>存活30秒钟，如果容器自己停止了，marathon就会帮助再重新启动一个。另外还可以在slave的虚拟机上用<code>docker ps</code>看到busybox容器已经启动起来了。</p>
+<h2 id="u7BA1_u7406_u5E94_u7528"><a href="#u7BA1_u7406_u5E94_u7528" class="headerlink" title="管理应用"></a>管理应用</h2><p>Marathon也能很方便地对容器进行扩缩容。当容器启动起来后，在<strong>Health</strong>栏里会有一个<strong>…</strong>的按钮，按下按钮如下图所示：<br><img src="/img/marathon-actions.png" alt=""></p>
+<p>里面的<strong>Scale</strong>按钮提供了一个比较易用的方法，让我们能轻易地改变容器的数量。可以试试在弹出的界面上填2，然后点击<strong>Scale Application</strong>按钮，就会看到<strong>Running Instances</strong>很快就变成了<strong>2 of 2</strong>，点击这一行，就能看到这两个实例的状态，还可以分别下载它们的日志。同时，在mesos的主页上也能看到又多了一个运行中的任务。另外，在slave的虚拟机上用<code>docker ps</code>也能看到2个busybox的容器实例。</p>
+<p>除了扩缩容，还能重新启动应用、暂停应用（实际上就是把它缩容为0个实例）和删除应用等。另外，在test这个Application的Configuration页上，还支持修改这个Application的启动参数。比如还可以在这里设置基于TCP、HTTP或者命令的健康检查，设置环境变量等多种操作。如下图所示：<br><img src="/img/marathon-edit-configuration.png" alt=""></p>
+<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li>如果第一次运行一个比较大的镜像，可能需要比较长的下载时间。在这种情况下，需要往mesos master的启动参数里增加<code>-e MESOS_EXECUTOR_REGISTRATION_TIMEOUT=10mins</code>，否则可能会报timeout的错误，默认是1分钟。还得在marathon的启动参数里增加<code>--task_launch_timeout=600000</code>，默认为300000毫秒，即5分钟。</li>
+<li>如果一个容器老是启动不起来，可能是分配给它的资源太少。可以在marathon新建应用的窗口里指定分配给此应用的CPU和内存，默认是0.1和16MB。但是不要超过mesos slave能提供的资源哦。</li>
+<li>如果你是坚定不移的命令行狂人，可以用<code>curl</code>来发送一个http请求来运行容器。还是用上面的<strong>test</strong>来举例子，先随便在哪台机器找个路径生成一个<code>test.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">id</span>": <span class="value"><span class="string">"test"</span></span>,</span><br><span class="line">  "<span class="attribute">cmd</span>": <span class="value"><span class="string">"sleep 30"</span></span>,</span><br><span class="line">  "<span class="attribute">cpus</span>": <span class="value"><span class="number">0.1</span></span>,</span><br><span class="line">  "<span class="attribute">mem</span>": <span class="value"><span class="number">16.0</span></span>,</span><br><span class="line">  "<span class="attribute">container</span>": <span class="value">&#123;</span><br><span class="line">    "<span class="attribute">type</span>": <span class="value"><span class="string">"DOCKER"</span></span>,</span><br><span class="line">    "<span class="attribute">volumes</span>": <span class="value">[]</span>,</span><br><span class="line">    "<span class="attribute">docker</span>": <span class="value">&#123;</span><br><span class="line">      "<span class="attribute">image</span>": <span class="value"><span class="string">"busybox"</span></span>,</span><br><span class="line">      "<span class="attribute">privileged</span>": <span class="value"><span class="literal">false</span></span>,</span><br><span class="line">      "<span class="attribute">parameters</span>": <span class="value">[]</span>,</span><br><span class="line">      "<span class="attribute">forcePullImage</span>": <span class="value"><span class="literal">false</span></span><br><span class="line">    </span>&#125;</span><br><span class="line">  </span>&#125;</span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>然后运行以下命令来发送请求给marathon：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps <span class="operator">-d</span> @test.json -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+<p>打开marathon的页面就能看见这个应用在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps/<span class="built_in">test</span> -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Marathon是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。<br>]]>
+    
+    </summary>
+    
+      <category term="marathon" scheme="http://qinghua.github.io/tags/marathon/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[删除Docker Registry里的镜像怎么那么难]]></title>
