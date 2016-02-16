@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-run-docker.png">
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-actions.png">
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-edit-configuration.png">
-<meta property="og:updated_time" content="2016-02-15T09:26:10.000Z">
+<meta property="og:updated_time" content="2016-02-16T06:21:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建Marathon运行环境">
 <meta name="twitter:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Marathon是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并">
@@ -116,7 +116,7 @@
 <h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在master的虚拟机上启动zookeeper：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    <span class="operator">-e</span> MYID=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> SERVERS=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    mesoscloud/zookeeper:<span class="number">3.4</span>.<span class="number">6</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
 <p>可以用<code>docker ps</code>看到名为zk的容器已经启动起来了。有兴趣的话，可以用下面的命令验证：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it zk zkCli.sh -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure></p>
 <p>这里就不详细介绍zookeeper的命令了，<code>ls /</code>可以查看根节点，<code>help</code>可以查看所有命令，<code>quit</code>退出客户端。</p>
-<p>接下来在master的虚拟机上启动mesos master：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=mm \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_ZK=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_QUORUM=<span class="number">1</span> \</span><br><span class="line">    mesoscloud/mesos-master:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>接下来在master的虚拟机上启动mesos master：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=mm \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_ZK=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_QUORUM=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_LOG_DIR=/var/<span class="built_in">log</span>/mesos \</span><br><span class="line">    mesoscloud/mesos-master:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
 <p>顺利的话，打开<code>http://192.168.33.18:5050/</code>应该能看到下图：<br><img src="/img/mesos-master-init.png" alt=""></p>
 <p>然后在slave的虚拟机上启动mesos slave：<br><figure class="highlight sh"><figcaption><span>slave</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --pid=host \</span><br><span class="line">    --privileged=<span class="literal">true</span> \</span><br><span class="line">    --name=ms1 \</span><br><span class="line">    -v /usr/bin/docker:/usr/bin/docker \</span><br><span class="line">    -v /dev:/dev \</span><br><span class="line">    -v /usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:/usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:ro \</span><br><span class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">    -v /var/<span class="built_in">log</span>/mesos:/var/<span class="built_in">log</span>/mesos \</span><br><span class="line">    -v /tmp/mesos:/tmp/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_MASTER=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_CONTAINERIZERS=docker,mesos \</span><br><span class="line">    mesoscloud/mesos-slave:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
 <p>点击mesos页面上的<strong>Slaves</strong>应该能看到下图，这说明slave节点已经关联到mesos master了：<br><img src="/img/mesos-slaves.png" alt=""></p>
@@ -263,23 +263,7 @@
 			
 		
 			
-				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
 			
 		
 			
@@ -288,6 +272,22 @@
 		
 			
 				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>
