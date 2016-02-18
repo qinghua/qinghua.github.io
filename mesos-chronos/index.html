@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/chronos.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/chronos-run-job.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/chronos-graph.png">
-<meta property="og:updated_time" content="2016-02-15T14:41:00.000Z">
+<meta property="og:updated_time" content="2016-02-17T01:28:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建Chronos运行环境">
 <meta name="twitter:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
@@ -117,6 +117,7 @@
 </ul>
 <p>如下图所示：<br><img src="/img/chronos-run-job.jpg" alt=""></p>
 <p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
+<p><em>T1M的意思是：1分钟之后。1M的意思是：1个月之后。1Y2M3DT4H5M6S的意思是：1年2月3天4小时5分钟6秒之后。</em></p>
 <h2 id="u7BA1_u7406_u4F5C_u4E1A"><a href="#u7BA1_u7406_u4F5C_u4E1A" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
 <p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
 <ul>
@@ -177,6 +178,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/docker-swarm/" title="轻松搭建Docker Swarm运行环境">
+  <strong>上一篇：</strong><br/>
+  <span>
+  轻松搭建Docker Swarm运行环境</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/mesos-marathon/"  title="用容器轻松搭建Marathon运行环境">
@@ -222,7 +231,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>14</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>15</sup></a></li>
 		  
 		
 		</ul>
@@ -243,7 +252,7 @@
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>4</sup></a></li>
 			
 		
 			
@@ -280,6 +289,10 @@
 		
 			
 				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
 			
 		
 		</ul>

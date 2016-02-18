@@ -1,0 +1,599 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>轻松搭建Docker Swarm运行环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Docker Swarm是官方发布的集群容器管理工具。它的特点是：比较轻量级，无缝支持标准的docker API。深入浅出Swarm一文很清晰地讲解了它的架构和命令。本文从零开始搭建并管理一个swarm集群。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻松搭建Docker Swarm运行环境">
+<meta property="og:url" content="http://qinghua.github.io/docker-swarm/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Docker Swarm是官方发布的集群容器管理工具。它的特点是：比较轻量级，无缝支持标准的docker API。深入浅出Swarm一文很清晰地讲解了它的架构和命令。本文从零开始搭建并管理一个swarm集群。">
+<meta property="og:updated_time" content="2016-02-18T13:19:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻松搭建Docker Swarm运行环境">
+<meta name="twitter:description" content="Docker Swarm是官方发布的集群容器管理工具。它的特点是：比较轻量级，无缝支持标准的docker API。深入浅出Swarm一文很清晰地讲解了它的架构和命令。本文从零开始搭建并管理一个swarm集群。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= null ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/docker-swarm/" title="轻松搭建Docker Swarm运行环境" itemprop="url">轻松搭建Docker Swarm运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-18T13:19:50.000Z" itemprop="datePublished"> 发表于 2016-02-18</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5BB9_u5668"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u673A_u53D1_u73B0"><span class="toc-number">4.</span> <span class="toc-text">主机发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6587_u4EF6"><span class="toc-number">4.1.</span> <span class="toc-text">文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ZooKeeper"><span class="toc-number">4.2.</span> <span class="toc-text">ZooKeeper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker_Hub"><span class="toc-number">4.3.</span> <span class="toc-text">Docker Hub</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p><a href="https://docs.docker.com/swarm/" target="_blank" rel="external">Docker Swarm</a>是官方发布的集群容器管理工具。它的特点是：比较轻量级，无缝支持标准的docker API。<a href="http://blog.daocloud.io/swarm_analysis_part1/" target="_blank" rel="external">深入浅出Swarm</a>一文很清晰地讲解了它的架构和命令。本文从零开始搭建并管理一个swarm集群。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>manager</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"manager"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"manager"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh manager</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>想要让swarm管理node，首先得让docker daemon支持TCP。在三台虚拟机上运行以下命令：<br><figure class="highlight sh"><figcaption><span>manager and node1 and node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo rm /etc/docker/key.json    <span class="comment"># 免得我们用vagrant生成的docker id都一样，删掉了重启docker服务会自动生成一个新的</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
+<p>接下来，我们用最简单的静态节点列表方式来启动swarm环境。把node1和node2的节点信息都写到参数里即可：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p <span class="number">2376</span>:<span class="number">2375</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> manage nodes://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2375</span>,<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">2375</span></span><br></pre></td></tr></table></figure></p>
+<p>2376是我随便设的一个端口，可以改成2375外的其他可用端口，因为2375已经被docker daemon占用了。可以Ctrl+C后，用下面这个命令查看：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo netstat -tulnp | grep <span class="number">2375</span></span><br></pre></td></tr></table></figure></p>
+<p>随便在哪台机器运行以下命令就能看到这个集群的信息和节点信息。这里的2376就是上面随便设出来的2376：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> info</span><br></pre></td></tr></table></figure></p>
+<h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>Swarm的环境已经搭建完成，现在我们可以用swarm来运行容器了。随便在哪台机器运行以下命令来创建一个busybox容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> run <span class="operator">-d</span> busybox sleep <span class="number">3000</span></span><br></pre></td></tr></table></figure></p>
+<p>可能一开始的时候有点儿慢，这是因为需要下载镜像的缘故。如果等不及，就到两个node里分别先把镜像下载下来：<code>docker pull busybox</code>。之所以说无缝支持docker API，那是因为swarm里能运行所有的docker命令。跑一下<code>docker -H tcp://192.168.33.17:2376 ps</code>就能看到一个busybox的容器已经启动起来了。容器的<strong>NAMES</strong>属性里有node的信息，所以不需要分别在两个node运行<code>docker ps</code>就能看到这个busybox的容器在哪个node运行。之后，再运行3次上面的命令，共创建4个busybox的容器，就能看到它们被均匀分配到两个node上了。这是因为swarm默认的调度策略所致。目前swarm支持<a href="https://docs.docker.com/swarm/scheduler/strategy/" target="_blank" rel="external">三种调度策略</a>：</p>
+<ul>
+<li>spread：默认，swarm会把任务分配到目前运行的容器数量最少的node上去。这里说的容器数量包括已经停止的容器。</li>
+<li>binpack：把任务分配到目前最大负荷的node上去。目的是把其他机器的资源留给将来可能要运行的大容器。</li>
+<li>random：随机分配。</li>
+</ul>
+<p>如果看到的容器分配不均匀，那很可能是存在着非运行中的容器，可以用<code>docker ps -a</code>看一下。如果想要修改调度策略，可以在manager启动的时候指定<code>--strategy</code>参数，比如修改成binpack：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> `docker ps -aq`</span><br><span class="line">docker run -t -p <span class="number">2376</span>:<span class="number">2375</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> manage nodes://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2375</span>,<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">2375</span> --strategy binpack</span><br></pre></td></tr></table></figure></p>
+<p>这回再试试启动4个新的busybox，是不是都跑到同一个node上去了？Swarm的过滤器功能还允许我们指定让容器运行在哪个node上。目前，<a href="https://docs.docker.com/swarm/scheduler/filter/" target="_blank" rel="external">swarm支持如下的过滤器</a>：</p>
+<ul>
+<li>node过滤器<ul>
+<li>constraint：限制新任务只能在label符合的node上执行</li>
+<li>health：限制新任务只能在“健康”的node上执行</li>
+</ul>
+</li>
+<li>容器过滤器<ul>
+<li>affinity：使新任务在已运行某个名字或label的容器，或者有某个镜像的node上执行</li>
+<li>dependency：使新任务在有依赖（–volumes-from=dependency、–link=dependency:alias或–net=container:dependency）的node上执行</li>
+<li>port：使新任务在某个端口可用的node上执行</li>
+</ul>
+</li>
+</ul>
+<p>可以在manager启动的时候指定<code>--filter</code>参数来启用过滤器功能。我们先来试验一下constraint。由于Label是docker daemon的属性，所以我们又要修改<code>/etc/default/docker</code>并重启docker daemon。假设node1为ssd，node2为普通disk：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> `docker ps -aq`</span><br><span class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker    <span class="comment"># 删掉最后一行，因为要加新的label</span></span><br><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --label storage=ssd\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> `docker ps -aq`</span><br><span class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker    <span class="comment"># 删掉最后一行，因为要加新的label</span></span><br><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --label storage=disk\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure>
+<p>随便在哪台机器运行以下命令，看看两个node是不是分别多出来<code>storage==ssd</code>和<code>storage==disk</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> info</span><br></pre></td></tr></table></figure></p>
+<p>如果不是，就重启一下manager的swarm容器。然后就可以指定<code>storage=ssd</code>的node运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> run <span class="operator">-d</span> <span class="operator">-e</span> constraint:storage==ssd busybox sleep <span class="number">3000</span></span><br></pre></td></tr></table></figure></p>
+<p>随便再创建几个容器玩玩，再换<code>constraint:storage==disk</code>试试看。熟悉之后，我们再试验一下affinity：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> run <span class="operator">-d</span> <span class="operator">-e</span> constraint:storage==disk --name=bb busybox sleep <span class="number">3000</span></span><br></pre></td></tr></table></figure></p>
+<p>要的就是<strong>bb</strong>这个名字。然后运行以下命令让新容器运行在有bb容器的node上，也就是node2：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> run <span class="operator">-d</span> <span class="operator">-e</span> affinity:container==bb busybox sleep <span class="number">3000</span></span><br></pre></td></tr></table></figure></p>
+<p>在node2上运行<code>docker ps</code>应该能看到新容器已经启动起来了。如果constraint和affinity冲突会怎样呢？试试看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> run <span class="operator">-d</span>  <span class="operator">-e</span> affinity:container==bb <span class="operator">-e</span> constraint:storage==ssd busybox sleep <span class="number">3000</span></span><br></pre></td></tr></table></figure></p>
+<p>不出意外的话，应该能看见<strong>unable to find a node that satisfies storage==ssd</strong>的错误消息了吧。</p>
+<h2 id="u4E3B_u673A_u53D1_u73B0"><a href="#u4E3B_u673A_u53D1_u73B0" class="headerlink" title="主机发现"></a>主机发现</h2><p>Swarm共支持下面<a href="https://docs.docker.com/swarm/discovery/" target="_blank" rel="external">几种主机发现方式</a>：</p>
+<ul>
+<li>分布式键值存储<ul>
+<li>Consul 0.5.1或更高版本</li>
+<li>Etcd 2.0或更高版本</li>
+<li>ZooKeeper 3.4.5或更高版本</li>
+</ul>
+</li>
+<li>静态方式<ul>
+<li>文件</li>
+<li>节点列表</li>
+</ul>
+</li>
+<li>Docker Hub</li>
+</ul>
+<p>我们刚才<a href="/docker-swarm/#u642D_u5EFA_u73AF_u5883">搭建环境</a>用到的是静态的节点列表方式，现在我们再试试其它几种方式。</p>
+<h3 id="u6587_u4EF6"><a href="#u6587_u4EF6" class="headerlink" title="文件"></a>文件</h3><p>先从简单的开始。文件的主机发现方式和节点列表很类似，它们都是静态的。首先把node的信息都写到一个临时文件<code>/tmp/cluster</code>里，然后让swamp容器管理这个文件即可：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="number">192.168</span>.<span class="number">33</span>.[<span class="number">18</span>:<span class="number">19</span>]:<span class="number">2375</span> &gt; /tmp/cluster</span><br><span class="line">docker run -t -p <span class="number">2376</span>:<span class="number">2375</span> -v /tmp/cluster:/tmp/cluster swarm:<span class="number">1.1</span>.<span class="number">0</span> manage file:///tmp/cluster</span><br></pre></td></tr></table></figure></p>
+<p>随便选台虚拟机检查一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> info</span><br></pre></td></tr></table></figure></p>
+<p>是不是有换汤不换药的感觉？</p>
+<h3 id="ZooKeeper"><a href="#ZooKeeper" class="headerlink" title="ZooKeeper"></a>ZooKeeper</h3><p>接下来试验一下ZooKeeper。先在manager上启动一个ZooKeeper的服务：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    <span class="operator">-e</span> MYID=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> SERVERS=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    mesoscloud/zookeeper:<span class="number">3.4</span>.<span class="number">6</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>然后运行swarm manager：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p <span class="number">2376</span>:<span class="number">2375</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> manage zk://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2181</span>/swarm</span><br></pre></td></tr></table></figure></p>
+<p>由于这回不像文件和节点列表方式那样静态，我们需要把两个node加入到集群里：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> join --addr=<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2375</span> zk://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2181</span>/swarm</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> join --addr=<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">2375</span> zk://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2181</span>/swarm</span><br></pre></td></tr></table></figure>
+<p>随便选台虚拟机检查一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> info    <span class="comment"># 由于是动态加载，可能需要等待半分钟左右才能看见node</span></span><br></pre></td></tr></table></figure></p>
+<p>Consul和Etcd也都很类似，这里就不一一列举了。</p>
+<h3 id="Docker_Hub"><a href="#Docker_Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><p>Docker Hub的主机发现方式，就是在docker hub上使用发现服务来生成一个唯一的集群ID（别在生产环境上这么干！）。Docker hub会为我们保留大概一个星期。在任意一台机器上运行以下命令：<br><figure class="highlight sh"><figcaption><span>manager or node1 or node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm swarm:<span class="number">1.1</span>.<span class="number">0</span> create</span><br></pre></td></tr></table></figure></p>
+<p>然后我们就能看见上面的命令生成了一个字符串，这就是我们的集群ID。在我的机器上是这样的：<code>3137ebf83d771f1db06bf4eab7ccc73b</code>。我大天朝的网络，有时候会出现<strong>TLS handshake timeout</strong>，那就再运行一次吧。</p>
+<p>这时候可以把manager启动起来了，别忘了替换成你自己的token：<br><figure class="highlight sh"><figcaption><span>manager</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p <span class="number">2376</span>:<span class="number">2375</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> manage token://<span class="number">3137</span>ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure></p>
+<p>然后可以在两个node上分别运行以下命令，启动swarm的代理并加入到集群中，别忘了替换成你自己的token：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> join --addr=<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2375</span> token://<span class="number">3137</span>ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> swarm:<span class="number">1.1</span>.<span class="number">0</span> join --addr=<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">2375</span> token://<span class="number">3137</span>ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure>
+<p>随便选台虚拟机检查一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">2376</span> info    <span class="comment"># 可能比较慢，下面那条命令更快</span></span><br><span class="line">docker run --rm swarm:<span class="number">1.1</span>.<span class="number">0</span> list token://<span class="number">3137</span>ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/swarm/">swarm</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/docker-swarm/" data-title="轻松搭建Docker Swarm运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/mesos-chronos/"  title="用容器轻松搭建Chronos运行环境">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建Chronos运行环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="docker-swarm/" data-title="轻松搭建Docker Swarm运行环境" data-url="http://qinghua.github.io/docker-swarm/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5BB9_u5668"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u673A_u53D1_u73B0"><span class="toc-number">4.</span> <span class="toc-text">主机发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6587_u4EF6"><span class="toc-number">4.1.</span> <span class="toc-text">文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ZooKeeper"><span class="toc-number">4.2.</span> <span class="toc-text">ZooKeeper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker_Hub"><span class="toc-number">4.3.</span> <span class="toc-text">Docker Hub</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>15</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
