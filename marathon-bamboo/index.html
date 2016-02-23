@@ -6,24 +6,27 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>删除Docker Registry里的镜像怎么那么难 | 懒程序员改变世界</title>
+    <title>用容器轻松搭建Bamboo来提供Marathon的对外服务 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
+    <meta name="description" content="如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？Bamboo提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="删除Docker Registry里的镜像怎么那么难">
-<meta property="og:url" content="http://qinghua.github.io/docker-registry-delete/index.html">
+<meta property="og:title" content="用容器轻松搭建Bamboo来提供Marathon的对外服务">
+<meta property="og:url" content="http://qinghua.github.io/marathon-bamboo/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
-<meta property="og:image" content="http://qinghua.github.io/img/docker-image.jpg">
-<meta property="og:updated_time" content="2016-02-14T07:51:48.000Z">
+<meta property="og:description" content="如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？Bamboo提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。">
+<meta property="og:image" content="http://qinghua.github.io/img/bamboo.png">
+<meta property="og:image" content="http://qinghua.github.io/img/bamboo-tomcat.png">
+<meta property="og:image" content="http://qinghua.github.io/img/tomcat.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/marathon-application-tomcat.png">
+<meta property="og:updated_time" content="2016-02-22T07:04:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="删除Docker Registry里的镜像怎么那么难">
-<meta name="twitter:description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
+<meta name="twitter:title" content="用容器轻松搭建Bamboo来提供Marathon的对外服务">
+<meta name="twitter:description" content="如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？Bamboo提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -82,14 +85,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/docker-registry-delete/" title="删除Docker Registry里的镜像怎么那么难" itemprop="url">删除Docker Registry里的镜像怎么那么难</a>
+      <a href="/marathon-bamboo/" title="用容器轻松搭建Bamboo来提供Marathon的对外服务" itemprop="url">用容器轻松搭建Bamboo来提供Marathon的对外服务</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-02-14T10:45:20.000Z" itemprop="datePublished"> 发表于 2016-02-14</time>
+    <time datetime="2016-02-22T11:26:11.000Z" itemprop="datePublished"> 发表于 2016-02-22</time>
     
   </p>
 </header>
@@ -98,33 +101,26 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u95EE_u9898"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96BE_u70B9"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65B9_u6848"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1_vs_v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u670D_u52A1_u53D1_u73B0"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u65B9_u6CD5"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
 		
 		</div>
 		
-		<p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail" target="_blank" rel="external">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？<br><a id="more"></a></p>
-<h2 id="u95EE_u9898"><a href="#u95EE_u9898" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a href="https://github.com/docker/distribution/issues/1183" target="_blank" rel="external">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
-<p>目前docker官方提供了如下3个软删除的方法：</p>
+		<p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a href="https://github.com/QubitProducts/bamboo" target="_blank" rel="external">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，但是用下面这个命令来启动marathon。它相比原来的命令多了一个<code>--event_subscriber http_callback</code>的参数，如果不配置，便不能实现HAproxy动态加载服务的功能。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.<span class="number">15.0</span> \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon \</span><br><span class="line">    --event_subscriber http_callback</span><br></pre></td></tr></table></figure></p>
+<p>现在启动Bamboo镜像，在里面指定marathon的地址：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">8000</span>:<span class="number">8000</span> \</span><br><span class="line">    -p <span class="number">80</span>:<span class="number">80</span> \</span><br><span class="line">    --name=bam \</span><br><span class="line">    <span class="operator">-e</span> MARATHON_ENDPOINT=http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ENDPOINT=http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8000</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ZK_HOST=<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ZK_PATH=/bamboo \</span><br><span class="line">    <span class="operator">-e</span> BIND=<span class="string">":8000"</span> \</span><br><span class="line">    <span class="operator">-e</span> CONFIG_PATH=<span class="string">"config/production.example.json"</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_DOCKER_AUTO_HOST=<span class="literal">true</span> \</span><br><span class="line">    gregory90/bamboo:<span class="number">0.2</span>.<span class="number">11</span></span><br></pre></td></tr></table></figure></p>
+<p>在浏览器打开<code>http://192.168.33.18:8000/</code>应该能看到下图：<br><img src="/img/bamboo.png" alt=""></p>
+<h2 id="u670D_u52A1_u53D1_u73B0"><a href="#u670D_u52A1_u53D1_u73B0" class="headerlink" title="服务发现"></a>服务发现</h2><p>现在让我们用marathon来启动一个tomcat服务。在任意一台机器上运行以下命令，把创建tomcat服务的请求发送给marathon的REST api：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps \</span><br><span class="line">    -H <span class="string">"Content-type: application/json"</span> \</span><br><span class="line">    <span class="operator">-d</span> <span class="string">'&#123;"cpus":0.5,"mem":200,"disk":0,"instances":1,"id":"tomcat", </span><br><span class="line">    "container":&#123;"docker":&#123;"image":"tomcat","network":"BRIDGE","portMappings": </span><br><span class="line">    [&#123;"containerPort":8080,"hostPort":0,"servicePort":0,"protocol":"tcp"&#125;]&#125;&#125;&#125;'</span></span><br></pre></td></tr></table></figure></p>
+<p>分别刷新marathon和bamboo，就能看到它们各自多了个tomcat的服务。点击bamboo页面上的<strong>/tomcat</strong>记录最右边的加号按钮，在<strong>acl</strong>里输入<code>path_beg -i /</code>（表示运行在根目录上，有兴趣的话可以参考HAproxy的<a href="http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#7" target="_blank" rel="external">ACL语法</a>），然后点击<strong>Create</strong>按钮：<br><img src="/img/bamboo-tomcat.png" alt=""></p>
+<p>顺利的话，打开<code>http://192.168.33.18/</code>应该能看到tomcat出现啦：<br><img src="/img/tomcat.jpg" alt=""></p>
+<p>这个时候，在marathon的页面上点击tomcat这行记录，便会到tomcat application页面里。如下图选中当前的tomcat实例，点击<strong>Kill</strong>按钮：<br><img src="/img/marathon-application-tomcat.png" alt=""></p>
+<p>稍等几秒，就会看到tomcat的服务运行地址从<code>192.168.33.19:31071</code>变成了<code>192.168.33.19:31571</code>，端口因机而异。再回去刷新tomcat的<code>http://192.168.33.18/</code>页面，是不是仍然提供服务呢？如果你手快，应该能看到<strong>503 Service Unavailable</strong>，那就多刷新两下 ：） 到slave虚拟机上用命令删除tomcat容器，再观察一下，是不是一样的效果呢？</p>
+<h2 id="u5176_u4ED6_u65B9_u6CD5"><a href="#u5176_u4ED6_u65B9_u6CD5" class="headerlink" title="其他方法"></a>其他方法</h2><p>Marathon官方还支持其它<a href="https://mesosphere.github.io/marathon/docs/service-discovery-load-balancing" target="_blank" rel="external">三种服务发现的方法</a>：</p>
 <ol>
-<li><code>DELETE:/v2/&lt;name&gt;/manifests/&lt;reference&gt;</code>：这个API是软删除一个<a href="https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md" target="_blank" rel="external">清单（manifest）</a>，但是真正占用存储空间的层还在。</li>
-<li><code>DELETE:/v2/&lt;name&gt;/blobs/&lt;digest&gt;</code>：这个API类似上面那个，只不过它要软删除的对象是层（layer）罢了。</li>
-<li><code>DELETE:/v2/&lt;name&gt;/blobs/uploads/&lt;uuid&gt;</code>：这个只是取消掉另一个上传的进程罢了。</li>
+<li>Mesos-DNS：Mesosphere公司提供的DNS产品，不仅适用于marathon，而且适用于其它Mesos Framework。</li>
+<li>Marathon-lb：感觉上跟k8s的<a href="http://kubernetes.io/v1.1/docs/user-guide/services.html#type-nodeport" target="_blank" rel="external">NodePort</a>有点像，不过它像Bamboo那样包含了HAproxy。</li>
+<li>haproxy-marathon-bridge：现在已经不推荐了。需要在每个slave上安装HAproxy，定时更新HAproxy的配置文件。</li>
 </ol>
-<h2 id="u96BE_u70B9"><a href="#u96BE_u70B9" class="headerlink" title="难点"></a><a href="https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes" target="_blank" rel="external">难点</a></h2><p>为了删除不需要的数据，腾出磁盘空间，我们希望有删除功能。但是如果一个不健全的删除功能不小心把有用的数据给删了，那还不如没有这个功能呢。在这个逻辑前提下，docker团队选择了不删除数据。除此之外，还有一个考虑：删除功能是需要很大工作量的。大家知道程序员们的价格是比较高的，以相对便宜的磁盘空间为代价，在眼下先节省这笔人工费开销，并把它投入到更有价值的地方去，不是更有意义么。</p>
-<p>那为什么删除功能需要很大的工作量呢？这是因为删除有一个大坑。首先我们来看一下存储模型：所有的数据都被存放到VFS之上，它提供了最终一致性，但是可能需要较长时间才能达到一致。再看镜像的数据结构：一个docker镜像包含了3个概念：标签（tag）、清单（manifest）和层（layer）。标签被关联到清单上，而清单则被关联到层上，就像下图一样：<br><img src="/img/docker-image.jpg" alt=""></p>
-<p>其实单说删除本身其实是比较容易的事情，就像现在的垃圾收集算法一样。一个是根搜索法，从根节点开始计算，若某对象不可达，则表明不被用到，可删之。在docker镜像中并没有“根层”的概念，所以需要循环所有的清单来看是否有哪些层不被用到。还有一个是引用计数法，它为每一个对象添加一个引用计数器，为0则表明不被用到。实现起来比较简单，但是很难删除掉循环引用。在docker镜像中，因为它是一个<a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph" target="_blank" rel="external">有向无环图（DAG）</a>，所以并不会有“循环引用”，正是解决这个问题的极佳方案之一。那么这个大坑在哪里呢？问题在于并发。想象一下，如果在删除某层的过程中，有另外一个push的线程误认为此层已经存在，就会在删除之后导致第二个线程push的镜像不能正常工作。</p>
-<h2 id="u65B9_u6848"><a href="#u65B9_u6848" class="headerlink" title="方案"></a>方案</h2><p>目前docker官方有几个数据删除的方案（但是还没有实现）：</p>
-<ol>
-<li>引用计数法：如上文所述是垃圾收集算法的一种。需要维护引用计数器，对于已经存在着的docker registry来说需要数据迁移。</li>
-<li>全局锁：引入GC线程来做删除。删除的时候不能写入。实现简单，但是影响性能。</li>
-<li>新老代：也是引入GC线程来做删除。将存储分为年轻年老两代，GC线程删除某一代的时候允许同时写入另一代。避免了全局锁的性能问题但是实现起来比较麻烦。</li>
-<li>数据库：引入一个数据库，用事务来解决并发的问题。</li>
-</ol>
-<p>如果你等不及docker官方的实现，并且对自己的私有库的控制力比较强，不需要考虑并发，可以使用<a href="https://github.com/burnettk/delete-docker-registry-image" target="_blank" rel="external">这个脚本</a>来彻底删除，记得先把registry停掉，或者是设置为<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-read-only-mode" target="_blank" rel="external">只读模式</a>以避免并发哦。设置一个cron任务，每天凌晨停止服务一小段时间，然后运行脚本，再启动服务就好了。</p>
-<p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete" target="_blank" rel="external">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
-<p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
-<h2 id="v1_vs_v2"><a href="#v1_vs_v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a href="https://github.com/docker/docker-registry" target="_blank" rel="external">这里</a>。新版本v2是用go写的，源码在<a href="https://github.com/docker/distribution" target="_blank" rel="external">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a href="http://www.csdn.net/article/2015-09-09/2825651" target="_blank" rel="external">这篇文章</a>。</p>
-<p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -138,7 +134,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/docker-registry/">docker registry</a>
+  <span></span> <a href="/tags/bamboo/">bamboo</a><a href="/tags/marathon/">marathon</a>
   </div>
 
 </div>
@@ -147,7 +143,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/docker-registry-delete/" data-title="删除Docker Registry里的镜像怎么那么难 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/marathon-bamboo/" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -161,18 +157,18 @@
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/mesos-marathon/" title="用容器轻松搭建Marathon运行环境">
+ <a href="/saltstack/" title="SaltStack环境安装及入门">
   <strong>上一篇：</strong><br/>
   <span>
-  用容器轻松搭建Marathon运行环境</span>
+  SaltStack环境安装及入门</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/kubernetes-in-mesos-7/"  title="如果有10000台机器，你想怎么玩？（七）生命周期">
+<a href="/docker-swarm/"  title="轻松搭建Docker Swarm运行环境">
  <strong>下一篇：</strong><br/> 
- <span>如果有10000台机器，你想怎么玩？（七）生命周期
+ <span>轻松搭建Docker Swarm运行环境
 </span>
 </a>
 </div>
@@ -181,7 +177,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="docker-registry-delete/" data-title="删除Docker Registry里的镜像怎么那么难" data-url="http://qinghua.github.io/docker-registry-delete/"></div>
+	<div class="ds-thread" data-thread-key="marathon-bamboo/" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务" data-url="http://qinghua.github.io/marathon-bamboo/"></div>
 </section>
 
 
@@ -191,7 +187,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u95EE_u9898"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96BE_u70B9"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65B9_u6848"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1_vs_v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u670D_u52A1_u53D1_u73B0"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u65B9_u6CD5"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
  
   </div>
 

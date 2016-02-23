@@ -82,6 +82,134 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/saltstack/" title="SaltStack环境安装及入门" itemprop="url">SaltStack环境安装及入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-23T11:48:11.000Z" itemprop="datePublished"> 发表于 2016-02-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://saltstack.com/">SaltStack</a>简称salt，是一个配置管理工具，类似<a href="http://www.ansible.com/get-started">Ansible</a>、<a href="https://www.chef.io/chef/">Chef</a>和<a href="https://puppetlabs.com/">Puppet</a>，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有<a href="http://docs.saltstack.cn/zh_CN/latest/">部分中文文档</a>。它分为服务器（master）和客户端（minion），服务器也是一个客户端。<a href="http://ohmystack.com/articles/salt-1-basic/">Salt入门系列文章</a>是个不错的参考教程。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/saltstack/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/salt/">salt</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/saltstack/#comments" class="ds-thread-count comments-count-link" data-thread-key="saltstack/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/marathon-bamboo/" title="用容器轻松搭建Bamboo来提供Marathon的对外服务" itemprop="url">用容器轻松搭建Bamboo来提供Marathon的对外服务</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-22T11:26:11.000Z" itemprop="datePublished"> 发表于 2016-02-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a href="https://github.com/QubitProducts/bamboo">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/marathon-bamboo/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/bamboo/">bamboo</a><a href="/tags/marathon/">marathon</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/marathon-bamboo/#comments" class="ds-thread-count comments-count-link" data-thread-key="marathon-bamboo/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/docker-swarm/" title="轻松搭建Docker Swarm运行环境" itemprop="url">轻松搭建Docker Swarm运行环境</a>
   </h1>
   <p class="article-author">By
@@ -223,7 +351,7 @@
 </header>
     <div class="article-content">
         
-        <p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Marathon是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。<br>
+        <p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。<a href="https://mesosphere.github.io/marathon/">Marathon</a>是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。<br>
         
         
         <p class="article-more-link">
@@ -604,137 +732,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/ansible-large-scale-cluster/" title="用ansible管理大规模集群" itemprop="url">用ansible管理大规模集群</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-21T00:23:45.000Z" itemprop="datePublished"> 发表于 2016-01-21</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p><a href="http://www.ansible.com/get-started">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/ansible-large-scale-cluster/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/ansible/">ansible</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/ansible-large-scale-cluster/#comments" class="ds-thread-count comments-count-link" data-thread-key="ansible-large-scale-cluster/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/waterfall-to-agile-2/" title="传统企业敏捷转型纪实（二）" itemprop="url">传统企业敏捷转型纪实（二）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-20T12:11:05.000Z" itemprop="datePublished"> 发表于 2016-01-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/waterfall-to-agile-2/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/agile/">agile</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/agile/">agile</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/waterfall-to-agile-2/#comments" class="ds-thread-count comments-count-link" data-thread-key="waterfall-to-agile-2/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -761,7 +758,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>15</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>17</sup></a></li>
 		  
 		
 		</ul>
@@ -786,23 +783,23 @@
 			
 		
 			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/storage/" title="storage">storage<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
@@ -823,6 +820,14 @@
 		
 			
 				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 		</ul>

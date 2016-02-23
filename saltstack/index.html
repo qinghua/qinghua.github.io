@@ -1,0 +1,565 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>SaltStack环境安装及入门 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt入门系列文章是个不错的参考教程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SaltStack环境安装及入门">
+<meta property="og:url" content="http://qinghua.github.io/saltstack/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt入门系列文章是个不错的参考教程。">
+<meta property="og:updated_time" content="2016-02-23T11:48:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SaltStack环境安装及入门">
+<meta name="twitter:description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt入门系列文章是个不错的参考教程。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= null ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/saltstack/" title="SaltStack环境安装及入门" itemprop="url">SaltStack环境安装及入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-23T11:48:11.000Z" itemprop="datePublished"> 发表于 2016-02-23</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u547D_u4EE4"><span class="toc-number">3.</span> <span class="toc-text">运行命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#salt"><span class="toc-number">3.1.</span> <span class="toc-text">salt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt-call"><span class="toc-number">3.2.</span> <span class="toc-text">salt-call</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt-run"><span class="toc-number">3.3.</span> <span class="toc-text">salt-run</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6307_u5B9A_u76EE_u6807"><span class="toc-number">4.</span> <span class="toc-text">指定目标</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://saltstack.com/" target="_blank" rel="external">SaltStack</a>简称salt，是一个配置管理工具，类似<a href="http://www.ansible.com/get-started" target="_blank" rel="external">Ansible</a>、<a href="https://www.chef.io/chef/" target="_blank" rel="external">Chef</a>和<a href="https://puppetlabs.com/" target="_blank" rel="external">Puppet</a>，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有<a href="http://docs.saltstack.cn/zh_CN/latest/" target="_blank" rel="external">部分中文文档</a>。它分为服务器（master）和客户端（minion），服务器也是一个客户端。<a href="http://ohmystack.com/articles/salt-1-basic/" target="_blank" rel="external">Salt入门系列文章</a>是个不错的参考教程。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init ubuntu/trusty64</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>minion1</strong>和<strong>minion2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，其中minion2安装CentOS，其它安装Ubuntu。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"master"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"minion1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"minion1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"minion2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.box = <span class="string">"bento/centos-7.1"</span></span><br><span class="line">  host.vm.hostname = <span class="string">"minion2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>改好之后，分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion1</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion2</span><br></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先在master的虚拟机上安装salt-master和salt-minion，注意master自己也是一个minion：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/<span class="number">14.04</span>/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</span><br><span class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y salt-minion</span><br><span class="line">sudo apt-get install -y salt-master</span><br></pre></td></tr></table></figure></p>
+<p>然后在minion上安装salt-minion，这次salt-master就没有必要了，Ubuntu和CentOS的安装方法不太一样：<br><figure class="highlight sh"><figcaption><span>minion1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/<span class="number">14.04</span>/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</span><br><span class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y salt-minion</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sudo rpm --import https://repo.saltstack.com/yum/redhat/<span class="number">7</span>/x86_64/latest/SALTSTACK-GPG-KEY.pub</span><br><span class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt;/etc/yum.repos.d/saltstack.repo</span><br><span class="line">[saltstack-repo]</span><br><span class="line">name=SaltStack repo for RHEL/CentOS 7</span><br><span class="line">baseurl=https://repo.saltstack.com/yum/redhat/7/x86_64/latest</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</span><br><span class="line">EOF"</span></span><br><span class="line">sudo yum clean expire-cache</span><br><span class="line">sudo yum update</span><br><span class="line">sudo yum install -y salt-minion</span><br></pre></td></tr></table></figure>
+<p>默认安装好的minion会自动试图连接到名为salt的master去，所以我们得配置一下，然后重新启动salt-minion服务：<br><figure class="highlight sh"><figcaption><span>master and minion1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</span><br><span class="line">sudo service salt-minion restart</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</span><br><span class="line">sudo systemctl start salt-minion</span><br></pre></td></tr></table></figure>
+<p>随便在哪台虚拟机上运行<code>sudo tail -1 /var/log/salt/minion</code>，如果看到错误消息<strong>The Salt Master has cached the public key for this node</strong>，那就说明前面的安装都是顺利的—这是因为第一次运行的时候，需要建立互信。Salt维护着一个互信列表，在master上运行<code>sudo salt-key</code>可以看到这个表，现在应该是这样子的：<br><strong>Accepted Keys:</strong><br><strong>Denied Keys:</strong><br><strong>Unaccepted Keys:</strong><br>master<br>minion1<br>minion2<br><strong>Rejected Keys:</strong></p>
+<p>从上表可以看出，互信列表里的记录有<a href="https://docs.saltstack.com/en/latest/ref/cli/salt-key.html#description" target="_blank" rel="external">四种状态</a>：</p>
+<ul>
+<li>Unaccepted：待处理</li>
+<li>Accepted：互信</li>
+<li>Rejected：运维人员运行命令拒绝</li>
+<li>Denied：master自动拒绝（比如ID重复等）</li>
+</ul>
+<p>现在所有的minion包括master自己都是处于Unaccepted的状态。运行以下命令就可以把它们都加入到Accepted：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo salt-key --accept=master --yes</span><br><span class="line">sudo salt-key --accept=minion1 --yes</span><br><span class="line">sudo salt-key --accept=minion2 --yes</span><br></pre></td></tr></table></figure></p>
+<p>如果minion太多了，也可以用<code>sudo salt-key --accept-all --yes</code>来全部accept。忽略<code>--yes</code>可以让我们手动确认所有的Unaccepted记录。再次运行<code>sudo salt-key</code>，确认所有的minion都已经加入到Accepted Keys里了，安装步骤就此完成。</p>
+<p>小贴士：可以用<code>sudo salt-key --reject=minion2</code>来把minion2加入到Rejected列表中。用<code>sudo salt-key --include-all --accept-all</code>来把Rejected列表中的minion再加到Accepted中来。</p>
+<h2 id="u8FD0_u884C_u547D_u4EE4"><a href="#u8FD0_u884C_u547D_u4EE4" class="headerlink" title="运行命令"></a>运行命令</h2><h3 id="salt"><a href="#salt" class="headerlink" title="salt"></a>salt</h3><p>安装完成之后，在master上运行<code>sudo salt * test.ping</code>可以看到各minion是否能联通。其中的<strong>*</strong>代表<a href="https://docs.saltstack.com/en/latest/topics/targeting/index.html" target="_blank" rel="external">目标（target）</a>，这里即是所有的minion（master现在也是一个minion），<strong>test.ping</strong>称为<a href="https://docs.saltstack.com/en/latest/ref/modules/" target="_blank" rel="external">执行模块（execution module）</a>，也就是需要在目标上调用的方法。<a href="https://docs.saltstack.com/en/latest/ref/modules/all/index.html" target="_blank" rel="external">这个列表</a>里记载了所有的原生执行模块。我们来尝试一下其中的<a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.cmdmod.html#module-salt.modules.cmdmod" target="_blank" rel="external">cmdmod</a>模块：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo salt minion1 cmd.run <span class="string">'ifconfig'</span></span><br></pre></td></tr></table></figure></p>
+<p>这就相当于在minion1上直接运行ifconfig了。</p>
+<h3 id="salt-call"><a href="#salt-call" class="headerlink" title="salt-call"></a>salt-call</h3><p>Salt还提供了一个<code>salt-call</code>命令，它只能在本机执行，所以无需输入目标。在master上运行<code>sudo salt-call cmd.run &#39;hostname&#39;</code>，效果相当于直接本地运行命令。有所不同的是，它相当于运行在salt的机制上。Salt需要两个端口来运行：通过<a href="http://zeromq.org/" target="_blank" rel="external">ZeroMQ</a>在4505发消息，4506用来接收结果，所有的minion都会订阅4505端口。也就是说，运行这条命令使用了这两个端口。配合上<code>--log-level=debug</code>的参数，使得<code>salt-call</code>非常适用于调试。运行以下命令：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo salt-call --log-level=debug disk.usage</span><br></pre></td></tr></table></figure></p>
+<p>从打印出来的调试信息，我们能看到原来<strong>disk.usage</strong>模块用的是<code>df -P</code>命令。</p>
+<h3 id="salt-run"><a href="#salt-run" class="headerlink" title="salt-run"></a>salt-run</h3><p>最后再介绍一个<code>salt-run</code>命令。我们简单地试一试在master上运行<code>sudo salt-run manage.up</code>，这个manage.up是个runner，在这里它的作用类似于test.ping模块，也是查看所有minion的状态，但是不需要指定目标即可使用。它一般分为几个步骤，一个步骤内并行执行，步骤之间串行执行。比如先部署好数据库（步骤A）再部署应用服务器（步骤B）。<code>salt-run</code>运行的命令称为runner，<a href="https://docs.saltstack.com/en/latest/ref/runners/all/index.html" target="_blank" rel="external">这个列表</a>里记载了所有的原生runner。</p>
+<h2 id="u6307_u5B9A_u76EE_u6807"><a href="#u6307_u5B9A_u76EE_u6807" class="headerlink" title="指定目标"></a>指定目标</h2><p>Salt支持多种方式来指定目标，简单尝试一下就知道啦。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo salt -L minion1,minion2 test.ping             <span class="comment"># 列表，minion1和minion2</span></span><br><span class="line">sudo salt minion* test.ping                        <span class="comment"># 通配符，以"minion"开头的minion</span></span><br><span class="line">sudo salt -E <span class="string">'minion(1|2)'</span> test.ping               <span class="comment"># 正则表达式，minion1或minion2</span></span><br><span class="line">sudo salt -G <span class="string">'os:Ubuntu'</span> test.ping                 <span class="comment"># Grains，操作系统为Ubuntu</span></span><br><span class="line">sudo salt -C <span class="string">'minion* and G@os:Ubuntu'</span> test.ping   <span class="comment"># 组合，以"minion"开头的minion并且操作系统为Ubuntu</span></span><br><span class="line">sudo salt -C <span class="string">'master or G@os:CentOS'</span> test.ping     <span class="comment"># 组合，master或操作系统为CentOS（不区分大小写）</span></span><br></pre></td></tr></table></figure></p>
+<p>其中的<a href="https://docs.saltstack.com/en/latest/topics/targeting/grains.html" target="_blank" rel="external">Grains</a>是minion的属性，包含机器名、IP、操作系统、CPU等多种信息。可以运行<code>sudo salt * grains.items</code>来查看所有的grains数据。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/salt/">salt</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/saltstack/" data-title="SaltStack环境安装及入门 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/marathon-bamboo/"  title="用容器轻松搭建Bamboo来提供Marathon的对外服务">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建Bamboo来提供Marathon的对外服务
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="saltstack/" data-title="SaltStack环境安装及入门" data-url="http://qinghua.github.io/saltstack/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u547D_u4EE4"><span class="toc-number">3.</span> <span class="toc-text">运行命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#salt"><span class="toc-number">3.1.</span> <span class="toc-text">salt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt-call"><span class="toc-number">3.2.</span> <span class="toc-text">salt-call</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#salt-run"><span class="toc-number">3.3.</span> <span class="toc-text">salt-run</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6307_u5B9A_u76EE_u6807"><span class="toc-number">4.</span> <span class="toc-text">指定目标</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>17</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
