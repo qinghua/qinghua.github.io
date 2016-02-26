@@ -1,0 +1,595 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>看例子学sed | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="这次重温一下Linux下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="看例子学sed">
+<meta property="og:url" content="http://qinghua.github.io/sed/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="这次重温一下Linux下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。">
+<meta property="og:updated_time" content="2016-02-26T13:18:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="看例子学sed">
+<meta name="twitter:description" content="这次重温一下Linux下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= null ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/sed/" title="看例子学sed" itemprop="url">看例子学sed</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-26T13:18:07.000Z" itemprop="datePublished"> 发表于 2016-02-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5220"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u7279_u5B9A_u884C"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u5173_u8054_u884C"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6539"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6B63_u5219_u66FF_u6362"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5168_u5C40_u66FF_u6362"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5927_u5C0F_u5199_u66FF_u6362"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4FEE_u6539_u6307_u5B9A_u884C"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u6240_u6709_u7B26_u53F7"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u7279_u5B9A_u884C"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u884C_u8303_u56F4"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u5947/_u5076_u6570_u884C"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>这次重温一下Linux下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。<br><a id="more"></a></p>
+<p>假设我们有一个csv文件如下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;staff.csv</span><br><span class="line">Gavo,<span class="number">35</span></span><br><span class="line">Jane,<span class="number">21</span></span><br><span class="line">Bill,<span class="number">25</span></span><br><span class="line">Jimmy,<span class="number">42</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<h2 id="u589E"><a href="#u589E" class="headerlink" title="增"></a>增</h2><h3 id="u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><a href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C" class="headerlink" title="在文件头/尾增加一行"></a>在文件头/尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1i Name,Age'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
+<p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'2a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
+<h3 id="u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><a href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv    <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv     <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
+<p>下面这个命令可以在Gavo后面增加两行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/a Hetty,29\nEmma,45'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<h2 id="u5220"><a href="#u5220" class="headerlink" title="删"></a>删</h2><h3 id="u5220_u9664_u7279_u5B9A_u884C"><a href="#u5220_u9664_u7279_u5B9A_u884C" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1d'</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">'$d'</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">'/Jane/d'</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">'/21/d'</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">'/J/d'</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="u5220_u9664_u5173_u8054_u884C"><a href="#u5220_u9664_u5173_u8054_u884C" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;d;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>其中的<code>N</code>就是下一行（next line）的意思。如果不想删除Gavo这行，用这个命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;s/\n.*//;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>相当于匹配了两行也就是<code>Gavo,35\nJane,21</code>之后，再把<code>\n</code>之后的所有文本替换成空白，即删除。替换的命令在下面的<a href="/sed/#u6539">改</a>中会详细介绍。</p>
+<h2 id="u6539"><a href="#u6539" class="headerlink" title="改"></a>改</h2><h3 id="u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE"><a href="#u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE" class="headerlink" title="所有行头/尾增加项目"></a>所有行头/尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/^/China,/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
+<p>其中的<code>s</code>表示替换（substitute），<code>^</code>表示开头，相对应的<code>$</code>表示结尾。</p>
+<h3 id="u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE"><a href="#u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/China/US/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
+<p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/,[A-Z][a-z]*/&amp;-dev/'</span> staff.csv</span><br><span class="line">sed -r <span class="string">'s/(,.*),/\1-dev,/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
+<h3 id="u6B63_u5219_u66FF_u6362"><a href="#u6B63_u5219_u66FF_u6362" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">'s/[^,]+/"&amp;"/g'</span> staff.csv</span><br><span class="line">sed <span class="operator">-e</span> <span class="string">'s/^\|$/"/g'</span> <span class="operator">-e</span> <span class="string">'s/,/","/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。</p>
+<h3 id="u5168_u5C40_u66FF_u6362"><a href="#u5168_u5C40_u66FF_u6362" class="headerlink" title="全局替换"></a>全局替换</h3><p>把所有的<code>l</code>改成<code>L</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/l/L/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
+<p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/l/L/g; s/m/M/g'</span> staff.csv</span><br><span class="line">sed <span class="operator">-e</span> <span class="string">'s/l/L/g'</span> <span class="operator">-e</span> <span class="string">'s/m/M/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<h3 id="u5927_u5C0F_u5199_u66FF_u6362"><a href="#u5927_u5C0F_u5199_u66FF_u6362" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/.*/\L&amp;/'</span> staff.csv</span><br><span class="line">sed <span class="string">'s/.*/\U&amp;/'</span> staff.csv</span><br></pre></td></tr></table></figure>
+<p><code>\L</code>就是全部小写（lowercase），<code>\U</code>就是全部大写（uppercase）。<code>&amp;</code>在上文有提到，表示匹配上的内容。</p>
+<h3 id="u4FEE_u6539_u6307_u5B9A_u884C"><a href="#u4FEE_u6539_u6307_u5B9A_u884C" class="headerlink" title="修改指定行"></a>修改指定行</h3><p>现在表头的第一列也成了US，把它改成Country：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1s/US/Country/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>把第2行到4行的US替换成China：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'2,4s/US/China/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>把第3行整行替换掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'3s/.*/China,Hetty,29/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<h3 id="u5220_u9664_u6240_u6709_u7B26_u53F7"><a href="#u5220_u9664_u6240_u6709_u7B26_u53F7" class="headerlink" title="删除所有符号"></a>删除所有符号</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/[[:punct:]]//g'</span> staff.csv</span><br></pre></td></tr></table></figure>
+<p><code>[[:punct:]]</code>是正则表达式中预先定义的子字符类（character classes），代表所有的标点符号。sed支持的<a href="http://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html" target="_blank" rel="external">子字符类</a>如下：</p>
+<ul>
+<li>[:alnum:]：[0-9A-Za-z]</li>
+<li>[:alpha:]：[A-Za-z]</li>
+<li>[:blank:]：空格和TAB</li>
+<li>[:cntrl:]：控制字符（Control characters），ASCII码为000~037和177 (DEL)</li>
+<li>[:digit:]：[0-9]</li>
+<li>[:graph:]：[:alnum:]和[:punct:]</li>
+<li>[:lower:]：[a-z]</li>
+<li>[:print:]：[:alnum:]、[:punct:]和空格</li>
+<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . / : ; &lt; = &gt; ? @ [ \ ] ^ _ ` { | } ~</li>
+<li>[:space:]：[:blank:]和回车、换行等</li>
+<li>[:upper:]：[A-Z]</li>
+<li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
+</ul>
+<h2 id="u67E5"><a href="#u67E5" class="headerlink" title="查"></a>查</h2><h3 id="u67E5_u770B_u7279_u5B9A_u884C"><a href="#u67E5_u770B_u7279_u5B9A_u884C" class="headerlink" title="查看特定行"></a>查看特定行</h3><p>查（print）也和<a href="/sed/#u589E">増</a>很类似，区别是把<code>i</code>或<code>a</code>换成<code>p</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1p'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">'1p'</span> staff.csv         <span class="comment"># 查看第一行</span></span><br><span class="line">sed -n <span class="string">'$p'</span> staff.csv         <span class="comment"># 查看最后一行</span></span><br><span class="line">sed -n <span class="string">'/Jane/p'</span> staff.csv    <span class="comment"># 查看包含Jane的一行</span></span><br><span class="line">sed -n <span class="string">'/21/p'</span> staff.csv      <span class="comment"># 查看包含21的一行</span></span><br><span class="line">sed -n <span class="string">'/J/p'</span> staff.csv       <span class="comment"># 查看包含J的两行</span></span><br><span class="line">sed -n <span class="string">'/21$/p'</span> staff.csv     <span class="comment"># 查看以21结尾的一行</span></span><br><span class="line">sed -n <span class="string">'/21/!p'</span> staff.csv     <span class="comment"># 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure></p>
+<p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
+<h3 id="u67E5_u770B_u884C_u8303_u56F4"><a href="#u67E5_u770B_u884C_u8303_u56F4" class="headerlink" title="查看行范围"></a>查看行范围</h3><p>如果想要查看直到匹配某条记录，用下面这条命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/q'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">'1,/Jane/p'</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Gavo/,/Jane/p'</span> staff.csv    <span class="comment"># 从匹配Gavo的记录开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Jane/,$p'</span> staff.csv         <span class="comment"># 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="u67E5_u770B_u5947/_u5076_u6570_u884C"><a href="#u67E5_u770B_u5947/_u5076_u6570_u884C" class="headerlink" title="查看奇/偶数行"></a>查看奇/偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'n;d'</span> staff.csv       <span class="comment"># 奇数行</span></span><br><span class="line">sed <span class="string">'1d;n;d'</span> staff.csv    <span class="comment"># 偶数行</span></span><br></pre></td></tr></table></figure>
+<p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/linux-unix/">linux/unix</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/sed/">sed</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/sed/" data-title="看例子学sed | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/saltstack/"  title="SaltStack环境安装及入门">
+ <strong>下一篇：</strong><br/> 
+ <span>SaltStack环境安装及入门
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="sed/" data-title="看例子学sed" data-url="http://qinghua.github.io/sed/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5220"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u7279_u5B9A_u884C"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u5173_u8054_u884C"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6539"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6B63_u5219_u66FF_u6362"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5168_u5C40_u66FF_u6362"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5927_u5C0F_u5199_u66FF_u6362"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4FEE_u6539_u6307_u5B9A_u884C"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5220_u9664_u6240_u6709_u7B26_u53F7"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u7279_u5B9A_u884C"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u884C_u8303_u56F4"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770B_u5947/_u5076_u6570_u884C"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
