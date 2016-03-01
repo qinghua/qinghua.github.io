@@ -82,6 +82,78 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/kubernetes-in-mesos-6/" title="如果有10000台机器，你想怎么玩？（六）性能" itemprop="url">如果有10000台机器，你想怎么玩？（六）性能</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-02T11:52:32.000Z" itemprop="datePublished"> 发表于 2016-02-02</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-in-mesos-6/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-in-mesos-6/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-6/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/docker-storage/" title="Docker的存储是怎么工作的" itemprop="url">Docker的存储是怎么工作的</a>
   </h1>
   <p class="article-author">By
@@ -146,7 +218,7 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/docker-network/" title="Docker的桥接网络是怎么工作的" itemprop="url">Docker的桥接网络是怎么工作的</a>
+      <a href="/docker-bridge-network/" title="Docker的桥接网络是怎么工作的" itemprop="url">Docker的桥接网络是怎么工作的</a>
   </h1>
   <p class="article-author">By
        
@@ -164,7 +236,7 @@
         
         <p class="article-more-link">
           
-            <a href="/docker-network/#more">Read More</a>
+            <a href="/docker-bridge-network/#more">Read More</a>
           
        </p>
     </div>
@@ -179,7 +251,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/network/">network</a>
+  <span></span> <a href="/tags/bridge/">bridge</a><a href="/tags/docker/">docker</a><a href="/tags/network/">network</a>
   </div>
 
 </div>
@@ -190,7 +262,7 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/docker-network/#comments" class="ds-thread-count comments-count-link" data-thread-key="docker-network/" data-count-type="comments">&nbsp;</a>
+		<a href="/docker-bridge-network/#comments" class="ds-thread-count comments-count-link" data-thread-key="docker-bridge-network/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -682,70 +754,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/ceph-demo/" title="用容器轻松搭建ceph实验环境" itemprop="url">用容器轻松搭建ceph实验环境</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-02T01:07:33.000Z" itemprop="datePublished"> 发表于 2016-01-02</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/ceph-demo/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/storage/">storage</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/ceph-demo/#comments" class="ds-thread-count comments-count-link" data-thread-key="ceph-demo/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -772,7 +780,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>17</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>18</sup></a></li>
 		  
 		
 		  
@@ -797,11 +805,11 @@
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>4</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>5</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
@@ -813,11 +821,11 @@
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
 			
 		
 			
@@ -825,7 +833,7 @@
 			
 		
 			
-				<li><a href="/tags/network/" title="network">network<sup>1</sup></a></li>
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
@@ -841,7 +849,7 @@
 			
 		
 			
-				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
 			
 		
 			
@@ -853,7 +861,15 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
+				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/overlay/" title="overlay">overlay<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bridge/" title="bridge">bridge<sup>1</sup></a></li>
 			
 		
 		</ul>
