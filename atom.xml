@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-02T12:41:50.000Z</updated>
+  <updated>2016-03-02T12:49:50.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -19,8 +19,8 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-8/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-8/</id>
     <published>2016-03-02T11:30:29.000Z</published>
-    <updated>2016-03-02T12:41:50.000Z</updated>
-    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的网络。</p>
+    <updated>2016-03-02T12:49:50.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
@@ -47,7 +47,7 @@
 <h2 id="Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这次聊聊mesos+k8s的网络。</p>
+    <![CDATA[<p>这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
@@ -579,8 +579,8 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-7/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-7/</id>
     <published>2016-02-03T10:41:27.000Z</published>
-    <updated>2016-03-02T12:43:53.000Z</updated>
-    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
+    <updated>2016-03-02T12:49:05.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
@@ -622,7 +622,7 @@
 <p>这样新服务就起来了！中间的替换速度是可以由我们设定的，还支持回滚。在<a href="http://kubernetes.io/v1.1/docs/user-guide/update-demo/README.html" target="_blank" rel="external">这里</a>有一个例子可供参考。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
+    <![CDATA[<p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>

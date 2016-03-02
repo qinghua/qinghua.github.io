@@ -13,7 +13,7 @@
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。
+    <meta name="description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
 
 如果有10000台机器，你想怎么玩？（一）概述
 如果有10000台机器，你想怎么玩？（二）高可用
@@ -21,12 +21,12 @@
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎么玩？（五）日志
 如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，">
+如果有10000台机器，你">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-7/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。
+<meta property="og:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
 
 如果有10000台机器，你想怎么玩？（一）概述
 如果有10000台机器，你想怎么玩？（二）高可用
@@ -34,7 +34,7 @@
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎么玩？（五）日志
 如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，">
+如果有10000台机器，你">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-1.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-2.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-3.png">
@@ -42,10 +42,10 @@
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-5.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-6.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-7.png">
-<meta property="og:updated_time" content="2016-03-02T12:43:53.000Z">
+<meta property="og:updated_time" content="2016-03-02T12:49:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。
+<meta name="twitter:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
 
 如果有10000台机器，你想怎么玩？（一）概述
 如果有10000台机器，你想怎么玩？（二）高可用
@@ -53,7 +53,7 @@
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎么玩？（五）日志
 如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，">
+如果有10000台机器，你">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -125,7 +125,7 @@
 </header>
 	<div class="article-content">
 		
-		<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
+		<p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>

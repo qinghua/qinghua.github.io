@@ -2,8 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-8/</loc>
+    <lastmod>2016-03-02T12:49:50.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
-    <lastmod>2016-03-02T12:43:53.000Z</lastmod>
+    <lastmod>2016-03-02T12:49:05.000Z</lastmod>
   </url>
   
   <url>
@@ -34,11 +39,6 @@
   <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-2/</loc>
     <lastmod>2016-03-02T12:43:22.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-8/</loc>
-    <lastmod>2016-03-02T12:41:50.000Z</lastmod>
   </url>
   
   <url>
