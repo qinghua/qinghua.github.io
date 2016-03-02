@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-5.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-6.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-7.png">
-<meta property="og:updated_time" content="2016-02-03T13:27:40.000Z">
+<meta property="og:updated_time" content="2016-03-02T12:43:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。
@@ -133,7 +133,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
@@ -245,7 +246,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>18</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>19</sup></a></li>
 		  
 		
 		  
@@ -262,11 +263,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
 			
 		
 			

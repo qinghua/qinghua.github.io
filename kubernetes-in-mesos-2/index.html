@@ -35,7 +35,7 @@
 如果有10000台机器，你想怎么玩？（六）性能">
 <meta property="og:image" content="http://kubernetes.io/v1.1/docs/design/architecture.png?raw=true">
 <meta property="og:image" content="http://kubernetes.io/v1.1/docs/admin/high-availability/ha.png">
-<meta property="og:updated_time" content="2016-02-03T13:27:15.000Z">
+<meta property="og:updated_time" content="2016-03-02T12:43:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（二）高可用">
 <meta name="twitter:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
@@ -125,7 +125,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <p>作为背景知识，先介绍一下<a href="http://kubernetes.io/v1.1/docs/design/architecture.html" target="_blank" rel="external">k8s的架构</a>。<br><img src="http://kubernetes.io/v1.1/docs/design/architecture.png?raw=true" alt=""><br>它分为服务器端（master）和客户端（node）。服务器端主要是3个组件：API Server、Controller Manager和Scheduler。API Server是操作人员和k8s的接口。比如我想看一下当前k8s有几个pod在跑，就需要连接到这个API Server上。Controller Manager顾名思义就是管理各种各样的controller比如先前提到的Replication Controller。Scheduler做的事就是把用户想要启动/删除的pod分发到对应的客户端上。客户端主要是2个组件：Kubelet和Proxy。Kubelet负责响应服务器端的Scheduler分出来的任务。Proxy用来接通服务和对应的机器。举个栗子：如果我们运行这个命令：kubectl -s 192.168.33.10:8080 run nginx —image=nginx来启动一个nginx的rc和pod，API Server（192.168.33.10:8080）就会得到消息并把这些数据存放到<a href="https://github.com/coreos/etcd" target="_blank" rel="external">etcd</a>里。Controller Manager就会去创建rc，Scheduler则会找个客户端，把启动pod的描述放到客户端上的某个文件夹里。客户端上的Kubelet会监视这个文件夹，一旦发现有了新的pod描述文件，便会将这个pod启动起来。多说一句，<a href="http://kubernetes.io/v1.1/docs/admin/kubelet.html" target="_blank" rel="external">Kubelet</a>除了监听文件夹或是某个Url，还有种方式是干脆直接启动一个Http Server让别人来调用。</p>
@@ -214,7 +215,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>18</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>19</sup></a></li>
 		  
 		
 		  
@@ -231,11 +232,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
 			
 		
 			

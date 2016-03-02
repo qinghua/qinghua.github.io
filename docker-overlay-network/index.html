@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
 <meta property="og:image" content="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg">
-<meta property="og:updated_time" content="2016-03-01T07:52:39.000Z">
+<meta property="og:updated_time" content="2016-03-02T09:54:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker的覆盖网络是怎么工作的">
 <meta name="twitter:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
@@ -110,7 +110,7 @@
 <li>Endpoint：可以通过Network和其他的Endpoint通信，每个Endpoint都只在一个网络里</li>
 <li>Network：由数个可以相互通信的Endpoint组成，不同的网络相互隔离</li>
 </ul>
-<p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>，可是我怎么总觉得都是因为利益的关系呢。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
+<p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
 <h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>conf</strong>，它的IP是<strong>192.168.33.19</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.17</strong>和<strong>192.168.33.18</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"conf"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"conf"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure></p>
@@ -169,6 +169,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/kubernetes-in-mesos-8/" title="如果有10000台机器，你想怎么玩？（八）网络">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如果有10000台机器，你想怎么玩？（八）网络</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/awk/"  title="看例子学awk">
@@ -214,7 +222,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>18</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>19</sup></a></li>
 		  
 		
 		  
@@ -231,11 +239,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>9</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>7</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
 			
 		
 			

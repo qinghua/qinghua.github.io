@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-01T07:52:39.000Z</updated>
+  <updated>2016-03-02T12:41:50.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -15,11 +15,65 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[如果有10000台机器，你想怎么玩？（八）网络]]></title>
+    <link href="http://qinghua.github.io/kubernetes-in-mesos-8/"/>
+    <id>http://qinghua.github.io/kubernetes-in-mesos-8/</id>
+    <published>2016-03-02T11:30:29.000Z</published>
+    <updated>2016-03-02T12:41:50.000Z</updated>
+    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的网络。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="Docker_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Docker_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
+<h2 id="Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/v1.1/docs/admin/networking.html" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
+<ul>
+<li>所有的容器可以在不使用NAT的情况下相互通信</li>
+<li>所有的主机和容器可以在不使用NAT的情况下相互通信</li>
+<li>容器自己的IP和外部看它的IP是一样的</li>
+</ul>
+<p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/v1.1/docs/admin/ovs-networking.html" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
+<p>Flannel会在每个主机上运行一个叫做flannelId的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flannelId去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
+<p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。</p>
+<h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
+<p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
+<h2 id="Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这次聊聊mesos+k8s的网络。</p>
+<ul>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
+    
+    </summary>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[Docker的覆盖网络是怎么工作的]]></title>
     <link href="http://qinghua.github.io/docker-overlay-network/"/>
     <id>http://qinghua.github.io/docker-overlay-network/</id>
     <published>2016-02-29T11:20:01.000Z</published>
-    <updated>2016-03-01T07:52:39.000Z</updated>
+    <updated>2016-03-02T09:54:45.000Z</updated>
     <content type="html"><![CDATA[<p>我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自<a href="https://en.wikipedia.org/wiki/Overlay_network" target="_blank" rel="external">维基百科</a>）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flannel、Calico、Weave等也都是干这个的。<br><a id="more"></a></p>
 <h2 id="u80CC_u666F_u4ECB_u7ECD"><a href="#u80CC_u666F_u4ECB_u7ECD" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>如果把容器的网络驱动设置成overlay，就意味着所有的容器都可以直接ping通，所以所有容器的ip地址都不会重复。为了做到这一点，就需要一个轻量级的存储来存放已经分配出去的ip信息，和其它的一些配置信息。技术上Docker使用了<a href="https://github.com/docker/libkv" target="_blank" rel="external">libkv</a>和<a href="https://github.com/docker/libnetwork" target="_blank" rel="external">libnetwork</a>来实现自己的覆盖网络。它们都是用go语言所写，前者是对操作分布式键值存储系统如consul，etcd，zookeeper的抽象层，后者实现了容器的网络连接，它的设计如下图：<br><img src="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg" alt=""></p>
 <p>容器网络模型由三部分组成：</p>
@@ -28,7 +82,7 @@
 <li>Endpoint：可以通过Network和其他的Endpoint通信，每个Endpoint都只在一个网络里</li>
 <li>Network：由数个可以相互通信的Endpoint组成，不同的网络相互隔离</li>
 </ul>
-<p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>，可是我怎么总觉得都是因为利益的关系呢。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
+<p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
 <h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>conf</strong>，它的IP是<strong>192.168.33.19</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.17</strong>和<strong>192.168.33.18</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"conf"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"conf"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure></p>
@@ -525,7 +579,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-7/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-7/</id>
     <published>2016-02-03T10:41:27.000Z</published>
-    <updated>2016-02-03T13:27:40.000Z</updated>
+    <updated>2016-03-02T12:43:53.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的pod生命周期管理。涉及到k8s提供的一系列小功能。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -534,7 +588,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
@@ -575,7 +630,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
     
     </summary>
     
@@ -592,7 +648,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-6/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-6/</id>
     <published>2016-02-02T11:52:32.000Z</published>
-    <updated>2016-02-14T11:02:14.000Z</updated>
+    <updated>2016-03-02T12:43:50.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -601,7 +657,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
@@ -632,7 +689,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
     
     </summary>
     
@@ -1087,7 +1145,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-5/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-5/</id>
     <published>2016-01-18T11:59:00.000Z</published>
-    <updated>2016-02-03T13:27:31.000Z</updated>
+    <updated>2016-03-02T12:43:46.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -1096,7 +1154,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
@@ -1123,7 +1182,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
     
     </summary>
     
@@ -1140,7 +1200,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-4/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-4/</id>
     <published>2016-01-15T11:12:59.000Z</published>
-    <updated>2016-02-22T01:28:51.000Z</updated>
+    <updated>2016-03-02T12:43:44.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -1149,7 +1209,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
@@ -1159,7 +1220,7 @@
 <h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
 <p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
 <h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所当然的。</p>
-<h2 id="u5176_u4ED6_u89E3_u51B3_u65B9_u6848"><a href="#u5176_u4ED6_u89E3_u51B3_u65B9_u6848" class="headerlink" title="其他解决方案"></a>其他解决方案</h2><p><a href="https://github.com/prometheus/prometheus" target="_blank" rel="external">Prometheus</a>是一个监控系统解决方案，包含了数据采集、时序数据库、UI可视化、告警等诸多功能。它的特点是可以实现多纬度的监控，在对比不同实例的监控数据图上有优势。它还有许多的<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a>可以很方便地从许多第三方应用中导出数据，如Apache、AWS、Redis等，也支持Kubernetes和Kubernetes-Mesos。</p>
+<h2 id="u5176_u4ED6_u89E3_u51B3_u65B9_u6848"><a href="#u5176_u4ED6_u89E3_u51B3_u65B9_u6848" class="headerlink" title="其他解决方案"></a>其他解决方案</h2><p><a href="https://github.com/prometheus/prometheus" target="_blank" rel="external">Prometheus</a>是一个监控系统解决方案，包含了数据采集、时序数据库、UI可视化、告警等诸多功能。它的特点是可以实现多纬度的监控，在对比不同实例的监控数据图上有优势。它还有许多的<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a>可以很方便地从许多第三方应用中导出数据，如Apache、AWS、Redis等，也支持Mesos、Kubernetes和Kubernetes-Mesos。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
@@ -1170,7 +1231,8 @@
 <li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
     
     </summary>
     
@@ -1290,49 +1352,6 @@
       <category term="mysql" scheme="http://qinghua.github.io/tags/mysql/"/>
     
       <category term="db" scheme="http://qinghua.github.io/categories/db/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（三）持久化]]></title>
-    <link href="http://qinghua.github.io/kubernetes-in-mesos-3/"/>
-    <id>http://qinghua.github.io/kubernetes-in-mesos-3/</id>
-    <published>2016-01-05T12:06:33.000Z</published>
-    <updated>2016-02-03T13:27:19.000Z</updated>
-    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a><a id="more"></a>
-</li>
-</ul>
-<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
-<p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks" target="_blank" rel="external">container hook</a>。目前支持<a href="http://kubernetes.io/v1.1/docs/api-reference/v1/definitions.html#_v1_lifecycle" target="_blank" rel="external">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是需要主机的root权限，或者是hook挂上http请求去外部挂载，不管怎样都相当于重新自己来一套，并不划算。</p>
-<p>第二个方案：还是容器化的mesos slave，但是使用<a href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/" target="_blank" rel="external">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>，从而无法轻易释放<code>/var/lib/docker/aufs</code>的磁盘资源等等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
-<p>第三个方案：放弃mesos slave的容器化。回顾问题的根源，一切的一切都是因为引入mesos slave的容器造成的。如果把mesos slave还原成系统进程，那么这一堆存储问题都将不复存在。我们仍然有其他手段来实现mesos slave部署和升级的便利性，如自动化脚本、数据用容器等。虽然这样可能引入更大的部署工作量，但这可能是针对这个问题来说更加正统的解决方案。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a>]]>
-    
-    </summary>
-    
-      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
-    
-      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
     
   </entry>
   

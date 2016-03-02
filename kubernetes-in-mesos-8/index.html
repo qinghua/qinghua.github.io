@@ -6,23 +6,52 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>用ansible管理大规模集群 | 懒程序员改变世界</title>
+    <title>如果有10000台机器，你想怎么玩？（八）网络 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
+    <meta name="description" content="这次聊聊mesos+k8s的网络。
+
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎么玩？（五）日志
+如果有10000台机器，你想怎么玩？（六）性能
+如果有10000台机器，你想怎么玩？（七）生命周期
+如果有10000台">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用ansible管理大规模集群">
-<meta property="og:url" content="http://qinghua.github.io/ansible-large-scale-cluster/index.html">
+<meta property="og:title" content="如果有10000台机器，你想怎么玩？（八）网络">
+<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-8/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
-<meta property="og:updated_time" content="2016-01-28T02:22:02.000Z">
+<meta property="og:description" content="这次聊聊mesos+k8s的网络。
+
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎么玩？（五）日志
+如果有10000台机器，你想怎么玩？（六）性能
+如果有10000台机器，你想怎么玩？（七）生命周期
+如果有10000台">
+<meta property="og:image" content="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png">
+<meta property="og:image" content="http://qinghua.github.io/img/pause.png">
+<meta property="og:updated_time" content="2016-03-02T12:41:50.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用ansible管理大规模集群">
-<meta name="twitter:description" content="Ansible是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于SSH，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。">
+<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（八）网络">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的网络。
+
+如果有10000台机器，你想怎么玩？（一）概述
+如果有10000台机器，你想怎么玩？（二）高可用
+如果有10000台机器，你想怎么玩？（三）持久化
+如果有10000台机器，你想怎么玩？（四）监控
+如果有10000台机器，你想怎么玩？（五）日志
+如果有10000台机器，你想怎么玩？（六）性能
+如果有10000台机器，你想怎么玩？（七）生命周期
+如果有10000台">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -81,51 +110,44 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/ansible-large-scale-cluster/" title="用ansible管理大规模集群" itemprop="url">用ansible管理大规模集群</a>
+      <a href="/kubernetes-in-mesos-8/" title="如果有10000台机器，你想怎么玩？（八）网络" itemprop="url">如果有10000台机器，你想怎么玩？（八）网络</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-01-21T00:23:45.000Z" itemprop="datePublished"> 发表于 2016-01-21</time>
+    <time datetime="2016-03-02T11:30:29.000Z" itemprop="datePublished"> 发表于 2016-03-02</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目录</strong>
-		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><span class="toc-number">1.</span> <span class="toc-text">增加并行进程数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5F02_u6B65"><span class="toc-number">2.</span> <span class="toc-text">异步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pull_u6A21_u5F0F"><span class="toc-number">3.</span> <span class="toc-text">Pull模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u591A_u7EA7_u8C03_u5EA6"><span class="toc-number">4.</span> <span class="toc-text">多级调度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599"><span class="toc-number">5.</span> <span class="toc-text">其他参考资料</span></a></li></ol>
-		
-		</div>
-		
-		<p><a href="http://www.ansible.com/get-started" target="_blank" rel="external">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)" target="_blank" rel="external">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。<br><a id="more"></a></p>
-<h2 id="u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><a href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570" class="headerlink" title="增加并行进程数"></a>增加并行进程数</h2><p>Ansible提供一个<a href="http://docs.ansible.com/ansible/intro_configuration.html#forks" target="_blank" rel="external">forks</a>的属性，可以设置运行并行进程数。这个值默认比较保守，只有5个并行进程。我们可以根据自己的机器性能以及网络情况来设定，很多人使用50，也有用500以上的。如果有很多机器要管理的话，可以尝试先增加这个值，看看效果。有三个地方可以设置forks的数量：</p>
+		<p>这次聊聊mesos+k8s的网络。</p>
 <ul>
-<li>环境变量：<code>export ANSIBLE_FORKS=100</code></li>
-<li>ansible.cfg这个配置文件里设置：<code>forks=100</code></li>
-<li>运行ansible命令时增加参数：<code>-f 100</code></li>
+<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
+<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
+<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
+<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
+<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
+<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
+<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
+</li>
 </ul>
-<p>当机器数量比较大的时候，难免会有几台机器不能正常执行。这时候ansible会有提示<code>to retry, use: --limit @/xxx/xxx.retry</code>，把它增加到上个命令的后面就好了。</p>
-<h2 id="u5F02_u6B65"><a href="#u5F02_u6B65" class="headerlink" title="异步"></a>异步</h2><p>有时候执行某个任务可能需要很长的时间，在集群规模较大的情况下慢得让人无法忍受。这时可以考虑使用<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式</a>。在<code>tasks</code>里增加<code>async</code>的属性，设成某个数字，比如60，意思就是这个任务最大运行时间不能超过60秒。也可以设成0，意思是不管任务运行多久，一直等待即可。如果没有指定<code>async</code>，则默认为同步模式。还可以设定<code>poll</code>，默认值为10，意思就是每隔10秒轮询查看结果。如果不需要查看结果，设为0就好了。还可以通过<code>register</code>和<code>async_status</code>设定暂时不查看结果，等需要的时候再查看。具体做法可以参考上面的<a href="http://docs.ansible.com/ansible/playbooks_async.html" target="_blank" rel="external">异步模式官网文档</a>，也可以看<a href="http://www.ansible.com.cn/docs/playbooks_async.html" target="_blank" rel="external">翻译的中文文档</a>。</p>
-<h2 id="Pull_u6A21_u5F0F"><a href="#Pull_u6A21_u5F0F" class="headerlink" title="Pull模式"></a>Pull模式</h2><p>有些配置管理工具比如<a href="https://www.chef.io/chef/" target="_blank" rel="external">Chef</a>和<a href="https://puppetlabs.com/" target="_blank" rel="external">Puppet</a>，是基于拉模式的。所谓拉模式，是酱紫的：</p>
+<h2 id="Docker_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Docker_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
+<h2 id="Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/v1.1/docs/admin/networking.html" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
 <ul>
-<li>管理员写脚本</li>
-<li>管理员上传脚本</li>
-<li>agent定时取脚本（例如每隔1分钟）</li>
-<li>agent运行新脚本</li>
+<li>所有的容器可以在不使用NAT的情况下相互通信</li>
+<li>所有的主机和容器可以在不使用NAT的情况下相互通信</li>
+<li>容器自己的IP和外部看它的IP是一样的</li>
 </ul>
-<p>Ansible是没有agent的，它默认基于推模式，也就是说：</p>
-<ul>
-<li>管理员写脚本</li>
-<li>管理员运行脚本</li>
-<li>ansible连接各主机运行脚本</li>
-</ul>
-<p>一般来说，拉模式能轻松应付大规模集群，因为每台机器都是自己去拉取脚本来完成任务。不过也有人用ansible的推模式管理着上千台机器。Ansible提供了<a href="http://docs.ansible.com/ansible/playbooks_intro.html#ansible-pull" target="_blank" rel="external">ansible-pull</a>的工具，能把它变成拉模式。官方资料不多，<a href="https://www.stavros.io/posts/automated-large-scale-deployments-ansibles-pull-mo/" target="_blank" rel="external">这篇文章</a>写得比较详细。大致思路是新建一个<a href="http://git-scm.com/" target="_blank" rel="external">git</a>的仓库，每台机器运行一个cron定时任务（扮演者agent的角色）每隔一段时间去仓库取最新脚本，然后运行之。在<a href="https://raw.githubusercontent.com/ansible/ansible/stable-2.0/CHANGELOG.md" target="_blank" rel="external">ansible 2.0</a>里<code>ansible-pull</code>也有若干改进。</p>
-<h2 id="u591A_u7EA7_u8C03_u5EA6"><a href="#u591A_u7EA7_u8C03_u5EA6" class="headerlink" title="多级调度"></a>多级调度</h2><p>还有一种想法是：如果一台主机的性能只能撑100<code>forks</code>，那么10台主机应该就能撑1000台机器。将这1000台机器分区，比如A区到J区。所以由一台主机分发命令给10台主机，让它们各自运行<code>ansible-playbook</code>，而每台主机根据不同的<a href="http://docs.ansible.com/ansible/intro_inventory.html" target="_blank" rel="external">inventory</a>或者是不同的<a href="http://allandenot.com/devops/2015/01/16/ansible-with-multiple-inventory-files.html" target="_blank" rel="external">limit方式</a>来控制不同区的机器并返回结果。理论上这样的多级调度是能够撑起大规模集群的，就是脚本写起来比较麻烦，需要考虑一级主机和二级主机。</p>
-<h2 id="u5176_u4ED6_u53C2_u8003_u8D44_u6599"><a href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599" class="headerlink" title="其他参考资料"></a>其他参考资料</h2><p>说到底，如果运行得快，那么集群规模大一点也可以。<a href="http://www.ansible.com/blog/ansible-performance-tuning" target="_blank" rel="external">这篇文章</a>介绍了一些ansible性能调优的方法。<br><a href="https://mackerel.io/" target="_blank" rel="external">Mackerel</a>是一个监控平台。<a href="http://yuuki.hatenablog.com/entry/ansible-mackerel-1000" target="_blank" rel="external">这篇日文文章</a>介绍了使用Ansible和Mackerel API管理1000台规模集群的方法。<a href="http://www.ansible.com/tower" target="_blank" rel="external">Ansible tower</a>也提供了类似的可视化管理页面，官方出品，是不是更靠谱呢。</p>
+<p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/v1.1/docs/admin/ovs-networking.html" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
+<p>Flannel会在每个主机上运行一个叫做flannelId的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flannelId去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
+<p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。</p>
+<h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
+<p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
+<h2 id="Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -139,7 +161,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/ansible/">ansible</a>
+  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
   </div>
 
 </div>
@@ -148,7 +170,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/ansible-large-scale-cluster/" data-title="用ansible管理大规模集群 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-8/" data-title="如果有10000台机器，你想怎么玩？（八）网络 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -161,19 +183,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/docker-bridge-network/" title="Docker的桥接网络是怎么工作的">
-  <strong>上一篇：</strong><br/>
-  <span>
-  Docker的桥接网络是怎么工作的</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/waterfall-to-agile-2/"  title="传统企业敏捷转型纪实（二）">
+<a href="/docker-overlay-network/"  title="Docker的覆盖网络是怎么工作的">
  <strong>下一篇：</strong><br/> 
- <span>传统企业敏捷转型纪实（二）
+ <span>Docker的覆盖网络是怎么工作的
 </span>
 </a>
 </div>
@@ -182,19 +196,12 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="ansible-large-scale-cluster/" data-title="用ansible管理大规模集群" data-url="http://qinghua.github.io/ansible-large-scale-cluster/"></div>
+	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-8/" data-title="如果有10000台机器，你想怎么玩？（八）网络" data-url="http://qinghua.github.io/kubernetes-in-mesos-8/"></div>
 </section>
 
 
 </div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
-
-  <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目录</strong>
- 
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u589E_u52A0_u5E76_u884C_u8FDB_u7A0B_u6570"><span class="toc-number">1.</span> <span class="toc-text">增加并行进程数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5F02_u6B65"><span class="toc-number">2.</span> <span class="toc-text">异步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pull_u6A21_u5F0F"><span class="toc-number">3.</span> <span class="toc-text">Pull模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u591A_u7EA7_u8C03_u5EA6"><span class="toc-number">4.</span> <span class="toc-text">多级调度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u53C2_u8003_u8D44_u6599"><span class="toc-number">5.</span> <span class="toc-text">其他参考资料</span></a></li></ol>
- 
-  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -421,8 +428,6 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
-      
-      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
