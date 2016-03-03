@@ -6,35 +6,23 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>传统企业敏捷转型纪实（二） | 懒程序员改变世界</title>
+    <title>轻松搭建nfs存储环境 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：
-
-传统企业敏捷转型纪实（一）
-传统企业敏捷转型纪实（二）">
+    <meta name="description" content="NFS是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="传统企业敏捷转型纪实（二）">
-<meta property="og:url" content="http://qinghua.github.io/waterfall-to-agile-2/index.html">
+<meta property="og:title" content="轻松搭建nfs存储环境">
+<meta property="og:url" content="http://qinghua.github.io/nfs-demo/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：
-
-传统企业敏捷转型纪实（一）
-传统企业敏捷转型纪实（二）">
-<meta property="og:image" content="http://qinghua.github.io/img/scene-tree-1.png">
-<meta property="og:image" content="http://qinghua.github.io/img/scene-tree-2.png">
-<meta property="og:image" content="http://qinghua.github.io/img/scene-tree-3.png">
-<meta property="og:updated_time" content="2016-01-20T14:53:48.000Z">
+<meta property="og:description" content="NFS是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。">
+<meta property="og:updated_time" content="2016-03-03T13:18:18.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="传统企业敏捷转型纪实（二）">
-<meta name="twitter:description" content="这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：
-
-传统企业敏捷转型纪实（一）
-传统企业敏捷转型纪实（二）">
+<meta name="twitter:title" content="轻松搭建nfs存储环境">
+<meta name="twitter:description" content="NFS是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -93,14 +81,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/waterfall-to-agile-2/" title="传统企业敏捷转型纪实（二）" itemprop="url">传统企业敏捷转型纪实（二）</a>
+      <a href="/nfs-demo/" title="轻松搭建nfs存储环境" itemprop="url">轻松搭建nfs存储环境</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-01-20T12:11:05.000Z" itemprop="datePublished"> 发表于 2016-01-20</time>
+    <time datetime="2016-03-03T11:17:45.000Z" itemprop="datePublished"> 发表于 2016-03-03</time>
     
   </p>
 </header>
@@ -109,131 +97,28 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FED_u4EE3_u5F00_u59CB"><span class="toc-number">1.</span> <span class="toc-text">迭代开始</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9700_u6C42_u5206_u6790"><span class="toc-number">2.</span> <span class="toc-text">需求分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u7528_u4F8B"><span class="toc-number">3.</span> <span class="toc-text">测试用例</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
 		
 		</div>
 		
-		<p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a><a id="more"></a>
-</li>
-</ul>
-<h2 id="u8FED_u4EE3_u5F00_u59CB"><a href="#u8FED_u4EE3_u5F00_u59CB" class="headerlink" title="迭代开始"></a>迭代开始</h2><p>上次刚刚理清楚了各组自己的需求，但是组员们并不是都完全了解。Ken先把所有人都召集起来，告诉大家：现在需求不仅仅是BA的事情了，需求不清是开发和测试的责任，大家有义务互相协作，把需求理清楚。各个PO开始讲依赖：有没有依赖于其他组的story？有没有依赖其他人（比如整个大组只有一位安全专家，可能有些story会对这个人有依赖）？PO们讲完了，有的组可能就凭空多了几张被别的组所依赖的卡，优先级还都比较高。所以需要重新安排一下迭代。计划调整完后，各个PO依次大致地给SPO讲一下自己组第一迭代的主要功能和风险，在获得SPO的认可之后，第一个迭代的计划就算确定下来。</p>
-<p>然后就该每个组员认领story了。Ken要求每个story都要有对应的开发和测试人员，从新人开始认领。每个成员自己想学什么，想做什么，职业规划是什么，按照它们来决定自己要开发的story。这样的目的是激发每个人的潜能，提高团队的能力，而不仅仅是着眼于这个版本的交付。同样的，每个成员，都不仅仅是开发这个版本，而是开发一个产品。现实中，可能会出现胡乱挑卡的情况，比如说A卡可能很适合甲来做，但是乙是新人，抢先把卡挑走了，这时候就需要PO来与大家沟通，做决策。</p>
-<p>落实完了每个人的工作，Ken又把大家叫到一起，问：你们对按时发布有没有信心？5分就是信心指数最高，1分最低，大家一起伸手指示意。大部分人都举4或者5，也许是无所谓，也许是还没适应一个有话就应该讲出来的环境。有个别成员伸3个指头的，就需要解释一下为什么信心不足，SPO需要当场把问题解决，尽量做到所有人都信心爆棚，起码看上去得是这样。</p>
-<h2 id="u9700_u6C42_u5206_u6790"><a href="#u9700_u6C42_u5206_u6790" class="headerlink" title="需求分析"></a>需求分析</h2><p>到了具体开发阶段了，怎么做呢？第二天就是一堂需求分析的课程。大家探讨一下开发和测试怎么协作，需求应该怎么分析，测试用例应该怎么写。对于一个story，开发人员需要知道怎么测，做出来的东西由谁来用，才有能力开发。Ken引入了场景树来做需求分析。举个栗子：一个<strong>买手机</strong>的story。看起来好像需求很明确，但是具体做就会有各种问题：到底对方要的是什么样的手机？所以开发前必须搞清楚，这个story的目的是什么。买手机是内容，不是目的。用5个为什么来深挖，可能就能得到这样的目的：<strong>女朋友手机坏了，让我买个新手机</strong>。然后我们可以画出这样的图：<br><img src="/img/scene-tree-1.png" alt=""></p>
-<p>第一个步骤可能就是去取款准备买手机。这个步骤可以用<strong>活动</strong>、<strong>实体</strong>、<strong>结果</strong>来建模。活动应该是动词，描述一个活动：取款。它产生了一个名词实体：人民币。校验这个实体可以得到结果，结果具有若干维度。有点晕？看图：<br><img src="/img/scene-tree-2.png" alt=""></p>
-<p>取款这个活动，产生了人民币这个实体。结果的维度是金额。取完款之后，去手机店的动作，产生了手机店这个实体。结果的维度有哪家店和日期时间。到店之后，购买手机的活动产生了手机这个实体。结果的维度有品牌、型号、价格等等。这些维度越清晰，这个需求分析的质量越好。如图：<br><img src="/img/scene-tree-3.png" alt=""></p>
-<p>有的朋友可能会问：除了最后得到新手机，是不是也得校验我取的款花了多少，那怎么体现在图里呢？这个还是看需求。如果必要的话，可以在购买完手机后増加一个计算余额的活动。</p>
-<h2 id="u6D4B_u8BD5_u7528_u4F8B"><a href="#u6D4B_u8BD5_u7528_u4F8B" class="headerlink" title="测试用例"></a>测试用例</h2><p>画完场景图之后，就能比较容易地根据实体和维度导出测试用例来。还是以买手机为例：首先验证第一个实体：人民币。画张表格如下：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:right">金额</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">人民币</td>
-<td style="text-align:right">1000</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">人民币</td>
-<td style="text-align:right">0</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">银行账户余额不足</td>
-</tr>
-</tbody>
-</table>
-<p>从Given、When、Then的角度上看，再加上Given，这就是一个很具体的单元测试用例。然后是手机店：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:center">哪家店</th>
-<th style="text-align:center">日期时间</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">国美</td>
-<td style="text-align:center">2016/01/20 10:00:00</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">苏宁</td>
-<td style="text-align:center">2016/01/20 22:00:00</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">下班了</td>
-</tr>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">苏美</td>
-<td style="text-align:center">2016/01/20 10:00:00</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这家店</td>
-</tr>
-</tbody>
-</table>
-<p>最后是新手机：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:center">品牌</th>
-<th style="text-align:center">型号</th>
-<th style="text-align:right">价格</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">小米</td>
-<td style="text-align:center">Mi Note</td>
-<td style="text-align:right">1999</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">魅族</td>
-<td style="text-align:center">MX-5</td>
-<td style="text-align:right">1799</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这个型号</td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">华为</td>
-<td style="text-align:center">Mate8</td>
-<td style="text-align:right">-3199</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">价格不正确</td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">小魅</td>
-<td style="text-align:center">MiMX</td>
-<td style="text-align:right">999</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这个品牌</td>
-</tr>
-</tbody>
-</table>
-<p>从上面这几张表我们也能看出来，维度越多，测试案例也就越多，所以说需求的质量就会越高。</p>
+		<p><a href="https://en.wikipedia.org/wiki/Network_File_System" target="_blank" rel="external">NFS</a>是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init ubuntu/trusty64</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>server</strong>，它的IP是<strong>192.168.33.17</strong>；另外一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.18</strong>。我们将会在<strong>server</strong>上启动nfs服务并共享一个目录，然后在client挂载并操作这个目录。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"server"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"server"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"client"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"client"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh server</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh client</span><br></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动nfs服务需要nfs-kernel-server这个包，让我们安装并启动：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y nfs-kernel-server</span><br><span class="line">sudo service nfs-kernel-server start</span><br></pre></td></tr></table></figure></p>
+<p>服务启动完成后，会生成一个<code>/etc/exports</code>文件，里面就是nfs的配置。我们创建一个文件夹<code>/tmp/nfs</code>，把它配置成nfs的目录，然后重新启动nfs服务：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir /tmp/nfs</span><br><span class="line">sudo sh -c <span class="string">"echo '/tmp/nfs *(rw,no_subtree_check,no_root_squash)' &gt;&gt; /etc/exports"</span></span><br><span class="line">sudo service nfs-kernel-server start</span><br></pre></td></tr></table></figure></p>
+<p>往<code>/etc/exports</code>里写的那一行里，<code>*</code>代表允许所有的客户端访问。如果只想让192.168.33.18访问，把星号改为这个IP就好了。需要支持多个IP的话，用逗号分隔就行。括号里的<code>rw</code>表示允许读写。<code>no_subtree_check</code>表示在服务器端不检查此nfs文件夹的父目录权限。<code>no_root_squash</code>表示客户端root用户也被视为对此nfs文件夹有全部权限的服务端root用户，生产环境不建议使用，因为那样nfs上的文件就可能被随意篡改。想要了解更多的设置，请自行<code>man exports</code>。</p>
+<h2 id="u6D4B_u8BD5"><a href="#u6D4B_u8BD5" class="headerlink" title="测试"></a>测试</h2><p>这时候我们就可以去client挂载server的这个nfs目录了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t nfs <span class="number">192.168</span>.<span class="number">33.17</span>:/tmp/nfs /mnt</span><br><span class="line">ls /mnt</span><br></pre></td></tr></table></figure></p>
+<p>往里面写一个文件：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"Hello World!"</span> &gt; /mnt/hw.txt</span><br><span class="line">ll /mnt</span><br></pre></td></tr></table></figure></p>
+<p>然后去server端看一下，是不是已经被同步过来了：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ll /tmp/nfs</span><br></pre></td></tr></table></figure></p>
+<p>Server端也可以往nfs的文件夹里写文件：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"Hello NFS"</span> &gt; /tmp/nfs/hn.txt</span><br></pre></td></tr></table></figure></p>
+<p>照样可以同步到client端：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ll /mnt</span><br></pre></td></tr></table></figure></p>
+<p>无论server端还是client端，都可以通过下面这个命令来查看<code>192.168.33.17</code>上公开了哪些nfs文件夹：<br><figure class="highlight sh"><figcaption><span>server or client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">showmount <span class="operator">-e</span> <span class="number">192.168</span>.<span class="number">33.17</span></span><br></pre></td></tr></table></figure></p>
+<p>再来一个nfs2文件夹：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /tmp/nfs2</span><br><span class="line">sudo sh -c <span class="string">"echo '/tmp/nfs2 *(rw,no_subtree_check,no_root_squash)' &gt;&gt; /etc/exports"</span></span><br></pre></td></tr></table></figure></p>
+<p>这时候再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>并没有出现在列表中。因为nfs并不会去监视<code>/etc/exports</code>这个文件，所以这时候它还不知道我们改变了配置。虽然重新启动nfs服务可以解决这个问题，但是它会中断现存的nfs服务。建议使用以下命令：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo exportfs -ar    <span class="comment"># a代表所有的文件夹，r代表重新导出</span></span><br></pre></td></tr></table></figure></p>
+<p>这时候在再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>已经出来啦。加载一下：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt</span><br><span class="line">sudo mount -t nfs <span class="number">192.168</span>.<span class="number">33.17</span>:/tmp/nfs2 /mnt</span><br><span class="line">ls /mnt</span><br></pre></td></tr></table></figure></p>
+<p>完全没问题。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -241,13 +126,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/agile/">agile</a>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/agile/">agile</a>
+  <span></span> <a href="/tags/nfs/">nfs</a><a href="/tags/storage/">storage</a>
   </div>
 
 </div>
@@ -256,7 +141,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/waterfall-to-agile-2/" data-title="传统企业敏捷转型纪实（二） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/nfs-demo/" data-title="轻松搭建nfs存储环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -269,19 +154,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/ansible-large-scale-cluster/" title="用ansible管理大规模集群">
-  <strong>上一篇：</strong><br/>
-  <span>
-  用ansible管理大规模集群</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/kubernetes-in-mesos-5/"  title="如果有10000台机器，你想怎么玩？（五）日志">
+<a href="/kubernetes-in-mesos-8/"  title="如果有10000台机器，你想怎么玩？（八）网络">
  <strong>下一篇：</strong><br/> 
- <span>如果有10000台机器，你想怎么玩？（五）日志
+ <span>如果有10000台机器，你想怎么玩？（八）网络
 </span>
 </a>
 </div>
@@ -290,7 +167,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="waterfall-to-agile-2/" data-title="传统企业敏捷转型纪实（二）" data-url="http://qinghua.github.io/waterfall-to-agile-2/"></div>
+	<div class="ds-thread" data-thread-key="nfs-demo/" data-title="轻松搭建nfs存储环境" data-url="http://qinghua.github.io/nfs-demo/"></div>
 </section>
 
 
@@ -300,7 +177,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FED_u4EE3_u5F00_u59CB"><span class="toc-number">1.</span> <span class="toc-text">迭代开始</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9700_u6C42_u5206_u6790"><span class="toc-number">2.</span> <span class="toc-text">需求分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u7528_u4F8B"><span class="toc-number">3.</span> <span class="toc-text">测试用例</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
  
   </div>
 

@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/nfs-demo/</loc>
+    <lastmod>2016-03-03T13:18:18.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-8/</loc>
     <lastmod>2016-03-02T12:49:50.000Z</lastmod>
   </url>
