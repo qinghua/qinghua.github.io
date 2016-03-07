@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
 <meta property="og:image" content="http://qinghua.github.io/img/docker-image.jpg">
-<meta property="og:updated_time" content="2016-02-14T07:51:48.000Z">
+<meta property="og:updated_time" content="2016-03-07T07:16:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="删除Docker Registry里的镜像怎么那么难">
 <meta name="twitter:description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
@@ -123,6 +123,7 @@
 <p>如果你等不及docker官方的实现，并且对自己的私有库的控制力比较强，不需要考虑并发，可以使用<a href="https://github.com/burnettk/delete-docker-registry-image" target="_blank" rel="external">这个脚本</a>来彻底删除，记得先把registry停掉，或者是设置为<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-read-only-mode" target="_blank" rel="external">只读模式</a>以避免并发哦。设置一个cron任务，每天凌晨停止服务一小段时间，然后运行脚本，再启动服务就好了。</p>
 <p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete" target="_blank" rel="external">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
 <p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
+<p>写完这篇博客后不久，一个<a href="https://github.com/docker/distribution/blob/master/docs/gc.md" target="_blank" rel="external">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。</p>
 <h2 id="v1_vs_v2"><a href="#v1_vs_v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a href="https://github.com/docker/docker-registry" target="_blank" rel="external">这里</a>。新版本v2是用go写的，源码在<a href="https://github.com/docker/distribution" target="_blank" rel="external">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a href="http://www.csdn.net/article/2015-09-09/2825651" target="_blank" rel="external">这篇文章</a>。</p>
 <p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
   
@@ -213,7 +214,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>20</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>21</sup></a></li>
 		  
 		
 		  
@@ -222,6 +223,8 @@
 		
 		  
 			<li><a href="/categories/devops/linux-unix/" title="linux/unix">linux/unix<sup>1</sup></a></li>
+		  
+		
 		  
 		
 		</ul>
@@ -242,7 +245,7 @@
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>5</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>6</sup></a></li>
 			
 		
 			
@@ -258,15 +261,11 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>1</sup></a></li>
 			
 		
 			
@@ -275,6 +274,10 @@
 		
 			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
 			
 		
 			
@@ -302,15 +305,11 @@
 			
 		
 			
-				<li><a href="/tags/overlay/" title="overlay">overlay<sup>1</sup></a></li>
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/bridge/" title="bridge">bridge<sup>1</sup></a></li>
-			
 		
-			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
 			
 		
 		</ul>
