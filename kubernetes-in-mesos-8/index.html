@@ -37,7 +37,7 @@
 如果有">
 <meta property="og:image" content="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png">
 <meta property="og:image" content="http://qinghua.github.io/img/pause.png">
-<meta property="og:updated_time" content="2016-03-02T12:49:50.000Z">
+<meta property="og:updated_time" content="2016-03-10T05:54:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（八）网络">
 <meta name="twitter:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。
@@ -140,7 +140,7 @@
 <li>容器自己的IP和外部看它的IP是一样的</li>
 </ul>
 <p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/v1.1/docs/admin/ovs-networking.html" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
-<p>Flannel会在每个主机上运行一个叫做flannelId的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flannelId去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
+<p>Flannel会在每个主机上运行一个叫做flanneld的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flanneld去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
 <p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。</p>
 <h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
 <p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
@@ -226,6 +226,8 @@
 		  
 		
 		  
+		
+		  
 			<li><a href="/categories/devops/" title="devops">devops<sup>21</sup></a></li>
 		  
 		
@@ -265,11 +267,11 @@
 			
 		
 			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
@@ -281,15 +283,15 @@
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
 			
 		
 			
@@ -301,11 +303,7 @@
 			
 		
 			
-				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
@@ -313,11 +311,15 @@
 			
 		
 			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
 			
 		
 			

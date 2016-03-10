@@ -79,28 +79,14 @@
     </url>
 
     <url>
-        <loc>http://qinghua.github.io/tags/kubernetes/</loc>
-        <lastmod>2016-03-02T12:49:50.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>http://qinghua.github.io/tags/mesos/</loc>
-        <lastmod>2016-03-02T12:49:50.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>http://qinghua.github.io/tags/storage/</loc>
+        <loc>http://qinghua.github.io/tags/nfs/</loc>
         <lastmod>2016-03-03T13:22:07.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>http://qinghua.github.io/tags/nfs/</loc>
+        <loc>http://qinghua.github.io/tags/storage/</loc>
         <lastmod>2016-03-03T13:22:07.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -123,6 +109,20 @@
     <url>
         <loc>http://qinghua.github.io/tags/docker-registry/</loc>
         <lastmod>2016-03-07T08:59:01.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://qinghua.github.io/tags/mesos/</loc>
+        <lastmod>2016-03-10T05:54:42.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://qinghua.github.io/tags/kubernetes/</loc>
+        <lastmod>2016-03-10T05:54:42.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
