@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-12T15:37:30.000Z</updated>
+  <updated>2016-03-13T11:03:23.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,64 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[用容器轻松搭建Portus运行环境]]></title>
+    <link href="http://qinghua.github.io/portus/"/>
+    <id>http://qinghua.github.io/portus/</id>
+    <published>2016-03-13T11:02:31.000Z</published>
+    <updated>2016-03-13T11:03:23.000Z</updated>
+    <content type="html"><![CDATA[<p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a href="http://port.us.org/" target="_blank" rel="external">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台叫做<strong>registry</strong>，IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">2048</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>我们将会把docker registry和portus都安装在同一台虚拟机上。一方面是比较方便，另一方面也避免了<a href="http://port.us.org/features/1_Synchronizing-the-Registry-and-Portus.html#synchronizing-clocks-between-the-registry-and-portus" target="_blank" rel="external">时钟同步问题</a>。为了启动一个带认证的docker registry，首先要生成自签名证书：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /certs</span><br><span class="line">sudo sed -i <span class="string">'/^\[ v3_ca \]$/a subjectAltName = IP:192.168.33.18'</span> /etc/ssl/openssl.cnf</span><br><span class="line">sudo sh -c <span class="string">"openssl req \</span><br><span class="line">    -newkey rsa:4096 -nodes -sha256 -keyout /certs/domain.key \</span><br><span class="line">    -x509 -days 365 -out /certs/domain.crt"</span></span><br></pre></td></tr></table></figure></p>
+<p>随便填点东西，一路回车。证书生成好了，但是由于这是自签名证书，客户端还需要配置证书文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/</span><br><span class="line">sudo cp /certs/domain.crt /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/ca.crt</span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
+<p>接下来生成一个registry的配置文件，里面指定刚才的证书和token方式的认证。认证服务器设置到一会儿要启动的portus去：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; config.yml</span><br><span class="line">version: <span class="number">0.1</span></span><br><span class="line">loglevel: debug</span><br><span class="line">storage:</span><br><span class="line">    cache:</span><br><span class="line">        blobdescriptor: inmemory</span><br><span class="line">    filesystem:</span><br><span class="line">        rootdirectory: /var/lib/registry</span><br><span class="line">    delete:</span><br><span class="line">        enabled: <span class="literal">true</span></span><br><span class="line">http:</span><br><span class="line">    addr: :<span class="number">5000</span></span><br><span class="line">    headers:</span><br><span class="line">        X-Content-Type-Options: [nosniff]</span><br><span class="line">    tls:</span><br><span class="line">        certificate: /certs/domain.crt</span><br><span class="line">        key: /certs/domain.key</span><br><span class="line">auth:</span><br><span class="line">    token:</span><br><span class="line">        realm: http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">3000</span>/v2/token</span><br><span class="line">        service: <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br><span class="line">        issuer: portus.test.lan </span><br><span class="line">        rootcertbundle: /certs/domain.crt </span><br><span class="line">notifications:</span><br><span class="line">    endpoints:</span><br><span class="line">      - name: portus</span><br><span class="line">        url: http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">3000</span>/v2/webhooks/events</span><br><span class="line">        timeout: <span class="number">500</span>ms</span><br><span class="line">        threshold: <span class="number">5</span></span><br><span class="line">        backoff: <span class="number">1</span>s</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以启动registry容器了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</span><br><span class="line">    registry:<span class="number">2.2</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>Docker registry配置完成后，就该准备portus了。Portus需要一个数据库来存储信息，官方推荐<a href="https://mariadb.org/" target="_blank" rel="external">MariaDB</a>，当然mysql也是没问题的。我们把数据库启动起来：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --name mariadb \</span><br><span class="line">    --net=host \</span><br><span class="line">    <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">    <span class="operator">-e</span> TERM=xterm \</span><br><span class="line">    mariadb:<span class="number">10.1</span>.<span class="number">10</span></span><br></pre></td></tr></table></figure></p>
+<p>等数据库启动完成，我们连接上去：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mariadb mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
+<p>为portus创建用户和数据库：<br><figure class="highlight sh"><figcaption><span>sql</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create database portus;</span><br><span class="line">GRANT ALL ON portus.* TO <span class="string">'portus'</span>@<span class="string">'%'</span> IDENTIFIED BY <span class="string">'portus'</span>;</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>万事俱备，让我们来启动portus：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --name=portus \</span><br><span class="line">    <span class="operator">-e</span> RAILS_ENV=production \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_HOST=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_USERNAME=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_PASSWORD=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_DATABASE=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_MACHINE_FQDN=portus.test.lan \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_SECRET_KEY_BASE=som3sEcreTT \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_KEY_PATH=/etc/docker/key.pem \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PASSWORD=portuspwd \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_LDAP_ENABLED=<span class="literal">false</span> \</span><br><span class="line">    -p <span class="number">3000</span>:<span class="number">3000</span> \</span><br><span class="line">    -v /certs/domain.key:/etc/docker/key.pem \</span><br><span class="line">    bydga/portus \</span><br><span class="line">    puma -b tcp://<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">3000</span> -w <span class="number">3</span></span><br></pre></td></tr></table></figure></p>
+<p>启动完成后，在浏览器打开<code>http://192.168.33.18:3000/</code>，应该就能看到注册页面啦：<br><img src="/img/portus-sign-up.jpg" alt=""></p>
+<h2 id="u7BA1_u7406"><a href="#u7BA1_u7406" class="headerlink" title="管理"></a>管理</h2><p>Portus现在只能管理一个私有库。它有一个团队的概念，每个一团队可以有多个命名空间，每个命名空间就是多个镜像的集合。每个团队有三种角色：</p>
+<ul>
+<li>查看者（Viewer）：只能pull镜像</li>
+<li>贡献者（Contributor）：除了pull，还可以push镜像</li>
+<li>所有者（Owner）：除了推拉镜像，还可以对团队成员进行管理</li>
+</ul>
+<p>由于角色是定义在团队里的，所以命名空间就不需要再考虑权限问题了，它只是镜像的集合而已。命名空间也有三种类型：</p>
+<ul>
+<li>全局（Global）：只有管理员可以push，其他人只能pull</li>
+<li>团队（Team）：由团队定义</li>
+<li>个人（Personal）：只有所有者和管理员可以推拉</li>
+</ul>
+<p>命名空间可以设置成public，这样不需要login也能pull。</p>
+<p>说完一些基本概念，让我们来尝试一下。首先，portus需要配置一个用户，将会用到portus容器启动参数里的<code>PORTUS_PASSWORD</code>。这个用户是用来调用docker registry的API，与其进行同步的。同步有两种方式：一是在docker registry的配置文件里写的<code>notifications</code>，这样每当有人push一个新镜像上去，docker registry将会通知portus修改数据库。可是时间长了，有可能数据库偶尔挂掉啥的导致两边数据不一致。Portus针对这种情况也提供了一个crono的job，定时运行即可。命令为<code>RAILS_ENV=production CATALOG_CRON=&quot;10.minutes&quot; bundle exec crono</code>。现在让我们先来创建这个用户：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus rake portus:create_api_account</span><br></pre></td></tr></table></figure></p>
+<p>接下来就可以在注册页面自行注册啦，注册完毕后会跳转到登记registry页面：<br><img src="/img/portus-new-registry.jpg" alt=""></p>
+<p>照上图填入registry，点击<strong>Create</strong>按钮时可能会出现<strong>SSL error</strong>的错误，勾选<strong>Skip remote checks</strong>就可以忽略它。据说只有使用registry 2.3.0版和docker 1.10版才能正常工作，有兴趣的话可以自行尝试。这里我们旅程继续。首先创建一个新用户。点击左边的<strong>Admin</strong>，再点击中间的<strong>Users</strong>，然后点击右边的<strong>Create new user</strong>，填写用户信息：<br><img src="/img/portus-new-user.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新用户了。然后创建一个团队。点击左边的<strong>Teams</strong>，再点击右边的<strong>Create new team</strong>，填写团队信息：<br><img src="/img/portus-new-team.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新团队了。点击刚刚创建好的团队，再点击右边的<strong>Add namespace</strong>，填写命名空间信息：<br><img src="/img/portus-new-namespace.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新命名空间了。接下来把用户添加到这个团队中。点击右边的<strong>Add members</strong>，填写刚才增加的用户信息：<br><img src="/img/portus-new-member.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以把用户加进来了。回到控制台，搞一个镜像，push一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br><span class="line">docker tag microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span> <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>出错了：<strong>unauthorized: access to the requested resource is not authorized</strong>，我们必须用docker先登录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u gggg <span class="operator">-e</span> gggg@<span class="number">123</span>.com <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br></pre></td></tr></table></figure></p>
+<p>填上自己刚才设置的密码，登录成功之后，再试着push一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>还是出错了，但是错误信息不同了：<strong>unauthorized: authentication required</strong>，这是因为我们添加用户的时候，默认选择的是查看者（Viewer），没有权限push。回到页面上去改成贡献者（Contributor），然后再试一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>Bingo！换一个命名空间试试看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker tag bydga/portus <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/bydga/portus</span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/bydga/portus</span><br></pre></td></tr></table></figure></p>
+<p>出错了：<strong>unauthorized: access to the requested resource is not authorized</strong>，可见我们的权限控制确实起作用了。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a href="http://port.us.org/">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。<br>]]>
+    
+    </summary>
+    
+      <category term="docker registry" scheme="http://qinghua.github.io/tags/docker-registry/"/>
+    
+      <category term="portus" scheme="http://qinghua.github.io/tags/portus/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[HTC VIVE初体验]]></title>
@@ -285,7 +343,7 @@
     <link href="http://qinghua.github.io/sed/"/>
     <id>http://qinghua.github.io/sed/</id>
     <published>2016-02-26T13:18:07.000Z</published>
-    <updated>2016-02-27T13:00:34.000Z</updated>
+    <updated>2016-03-13T02:29:36.000Z</updated>
     <content type="html"><![CDATA[<p>这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。<br><a id="more"></a></p>
 <p>假设我们有一个csv文件如下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;staff.csv</span><br><span class="line">Gavo,<span class="number">35</span></span><br><span class="line">Jane,<span class="number">21</span></span><br><span class="line">Bill,<span class="number">25</span></span><br><span class="line">Jimmy,<span class="number">42</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
 <h2 id="u589E"><a href="#u589E" class="headerlink" title="增"></a>增</h2><h3 id="u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><a href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C" class="headerlink" title="在文件头/尾增加一行"></a>在文件头/尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1i Name,Age'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
@@ -337,6 +395,8 @@
 <p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">'1,/Jane/p'</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Gavo/,/Jane/p'</span> staff.csv    <span class="comment"># 从匹配Gavo的记录开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Jane/,$p'</span> staff.csv         <span class="comment"># 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure></p>
 <h3 id="u67E5_u770B_u5947/_u5076_u6570_u884C"><a href="#u67E5_u770B_u5947/_u5076_u6570_u884C" class="headerlink" title="查看奇/偶数行"></a>查看奇/偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'n;d'</span> staff.csv       <span class="comment"># 奇数行</span></span><br><span class="line">sed <span class="string">'1d;n;d'</span> staff.csv    <span class="comment"># 偶数行</span></span><br></pre></td></tr></table></figure>
 <p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
+<h3 id="u4ECE_u5355_u884C_u4E2D_u67E5_u627E"><a href="#u4ECE_u5355_u884C_u4E2D_u67E5_u627E" class="headerlink" title="从单行中查找"></a>从单行中查找</h3><p>比如想从<strong>I am 18 years old</strong>里查找18这个年龄，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"I am 18 years old"</span> | sed -n <span class="string">"s/I am \(.*\) years old/\1/p"</span></span><br></pre></td></tr></table></figure></p>
+<p>这里<code>\1</code>代表第一个被匹配上的内容也就是<code>\(.*\)</code>。发挥想象力：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"I am 18 years old"</span> | sed -n <span class="string">"s/I am \(.*\) \(.*\) old/\2: \1/p"</span></span><br></pre></td></tr></table></figure></p>
 <h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p>The UNIX School 里的<a href="http://www.theunixschool.com/p/awk-sed.html" target="_blank" rel="external">awk and sed tutorials</a>含有大量的例子和解释，非常容易上手，本文就是以其为基础整理而成。<br>酷壳的<a href="http://coolshell.cn/articles/9104.html" target="_blank" rel="external">sed 简明教程</a>很适合入门。<br>当然还有最全面的<a href="http://www.gnu.org/software/sed/manual/sed.html" target="_blank" rel="external">官方文档</a>。</p>
 ]]></content>
     <summary type="html">
@@ -1247,61 +1307,6 @@
       <category term="agile" scheme="http://qinghua.github.io/tags/agile/"/>
     
       <category term="agile" scheme="http://qinghua.github.io/categories/agile/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[如果有10000台机器，你想怎么玩？（五）日志]]></title>
-    <link href="http://qinghua.github.io/kubernetes-in-mesos-5/"/>
-    <id>http://qinghua.github.io/kubernetes-in-mesos-5/</id>
-    <published>2016-01-18T11:59:00.000Z</published>
-    <updated>2016-03-02T12:43:46.000Z</updated>
-    <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
-</li>
-</ul>
-<h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
-<ul>
-<li>收集：通常以代理的形式运行在各个节点上，负责收集日志。我们希望能尽可能地实时，因为当我们重现一个bug的时候，不会愿意再等上好几分钟才能看到当时的操作日志。</li>
-<li>传输：把收集到的日志传给存储。这个阶段关注的是可靠性。万一日志丢失的话那可就麻烦了。</li>
-<li>存储：按需选择用什么形式的存储。比如要存多久时间？要不要支持扩容？找历史数据的可能性有多大？</li>
-<li>分析：不同的分析工具适用于不同的存储。这个也包含可视化的分析及报表导出等等。</li>
-<li>告警：出现错误日志的时候通知运维人员。最好还能聚合相同的错误，因为作为运维来说，实在是不想看到同一个类型的错误不停地骚扰过来。</li>
-</ul>
-<h2 id="u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848"><a href="#u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a href="http://www.splunk.com/" target="_blank" rel="external">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a href="https://www.sumologic.com/" target="_blank" rel="external">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a href="https://www.elastic.co/webinars/introduction-elk-stack" target="_blank" rel="external">ELK</a>和Apache的<a href="http://flume.apache.org/" target="_blank" rel="external">Flume</a>+<a href="http://kafka.apache.org/" target="_blank" rel="external">Kafka</a>+<a href="http://storm.apache.org/" target="_blank" rel="external">Storm</a>。</p>
-<p>ELK是<a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elastic search</a>、<a href="https://www.elastic.co/products/logstash" target="_blank" rel="external">Logstash</a>和<a href="https://www.elastic.co/products/kibana" target="_blank" rel="external">Kibana</a>三个开源软件的组合。其中logstash可以对日志进行收集、过滤和简单处理，并将其存储到elastic search上，最终供kibana展示（和上一篇的监控很类似啊）。这套方案可以参考<a href="http://dockone.io/article/505" target="_blank" rel="external">新浪的实时日志架构</a>。这一本<a href="http://kibana.logstash.es/content/" target="_blank" rel="external">ELKstack 中文指南</a>也写得非常详细。</p>
-<p>Apache的flume扮演者类似logstash的角色来收集数据，storm可以对flume采集到的数据进行实时分析。由于数据的采集和处理速度可能不一致，因此用消息中间件kafka来作为缓冲。但是kafka不可能存储所有的日志数据，所以会用其他的存储系统来负责持久化，如同样由Apache提供的<a href="https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html" target="_blank" rel="external">HDFS</a>。这套方案可以参考<a href="http://tech.meituan.com/mt-log-system-arch.html" target="_blank" rel="external">美团的日志收集系统架构</a>。如果需要对分析后的结果持久化，还可以引入<a href="https://www.mysql.com/" target="_blank" rel="external">mysql</a>等数据库。</p>
-<h2 id="kubernetes_u65B9_u6848"><a href="#kubernetes_u65B9_u6848" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a href="http://www.fluentd.org/" target="_blank" rel="external">fluentd</a>（有<a href="http://www.tuicool.com/articles/7FzqeeI" target="_blank" rel="external">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es" target="_blank" rel="external">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg" alt=""></p>
-<p>还可以根据日志来配置各种图表，生成很炫的Dashboard。这个是官方的<a href="http://demo.elastic.co/packetbeat/" target="_blank" rel="external">demo</a>：<br><img src="/img/kibana-official.jpg" alt=""></p>
-<p>如果日志不是写到文件系统，而是写到stdout或者stderr，那么kubernetes直接就可以用logs命令看到，就不需要这一整套了。但是一个复杂的web应用，通常还是有复杂的日志文件配置的。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a>]]>
-    
-    </summary>
-    
-      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
-    
-      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
     
   </entry>
   

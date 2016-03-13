@@ -1,0 +1,614 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器轻松搭建Portus运行环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器轻松搭建Portus运行环境">
+<meta property="og:url" content="http://qinghua.github.io/portus/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-sign-up.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-new-registry.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-new-user.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-new-team.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-new-namespace.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/portus-new-member.jpg">
+<meta property="og:updated_time" content="2016-03-13T11:03:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器轻松搭建Portus运行环境">
+<meta name="twitter:description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= 322832731696093600 ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/portus/" title="用容器轻松搭建Portus运行环境" itemprop="url">用容器轻松搭建Portus运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-13T11:02:31.000Z" itemprop="datePublished"> 发表于 2016-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">管理</span></a></li></ol>
+		
+		</div>
+		
+		<p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a href="http://port.us.org/" target="_blank" rel="external">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台叫做<strong>registry</strong>，IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">2048</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>我们将会把docker registry和portus都安装在同一台虚拟机上。一方面是比较方便，另一方面也避免了<a href="http://port.us.org/features/1_Synchronizing-the-Registry-and-Portus.html#synchronizing-clocks-between-the-registry-and-portus" target="_blank" rel="external">时钟同步问题</a>。为了启动一个带认证的docker registry，首先要生成自签名证书：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /certs</span><br><span class="line">sudo sed -i <span class="string">'/^\[ v3_ca \]$/a subjectAltName = IP:192.168.33.18'</span> /etc/ssl/openssl.cnf</span><br><span class="line">sudo sh -c <span class="string">"openssl req \</span><br><span class="line">    -newkey rsa:4096 -nodes -sha256 -keyout /certs/domain.key \</span><br><span class="line">    -x509 -days 365 -out /certs/domain.crt"</span></span><br></pre></td></tr></table></figure></p>
+<p>随便填点东西，一路回车。证书生成好了，但是由于这是自签名证书，客户端还需要配置证书文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/</span><br><span class="line">sudo cp /certs/domain.crt /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/ca.crt</span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
+<p>接下来生成一个registry的配置文件，里面指定刚才的证书和token方式的认证。认证服务器设置到一会儿要启动的portus去：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; config.yml</span><br><span class="line">version: <span class="number">0.1</span></span><br><span class="line">loglevel: debug</span><br><span class="line">storage:</span><br><span class="line">    cache:</span><br><span class="line">        blobdescriptor: inmemory</span><br><span class="line">    filesystem:</span><br><span class="line">        rootdirectory: /var/lib/registry</span><br><span class="line">    delete:</span><br><span class="line">        enabled: <span class="literal">true</span></span><br><span class="line">http:</span><br><span class="line">    addr: :<span class="number">5000</span></span><br><span class="line">    headers:</span><br><span class="line">        X-Content-Type-Options: [nosniff]</span><br><span class="line">    tls:</span><br><span class="line">        certificate: /certs/domain.crt</span><br><span class="line">        key: /certs/domain.key</span><br><span class="line">auth:</span><br><span class="line">    token:</span><br><span class="line">        realm: http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">3000</span>/v2/token</span><br><span class="line">        service: <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br><span class="line">        issuer: portus.test.lan </span><br><span class="line">        rootcertbundle: /certs/domain.crt </span><br><span class="line">notifications:</span><br><span class="line">    endpoints:</span><br><span class="line">      - name: portus</span><br><span class="line">        url: http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">3000</span>/v2/webhooks/events</span><br><span class="line">        timeout: <span class="number">500</span>ms</span><br><span class="line">        threshold: <span class="number">5</span></span><br><span class="line">        backoff: <span class="number">1</span>s</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以启动registry容器了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</span><br><span class="line">    registry:<span class="number">2.2</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>Docker registry配置完成后，就该准备portus了。Portus需要一个数据库来存储信息，官方推荐<a href="https://mariadb.org/" target="_blank" rel="external">MariaDB</a>，当然mysql也是没问题的。我们把数据库启动起来：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --name mariadb \</span><br><span class="line">    --net=host \</span><br><span class="line">    <span class="operator">-e</span> MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line">    <span class="operator">-e</span> TERM=xterm \</span><br><span class="line">    mariadb:<span class="number">10.1</span>.<span class="number">10</span></span><br></pre></td></tr></table></figure></p>
+<p>等数据库启动完成，我们连接上去：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mariadb mysql -uroot -p123456</span><br></pre></td></tr></table></figure></p>
+<p>为portus创建用户和数据库：<br><figure class="highlight sh"><figcaption><span>sql</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create database portus;</span><br><span class="line">GRANT ALL ON portus.* TO <span class="string">'portus'</span>@<span class="string">'%'</span> IDENTIFIED BY <span class="string">'portus'</span>;</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>万事俱备，让我们来启动portus：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --name=portus \</span><br><span class="line">    <span class="operator">-e</span> RAILS_ENV=production \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_HOST=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_USERNAME=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_PASSWORD=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PRODUCTION_DATABASE=portus \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_MACHINE_FQDN=portus.test.lan \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_SECRET_KEY_BASE=som3sEcreTT \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_KEY_PATH=/etc/docker/key.pem \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_PASSWORD=portuspwd \</span><br><span class="line">    <span class="operator">-e</span> PORTUS_LDAP_ENABLED=<span class="literal">false</span> \</span><br><span class="line">    -p <span class="number">3000</span>:<span class="number">3000</span> \</span><br><span class="line">    -v /certs/domain.key:/etc/docker/key.pem \</span><br><span class="line">    bydga/portus \</span><br><span class="line">    puma -b tcp://<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">3000</span> -w <span class="number">3</span></span><br></pre></td></tr></table></figure></p>
+<p>启动完成后，在浏览器打开<code>http://192.168.33.18:3000/</code>，应该就能看到注册页面啦：<br><img src="/img/portus-sign-up.jpg" alt=""></p>
+<h2 id="u7BA1_u7406"><a href="#u7BA1_u7406" class="headerlink" title="管理"></a>管理</h2><p>Portus现在只能管理一个私有库。它有一个团队的概念，每个一团队可以有多个命名空间，每个命名空间就是多个镜像的集合。每个团队有三种角色：</p>
+<ul>
+<li>查看者（Viewer）：只能pull镜像</li>
+<li>贡献者（Contributor）：除了pull，还可以push镜像</li>
+<li>所有者（Owner）：除了推拉镜像，还可以对团队成员进行管理</li>
+</ul>
+<p>由于角色是定义在团队里的，所以命名空间就不需要再考虑权限问题了，它只是镜像的集合而已。命名空间也有三种类型：</p>
+<ul>
+<li>全局（Global）：只有管理员可以push，其他人只能pull</li>
+<li>团队（Team）：由团队定义</li>
+<li>个人（Personal）：只有所有者和管理员可以推拉</li>
+</ul>
+<p>命名空间可以设置成public，这样不需要login也能pull。</p>
+<p>说完一些基本概念，让我们来尝试一下。首先，portus需要配置一个用户，将会用到portus容器启动参数里的<code>PORTUS_PASSWORD</code>。这个用户是用来调用docker registry的API，与其进行同步的。同步有两种方式：一是在docker registry的配置文件里写的<code>notifications</code>，这样每当有人push一个新镜像上去，docker registry将会通知portus修改数据库。可是时间长了，有可能数据库偶尔挂掉啥的导致两边数据不一致。Portus针对这种情况也提供了一个crono的job，定时运行即可。命令为<code>RAILS_ENV=production CATALOG_CRON=&quot;10.minutes&quot; bundle exec crono</code>。现在让我们先来创建这个用户：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus rake portus:create_api_account</span><br></pre></td></tr></table></figure></p>
+<p>接下来就可以在注册页面自行注册啦，注册完毕后会跳转到登记registry页面：<br><img src="/img/portus-new-registry.jpg" alt=""></p>
+<p>照上图填入registry，点击<strong>Create</strong>按钮时可能会出现<strong>SSL error</strong>的错误，勾选<strong>Skip remote checks</strong>就可以忽略它。据说只有使用registry 2.3.0版和docker 1.10版才能正常工作，有兴趣的话可以自行尝试。这里我们旅程继续。首先创建一个新用户。点击左边的<strong>Admin</strong>，再点击中间的<strong>Users</strong>，然后点击右边的<strong>Create new user</strong>，填写用户信息：<br><img src="/img/portus-new-user.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新用户了。然后创建一个团队。点击左边的<strong>Teams</strong>，再点击右边的<strong>Create new team</strong>，填写团队信息：<br><img src="/img/portus-new-team.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新团队了。点击刚刚创建好的团队，再点击右边的<strong>Add namespace</strong>，填写命名空间信息：<br><img src="/img/portus-new-namespace.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新命名空间了。接下来把用户添加到这个团队中。点击右边的<strong>Add members</strong>，填写刚才增加的用户信息：<br><img src="/img/portus-new-member.jpg" alt=""></p>
+<p>点击<strong>Add</strong>按钮就可以把用户加进来了。回到控制台，搞一个镜像，push一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br><span class="line">docker tag microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span> <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>出错了：<strong>unauthorized: access to the requested resource is not authorized</strong>，我们必须用docker先登录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u gggg <span class="operator">-e</span> gggg@<span class="number">123</span>.com <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br></pre></td></tr></table></figure></p>
+<p>填上自己刚才设置的密码，登录成功之后，再试着push一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>还是出错了，但是错误信息不同了：<strong>unauthorized: authentication required</strong>，这是因为我们添加用户的时候，默认选择的是查看者（Viewer），没有权限push。回到页面上去改成贡献者（Contributor），然后再试一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/microbox/etcd:<span class="number">2.1</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>Bingo！换一个命名空间试试看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker tag bydga/portus <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/bydga/portus</span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/bydga/portus</span><br></pre></td></tr></table></figure></p>
+<p>出错了：<strong>unauthorized: access to the requested resource is not authorized</strong>，可见我们的权限控制确实起作用了。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker-registry/">docker registry</a><a href="/tags/portus/">portus</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/portus/" data-title="用容器轻松搭建Portus运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/vr-htc-vive/"  title="HTC VIVE初体验">
+ <strong>下一篇：</strong><br/> 
+ <span>HTC VIVE初体验
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="portus/" data-title="用容器轻松搭建Portus运行环境" data-url="http://qinghua.github.io/portus/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">管理</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
