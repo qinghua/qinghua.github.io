@@ -195,7 +195,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-8/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-8/</id>
     <published>2016-03-02T11:30:29.000Z</published>
-    <updated>2016-03-10T05:54:42.000Z</updated>
+    <updated>2016-03-14T12:09:48.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -209,16 +209,16 @@
 </li>
 </ul>
 <h2 id="Docker_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Docker_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
-<h2 id="Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/v1.1/docs/admin/networking.html" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
+<h2 id="Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/docs/admin/networking/" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
 <ul>
 <li>所有的容器可以在不使用NAT的情况下相互通信</li>
 <li>所有的主机和容器可以在不使用NAT的情况下相互通信</li>
 <li>容器自己的IP和外部看它的IP是一样的</li>
 </ul>
-<p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/v1.1/docs/admin/ovs-networking.html" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
+<p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/docs/admin/ovs-networking/" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
 <p>Flannel会在每个主机上运行一个叫做flanneld的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flanneld去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
 <p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。</p>
-<h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/v1.1/docs/user-guide/services.html" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
+<h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/docs/user-guide/services/" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
 <p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
 <h2 id="Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
 ]]></content>
@@ -756,7 +756,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-7/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-7/</id>
     <published>2016-02-03T10:41:27.000Z</published>
-    <updated>2016-03-02T12:49:05.000Z</updated>
+    <updated>2016-03-14T12:07:36.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -769,19 +769,19 @@
 <li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
+<h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/docs/user-guide/pod-states/#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
 <ul>
-<li><code>LivenessProbe</code>：如果健康检查失败，就把这个容器杀掉，然后kubelet根据预先设置的<a href="http://kubernetes.io/v1.1/docs/user-guide/pod-states.html#restartpolicy" target="_blank" rel="external">重启规则</a>来决定怎么处理：啥也不干、挂了才重启或者总是重启。</li>
+<li><code>LivenessProbe</code>：如果健康检查失败，就把这个容器杀掉，然后kubelet根据预先设置的<a href="http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy" target="_blank" rel="external">重启规则</a>来决定怎么处理：啥也不干、挂了才重启或者总是重启。</li>
 <li><code>ReadinessProbe</code>：如果健康检查失败，这个pod的IP地址将会从endpoints里移除，所以相当于屏蔽这个pod提供的服务而不是将它杀掉。</li>
 </ul>
 <p>那健康检查怎么做呢？可以是一段脚本，返回非0就代表错误；可以说一个http请求，返回200~400之间代表成功；还可以是一个tcp端口，打开即算成功。可以通过设置kubelet的参数<code>--sync-frequency</code>来设置健康检查的间隔时间。还可以在设置probe的时候指定健康检查的超时时间和第一次健康检查的延时（从容器启动完毕开始）。</p>
-<h2 id="u94A9_u5B50_uFF08hook_uFF09"><a href="#u94A9_u5B50_uFF08hook_uFF09" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a href="http://kubernetes.io/v1.1/docs/user-guide/container-environment.html#container-hooks" target="_blank" rel="external">钩子</a>来做这样的事：</p>
+<h2 id="u94A9_u5B50_uFF08hook_uFF09"><a href="#u94A9_u5B50_uFF08hook_uFF09" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a href="http://kubernetes.io/docs/user-guide/container-environment/#container-hooks" target="_blank" rel="external">钩子</a>来做这样的事：</p>
 <ul>
 <li>postStart：当一个容器被创建成功的时候</li>
 <li>preStop：当一个容器即将被关闭的时候</li>
 </ul>
 <p>钩子的设计理念是“宁滥毋缺”，所以某些情况下它是有可能被执行多次的，设计自己的钩子时需要考虑这样的情况，尽量使操作“无状态”。</p>
-<h2 id="u4E00_u6B21_u6027_u4EFB_u52A1"><a href="#u4E00_u6B21_u6027_u4EFB_u52A1" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/jobs.md" target="_blank" rel="external">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2" target="_blank" rel="external">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
+<h2 id="u4E00_u6B21_u6027_u4EFB_u52A1"><a href="#u4E00_u6B21_u6027_u4EFB_u52A1" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a href="http://kubernetes.io/docs/user-guide/jobs/" target="_blank" rel="external">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2" target="_blank" rel="external">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
 <ul>
 <li>非并行：就是启动一个pod，当pod成功结束了就算是job完成了</li>
 <li>固定数量并行：并行启动固定数量个pod，每个pod都成功结束了就算是job完成了</li>
@@ -789,14 +789,14 @@
 </ul>
 <p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
 <h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
-<h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
+<h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
 <p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png" alt=""></p>
 <p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png" alt=""></p>
 <p>继续增加新pod：<br><img src="/img/rolling-update-4.png" alt=""></p>
 <p>继续停掉旧pod：<br><img src="/img/rolling-update-5.png" alt=""></p>
 <p>增加新pod：<br><img src="/img/rolling-update-6.png" alt=""></p>
 <p>停掉旧pod，再把没用了的旧rc也删掉：<br><img src="/img/rolling-update-7.png" alt=""></p>
-<p>这样新服务就起来了！中间的替换速度是可以由我们设定的，还支持回滚。在<a href="http://kubernetes.io/v1.1/docs/user-guide/update-demo/README.html" target="_blank" rel="external">这里</a>有一个例子可供参考。</p>
+<p>这样新服务就起来了！中间的替换速度是可以由我们设定的，还支持回滚。在<a href="http://kubernetes.io/docs/user-guide/update-demo/" target="_blank" rel="external">这里</a>有一个例子可供参考。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
@@ -825,7 +825,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-6/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-6/</id>
     <published>2016-02-02T11:52:32.000Z</published>
-    <updated>2016-03-02T12:43:50.000Z</updated>
+    <updated>2016-03-14T12:12:13.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -841,7 +841,7 @@
 <h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
 <p>Kubernetes v1.0仅仅支持100个节点，kubernetes v1.1已经可以支持250个节点了。官方也希望能<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/multi-cluster.md#user-content-selecting-the-right-number-of-clusters" target="_blank" rel="external">在2016年初支持1000个节点</a>。Kubernetes还提供了一个性能测试工具<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/devel/kubemark-guide.md" target="_blank" rel="external">Kubemark</a>。它由真实的master和虚拟的空节点组成，默认跑在<a href="https://cloud.google.com/container-engine/" target="_blank" rel="external">GCE</a>上，这样不需要大量机器便可以进行性能测试了。</p>
 <h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><p>根据<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/cluster-large.md" target="_blank" rel="external">kubernetes大集群</a>这篇文章的描述，1.1版本支持最大250个节点，每个节点30个pod，每个pod 1~2个容器。当使用50台以上的节点时，最好用单独的etcd来存储事件。可以在kubernetes的api server启动参数里配置类似<code>--etcd-servers-overrides=/events#http://192.168.33.11:4001</code>这样的值来分离事件etcd。</p>
-<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的<a href="http://kubernetes.io/v1.1/docs/design/resources.html#resource-specifications" target="_blank" rel="external">limit</a>来增大插件的内存供给。</p>
+<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的limit来增大插件的内存供给。</p>
 <p>Docker的性能方面，由于Ubuntu的docker存储驱动默认使用AUFS，速度比Device Mapper快上不少。所以如果用CentOS来做node，会明显感觉容器的启动删除都比较慢。网上也有<a href="https://www.linux-toys.com/?p=374" target="_blank" rel="external">文章</a>指出这点，笔者测试的感觉与之相符。</p>
 <h2 id="u6027_u80FD_u8C03_u4F18"><a href="#u6027_u80FD_u8C03_u4F18" class="headerlink" title="性能调优"></a>性能调优</h2><h3 id="Mesos+Kubernetes"><a href="#Mesos+Kubernetes" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos的资源分配现在是酱紫的：</p>
 <ol>

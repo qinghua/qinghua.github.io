@@ -32,7 +32,7 @@
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎">
 <meta property="og:image" content="http://qinghua.github.io/img/mesos-architecture.jpg">
-<meta property="og:updated_time" content="2016-03-02T12:43:50.000Z">
+<meta property="og:updated_time" content="2016-03-14T12:12:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（六）性能">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
@@ -128,7 +128,7 @@
 <h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
 <p>Kubernetes v1.0仅仅支持100个节点，kubernetes v1.1已经可以支持250个节点了。官方也希望能<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/multi-cluster.md#user-content-selecting-the-right-number-of-clusters" target="_blank" rel="external">在2016年初支持1000个节点</a>。Kubernetes还提供了一个性能测试工具<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/devel/kubemark-guide.md" target="_blank" rel="external">Kubemark</a>。它由真实的master和虚拟的空节点组成，默认跑在<a href="https://cloud.google.com/container-engine/" target="_blank" rel="external">GCE</a>上，这样不需要大量机器便可以进行性能测试了。</p>
 <h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><p>根据<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/cluster-large.md" target="_blank" rel="external">kubernetes大集群</a>这篇文章的描述，1.1版本支持最大250个节点，每个节点30个pod，每个pod 1~2个容器。当使用50台以上的节点时，最好用单独的etcd来存储事件。可以在kubernetes的api server启动参数里配置类似<code>--etcd-servers-overrides=/events#http://192.168.33.11:4001</code>这样的值来分离事件etcd。</p>
-<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的<a href="http://kubernetes.io/v1.1/docs/design/resources.html#resource-specifications" target="_blank" rel="external">limit</a>来增大插件的内存供给。</p>
+<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的limit来增大插件的内存供给。</p>
 <p>Docker的性能方面，由于Ubuntu的docker存储驱动默认使用AUFS，速度比Device Mapper快上不少。所以如果用CentOS来做node，会明显感觉容器的启动删除都比较慢。网上也有<a href="https://www.linux-toys.com/?p=374" target="_blank" rel="external">文章</a>指出这点，笔者测试的感觉与之相符。</p>
 <h2 id="u6027_u80FD_u8C03_u4F18"><a href="#u6027_u80FD_u8C03_u4F18" class="headerlink" title="性能调优"></a>性能调优</h2><h3 id="Mesos+Kubernetes"><a href="#Mesos+Kubernetes" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos的资源分配现在是酱紫的：</p>
 <ol>
