@@ -1,0 +1,610 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>证书的那些事儿 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="证书的那些事儿">
+<meta property="og:url" content="http://qinghua.github.io/certificate/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。">
+<meta property="og:image" content="http://qinghua.github.io/img/ziyan.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/https_untrust.png">
+<meta property="og:image" content="http://qinghua.github.io/img/https_trust.png">
+<meta property="og:image" content="http://qinghua.github.io/img/google-ca.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/ca1.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/ca2.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/ca3.jpg">
+<meta property="og:updated_time" content="2016-03-16T14:19:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="证书的那些事儿">
+<meta name="twitter:description" content="现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value= 322832731696093600 ><input type="text" name="q" size="30" placeholder="搜索"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/certificate/" title="证书的那些事儿" itemprop="url">证书的那些事儿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-16T14:19:31.000Z" itemprop="datePublished"> 发表于 2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u5386_u53F2"><span class="toc-number">1.</span> <span class="toc-text">历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u9690_u85CF_u4FE1_u606F"><span class="toc-number">1.1.</span> <span class="toc-text">隐藏信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u52A0_u5BC6_u4FE1_u606F"><span class="toc-number">1.2.</span> <span class="toc-text">加密信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u73B0_u4EE3"><span class="toc-number">2.</span> <span class="toc-text">现代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5BF9_u79F0_u52A0_u5BC6"><span class="toc-number">2.1.</span> <span class="toc-text">对称加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u975E_u5BF9_u79F0_u52A0_u5BC6"><span class="toc-number">2.2.</span> <span class="toc-text">非对称加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6563_u5217_u7B97_u6CD5"><span class="toc-number">2.3.</span> <span class="toc-text">散列算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u534F_u8BAE"><span class="toc-number">3.</span> <span class="toc-text">协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSL/TLS"><span class="toc-number">3.1.</span> <span class="toc-text">SSL/TLS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP/HTTPS"><span class="toc-number">3.2.</span> <span class="toc-text">HTTP/HTTPS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CA_u53CA_u8BC1_u4E66"><span class="toc-number">4.</span> <span class="toc-text">CA及证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6570_u5B57_u8BC1_u4E66"><span class="toc-number">4.1.</span> <span class="toc-text">数字证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4FE1_u4EFB_u94FE"><span class="toc-number">4.2.</span> <span class="toc-text">信任链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7533_u8BF7_u8BC1_u4E66"><span class="toc-number">4.3.</span> <span class="toc-text">申请证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u52A8_u624B_u65F6_u95F4"><span class="toc-number">5.</span> <span class="toc-text">动手时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u52A0_u89E3_u5BC6"><span class="toc-number">5.1.</span> <span class="toc-text">加解密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6563_u5217"><span class="toc-number">5.2.</span> <span class="toc-text">散列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8BC1_u4E66"><span class="toc-number">5.3.</span> <span class="toc-text">证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。<br><a id="more"></a></p>
+<h2 id="u5386_u53F2"><a href="#u5386_u53F2" class="headerlink" title="历史"></a>历史</h2><h3 id="u9690_u85CF_u4FE1_u606F"><a href="#u9690_u85CF_u4FE1_u606F" class="headerlink" title="隐藏信息"></a>隐藏信息</h3><p>古代交通不便，一般都是通过送信的方式传递信息。那么如何保证信件的内容不被泄露呢？一种方法是隐藏字迹。中国古代使用矾书，也就是用明矾水来书写保密书信。水干之后没有任何痕迹，泡水时字才显示。还有一招是使用淀粉水在纸上写字，再把纸泡在碘水中显示字迹。据知乎的水波说<a href="https://www.zhihu.com/question/20986883/answer/16811680" target="_blank" rel="external">在西方世界里，也有使用牛奶或者羊奶书写信息，待干掉以后再用高温烘烤使之重新显现字迹的说法</a>。这些办法一旦为人所知，便会轻易被破解，而且还有点儿此地无银三百两的意思。</p>
+<h3 id="u52A0_u5BC6_u4FE1_u606F"><a href="#u52A0_u5BC6_u4FE1_u606F" class="headerlink" title="加密信息"></a>加密信息</h3><p>除了隐藏信息以外，还有加密的方法。在宋代兵书《武经总要》里，<a href="https://www.zhihu.com/question/34846340/answer/60080691" target="_blank" rel="external">约定了40个常用的军事短语</a>，送信内容为一首40个字的五言律诗，每个字代表一个军事短语。然后在相应的字上做标记，对方就明白了，这个叫字验。这个就有点儿密码表的意思了。从知乎某匿名用户的回答上找了一张图：<br><img src="/img/ziyan.jpg" alt=""></p>
+<p>在西方世界里，古希腊军队将长条羊皮纸缠绕在约定长度和粗细的木棍上书写，木棍称为Scytale。把羊皮纸解下来后就变成没有意义的字母了。古罗马的凯撒大帝用的是字母移位的办法。比如有封信写着：IFMMP，多半我们是不知道啥意思的。要是对方事先说明了把每个字母都右移一位的方法，也就是A变成B，B变成C…Z变成A，那我们就能很轻松地把IFMMP变成HELLO，明白对方的意思。</p>
+<h2 id="u73B0_u4EE3"><a href="#u73B0_u4EE3" class="headerlink" title="现代"></a>现代</h2><h3 id="u5BF9_u79F0_u52A0_u5BC6"><a href="#u5BF9_u79F0_u52A0_u5BC6" class="headerlink" title="对称加密"></a>对称加密</h3><p>对上文说的凯撒大帝移位法而言，“右移”就是算法（algorithm），一位的“1”就是密钥（key）。计算机普及后，最早的有影响力的算法是<a href="https://en.wikipedia.org/wiki/Data_Encryption_Standard" target="_blank" rel="external">DES</a>（Data Encryption Standard），它的秘钥是64位，但只有56位会用来计算。所以，只要最多尝试2<sup>56</sup>（大约是七万亿）次的暴力破解，就能解密。随着计算机硬件的发展，这个数量级在1998年只要56小时就能破解，到了1999年变成了24小时以内。这样就不够安全了。于是四年之后，<a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank" rel="external">AES</a>（Advanced Encryption Standard）取代了DES成为了新的标准。它可以使用128、192或256位密钥。最低的128位也能承受大约三千万亿亿次的暴力破解，至少目前看起来还算是比较安全的。在DES向AES的过渡期间，使用了<a href="https://en.wikipedia.org/wiki/Triple_DES" target="_blank" rel="external">3DES</a>算法。所谓3DES，可以理解成重要的事情做三遍，用不同密钥的DES加密三次，几乎也就等同于56×3=168位的密钥，这样也算是比较安全了。</p>
+<h3 id="u975E_u5BF9_u79F0_u52A0_u5BC6"><a href="#u975E_u5BF9_u79F0_u52A0_u5BC6" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>对称密钥有一个问题，就是密钥通过什么渠道来传输。加密算法再好，密钥被偷走了，也无济于事。在这样的背景下，非对称加密问世了。它的密钥包含着一个公钥和一个私钥。私钥顾名思义是只有你自己的电脑才知道的，公钥是公开的。用私钥加密的数据只有用公钥才能解开，同样的，用公钥加密的数据只有用私钥才能解开。假如两台电脑甲和乙相互通信，双方先把自己的公钥告诉对方。当甲给乙发消息时，用乙的公钥来加密，由于只有乙有相对应的私钥，所以只有乙能解密，甲要是忘记了消息内容连自己都解不了，更遑论第三方了。反之亦然。非对称加密最常用的算法是<a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)" target="_blank" rel="external">RSA</a>（发明者Rivest、Shmir和Adleman的姓氏首字母）。它的私钥和公钥是通过至少百位的大质数来生成的。由于在数学上很难计算大整数的因数，所以目前来说是比较安全的。万一哪天数学或<a href="http://www.guokr.com/question/530973/" target="_blank" rel="external">量子计算机</a>上有了突破，这种算法也就不再可靠了。1999年，512位的RSA被成功分解。2009年，768位的RSA也被成功分解。现在通用的1024位密钥可能也不那么可靠了，从安全的角度来说应该升级到2048位或以上。密钥这么大，非对称加密的速度比较慢（与对称加密有千倍的差距）也是可以理解的。所以在实际的使用当中一般用对称加密来加密数据，非对称加密来加密对称加密的密钥。</p>
+<h3 id="u6563_u5217_u7B97_u6CD5"><a href="#u6563_u5217_u7B97_u6CD5" class="headerlink" title="散列算法"></a>散列算法</h3><p>好吧，密码破解不了，但是攻击者可以截取加密后的数据包，然后篡改。这样“传位十四皇子”就变成了“传位于四皇子”啦。散列算法堵死了这条路。它能把很长的数据变成固定长度的文本。也称为数据的指纹（fingerprint）。相同数据的指纹一定是一样的，不同数据的指纹有可能一样，但是通常不一样。正因如此，散列算法是不可逆的，也就是说不能从数据指纹倒推出数据来。但是它可以用来校验数据是否被更改。如果数据有变化，那么指纹通常都是不一样的，概率取决于散列的长度，越长越不容易相同。本来常用的散列算法有<a href="https://en.wikipedia.org/wiki/MD5" target="_blank" rel="external">MD5</a>和<a href="https://en.wikipedia.org/wiki/SHA-1" target="_blank" rel="external">SHA1</a>，2004年后，山东大学的王小云教授通过碰撞法分别攻破了这两种算法。也就是说，在已知指纹的情况下，可以很快计算出另一个拥有相同指纹的文本，这样就实现了文本篡改。行话叫散列碰撞（Hash Collision）。所以<a href="https://en.wikipedia.org/wiki/National_Security_Agency" target="_blank" rel="external">NSA</a>推出了<a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank" rel="external">SHA2</a>和<a href="https://en.wikipedia.org/wiki/SHA-3" target="_blank" rel="external">SHA3</a>成为了新的标准。虽然MD5和SHA1被破解，也不用特别在意。因为虽然能找到相同指纹的数据，但是篡改者并不能随心所欲地把数据修改成自己想要的样子。</p>
+<h2 id="u534F_u8BAE"><a href="#u534F_u8BAE" class="headerlink" title="协议"></a>协议</h2><h3 id="SSL/TLS"><a href="#SSL/TLS" class="headerlink" title="SSL/TLS"></a>SSL/TLS</h3><p>有了加密算法，是不是传输就安全了呢？确实如果严格去用的话，是安全了，但是也麻烦了很多。每次都要跟对方沟通用什么算法，传送密钥，传送指纹…累不累？所以需要有一套协议，大家都遵守这样的协议，就能少掉很多我们不需要太关注的、技术上的事情。这个协议叫做<a href="https://en.wikipedia.org/w/index.php?title=Secure_Sockets_Layer&amp;redirect=no" target="_blank" rel="external">SSL</a>（Secure Sockets Layer）。它所做的事情，主要就是上面说的交换公钥，用对方的公钥加密数据，用自己的私钥解密，还支持MD5用于验证数据的完整性。SSL是网景公司发明的，由于应用广泛，成为了事实上的标准。<a href="https://en.wikipedia.org/wiki/Internet_Engineering_Task_Force" target="_blank" rel="external">IETF</a>（Internet Engineering Task Force）在1999年把SSL 3.0标准化，称为<a href="https://en.wikipedia.org/wiki/Transport_Layer_Security" target="_blank" rel="external">TLS</a>（Transport Layer Security）。除了标准化以外，相对SSL来说TLS也更加安全一些。</p>
+<h3 id="HTTP/HTTPS"><a href="#HTTP/HTTPS" class="headerlink" title="HTTP/HTTPS"></a>HTTP/HTTPS</h3><p>因特网发明后，大部分的网站都是用的<a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol" target="_blank" rel="external">HTTP</a>协议。这个协议关心的是如何方便地获取到自己需要的资源，并不关心安全性。如果你的网络被监视（比如你的wifi提供者，运营商等等），对方是可以明文看到你的所有信息的，行话叫嗅探（sniffer）。在HTTP上应用SSL/TLS的协议叫做<a href="https://en.wikipedia.org/wiki/HTTPS" target="_blank" rel="external">HTTPS</a>（HTTP over SSL/TLS）。有了它，我们就还可以像以前的HTTP那样方便地在网上冲浪，而不用太担心安全问题，但不是完全不需要担心，一会儿我们会说到。</p>
+<p>顺便说一句，SSL/TLS并不是只能用于HTTP，还可以用于<a href="https://en.wikipedia.org/wiki/File_Transfer_Protocol" target="_blank" rel="external">FTP</a>（File Transfer Protocol）、<a href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol" target="_blank" rel="external">SMTP</a>（Simple Mail Transfer Protocol）等一系列应用层协议。</p>
+<h2 id="CA_u53CA_u8BC1_u4E66"><a href="#CA_u53CA_u8BC1_u4E66" class="headerlink" title="CA及证书"></a>CA及证书</h2><h3 id="u6570_u5B57_u8BC1_u4E66"><a href="#u6570_u5B57_u8BC1_u4E66" class="headerlink" title="数字证书"></a>数字证书</h3><p>前面说到了HTTPS，为什么有了这么安全的技术我们还是不能高枕无忧呢？这是因为：虽然它能保证我们的信息不被第三方破解，但是它绕不开一个很现实的绕口问题：你怎么知道他就是他声称的那个他？举个栗子：你以为正在访问的网站是某个银行，但是却不知道其实你被钓鱼（phishing）了。对方正等着你输入你的银行卡号和密码，好用它们去真正的银行网站给自己转账。这一切发生得这么自然，你的信息只有钓鱼网站能解密看到，钓鱼网站的信息也只有你能解密看到…就算是你注意到了对方的域名，也有可能因为0和O、1和l傻傻分不清楚或者<a href="https://en.wikipedia.org/wiki/Domain_hijacking" target="_blank" rel="external">域名劫持</a>（domain hijacking）而上当。证书就是用来阻止这事儿发生的。虽然我不认识你，但是如果我认识一个很知名的家伙，他肯为你做担保，那我也可以相信你。这个知名的家伙就叫<a href="https://en.wikipedia.org/wiki/Certificate_authority" target="_blank" rel="external">CA</a>（Certificate Authority）。它为通信的双方起了一个中间人的作用。CA的担保就叫<a href="https://en.wikipedia.org/wiki/Public_key_certificate" target="_blank" rel="external">数字证书</a>（Digital Certificate或Public Key Certificate）。这个证书是什么格式，有什么内容呢？这是由<a href="https://en.wikipedia.org/wiki/Public_key_infrastructure" target="_blank" rel="external">PKI</a>（Public Key Infrastructure）标准决定的。常用的标准有<a href="https://en.wikipedia.org/wiki/X.509" target="_blank" rel="external">X.509</a>和<a href="https://en.wikipedia.org/wiki/PKCS_12" target="_blank" rel="external">PKCS #12</a>。它们定义了证书里应该含有签发机构名、证书用户名、有效期、算法、公钥等信息。</p>
+<h3 id="u4FE1_u4EFB_u94FE"><a href="#u4FE1_u4EFB_u94FE" class="headerlink" title="信任链"></a>信任链</h3><p>回到刚才的问题：你怎么知道他就是他声称的那个他？我无条件地信任CA，网站又有了CA的数字证书，我就能信任他就是证书里声称的那个他。如果我因为对CA的信任而有了损失，则证书可以用来追究CA的法律责任。如果我们信任A，A信任B，B信任C，那么我们也会信任B和C，这个叫做<a href="https://en.wikipedia.org/wiki/Chain_of_trust" target="_blank" rel="external">证书信任链</a>（Chain of trust）。中间的B称为<a href="https://hk.godaddy.com/en/help/what-is-an-intermediate-certificate-868" target="_blank" rel="external">中级证书</a>（Intermediate certificate），位于信任链顶端的A称为<a href="https://en.wikipedia.org/wiki/Root_certificate" target="_blank" rel="external">根证书</a>（Root certificate）。如果根证书出了问题，那么它所信任的其它证书也就不再可信了。这个后果可是非常严重，可能会影响整个因特网的信任体系。所以，需要尽可能地少动用根证书以减少根证书的私钥被盗用的风险。如果网站想要被认证，直接用中级证书认证就好了。万一中级证书出问题，吊销掉中级证书也只会影响一部分客户，比整个根证书被吊销掉强。但事情也不绝对。对CA来说，公信力就是一切。说个案例：<a href="https://en.wikipedia.org/wiki/China_Internet_Network_Information_Center" target="_blank" rel="external">中国互联网络信息中心</a>（China Internet Network Information Center，CNNIC）是中国的顶级域名<code>.cn</code>和中文域名的注册管理机构。MCS集团用CNNIC签发的中级证书，发行了多个冒充成Google的假证书。于是在2015年4月份，chrome、firefox都宣布不再信任CNNIC的证书。如果你用chrome来打开<a href="https://www.cnnic.net.cn/" target="_blank" rel="external">https://www.cnnic.net.cn/</a>，应该会看到：<br><img src="/img/https_untrust.png" alt=""></p>
+<p>而不是：<br><img src="/img/https_trust.png" alt=""></p>
+<p>一般来说操作系统和浏览器都会内置一些信任的CA，比较著名的有公信力的CA有Verisign，GeoTrust等。我们打开google的时候，也能点击小锁看到它的证书：<br><img src="/img/google-ca.jpg" alt=""></p>
+<p>再点击证书信息就能看到它的证书链。最上面的是GeoTrust的根证书，它包含的内容都在里面写着了，感兴趣的话就自己看看吧：<br><img src="/img/ca1.jpg" alt=""></p>
+<p>中间的是谷歌自己的中级证书：<br><img src="/img/ca2.jpg" alt=""></p>
+<p>最后是站点自己的证书，这个有效期一般比较短：<br><img src="/img/ca3.jpg" alt=""></p>
+<p>证书是可以自签名的，也就是说，你自己作为CA来发行这个证书。当然，这个证书也只有你自己会信任，广大的网友同志们的眼睛是雪亮的，不会无缘无故地信任你的。那如果我是大企业，是不是就值得信任了？谷歌、微软等通常都是可以信任的。12306，你信任它吗？每个人都会有自己的答案吧。打开<a href="https://www.12306.cn/" target="_blank" rel="external">12306</a>看看它的根证书，SRCA（SinoRail Certification Authority）是个什么鬼？这个是中国铁路自己啊。知道为什么首页上总有一个“为保障您顺畅购票，请下载安装根证书”的提示了吧。</p>
+<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，CA就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
+<h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="operator">-e</span> -des <span class="operator">-a</span> -salt    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX1/J5B1od/<span class="number">3</span>gTMcX1/DJQFEW+GizDVK1rUg= | openssl enc <span class="operator">-d</span> -des <span class="operator">-a</span> -salt</span><br></pre></td></tr></table></figure></p>
+<p>还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">cat private.pem</span><br></pre></td></tr></table></figure></p>
+<p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.pem -pubout -out public.pem</span><br><span class="line">cat public.pem</span><br></pre></td></tr></table></figure></p>
+<p>接下来用刚刚生成的公钥加密，私钥解密：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -encrypt -pubin -inkey public.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -decrypt -inkey private.pem</span><br></pre></td></tr></table></figure></p>
+<p>然后私钥加密，公钥解密。注意这个的意义其实是私钥签名，公钥认证：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -sign -inkey private.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -verify -pubin -inkey public.pem</span><br></pre></td></tr></table></figure></p>
+<h3 id="u6563_u5217"><a href="#u6563_u5217" class="headerlink" title="散列"></a>散列</h3><p>现在轮到散列算法了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -md5</span><br><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -sha1</span><br></pre></td></tr></table></figure></p>
+<p>也可以用linux自带的小工具实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | md5sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha1sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha224sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha256sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha384sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha512sum</span><br></pre></td></tr></table></figure></p>
+<p>是不是越来越长了？散列越长越不容易被碰撞。</p>
+<h3 id="u8BC1_u4E66"><a href="#u8BC1_u4E66" class="headerlink" title="证书"></a>证书</h3><p>申请证书，首先需要生成CSR文件。而CSR文件需要先生成私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">openssl req -new -key private.pem -out domain.csr</span><br><span class="line">cat domain.csr</span><br></pre></td></tr></table></figure></p>
+<p>生成私钥文件是可以加密的，加上一个参数比如<code>-des3</code>就可以了。生成CSR文件的时候需要填写各种信息，没耐心就随便写点什么甚至一路回车也行，反正又不是真的去找CA。如果你真的有需求，<a href="https://support.rackspace.com/how-to/generate-a-csr-with-openssl/#create-a-csr" target="_blank" rel="external">这里有一张表格</a>说明了应该怎么填。填完的东西可以这么看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -noout -text -in domain.csr</span><br></pre></td></tr></table></figure></p>
+<p>现在我们假装自己是个CA，有自己的密钥对，然后对刚才提交的CSR文件签名：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private_ca.pem <span class="number">2048</span></span><br><span class="line">openssl x509 -req -days <span class="number">365</span> -in domain.csr -signkey private_ca.pem -out my_domain.crt</span><br><span class="line">cat my_domain.crt</span><br></pre></td></tr></table></figure></p>
+<p>大功告成！生成的my_domain.crt就是我们要的证书。由于这个是自签名证书，默认是不被我们的操作系统信任的。如果我们需要增加信任，可以参考<a href="https://briansnelson.com/How_to_add_trusted_root_certificates" target="_blank" rel="external">这里</a>。比如在Ubuntu/Debian里可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo cp my_domain.crt /usr/<span class="built_in">local</span>/share/ca-certificates/</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure></p>
+<p>如果要取消信任，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rm /usr/<span class="built_in">local</span>/share/ca-certificates/my_domain.crt</span><br><span class="line">sudo update-ca-certificates --fresh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://computer.howstuffworks.com/encryption.htm" target="_blank" rel="external">How Encryption Works</a><br><a href="http://victor1980.blog.51cto.com/3664622/1659447" target="_blank" rel="external">有关SSL证书的一些事儿</a><br><a href="http://seanlook.com/2015/01/07/tls-ssl/" target="_blank" rel="external">SSL/TLS原理详解</a><br><a href="http://seanlook.com/2015/01/15/openssl-certificate-encryption/" target="_blank" rel="external">OpenSSL 与 SSL 数字证书概念贴</a><br><a href="https://program-think.blogspot.com/2010/02/introduce-digital-certificate-and-ca.html" target="_blank" rel="external">数字证书及 CA 的扫盲介绍</a><br><a href="https://program-think.blogspot.com/2014/11/https-ssl-tls-1.html" target="_blank" rel="external">扫盲 HTTPS 和 SSL/TLS 协议</a><br><a href="http://boxingp.github.io/blog/2015/04/04/should-cnnic-certificate-to-be-trusted/" target="_blank" rel="external">CNNIC证书值得信任吗？</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/certficate/">certficate</a><a href="/tags/encryption/">encryption</a><a href="/tags/https/">https</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/certificate/" data-title="证书的那些事儿 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/portus/"  title="用容器轻松搭建Portus运行环境">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建Portus运行环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="certificate/" data-title="证书的那些事儿" data-url="http://qinghua.github.io/certificate/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u5386_u53F2"><span class="toc-number">1.</span> <span class="toc-text">历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u9690_u85CF_u4FE1_u606F"><span class="toc-number">1.1.</span> <span class="toc-text">隐藏信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u52A0_u5BC6_u4FE1_u606F"><span class="toc-number">1.2.</span> <span class="toc-text">加密信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u73B0_u4EE3"><span class="toc-number">2.</span> <span class="toc-text">现代</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u5BF9_u79F0_u52A0_u5BC6"><span class="toc-number">2.1.</span> <span class="toc-text">对称加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u975E_u5BF9_u79F0_u52A0_u5BC6"><span class="toc-number">2.2.</span> <span class="toc-text">非对称加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6563_u5217_u7B97_u6CD5"><span class="toc-number">2.3.</span> <span class="toc-text">散列算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u534F_u8BAE"><span class="toc-number">3.</span> <span class="toc-text">协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSL/TLS"><span class="toc-number">3.1.</span> <span class="toc-text">SSL/TLS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP/HTTPS"><span class="toc-number">3.2.</span> <span class="toc-text">HTTP/HTTPS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CA_u53CA_u8BC1_u4E66"><span class="toc-number">4.</span> <span class="toc-text">CA及证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6570_u5B57_u8BC1_u4E66"><span class="toc-number">4.1.</span> <span class="toc-text">数字证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4FE1_u4EFB_u94FE"><span class="toc-number">4.2.</span> <span class="toc-text">信任链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7533_u8BF7_u8BC1_u4E66"><span class="toc-number">4.3.</span> <span class="toc-text">申请证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u52A8_u624B_u65F6_u95F4"><span class="toc-number">5.</span> <span class="toc-text">动手时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u52A0_u89E3_u5BC6"><span class="toc-number">5.1.</span> <span class="toc-text">加解密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6563_u5217"><span class="toc-number">5.2.</span> <span class="toc-text">散列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8BC1_u4E66"><span class="toc-number">5.3.</span> <span class="toc-text">证书</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/https/" title="https">https<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

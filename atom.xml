@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-14T11:03:13.000Z</updated>
+  <updated>2016-03-16T14:19:35.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,61 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[证书的那些事儿]]></title>
+    <link href="http://qinghua.github.io/certificate/"/>
+    <id>http://qinghua.github.io/certificate/</id>
+    <published>2016-03-16T14:19:31.000Z</published>
+    <updated>2016-03-16T14:19:35.000Z</updated>
+    <content type="html"><![CDATA[<p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。<br><a id="more"></a></p>
+<h2 id="u5386_u53F2"><a href="#u5386_u53F2" class="headerlink" title="历史"></a>历史</h2><h3 id="u9690_u85CF_u4FE1_u606F"><a href="#u9690_u85CF_u4FE1_u606F" class="headerlink" title="隐藏信息"></a>隐藏信息</h3><p>古代交通不便，一般都是通过送信的方式传递信息。那么如何保证信件的内容不被泄露呢？一种方法是隐藏字迹。中国古代使用矾书，也就是用明矾水来书写保密书信。水干之后没有任何痕迹，泡水时字才显示。还有一招是使用淀粉水在纸上写字，再把纸泡在碘水中显示字迹。据知乎的水波说<a href="https://www.zhihu.com/question/20986883/answer/16811680" target="_blank" rel="external">在西方世界里，也有使用牛奶或者羊奶书写信息，待干掉以后再用高温烘烤使之重新显现字迹的说法</a>。这些办法一旦为人所知，便会轻易被破解，而且还有点儿此地无银三百两的意思。</p>
+<h3 id="u52A0_u5BC6_u4FE1_u606F"><a href="#u52A0_u5BC6_u4FE1_u606F" class="headerlink" title="加密信息"></a>加密信息</h3><p>除了隐藏信息以外，还有加密的方法。在宋代兵书《武经总要》里，<a href="https://www.zhihu.com/question/34846340/answer/60080691" target="_blank" rel="external">约定了40个常用的军事短语</a>，送信内容为一首40个字的五言律诗，每个字代表一个军事短语。然后在相应的字上做标记，对方就明白了，这个叫字验。这个就有点儿密码表的意思了。从知乎某匿名用户的回答上找了一张图：<br><img src="/img/ziyan.jpg" alt=""></p>
+<p>在西方世界里，古希腊军队将长条羊皮纸缠绕在约定长度和粗细的木棍上书写，木棍称为Scytale。把羊皮纸解下来后就变成没有意义的字母了。古罗马的凯撒大帝用的是字母移位的办法。比如有封信写着：IFMMP，多半我们是不知道啥意思的。要是对方事先说明了把每个字母都右移一位的方法，也就是A变成B，B变成C…Z变成A，那我们就能很轻松地把IFMMP变成HELLO，明白对方的意思。</p>
+<h2 id="u73B0_u4EE3"><a href="#u73B0_u4EE3" class="headerlink" title="现代"></a>现代</h2><h3 id="u5BF9_u79F0_u52A0_u5BC6"><a href="#u5BF9_u79F0_u52A0_u5BC6" class="headerlink" title="对称加密"></a>对称加密</h3><p>对上文说的凯撒大帝移位法而言，“右移”就是算法（algorithm），一位的“1”就是密钥（key）。计算机普及后，最早的有影响力的算法是<a href="https://en.wikipedia.org/wiki/Data_Encryption_Standard" target="_blank" rel="external">DES</a>（Data Encryption Standard），它的秘钥是64位，但只有56位会用来计算。所以，只要最多尝试2<sup>56</sup>（大约是七万亿）次的暴力破解，就能解密。随着计算机硬件的发展，这个数量级在1998年只要56小时就能破解，到了1999年变成了24小时以内。这样就不够安全了。于是四年之后，<a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank" rel="external">AES</a>（Advanced Encryption Standard）取代了DES成为了新的标准。它可以使用128、192或256位密钥。最低的128位也能承受大约三千万亿亿次的暴力破解，至少目前看起来还算是比较安全的。在DES向AES的过渡期间，使用了<a href="https://en.wikipedia.org/wiki/Triple_DES" target="_blank" rel="external">3DES</a>算法。所谓3DES，可以理解成重要的事情做三遍，用不同密钥的DES加密三次，几乎也就等同于56×3=168位的密钥，这样也算是比较安全了。</p>
+<h3 id="u975E_u5BF9_u79F0_u52A0_u5BC6"><a href="#u975E_u5BF9_u79F0_u52A0_u5BC6" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>对称密钥有一个问题，就是密钥通过什么渠道来传输。加密算法再好，密钥被偷走了，也无济于事。在这样的背景下，非对称加密问世了。它的密钥包含着一个公钥和一个私钥。私钥顾名思义是只有你自己的电脑才知道的，公钥是公开的。用私钥加密的数据只有用公钥才能解开，同样的，用公钥加密的数据只有用私钥才能解开。假如两台电脑甲和乙相互通信，双方先把自己的公钥告诉对方。当甲给乙发消息时，用乙的公钥来加密，由于只有乙有相对应的私钥，所以只有乙能解密，甲要是忘记了消息内容连自己都解不了，更遑论第三方了。反之亦然。非对称加密最常用的算法是<a href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)" target="_blank" rel="external">RSA</a>（发明者Rivest、Shmir和Adleman的姓氏首字母）。它的私钥和公钥是通过至少百位的大质数来生成的。由于在数学上很难计算大整数的因数，所以目前来说是比较安全的。万一哪天数学或<a href="http://www.guokr.com/question/530973/" target="_blank" rel="external">量子计算机</a>上有了突破，这种算法也就不再可靠了。1999年，512位的RSA被成功分解。2009年，768位的RSA也被成功分解。现在通用的1024位密钥可能也不那么可靠了，从安全的角度来说应该升级到2048位或以上。密钥这么大，非对称加密的速度比较慢（与对称加密有千倍的差距）也是可以理解的。所以在实际的使用当中一般用对称加密来加密数据，非对称加密来加密对称加密的密钥。</p>
+<h3 id="u6563_u5217_u7B97_u6CD5"><a href="#u6563_u5217_u7B97_u6CD5" class="headerlink" title="散列算法"></a>散列算法</h3><p>好吧，密码破解不了，但是攻击者可以截取加密后的数据包，然后篡改。这样“传位十四皇子”就变成了“传位于四皇子”啦。散列算法堵死了这条路。它能把很长的数据变成固定长度的文本。也称为数据的指纹（fingerprint）。相同数据的指纹一定是一样的，不同数据的指纹有可能一样，但是通常不一样。正因如此，散列算法是不可逆的，也就是说不能从数据指纹倒推出数据来。但是它可以用来校验数据是否被更改。如果数据有变化，那么指纹通常都是不一样的，概率取决于散列的长度，越长越不容易相同。本来常用的散列算法有<a href="https://en.wikipedia.org/wiki/MD5" target="_blank" rel="external">MD5</a>和<a href="https://en.wikipedia.org/wiki/SHA-1" target="_blank" rel="external">SHA1</a>，2004年后，山东大学的王小云教授通过碰撞法分别攻破了这两种算法。也就是说，在已知指纹的情况下，可以很快计算出另一个拥有相同指纹的文本，这样就实现了文本篡改。行话叫散列碰撞（Hash Collision）。所以<a href="https://en.wikipedia.org/wiki/National_Security_Agency" target="_blank" rel="external">NSA</a>推出了<a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank" rel="external">SHA2</a>和<a href="https://en.wikipedia.org/wiki/SHA-3" target="_blank" rel="external">SHA3</a>成为了新的标准。虽然MD5和SHA1被破解，也不用特别在意。因为虽然能找到相同指纹的数据，但是篡改者并不能随心所欲地把数据修改成自己想要的样子。</p>
+<h2 id="u534F_u8BAE"><a href="#u534F_u8BAE" class="headerlink" title="协议"></a>协议</h2><h3 id="SSL/TLS"><a href="#SSL/TLS" class="headerlink" title="SSL/TLS"></a>SSL/TLS</h3><p>有了加密算法，是不是传输就安全了呢？确实如果严格去用的话，是安全了，但是也麻烦了很多。每次都要跟对方沟通用什么算法，传送密钥，传送指纹…累不累？所以需要有一套协议，大家都遵守这样的协议，就能少掉很多我们不需要太关注的、技术上的事情。这个协议叫做<a href="https://en.wikipedia.org/w/index.php?title=Secure_Sockets_Layer&amp;redirect=no" target="_blank" rel="external">SSL</a>（Secure Sockets Layer）。它所做的事情，主要就是上面说的交换公钥，用对方的公钥加密数据，用自己的私钥解密，还支持MD5用于验证数据的完整性。SSL是网景公司发明的，由于应用广泛，成为了事实上的标准。<a href="https://en.wikipedia.org/wiki/Internet_Engineering_Task_Force" target="_blank" rel="external">IETF</a>（Internet Engineering Task Force）在1999年把SSL 3.0标准化，称为<a href="https://en.wikipedia.org/wiki/Transport_Layer_Security" target="_blank" rel="external">TLS</a>（Transport Layer Security）。除了标准化以外，相对SSL来说TLS也更加安全一些。</p>
+<h3 id="HTTP/HTTPS"><a href="#HTTP/HTTPS" class="headerlink" title="HTTP/HTTPS"></a>HTTP/HTTPS</h3><p>因特网发明后，大部分的网站都是用的<a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol" target="_blank" rel="external">HTTP</a>协议。这个协议关心的是如何方便地获取到自己需要的资源，并不关心安全性。如果你的网络被监视（比如你的wifi提供者，运营商等等），对方是可以明文看到你的所有信息的，行话叫嗅探（sniffer）。在HTTP上应用SSL/TLS的协议叫做<a href="https://en.wikipedia.org/wiki/HTTPS" target="_blank" rel="external">HTTPS</a>（HTTP over SSL/TLS）。有了它，我们就还可以像以前的HTTP那样方便地在网上冲浪，而不用太担心安全问题，但不是完全不需要担心，一会儿我们会说到。</p>
+<p>顺便说一句，SSL/TLS并不是只能用于HTTP，还可以用于<a href="https://en.wikipedia.org/wiki/File_Transfer_Protocol" target="_blank" rel="external">FTP</a>（File Transfer Protocol）、<a href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol" target="_blank" rel="external">SMTP</a>（Simple Mail Transfer Protocol）等一系列应用层协议。</p>
+<h2 id="CA_u53CA_u8BC1_u4E66"><a href="#CA_u53CA_u8BC1_u4E66" class="headerlink" title="CA及证书"></a>CA及证书</h2><h3 id="u6570_u5B57_u8BC1_u4E66"><a href="#u6570_u5B57_u8BC1_u4E66" class="headerlink" title="数字证书"></a>数字证书</h3><p>前面说到了HTTPS，为什么有了这么安全的技术我们还是不能高枕无忧呢？这是因为：虽然它能保证我们的信息不被第三方破解，但是它绕不开一个很现实的绕口问题：你怎么知道他就是他声称的那个他？举个栗子：你以为正在访问的网站是某个银行，但是却不知道其实你被钓鱼（phishing）了。对方正等着你输入你的银行卡号和密码，好用它们去真正的银行网站给自己转账。这一切发生得这么自然，你的信息只有钓鱼网站能解密看到，钓鱼网站的信息也只有你能解密看到…就算是你注意到了对方的域名，也有可能因为0和O、1和l傻傻分不清楚或者<a href="https://en.wikipedia.org/wiki/Domain_hijacking" target="_blank" rel="external">域名劫持</a>（domain hijacking）而上当。证书就是用来阻止这事儿发生的。虽然我不认识你，但是如果我认识一个很知名的家伙，他肯为你做担保，那我也可以相信你。这个知名的家伙就叫<a href="https://en.wikipedia.org/wiki/Certificate_authority" target="_blank" rel="external">CA</a>（Certificate Authority）。它为通信的双方起了一个中间人的作用。CA的担保就叫<a href="https://en.wikipedia.org/wiki/Public_key_certificate" target="_blank" rel="external">数字证书</a>（Digital Certificate或Public Key Certificate）。这个证书是什么格式，有什么内容呢？这是由<a href="https://en.wikipedia.org/wiki/Public_key_infrastructure" target="_blank" rel="external">PKI</a>（Public Key Infrastructure）标准决定的。常用的标准有<a href="https://en.wikipedia.org/wiki/X.509" target="_blank" rel="external">X.509</a>和<a href="https://en.wikipedia.org/wiki/PKCS_12" target="_blank" rel="external">PKCS #12</a>。它们定义了证书里应该含有签发机构名、证书用户名、有效期、算法、公钥等信息。</p>
+<h3 id="u4FE1_u4EFB_u94FE"><a href="#u4FE1_u4EFB_u94FE" class="headerlink" title="信任链"></a>信任链</h3><p>回到刚才的问题：你怎么知道他就是他声称的那个他？我无条件地信任CA，网站又有了CA的数字证书，我就能信任他就是证书里声称的那个他。如果我因为对CA的信任而有了损失，则证书可以用来追究CA的法律责任。如果我们信任A，A信任B，B信任C，那么我们也会信任B和C，这个叫做<a href="https://en.wikipedia.org/wiki/Chain_of_trust" target="_blank" rel="external">证书信任链</a>（Chain of trust）。中间的B称为<a href="https://hk.godaddy.com/en/help/what-is-an-intermediate-certificate-868" target="_blank" rel="external">中级证书</a>（Intermediate certificate），位于信任链顶端的A称为<a href="https://en.wikipedia.org/wiki/Root_certificate" target="_blank" rel="external">根证书</a>（Root certificate）。如果根证书出了问题，那么它所信任的其它证书也就不再可信了。这个后果可是非常严重，可能会影响整个因特网的信任体系。所以，需要尽可能地少动用根证书以减少根证书的私钥被盗用的风险。如果网站想要被认证，直接用中级证书认证就好了。万一中级证书出问题，吊销掉中级证书也只会影响一部分客户，比整个根证书被吊销掉强。但事情也不绝对。对CA来说，公信力就是一切。说个案例：<a href="https://en.wikipedia.org/wiki/China_Internet_Network_Information_Center" target="_blank" rel="external">中国互联网络信息中心</a>（China Internet Network Information Center，CNNIC）是中国的顶级域名<code>.cn</code>和中文域名的注册管理机构。MCS集团用CNNIC签发的中级证书，发行了多个冒充成Google的假证书。于是在2015年4月份，chrome、firefox都宣布不再信任CNNIC的证书。如果你用chrome来打开<a href="https://www.cnnic.net.cn/" target="_blank" rel="external">https://www.cnnic.net.cn/</a>，应该会看到：<br><img src="/img/https_untrust.png" alt=""></p>
+<p>而不是：<br><img src="/img/https_trust.png" alt=""></p>
+<p>一般来说操作系统和浏览器都会内置一些信任的CA，比较著名的有公信力的CA有Verisign，GeoTrust等。我们打开google的时候，也能点击小锁看到它的证书：<br><img src="/img/google-ca.jpg" alt=""></p>
+<p>再点击证书信息就能看到它的证书链。最上面的是GeoTrust的根证书，它包含的内容都在里面写着了，感兴趣的话就自己看看吧：<br><img src="/img/ca1.jpg" alt=""></p>
+<p>中间的是谷歌自己的中级证书：<br><img src="/img/ca2.jpg" alt=""></p>
+<p>最后是站点自己的证书，这个有效期一般比较短：<br><img src="/img/ca3.jpg" alt=""></p>
+<p>证书是可以自签名的，也就是说，你自己作为CA来发行这个证书。当然，这个证书也只有你自己会信任，广大的网友同志们的眼睛是雪亮的，不会无缘无故地信任你的。那如果我是大企业，是不是就值得信任了？谷歌、微软等通常都是可以信任的。12306，你信任它吗？每个人都会有自己的答案吧。打开<a href="https://www.12306.cn/" target="_blank" rel="external">12306</a>看看它的根证书，SRCA（SinoRail Certification Authority）是个什么鬼？这个是中国铁路自己啊。知道为什么首页上总有一个“为保障您顺畅购票，请下载安装根证书”的提示了吧。</p>
+<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，CA就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
+<h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="operator">-e</span> -des <span class="operator">-a</span> -salt    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX1/J5B1od/<span class="number">3</span>gTMcX1/DJQFEW+GizDVK1rUg= | openssl enc <span class="operator">-d</span> -des <span class="operator">-a</span> -salt</span><br></pre></td></tr></table></figure></p>
+<p>还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">cat private.pem</span><br></pre></td></tr></table></figure></p>
+<p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.pem -pubout -out public.pem</span><br><span class="line">cat public.pem</span><br></pre></td></tr></table></figure></p>
+<p>接下来用刚刚生成的公钥加密，私钥解密：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -encrypt -pubin -inkey public.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -decrypt -inkey private.pem</span><br></pre></td></tr></table></figure></p>
+<p>然后私钥加密，公钥解密。注意这个的意义其实是私钥签名，公钥认证：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -sign -inkey private.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -verify -pubin -inkey public.pem</span><br></pre></td></tr></table></figure></p>
+<h3 id="u6563_u5217"><a href="#u6563_u5217" class="headerlink" title="散列"></a>散列</h3><p>现在轮到散列算法了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -md5</span><br><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -sha1</span><br></pre></td></tr></table></figure></p>
+<p>也可以用linux自带的小工具实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | md5sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha1sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha224sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha256sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha384sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha512sum</span><br></pre></td></tr></table></figure></p>
+<p>是不是越来越长了？散列越长越不容易被碰撞。</p>
+<h3 id="u8BC1_u4E66"><a href="#u8BC1_u4E66" class="headerlink" title="证书"></a>证书</h3><p>申请证书，首先需要生成CSR文件。而CSR文件需要先生成私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">openssl req -new -key private.pem -out domain.csr</span><br><span class="line">cat domain.csr</span><br></pre></td></tr></table></figure></p>
+<p>生成私钥文件是可以加密的，加上一个参数比如<code>-des3</code>就可以了。生成CSR文件的时候需要填写各种信息，没耐心就随便写点什么甚至一路回车也行，反正又不是真的去找CA。如果你真的有需求，<a href="https://support.rackspace.com/how-to/generate-a-csr-with-openssl/#create-a-csr" target="_blank" rel="external">这里有一张表格</a>说明了应该怎么填。填完的东西可以这么看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -noout -text -in domain.csr</span><br></pre></td></tr></table></figure></p>
+<p>现在我们假装自己是个CA，有自己的密钥对，然后对刚才提交的CSR文件签名：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private_ca.pem <span class="number">2048</span></span><br><span class="line">openssl x509 -req -days <span class="number">365</span> -in domain.csr -signkey private_ca.pem -out my_domain.crt</span><br><span class="line">cat my_domain.crt</span><br></pre></td></tr></table></figure></p>
+<p>大功告成！生成的my_domain.crt就是我们要的证书。由于这个是自签名证书，默认是不被我们的操作系统信任的。如果我们需要增加信任，可以参考<a href="https://briansnelson.com/How_to_add_trusted_root_certificates" target="_blank" rel="external">这里</a>。比如在Ubuntu/Debian里可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo cp my_domain.crt /usr/<span class="built_in">local</span>/share/ca-certificates/</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure></p>
+<p>如果要取消信任，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rm /usr/<span class="built_in">local</span>/share/ca-certificates/my_domain.crt</span><br><span class="line">sudo update-ca-certificates --fresh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://computer.howstuffworks.com/encryption.htm" target="_blank" rel="external">How Encryption Works</a><br><a href="http://victor1980.blog.51cto.com/3664622/1659447" target="_blank" rel="external">有关SSL证书的一些事儿</a><br><a href="http://seanlook.com/2015/01/07/tls-ssl/" target="_blank" rel="external">SSL/TLS原理详解</a><br><a href="http://seanlook.com/2015/01/15/openssl-certificate-encryption/" target="_blank" rel="external">OpenSSL 与 SSL 数字证书概念贴</a><br><a href="https://program-think.blogspot.com/2010/02/introduce-digital-certificate-and-ca.html" target="_blank" rel="external">数字证书及 CA 的扫盲介绍</a><br><a href="https://program-think.blogspot.com/2014/11/https-ssl-tls-1.html" target="_blank" rel="external">扫盲 HTTPS 和 SSL/TLS 协议</a><br><a href="http://boxingp.github.io/blog/2015/04/04/should-cnnic-certificate-to-be-trusted/" target="_blank" rel="external">CNNIC证书值得信任吗？</a></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。<br>]]>
+    
+    </summary>
+    
+      <category term="certficate" scheme="http://qinghua.github.io/tags/certficate/"/>
+    
+      <category term="encryption" scheme="http://qinghua.github.io/tags/encryption/"/>
+    
+      <category term="https" scheme="http://qinghua.github.io/tags/https/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[用容器轻松搭建Portus运行环境]]></title>
@@ -348,7 +403,7 @@
     <link href="http://qinghua.github.io/sed/"/>
     <id>http://qinghua.github.io/sed/</id>
     <published>2016-02-26T13:18:07.000Z</published>
-    <updated>2016-03-13T02:29:36.000Z</updated>
+    <updated>2016-03-16T05:56:34.000Z</updated>
     <content type="html"><![CDATA[<p>这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。<br><a id="more"></a></p>
 <p>假设我们有一个csv文件如下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;staff.csv</span><br><span class="line">Gavo,<span class="number">35</span></span><br><span class="line">Jane,<span class="number">21</span></span><br><span class="line">Bill,<span class="number">25</span></span><br><span class="line">Jimmy,<span class="number">42</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
 <h2 id="u589E"><a href="#u589E" class="headerlink" title="增"></a>增</h2><h3 id="u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><a href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C" class="headerlink" title="在文件头/尾增加一行"></a>在文件头/尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1i Name,Age'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
@@ -356,7 +411,7 @@
 <p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
 <p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
 <h3 id="u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><a href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv    <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv     <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
+<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i \ \ Hetty,29'</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
 <p>下面这个命令可以在Gavo后面增加两行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/a Hetty,29\nEmma,45'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
 <h2 id="u5220"><a href="#u5220" class="headerlink" title="删"></a>删</h2><h3 id="u5220_u9664_u7279_u5B9A_u884C"><a href="#u5220_u9664_u7279_u5B9A_u884C" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1d'</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">'$d'</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">'/Jane/d'</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">'/21/d'</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">'/J/d'</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure></p>
 <h3 id="u5220_u9664_u5173_u8054_u884C"><a href="#u5220_u9664_u5173_u8054_u884C" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;d;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
@@ -1170,148 +1225,6 @@
       <category term="ansible" scheme="http://qinghua.github.io/tags/ansible/"/>
     
       <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[传统企业敏捷转型纪实（二）]]></title>
-    <link href="http://qinghua.github.io/waterfall-to-agile-2/"/>
-    <id>http://qinghua.github.io/waterfall-to-agile-2/</id>
-    <published>2016-01-20T12:11:05.000Z</published>
-    <updated>2016-01-20T14:53:48.000Z</updated>
-    <content type="html"><![CDATA[<p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a><a id="more"></a>
-</li>
-</ul>
-<h2 id="u8FED_u4EE3_u5F00_u59CB"><a href="#u8FED_u4EE3_u5F00_u59CB" class="headerlink" title="迭代开始"></a>迭代开始</h2><p>上次刚刚理清楚了各组自己的需求，但是组员们并不是都完全了解。Ken先把所有人都召集起来，告诉大家：现在需求不仅仅是BA的事情了，需求不清是开发和测试的责任，大家有义务互相协作，把需求理清楚。各个PO开始讲依赖：有没有依赖于其他组的story？有没有依赖其他人（比如整个大组只有一位安全专家，可能有些story会对这个人有依赖）？PO们讲完了，有的组可能就凭空多了几张被别的组所依赖的卡，优先级还都比较高。所以需要重新安排一下迭代。计划调整完后，各个PO依次大致地给SPO讲一下自己组第一迭代的主要功能和风险，在获得SPO的认可之后，第一个迭代的计划就算确定下来。</p>
-<p>然后就该每个组员认领story了。Ken要求每个story都要有对应的开发和测试人员，从新人开始认领。每个成员自己想学什么，想做什么，职业规划是什么，按照它们来决定自己要开发的story。这样的目的是激发每个人的潜能，提高团队的能力，而不仅仅是着眼于这个版本的交付。同样的，每个成员，都不仅仅是开发这个版本，而是开发一个产品。现实中，可能会出现胡乱挑卡的情况，比如说A卡可能很适合甲来做，但是乙是新人，抢先把卡挑走了，这时候就需要PO来与大家沟通，做决策。</p>
-<p>落实完了每个人的工作，Ken又把大家叫到一起，问：你们对按时发布有没有信心？5分就是信心指数最高，1分最低，大家一起伸手指示意。大部分人都举4或者5，也许是无所谓，也许是还没适应一个有话就应该讲出来的环境。有个别成员伸3个指头的，就需要解释一下为什么信心不足，SPO需要当场把问题解决，尽量做到所有人都信心爆棚，起码看上去得是这样。</p>
-<h2 id="u9700_u6C42_u5206_u6790"><a href="#u9700_u6C42_u5206_u6790" class="headerlink" title="需求分析"></a>需求分析</h2><p>到了具体开发阶段了，怎么做呢？第二天就是一堂需求分析的课程。大家探讨一下开发和测试怎么协作，需求应该怎么分析，测试用例应该怎么写。对于一个story，开发人员需要知道怎么测，做出来的东西由谁来用，才有能力开发。Ken引入了场景树来做需求分析。举个栗子：一个<strong>买手机</strong>的story。看起来好像需求很明确，但是具体做就会有各种问题：到底对方要的是什么样的手机？所以开发前必须搞清楚，这个story的目的是什么。买手机是内容，不是目的。用5个为什么来深挖，可能就能得到这样的目的：<strong>女朋友手机坏了，让我买个新手机</strong>。然后我们可以画出这样的图：<br><img src="/img/scene-tree-1.png" alt=""></p>
-<p>第一个步骤可能就是去取款准备买手机。这个步骤可以用<strong>活动</strong>、<strong>实体</strong>、<strong>结果</strong>来建模。活动应该是动词，描述一个活动：取款。它产生了一个名词实体：人民币。校验这个实体可以得到结果，结果具有若干维度。有点晕？看图：<br><img src="/img/scene-tree-2.png" alt=""></p>
-<p>取款这个活动，产生了人民币这个实体。结果的维度是金额。取完款之后，去手机店的动作，产生了手机店这个实体。结果的维度有哪家店和日期时间。到店之后，购买手机的活动产生了手机这个实体。结果的维度有品牌、型号、价格等等。这些维度越清晰，这个需求分析的质量越好。如图：<br><img src="/img/scene-tree-3.png" alt=""></p>
-<p>有的朋友可能会问：除了最后得到新手机，是不是也得校验我取的款花了多少，那怎么体现在图里呢？这个还是看需求。如果必要的话，可以在购买完手机后増加一个计算余额的活动。</p>
-<h2 id="u6D4B_u8BD5_u7528_u4F8B"><a href="#u6D4B_u8BD5_u7528_u4F8B" class="headerlink" title="测试用例"></a>测试用例</h2><p>画完场景图之后，就能比较容易地根据实体和维度导出测试用例来。还是以买手机为例：首先验证第一个实体：人民币。画张表格如下：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:right">金额</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">人民币</td>
-<td style="text-align:right">1000</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">人民币</td>
-<td style="text-align:right">0</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">银行账户余额不足</td>
-</tr>
-</tbody>
-</table>
-<p>从Given、When、Then的角度上看，再加上Given，这就是一个很具体的单元测试用例。然后是手机店：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:center">哪家店</th>
-<th style="text-align:center">日期时间</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">国美</td>
-<td style="text-align:center">2016/01/20 10:00:00</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">苏宁</td>
-<td style="text-align:center">2016/01/20 22:00:00</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">下班了</td>
-</tr>
-<tr>
-<td style="text-align:center">手机店</td>
-<td style="text-align:center">苏美</td>
-<td style="text-align:center">2016/01/20 10:00:00</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这家店</td>
-</tr>
-</tbody>
-</table>
-<p>最后是新手机：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:center">品牌</th>
-<th style="text-align:center">型号</th>
-<th style="text-align:right">价格</th>
-<th style="text-align:center">预期结果</th>
-<th style="text-align:left">备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">小米</td>
-<td style="text-align:center">Mi Note</td>
-<td style="text-align:right">1999</td>
-<td style="text-align:center">OK</td>
-<td style="text-align:left"></td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">魅族</td>
-<td style="text-align:center">MX-5</td>
-<td style="text-align:right">1799</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这个型号</td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">华为</td>
-<td style="text-align:center">Mate8</td>
-<td style="text-align:right">-3199</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">价格不正确</td>
-</tr>
-<tr>
-<td style="text-align:center">新手机</td>
-<td style="text-align:center">小魅</td>
-<td style="text-align:center">MiMX</td>
-<td style="text-align:right">999</td>
-<td style="text-align:center">NG</td>
-<td style="text-align:left">没有这个品牌</td>
-</tr>
-</tbody>
-</table>
-<p>从上面这几张表我们也能看出来，维度越多，测试案例也就越多，所以说需求的质量就会越高。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>]]>
-    
-    </summary>
-    
-      <category term="agile" scheme="http://qinghua.github.io/tags/agile/"/>
-    
-      <category term="agile" scheme="http://qinghua.github.io/categories/agile/"/>
     
   </entry>
   

@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/sed/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
-<meta property="og:updated_time" content="2016-03-13T02:29:36.000Z">
+<meta property="og:updated_time" content="2016-03-16T05:56:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="看例子学sed">
 <meta name="twitter:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
@@ -108,7 +108,7 @@
 <p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
 <p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
 <h3 id="u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><a href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv    <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv     <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
+<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i \ \ Hetty,29'</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
 <p>下面这个命令可以在Gavo后面增加两行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/a Hetty,29\nEmma,45'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
 <h2 id="u5220"><a href="#u5220" class="headerlink" title="删"></a>删</h2><h3 id="u5220_u9664_u7279_u5B9A_u884C"><a href="#u5220_u9664_u7279_u5B9A_u884C" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1d'</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">'$d'</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">'/Jane/d'</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">'/21/d'</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">'/J/d'</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure></p>
 <h3 id="u5220_u9664_u5173_u8054_u884C"><a href="#u5220_u9664_u5173_u8054_u884C" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;d;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
@@ -245,7 +245,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>21</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
 		  
 		
 		  
@@ -306,7 +306,7 @@
 			
 		
 			
-				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+				<li><a href="/tags/https/" title="https">https<sup>1</sup></a></li>
 			
 		
 			
@@ -326,7 +326,7 @@
 			
 		
 			
-				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
 			
 		
 			
@@ -338,7 +338,7 @@
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 			
