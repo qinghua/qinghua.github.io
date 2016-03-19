@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-19T02:38:46.000Z</updated>
+  <updated>2016-03-19T07:18:32.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://qinghua.github.io/certificate/"/>
     <id>http://qinghua.github.io/certificate/</id>
     <published>2016-03-16T14:19:31.000Z</published>
-    <updated>2016-03-19T02:38:46.000Z</updated>
+    <updated>2016-03-19T07:18:32.000Z</updated>
     <content type="html"><![CDATA[<p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。<br><a id="more"></a></p>
 <h2 id="u5386_u53F2"><a href="#u5386_u53F2" class="headerlink" title="历史"></a>历史</h2><h3 id="u9690_u85CF_u4FE1_u606F"><a href="#u9690_u85CF_u4FE1_u606F" class="headerlink" title="隐藏信息"></a>隐藏信息</h3><p>古代交通不便，一般都是通过送信的方式传递信息。那么如何保证信件的内容不被泄露呢？一种方法是隐藏字迹。中国古代使用矾书，也就是用明矾水来书写保密书信。水干之后没有任何痕迹，泡水时字才显示。还有一招是使用淀粉水在纸上写字，再把纸泡在碘水中显示字迹。据知乎的水波说<a href="https://www.zhihu.com/question/20986883/answer/16811680" target="_blank" rel="external">在西方世界里，也有使用牛奶或者羊奶书写信息，待干掉以后再用高温烘烤使之重新显现字迹的说法</a>。这些办法一旦为人所知，便会轻易被破解，而且还有点儿此地无银三百两的意思。</p>
 <h3 id="u52A0_u5BC6_u4FE1_u606F"><a href="#u52A0_u5BC6_u4FE1_u606F" class="headerlink" title="加密信息"></a>加密信息</h3><p>除了隐藏信息以外，还有加密的方法。在宋代兵书《武经总要》里，<a href="https://www.zhihu.com/question/34846340/answer/60080691" target="_blank" rel="external">约定了40个常用的军事短语</a>，送信内容为一首40个字的五言律诗，每个字代表一个军事短语。然后在相应的字上做标记，对方就明白了，这个叫字验。这个就有点儿密码表的意思了。从知乎某匿名用户的回答上找了一张图：<br><img src="/img/ziyan.jpg" alt=""></p>
