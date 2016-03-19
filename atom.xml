@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-17T01:35:06.000Z</updated>
+  <updated>2016-03-19T02:36:35.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://qinghua.github.io/certificate/"/>
     <id>http://qinghua.github.io/certificate/</id>
     <published>2016-03-16T14:19:31.000Z</published>
-    <updated>2016-03-17T01:35:06.000Z</updated>
+    <updated>2016-03-19T02:36:35.000Z</updated>
     <content type="html"><![CDATA[<p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。<br><a id="more"></a></p>
 <h2 id="u5386_u53F2"><a href="#u5386_u53F2" class="headerlink" title="历史"></a>历史</h2><h3 id="u9690_u85CF_u4FE1_u606F"><a href="#u9690_u85CF_u4FE1_u606F" class="headerlink" title="隐藏信息"></a>隐藏信息</h3><p>古代交通不便，一般都是通过送信的方式传递信息。那么如何保证信件的内容不被泄露呢？一种方法是隐藏字迹。中国古代使用矾书，也就是用明矾水来书写保密书信。水干之后没有任何痕迹，泡水时字才显示。还有一招是使用淀粉水在纸上写字，再把纸泡在碘水中显示字迹。据知乎的水波说<a href="https://www.zhihu.com/question/20986883/answer/16811680" target="_blank" rel="external">在西方世界里，也有使用牛奶或者羊奶书写信息，待干掉以后再用高温烘烤使之重新显现字迹的说法</a>。这些办法一旦为人所知，便会轻易被破解，而且还有点儿此地无银三百两的意思。</p>
 <h3 id="u52A0_u5BC6_u4FE1_u606F"><a href="#u52A0_u5BC6_u4FE1_u606F" class="headerlink" title="加密信息"></a>加密信息</h3><p>除了隐藏信息以外，还有加密的方法。在宋代兵书《武经总要》里，<a href="https://www.zhihu.com/question/34846340/answer/60080691" target="_blank" rel="external">约定了40个常用的军事短语</a>，送信内容为一首40个字的五言律诗，每个字代表一个军事短语。然后在相应的字上做标记，对方就明白了，这个叫字验。这个就有点儿密码表的意思了。从知乎某匿名用户的回答上找了一张图：<br><img src="/img/ziyan.jpg" alt=""></p>
@@ -39,7 +39,14 @@
 <p>中间的是谷歌自己的中级证书：<br><img src="/img/ca2.jpg" alt=""></p>
 <p>最后是站点自己的证书，这个有效期一般比较短：<br><img src="/img/ca3.jpg" alt=""></p>
 <p>证书是可以自签名的，也就是说，你自己作为CA来发行这个证书。当然，这个证书也只有你自己会信任，广大的网友同志们的眼睛是雪亮的，不会无缘无故地信任你的。那如果我是大企业，是不是就值得信任了？谷歌、微软等通常都是可以信任的。12306，你信任它吗？每个人都会有自己的答案吧。打开<a href="https://www.12306.cn/" target="_blank" rel="external">12306</a>看看它的根证书，SRCA（SinoRail Certification Authority）是个什么鬼？这个是中国铁路自己啊。知道为什么首页上总有一个“为保障您顺畅购票，请下载安装根证书”的提示了吧。</p>
-<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，CA就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
+<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>首先，如果你觉得自己的网站没有什么信息不能公开的，那就没必要费那钱和时间去购买证书。</p>
+<p>证书有很多种类型，价格也很不一样，大约一年数千元人民币吧。简单列出几种：</p>
+<ul>
+<li>通配符证书（Wildcard SSL Certificates）：自己的域名和下一级子域名可以使用。比如<code>google.com</code>和<code>maps.google.com</code>就是域名和二级子域名的关系</li>
+<li>多域名证书（Subject Alternative Name SSL Certificates）：不仅限于子域名，不同域名也能使用</li>
+<li>增强型证书（Extended Validation SSL Certificate）：总之就是验证流程更麻烦，结果就是可以在地址栏显示公司的名称，增加可信度。就像这样：<br><img src="/img/github-ca.jpg" alt=""></li>
+</ul>
+<p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，如果CA方面没有问题，就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
 <h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="operator">-e</span> -des <span class="operator">-a</span>    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX19NMXhTRoTNJE0YV+TKcRL0+xzT9UMUN5Y= | openssl enc <span class="operator">-d</span> -des <span class="operator">-a</span></span><br></pre></td></tr></table></figure></p>
 <p>其中的<code>-a</code>代表base64编码。还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">cat private.pem</span><br></pre></td></tr></table></figure></p>
 <p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.pem -pubout -out public.pem</span><br><span class="line">cat public.pem</span><br></pre></td></tr></table></figure></p>

@@ -26,7 +26,8 @@
 <meta property="og:image" content="http://qinghua.github.io/img/ca1.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/ca2.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/ca3.jpg">
-<meta property="og:updated_time" content="2016-03-17T01:35:06.000Z">
+<meta property="og:image" content="http://qinghua.github.io/img/github-ca.jpg">
+<meta property="og:updated_time" content="2016-03-19T02:36:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="证书的那些事儿">
 <meta name="twitter:description" content="现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。">
@@ -127,7 +128,14 @@
 <p>中间的是谷歌自己的中级证书：<br><img src="/img/ca2.jpg" alt=""></p>
 <p>最后是站点自己的证书，这个有效期一般比较短：<br><img src="/img/ca3.jpg" alt=""></p>
 <p>证书是可以自签名的，也就是说，你自己作为CA来发行这个证书。当然，这个证书也只有你自己会信任，广大的网友同志们的眼睛是雪亮的，不会无缘无故地信任你的。那如果我是大企业，是不是就值得信任了？谷歌、微软等通常都是可以信任的。12306，你信任它吗？每个人都会有自己的答案吧。打开<a href="https://www.12306.cn/" target="_blank" rel="external">12306</a>看看它的根证书，SRCA（SinoRail Certification Authority）是个什么鬼？这个是中国铁路自己啊。知道为什么首页上总有一个“为保障您顺畅购票，请下载安装根证书”的提示了吧。</p>
-<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，CA就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
+<h3 id="u7533_u8BF7_u8BC1_u4E66"><a href="#u7533_u8BF7_u8BC1_u4E66" class="headerlink" title="申请证书"></a>申请证书</h3><p>首先，如果你觉得自己的网站没有什么信息不能公开的，那就没必要费那钱和时间去购买证书。</p>
+<p>证书有很多种类型，价格也很不一样，大约一年数千元人民币吧。简单列出几种：</p>
+<ul>
+<li>通配符证书（Wildcard SSL Certificates）：自己的域名和下一级子域名可以使用。比如<code>google.com</code>和<code>maps.google.com</code>就是域名和二级子域名的关系</li>
+<li>多域名证书（Subject Alternative Name SSL Certificates）：不仅限于子域名，不同域名也能使用</li>
+<li>增强型证书（Extended Validation SSL Certificate）：总之就是验证流程更麻烦，结果就是可以在地址栏显示公司的名称，增加可信度。就像这样：<br><img src="/img/github-ca.jpg" alt=""></li>
+</ul>
+<p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，如果CA方面没有问题，就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
 <h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="operator">-e</span> -des <span class="operator">-a</span>    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX19NMXhTRoTNJE0YV+TKcRL0+xzT9UMUN5Y= | openssl enc <span class="operator">-d</span> -des <span class="operator">-a</span></span><br></pre></td></tr></table></figure></p>
 <p>其中的<code>-a</code>代表base64编码。还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">cat private.pem</span><br></pre></td></tr></table></figure></p>
 <p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.pem -pubout -out public.pem</span><br><span class="line">cat public.pem</span><br></pre></td></tr></table></figure></p>
