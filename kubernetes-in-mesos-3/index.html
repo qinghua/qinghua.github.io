@@ -31,7 +31,7 @@
 如果有10000台机器，你想怎么玩？（三）持久化
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎么">
-<meta property="og:updated_time" content="2016-03-14T12:13:12.000Z">
+<meta property="og:updated_time" content="2016-03-21T11:27:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（三）持久化">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
@@ -134,7 +134,8 @@
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
 <li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
+<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
 <p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
@@ -224,7 +225,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>23</sup></a></li>
 		  
 		
 		  
@@ -247,11 +248,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>9</sup></a></li>
 			
 		
 			

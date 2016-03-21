@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
 <meta property="og:image" content="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg">
-<meta property="og:updated_time" content="2016-03-04T03:31:36.000Z">
+<meta property="og:updated_time" content="2016-03-21T07:26:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker的覆盖网络是怎么工作的">
 <meta name="twitter:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
@@ -133,7 +133,7 @@
 <p>等待重启之后，重新连接进vagrant虚拟机：<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
 <p>完成之后再用<code>uname -r</code>看一下，现在应该已经是3.19了。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>如上所述，docker的overlay网络支持consul，etcd，zookeeper等键值存储系统。这里我们使用比较轻量点的etcd，整个镜像不到15Mb。运行以下命令启动它（国内下载gcr.io的官方镜像需要翻墙，有困难的话可以到<a href="http://pan.baidu.com/s/1biQ8Js#path=%252Ftars" target="_blank" rel="external">百度网盘</a>下载，然后运行<code>docker load -i gcr.io__google_containers__etcd_v2.0.12.tar</code>导入到conf虚拟机）：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  gcr.io/google_containers/etcd:<span class="number">2.0</span>.<span class="number">12</span> \</span><br><span class="line">  /usr/<span class="built_in">local</span>/bin/etcd \</span><br><span class="line">  --addr=<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">4001</span> \</span><br><span class="line">  --bind-addr=<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">4001</span> \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>如上所述，docker的overlay网络支持consul，etcd，zookeeper等键值存储系统。这里我们使用比较轻量点的etcd，整个镜像不到15Mb。运行以下命令启动etcd：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  kubernetes/etcd:<span class="number">2.0</span>.<span class="number">5</span> \</span><br><span class="line">  /usr/<span class="built_in">local</span>/bin/etcd \</span><br><span class="line">  --addr=<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">4001</span> \</span><br><span class="line">  --bind-addr=<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">4001</span> \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure></p>
 <p>在node上，docker daemon启动参数里需要支持TCP，指定键值存储等。在node1和node2上分别运行以下命令：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.17:2375\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.18:2375\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure>
 <p>有了这些，就可以开始创建overlay网络了。</p>
@@ -237,7 +237,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>23</sup></a></li>
 		  
 		
 		  
@@ -260,11 +260,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>9</sup></a></li>
 			
 		
 			

@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/InfluxDB.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/Grafana.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/kubedash.jpg">
-<meta property="og:updated_time" content="2016-03-02T12:43:44.000Z">
+<meta property="og:updated_time" content="2016-03-21T11:27:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（四）监控">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
@@ -141,7 +141,8 @@
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
 <li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
+<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="u6570_u636E_u91C7_u96C6"><a href="#u6570_u636E_u91C7_u96C6" class="headerlink" title="数据采集"></a>数据采集</h2><p><a href="https://github.com/google/cadvisor" target="_blank" rel="external">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg" alt=""><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
@@ -235,7 +236,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>23</sup></a></li>
 		  
 		
 		  
@@ -258,11 +259,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>9</sup></a></li>
 			
 		
 			

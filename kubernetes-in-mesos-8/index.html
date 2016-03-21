@@ -37,7 +37,7 @@
 如果有">
 <meta property="og:image" content="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png">
 <meta property="og:image" content="http://qinghua.github.io/img/pause.png">
-<meta property="og:updated_time" content="2016-03-14T12:09:48.000Z">
+<meta property="og:updated_time" content="2016-03-21T11:28:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（八）网络">
 <meta name="twitter:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。
@@ -142,7 +142,8 @@
 <li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
 <li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
 <li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a><a id="more"></a>
+<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
+<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
 <h2 id="Docker_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Docker_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
@@ -241,7 +242,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>22</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>23</sup></a></li>
 		  
 		
 		  
@@ -264,11 +265,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/mesos/" title="mesos">mesos<sup>10</sup></a></li>
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>8</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>9</sup></a></li>
 			
 		
 			
