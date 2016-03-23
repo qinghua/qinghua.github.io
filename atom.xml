@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-03-21T11:31:23.000Z</updated>
+  <updated>2016-03-23T07:19:20.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,59 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[轻松搭建Kubernetes 1.2版运行环境]]></title>
+    <link href="http://qinghua.github.io/kubernetes-installation/"/>
+    <id>http://qinghua.github.io/kubernetes-installation/</id>
+    <published>2016-03-22T13:14:31.000Z</published>
+    <updated>2016-03-23T07:19:20.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="http://kubernetes.io/docs/whatisk8s/" target="_blank" rel="external">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"master"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
+<p>这个vagrant镜像默认的docker版本为1.9.0，如果你愿意，可以用下面的命令将其升级为1.10.3，但这不是必须的：<br><figure class="highlight sh"><figcaption><span>all or none</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:<span class="number">80</span> --recv-keys <span class="number">58118</span>E89F3A912897C070ADBF76221572C52609D</span><br><span class="line">sudo sh -c <span class="string">"echo deb https://apt.dockerproject.org/repo ubuntu-trusty main &gt; /etc/apt/sources.list.d/docker.list"</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get purge lxc-docker</span><br><span class="line">sudo apt-cache policy docker-engine</span><br><span class="line">sudo apt-get install docker-engine</span><br><span class="line">sudo service docker restart</span><br><span class="line">docker -v</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u7F51_u7EDC_u73AF_u5883"><a href="#u642D_u5EFA_u7F51_u7EDC_u73AF_u5883" class="headerlink" title="搭建网络环境"></a>搭建网络环境</h2><p>为了打通不同主机上的容器的网络连接，最简单的方法是安装一个覆盖网络，这里我们使用flannel。它使用etcd来配置，所以我们需要先运行一个etcd实例。下面在master虚拟机上用容器运行一个etcd实例：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --restart=always \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  -v /var/etcd/data:/var/etcd/data \</span><br><span class="line">  kubernetes/etcd:<span class="number">2.0</span>.<span class="number">5</span> \</span><br><span class="line">  /usr/<span class="built_in">local</span>/bin/etcd \</span><br><span class="line">  --addr=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> \</span><br><span class="line">  --bind-addr=<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">4001</span> \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure></p>
+<p>接下来往etcd里插入flannel的配置数据。这里指定flannel可以使用的IP地址为<code>10.0.0.0/8</code>区间：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl <span class="built_in">set</span> /qinghua.github.io/network/config <span class="string">'&#123;"Network": "10.0.0.0/8"&#125;'</span></span><br></pre></td></tr></table></figure></p>
+<p>然后安装并在后台运行flannel：<br><figure class="highlight sh"><figcaption><span>master node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/coreos/flannel/releases/download/v0.<span class="number">5.5</span>/flannel-<span class="number">0.5</span>.<span class="number">5</span>-linux-amd64.tar.gz</span><br><span class="line">tar zxvf flannel-<span class="number">0.5</span>.<span class="number">5</span>-linux-amd64.tar.gz</span><br><span class="line">sudo flannel-<span class="number">0.5</span>.<span class="number">5</span>/flanneld --etcd-endpoints=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> --etcd-prefix=/qinghua.github.io/network --iface=eth1 &gt; flannel.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">cat flannel.log</span><br></pre></td></tr></table></figure></p>
+<p>Flannel启动完成后，会获得一个可用于分配的IP集合，并存放到<code>/run/flannel/subnet.env</code>里。我们需要配置一下docker的可用IP为可用于分配的IP：<br><figure class="highlight sh"><figcaption><span>master node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /run/flannel/subnet.env</span><br><span class="line">sudo sh -c <span class="string">"echo DOCKER_OPTS=\\\"--bip=<span class="variable">$FLANNEL_SUBNET</span> --mtu=<span class="variable">$FLANNEL_MTU</span>\\\" &gt;&gt; /etc/default/docker"</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFAk8s_u73AF_u5883"><a href="#u642D_u5EFAk8s_u73AF_u5883" class="headerlink" title="搭建k8s环境"></a>搭建k8s环境</h2><p>终于轮到k8s啦。首先需要下载并解压kubernetes 1.2.0版：<br><figure class="highlight sh"><figcaption><span>master node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/kubernetes/kubernetes/releases/download/v1.<span class="number">2.0</span>/kubernetes.tar.gz</span><br><span class="line">tar zxvf kubernetes.tar.gz</span><br><span class="line">tar zxvf kubernetes/server/kubernetes-server-linux-amd64.tar.gz</span><br></pre></td></tr></table></figure></p>
+<p>解压出来的文件里面含了一些启动master需要的docker镜像文件，将它们导入：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker load -i kubernetes/server/bin/kube-apiserver.tar</span><br><span class="line">docker load -i kubernetes/server/bin/kube-controller-manager.tar </span><br><span class="line">docker load -i kubernetes/server/bin/kube-scheduler.tar</span><br><span class="line">docker images</span><br></pre></td></tr></table></figure></p>
+<p>有条件科学上网的童鞋可以自行准备<code>gcr.io/google_containers/etcd:2.2.1</code>这个镜像，否则就凑合着使用先前的<code>kubernetes/etcd:2.0.5</code>。注意，这里为了简单起见，使用同一套etcd。真实环境里，flannel和kubernetes使用的etcd是分开的。接下来开始启动api server：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --insecure-bind-address=<span class="number">192.168</span>.<span class="number">33.17</span> \</span><br><span class="line">  --service-cluster-ip-range=<span class="number">11.0</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --etcd-servers=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span></span><br></pre></td></tr></table></figure></p>
+<p>然后是controller manager：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=cm \</span><br><span class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</span><br><span class="line">  kube-controller-manager \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
+<p>最后是scheduler：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:<span class="number">903</span>b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
+<p>服务器启动完毕，可以运行以下命令来查看版本，咱们用的是1.2：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> version</span><br></pre></td></tr></table></figure></p>
+<p>接下来该客户端了。首先启动kubelet：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">'inet addr:'</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2 | cut <span class="operator">-d</span><span class="string">' '</span> <span class="operator">-f</span>1`</span><br><span class="line">sudo kubernetes/server/bin/kubelet --api-servers=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">cat kubelet.log</span><br></pre></td></tr></table></figure></p>
+<p>Kuberlet启动完成后，在master上就可以看到了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get no</span><br></pre></td></tr></table></figure></p>
+<p>最后启动kube-proxy：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo kubernetes/server/bin/kube-proxy --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> &gt; proxy.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">cat proxy.log</span><br></pre></td></tr></table></figure></p>
+<h2 id="u6D4B_u8BD5k8s_u73AF_u5883"><a href="#u6D4B_u8BD5k8s_u73AF_u5883" class="headerlink" title="测试k8s环境"></a>测试k8s环境</h2><p>环境安装好了，接下来试着启动一个pod。启动之前，由于kubernetes需要通过gcr.io/google_containers/pause:2.0的小镜像来管理pod的网络。它会自动下载，如果没有科学上网导致下载不到，那么可以先用docker hub上的kubernetes/pause来代替：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull kubernetes/pause</span><br><span class="line">docker tag kubernetes/pause gcr.io/google_containers/pause:<span class="number">2.0</span></span><br></pre></td></tr></table></figure></p>
+<p>然后就可以用命令行在任意一台虚拟机上运行一个tomcat，并生成服务：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;tomcat.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">1</span></span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      name: tomcat</span><br><span class="line">      labels:</span><br><span class="line">        app: tomcat</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: tomcat</span><br><span class="line">        image: tomcat:<span class="number">8.0</span>.<span class="number">30</span>-jre8</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: <span class="number">8080</span></span><br><span class="line">---</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">  labels: </span><br><span class="line">    app: tomcat</span><br><span class="line">spec:</span><br><span class="line">  <span class="built_in">type</span>: NodePort</span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  ports:</span><br><span class="line">  - port: <span class="number">80</span></span><br><span class="line">    targetPort: <span class="number">8080</span></span><br><span class="line">    nodePort: <span class="number">30088</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> create <span class="operator">-f</span> tomcat.yaml</span><br></pre></td></tr></table></figure></p>
+<p>一开始由于需要下载tomcat镜像可能会慢点，随时可以用下面的命令来查看进度：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> describe po tomcat</span><br></pre></td></tr></table></figure></p>
+<p>可以用下面的命令来查看pod、replication controller、service和endpoint：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get po</span><br><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get rc</span><br><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get svc</span><br><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get ep</span><br></pre></td></tr></table></figure></p>
+<p>我们看到的endpoint里，应该有一个tomcat。在我的虚拟机上它的ENDPOINTS是<code>10.0.8.3:8080</code>，访问一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POD_IP=`kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get ep tomcat -o jsonpath=&#123;.subsets[*].addresses[*].ip&#125;`</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$POD_IP</span></span><br><span class="line">curl <span class="variable">$POD_IP</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
+<p>顺利的话，这三台虚拟机任意一台都可以访问这个tomcat的endpoint。由于启动这三台vagrant虚拟机的主机上并没有安装flannel，所以目前就别想用主机的浏览器打开这个网址啦。但是，由于我们创建服务的时候类型设置为NodePort，这样外部是可以通过任意node的特定端口访问这个服务的。也就是说，下面这两个url都是可以在集群外部访问的，并且效果一样：</p>
+<ul>
+<li><a href="http://192.168.33.18:30088/" target="_blank" rel="external">http://192.168.33.18:30088/</a></li>
+<li><a href="http://192.168.33.19:30088/" target="_blank" rel="external">http://192.168.33.19:30088/</a></li>
+</ul>
+<p>初步测试完毕，可以使用以下命令来删除刚才创建的tomcat系列对象：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> delete <span class="operator">-f</span> tomcat.yaml</span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><a href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。<br>]]>
+    
+    </summary>
+    
+      <category term="docker" scheme="http://qinghua.github.io/tags/docker/"/>
+    
+      <category term="flannel" scheme="http://qinghua.github.io/tags/flannel/"/>
+    
+      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
+    
+      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[如果有10000台机器，你想怎么玩？（九）安全性]]></title>
@@ -852,7 +905,7 @@
     <link href="http://qinghua.github.io/docker-registry-delete/"/>
     <id>http://qinghua.github.io/docker-registry-delete/</id>
     <published>2016-02-14T10:45:20.000Z</published>
-    <updated>2016-03-07T07:16:32.000Z</updated>
+    <updated>2016-03-22T05:47:17.000Z</updated>
     <content type="html"><![CDATA[<p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail" target="_blank" rel="external">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？<br><a id="more"></a></p>
 <h2 id="u95EE_u9898"><a href="#u95EE_u9898" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a href="https://github.com/docker/distribution/issues/1183" target="_blank" rel="external">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
 <p>目前docker官方提供了如下3个软删除的方法：</p>
@@ -874,7 +927,7 @@
 <p>如果你等不及docker官方的实现，并且对自己的私有库的控制力比较强，不需要考虑并发，可以使用<a href="https://github.com/burnettk/delete-docker-registry-image" target="_blank" rel="external">这个脚本</a>来彻底删除，记得先把registry停掉，或者是设置为<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-read-only-mode" target="_blank" rel="external">只读模式</a>以避免并发哦。设置一个cron任务，每天凌晨停止服务一小段时间，然后运行脚本，再启动服务就好了。</p>
 <p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete" target="_blank" rel="external">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
 <p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
-<p>写完这篇博客后不久，一个<a href="https://github.com/docker/distribution/blob/master/docs/gc.md" target="_blank" rel="external">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。</p>
+<p>写完这篇博客后不久，一个<a href="https://github.com/docker/distribution/blob/master/docs/gc.md" target="_blank" rel="external">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。抛开解决方案，就删除功能而言，我在测试过程中也发现了一个<a href="https://github.com/docker/distribution/issues/1548" target="_blank" rel="external">缺陷</a>，需要使用docker 1.10版和registry 2.3版才能解决。</p>
 <h2 id="v1_vs_v2"><a href="#v1_vs_v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a href="https://github.com/docker/docker-registry" target="_blank" rel="external">这里</a>。新版本v2是用go写的，源码在<a href="https://github.com/docker/distribution" target="_blank" rel="external">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a href="http://www.csdn.net/article/2015-09-09/2825651" target="_blank" rel="external">这篇文章</a>。</p>
 <p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
 ]]></content>
@@ -967,7 +1020,7 @@
     <link href="http://qinghua.github.io/kubernetes-in-mesos-6/"/>
     <id>http://qinghua.github.io/kubernetes-in-mesos-6/</id>
     <published>2016-02-02T11:52:32.000Z</published>
-    <updated>2016-03-21T11:27:58.000Z</updated>
+    <updated>2016-03-23T11:07:25.000Z</updated>
     <content type="html"><![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
@@ -998,7 +1051,7 @@
 <p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning" target="_blank" rel="external">看一看</a>。</p>
 <h3 id="u7EAFkubernetes"><a href="#u7EAFkubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
 <h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos+Kubernetes-1"><a href="#Mesos+Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
-<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。</p>
+<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。现在kubernetes 1.2版已经发布，支持1000个node不成问题。就是…如果按本文的标题来说，10000台机器，还是得建10个kubernetes集群才行呀。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
@@ -1168,107 +1221,6 @@
       <category term="docker" scheme="http://qinghua.github.io/tags/docker/"/>
     
       <category term="storage" scheme="http://qinghua.github.io/tags/storage/"/>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Docker的桥接网络是怎么工作的]]></title>
-    <link href="http://qinghua.github.io/docker-bridge-network/"/>
-    <id>http://qinghua.github.io/docker-bridge-network/</id>
-    <published>2016-01-26T10:00:00.000Z</published>
-    <updated>2016-03-04T03:31:32.000Z</updated>
-    <content type="html"><![CDATA[<p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code># config.vm.network &quot;private_network&quot;, ip: &quot;192.168.33.10&quot;</code>，删掉前面的<code>#</code>注释，相当于给它分配一个<code>192.168.33.10</code>的IP。这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
-<h2 id="u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5"><a href="#u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5" class="headerlink" title="主机和容器间的网络连接"></a>主机和容器间的网络连接</h2><p>进入虚拟机后，在vagrant主机上运行<code>ifconfig</code>，就能看到有4个网络设备及它们的IPv4地址：</p>
-<ul>
-<li>docker0：172.17.0.1</li>
-<li>eth0：10.0.2.15</li>
-<li>eth1：192.168.33.10</li>
-<li>lo：127.0.0.1</li>
-</ul>
-<p>其中的<code>eth0</code>和<code>eth1</code>是普通的以太网卡，<code>eth1</code>就是我们解除注释的IP：<code>192.168.33.10</code>。<code>lo</code>是所谓的<a href="https://en.wikipedia.org/wiki/Loopback" target="_blank" rel="external">回环网卡</a>，每台机器都有。它将这台机器/容器绑定到<code>127.0.0.1</code>的IP上，这样子就算没有真实的网卡，也能通过这个IP访问自己，对于测试来说尤其方便。最上面的<code>docker0</code>就是我们常说的网桥。怎么知道它是个网桥呢？安装<code>bridge-utils</code>的包就能看到了：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install bridge-utils</span><br><span class="line">brctl show</span><br></pre></td></tr></table></figure></p>
-<p>网桥设备就好比交换机，可以和其他的网络设备相连接，就像在其他网络设备上拉根网线到这个交换机一样。那么docker怎么使用这个网桥呢，让我们来启动一个容器看看：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name=ubuntu ubuntu:<span class="number">14.04</span> bash</span><br></pre></td></tr></table></figure></p>
-<p>进入容器后，运行<code>ifconfig</code>，就能够看到有2个网络设备及它们的IPv4地址：</p>
-<ul>
-<li>eth0：172.17.0.2</li>
-<li>lo：127.0.0.1</li>
-</ul>
-<p>它也有自己的<code>lo</code>，还有一块以太网卡<code>eth0</code>，目前的IP是<code>172.17.0.2</code>。使用快捷键<code>Ctrl+P</code>然后再<code>Ctrl+Q</code>，就能退出容器并保持它继续运行。在vagrant主机上运行<code>route</code>命令，可以看到类似下面这个表格：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Destination</th>
-<th style="text-align:center">Gateway</th>
-<th style="text-align:center">Genmask</th>
-<th style="text-align:center">Flags</th>
-<th style="text-align:center">Metric</th>
-<th style="text-align:center">Ref</th>
-<th style="text-align:center">Use</th>
-<th style="text-align:center">Iface</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">default</td>
-<td style="text-align:center">10.0.2.2</td>
-<td style="text-align:center">0.0.0.0</td>
-<td style="text-align:center">UG</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">eth0</td>
-</tr>
-<tr>
-<td style="text-align:center">10.0.2.0</td>
-<td style="text-align:center">*</td>
-<td style="text-align:center">255.255.255.0</td>
-<td style="text-align:center">U</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">eth0</td>
-</tr>
-<tr>
-<td style="text-align:center">172.17.0.0</td>
-<td style="text-align:center">*</td>
-<td style="text-align:center">255.255.0.0</td>
-<td style="text-align:center">U</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">docker0</td>
-</tr>
-<tr>
-<td style="text-align:center">192.168.33.0</td>
-<td style="text-align:center">*</td>
-<td style="text-align:center">255.255.255.0</td>
-<td style="text-align:center">U</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">eth1</td>
-</tr>
-</tbody>
-</table>
-<p>这个就是vagrant主机的路由表。我们重点看一下<code>172.17.0.0</code>这一行。它的Genmask为<code>255.255.0.0</code>，就意味着<code>255.255</code>对应着的IP<code>172.17</code>是网络地址，而Genmask中<code>0.0</code>对应着的IP<code>0.0</code>是主机地址。整行的意思就是当目标地址是<code>172.17.*.*</code>的时候，匹配这条路由规则。还有一种写法是<code>172.17.0.0/16</code>。当Gateway不为<code>*</code>号时，那就会路由到Gateway去，否则就路由到Iface去。刚才我们知道新容器的IP是<code>172.17.0.2</code>，所以当vagrant主机上的某个数据包的地址是这个新容器的IP时，就会匹配这条路由规则，由docker0来接受这个数据包。如果数据包的地址都不匹配这些规则，就送到<code>default</code>那一行的<code>Gateway</code>里。</p>
-<p>那么docker0在接收数据包之后，又会送到哪里去呢？我们在vagrant主机再次运行<code>brctl show</code>，便能看到docker0这个网桥有所变化。它的<code>interfaces</code>里增加了一个<code>vethXXX</code>，在我的机器上叫<code>vethd6d3942</code>。在vagrant主机再次运行<code>ifconfig</code>，我们也能看到这一块新增的VETH虚拟网卡。实际上每启动一个容器，docker便会增加一个叫<code>vethXXX</code>的设备，并把它连接到docker0上，于是docker0就可以把收到的数据包发给这个VETH设备。VETH设备总是成对出现，一端进去的请求总会从peer也就是另一端出来，这样就能将一个namespace的数据发往另一个namespace，就像虫洞一样。那么现在这一端是<code>vethd6d3942</code>，它的另一端是哪儿呢？运行这个命令（记得把VETH设备名改成你自己主机上的设备名）：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ethtool -S vethd6d3942</span><br></pre></td></tr></table></figure></p>
-<p>可以看到这个VETH设备的<code>peer_ifindex</code>是某个数字，在我的机器上是<code>5</code>。这个<a href="http://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/28420-ifIndex-Persistence.html" target="_blank" rel="external">ifindex</a>是一个网络接口的唯一识别编号。通过<code>docker exec -it ubuntu bash</code>进入容器里，然后运行：<br><figure class="highlight sh"><figcaption><span>ubuntu container</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip link</span><br></pre></td></tr></table></figure></p>
-<p>可以看到<code>5: eth0</code>，原来跨越namespace跑到容器里头来啦。这就是主机上的VETH设备能跟容器内部通信的原因。每当新启动一个容器，主机就会增加一对VETH设备，把一个连接到docker0上，另一个挂载到容器内部的eth0里。</p>
-<h2 id="IP_u548Cmac_u5730_u5740_u6620_u5C04"><a href="#IP_u548Cmac_u5730_u5740_u6620_u5C04" class="headerlink" title="IP和mac地址映射"></a>IP和mac地址映射</h2><p>还有一个问题：每个网络设备都有自己的mac地址，通过ip怎么能找到它呢？在容器外运行这个命令：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arp -n</span><br></pre></td></tr></table></figure></p>
-<p>我们就能看到<code>Address</code>和<code>HWaddress</code>，它们分别对应着IP地址和mac地址，这样就匹配起来了。到容器里<code>ifconfig</code>一下，看看<code>172.17.0.2</code>的mac地址，是不是和主机<code>arp -n</code>运行结果中<code>172.17.0.2</code>那行的mac地址一样呢？</p>
-<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.ibm.com/developerworks/cn/linux/1310_xiawc_networkdevice/" target="_blank" rel="external">Linux上的基础网络设备详解</a>，介绍了不同的网络设备工作原理。<br><a href="http://www.oschina.net/translate/docker-network-configuration" target="_blank" rel="external">Docker网络配置</a>，从零开始配置docker的网络。<br><a href="http://vbird.dic.ksu.edu.tw/linux_server/0110network_basic.php" target="_blank" rel="external">基础网络概念</a>，来自鸟哥，深入浅出地介绍了网络的基础知识。<br><a href="http://linux.vbird.org/linux_server/0140networkcommand.php" target="_blank" rel="external">Linux常用网络命令</a>，来自鸟哥，看完了就对茫茫的网络命令有了清晰的了解。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。<br>]]>
-    
-    </summary>
-    
-      <category term="docker" scheme="http://qinghua.github.io/tags/docker/"/>
-    
-      <category term="network" scheme="http://qinghua.github.io/tags/network/"/>
     
       <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
     

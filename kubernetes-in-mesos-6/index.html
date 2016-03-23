@@ -32,7 +32,7 @@
 如果有10000台机器，你想怎么玩？（四）监控
 如果有10000台机器，你想怎">
 <meta property="og:image" content="http://qinghua.github.io/img/mesos-architecture.jpg">
-<meta property="og:updated_time" content="2016-03-21T11:27:58.000Z">
+<meta property="og:updated_time" content="2016-03-23T11:07:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（六）性能">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
@@ -156,7 +156,7 @@
 <p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning" target="_blank" rel="external">看一看</a>。</p>
 <h3 id="u7EAFkubernetes"><a href="#u7EAFkubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
 <h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos+Kubernetes-1"><a href="#Mesos+Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
-<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。</p>
+<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。现在kubernetes 1.2版已经发布，支持1000个node不成问题。就是…如果按本文的标题来说，10000台机器，还是得建10个kubernetes集群才行呀。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -240,7 +240,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>23</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>24</sup></a></li>
 		  
 		
 		  
@@ -267,11 +267,11 @@
 			
 		
 			
-				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>9</sup></a></li>
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>6</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
 			
 		
 			
@@ -283,11 +283,11 @@
 			
 		
 			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
@@ -295,23 +295,7 @@
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
 			
 		
 			
@@ -319,15 +303,31 @@
 			
 		
 			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
 			
 		
 			
