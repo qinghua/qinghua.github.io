@@ -2,6 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/tosca/</loc>
+    <lastmod>2016-03-29T09:35:22.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
+    <lastmod>2016-03-28T00:26:40.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/cloudify/</loc>
     <lastmod>2016-03-26T11:21:09.000Z</lastmod>
   </url>
@@ -34,11 +44,6 @@
   <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-8/</loc>
     <lastmod>2016-03-21T11:28:05.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-in-mesos-7/</loc>
-    <lastmod>2016-03-21T11:28:02.000Z</lastmod>
   </url>
   
   <url>

@@ -4,6 +4,469 @@
   
     
     <entry>
+      <title><![CDATA[TOSCA简介]]></title>
+      <url>http://qinghua.github.io/tosca/</url>
+      <content type="html"><![CDATA[<p><a href="https://www.oasis-open.org/committees/tosca/" target="_blank" rel="external">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html" target="_blank" rel="external">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br><a id="more"></a></p>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
+<p>目前它的开源实现有OpenStack (Heat-Translator，Tacker，Senlin)，Alien4Cloud，Cloudify等。</p>
+<h2 id="u793A_u4F8B"><a href="#u793A_u4F8B" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello_World"><a href="#Hello_World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
+<pre>
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template for deploying a single server with predefined properties.
+
+topology_template:
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            disk_size: 10 GB
+            mem_size: 4096 MB
+        os:
+          properties:
+            architecture: x86_64
+            type: linux 
+            distribution: rhel 
+            version: 6.5 
+</pre>
+
+<p>除了TOSCA的版本<code>tosca_definitions_version</code>和描述信息<code>description</code>以外，就是这个<code>topology_template</code>了。这里我们看到有一个名为<code>my_server</code>的节点，它的类型是<code>tosca.nodes.Compute</code>。这个类型预置了两个<code>capabilities</code>信息，一个是<code>host</code>，定义了硬件信息；另一个是<code>os</code>，定义了操作系统信息。</p>
+<h3 id="u8F93_u5165_u8F93_u51FA"><a href="#u8F93_u5165_u8F93_u51FA" class="headerlink" title="输入输出"></a>输入输出</h3><p>再看看下面这个描述文件：</p>
+<pre>
+topology_template:
+  <b style="color:magenta">inputs</b>:
+    cpus:
+      type: integer
+      description: Number of CPUs for the server.
+      constraints:
+        - valid_values: [ 1, 2, 4, 8 ]
+
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: cpus }
+            mem_size: 2048  MB
+            disk_size: 10 GB
+
+  <b style="color:magenta">outputs</b>:
+    server_ip:
+      description: The private IP address of the provisioned server.
+      value: { get_attribute: [ my_server, private_address ] }
+</pre>
+
+<p>这里的<code>inputs</code>和<code>outputs</code>分别定义了输入和输出。输入的<code>cpus</code>是在1，2，4和8中的一个整数，而输出的<code>server_ip</code>就是<code>my_server</code>这个节点的<code>private_address</code>也就是私有IP地址。另外一点是TOSCA提供了一些内置函数，在上面这个文件中使用了<code>get_input</code>和<code>get_attribute</code>。输入参数可以通过<code>get_input</code>被使用。</p>
+<h3 id="u5B89_u88C5_u8F6F_u4EF6"><a href="#u5B89_u88C5_u8F6F_u4EF6" class="headerlink" title="安装软件"></a>安装软件</h3><p>第三个描述文件如下：</p>
+<pre>
+topology_template:
+  inputs:
+    # 略
+
+  node_templates:
+    mysql:
+      type: <b style="color:magenta">tosca.nodes.DBMS.MySQL</b>
+      properties:
+        root_password: { get_input: my_mysql_rootpw }
+        port: { get_input: my_mysql_port }
+      <b style="color:magenta">requirements</b>:
+        - host: db_server
+
+    db_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        # 略
+</pre>
+
+<p>我们看到了一个新的节点类型：<code>tosca.nodes.DBMS.MySQL</code>。这个类型允许接收<code>root_password</code>和<code>port</code>的参数。在<code>requirements</code>里定义了<code>mysql</code>这个节点需要被安装到<code>db_server</code>这个节点上，这就是“关系”。如果只想表明依赖，比如说<code>service_a</code>依赖于<code>service_b</code>，也可以直接用<code>- dependency: service_b</code>来描述。上面文件的拓扑结构如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png" alt=""></p>
+<h3 id="u521D_u59CB_u5316_u6570_u636E_u5E93"><a href="#u521D_u59CB_u5316_u6570_u636E_u5E93" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>第四个描述文件如下：</p>
+<pre>
+  node_templates:
+    my_db:
+      type: <b style="color:magenta">tosca.nodes.Database.MySQL</b>
+      properties:
+        name: { get_input: database_name }
+        user: { get_input: database_user }
+        password: { get_input: database_password }
+        port: { get_input: database_port }
+      <b style="color:magenta">artifacts</b>:
+        db_content:
+          file: files/my_db_content.txt
+          type: tosca.artifacts.File
+      requirements:
+        - host: mysql
+      interfaces:
+        <b style="color:magenta">Standard:
+          create:
+            implementation: db_create.sh</b>
+            inputs:
+              db_data: { get_artifact: [ SELF, db_content ] }
+
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        root_password: { get_input: mysql_rootpw }
+        port: { get_input: mysql_port }
+      requirements:
+        - host: db_server
+
+    db_server:
+      # 略
+</pre>
+
+<p>这里的<code>tosca.nodes.Database.MySQL</code>表示一个MySQL数据库的实例。在<code>artifacts</code>的<code>db_content</code>里指定了一个文本文件，而这个文件将被<code>interfaces</code>里的<code>Create</code>所用，为<code>db_create.sh</code>脚本提供数据。<code>Standard</code>表示生命周期，可能会包含<code>configure</code>、<code>start</code>、<code>stop</code>等各种操作，而<code>db_create.sh</code>本身是对<code>tosca.nodes.Database.MySQL</code>提供的默认<code>create</code>操作的一个重写。如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png" alt=""></p>
+<h3 id="u4E24_u5C42_u5E94_u7528"><a href="#u4E24_u5C42_u5E94_u7528" class="headerlink" title="两层应用"></a>两层应用</h3><p>再来看看第五个描述文件：</p>
+<pre>
+  node_templates:
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      properties:
+        context_root: { get_input: context_root }
+        admin_user: { get_input: wp_admin_username }
+        admin_password: { get_input: wp_admin_password }
+        db_host: { get_attribute: [ db_server, private_address ] }
+      <b style="color:magenta">requirements:
+        - host: apache
+        - database_endpoint: wordpress_db</b>
+      interfaces:
+        Standard:
+          inputs:
+            db_host: { get_attribute: [ db_server, private_address ] }
+            db_port: { get_property: [ wordpress_db, port ] }
+            db_name: { get_property: [ wordpress_db, name ] }
+            db_user: { get_property: [ wordpress_db, user ] }
+            db_password: { get_property: [ wordpress_db, password ] }  
+    apache:
+      type: tosca.nodes.WebServer.Apache
+      properties:
+        # 略
+      <b style="color:magenta">requirements:
+        - host: web_server</b>
+    web_server:
+      type: tosca.nodes.Compute
+      # 略
+
+    wordpress_db:
+      type: tosca.nodes.Database.MySQL
+      # 略
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      # 略
+    db_server:
+      type: tosca.nodes.Compute
+      # 略
+</pre>
+
+<p>这个文件描述了一个很常见的拓扑结构：<code>mysql</code>里有一个<code>wordpress_db</code>，运行在<code>db_server</code>上；<code>apache</code>部署了一个<code>wordpress</code>，运行在<code>web_server</code>上。<code>wordpress</code>需要<code>wordpress_db</code>。</p>
+<h3 id="u5173_u7CFB_u5B9A_u5236_u5316"><a href="#u5173_u7CFB_u5B9A_u5236_u5316" class="headerlink" title="关系定制化"></a>关系定制化</h3><p>第六个描述文件：</p>
+<pre>
+  node_templates:
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      properties:
+        # 略
+      requirements:
+        - host: apache
+        - database_endpoint:
+            node: wordpress_db
+            <b style="color:magenta">relationship: my.types.WordpressDbConnection</b>
+    wordpress_db:
+      type: tosca.nodes.Database.MySQL
+      properties:
+        # 略
+      requirements:
+        - host: mysql
+  <b style="color:magenta">relationship_templates:
+    my.types.WordpressDbConnection:</b>
+      type: ConnectsTo
+      interfaces:
+        Configure:
+          pre_configure_source: scripts/wp_db_configure.sh
+</pre>
+
+<p>这里的关注点是<code>relationship</code>里的<code>my.types.WordpressDbConnection</code>。这是一个自定义的关系，在文件的下半部分描述了详细定义。它实际上是一个<code>ConnectsTo</code>类型，为<code>pre_configure_source</code>操作提供了一个自定义脚本。这个定义也可以单独提出一个文件，就像下面这样：</p>
+<pre>
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Definition of custom WordpressDbConnection relationship type
+
+<b style="color:magenta">relationship_types:
+  my.types.WordpressDbConnection:</b>
+    derived_from: tosca.relationships.ConnectsTo
+    interfaces:
+      Configure:
+        pre_configure_source: scripts/wp_db_configure.sh
+</pre>
+
+<h3 id="u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><a href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90" class="headerlink" title="限定需求资源"></a>限定需求资源</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        # 略
+      requirements:
+        - host:
+            <b style="color:magenta">node_filter</b>:
+              capabilities:
+                - host:
+                    properties:
+                      - num_cpus: { <b style="color:magenta">in_range</b>: [ 1, 4 ] }
+                      - mem_size: { <b style="color:magenta">greater_or_equal</b>: 2 GB }
+                - os:
+                    properties:
+                      - architecture: { <b style="color:magenta">equal</b>: x86_64 }
+                      - type: linux
+                      - distribution: ubuntu
+</pre>
+
+<p>需要关注的是<code>node_filter</code>。这里并没有指定mysql在哪个节点上启动，但是指定了一些节点信息，只有符合的节点才能够启动它。也可以抽出来做个模板：</p>
+<pre>
+  node_templates:
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        # 略
+      requirements:
+        - host: <b style="color:magenta">mysql_compute</b>
+
+    <b style="color:magenta">mysql_compute</b>:
+      type: Compute
+      node_filter:
+        capabilities:
+          - host:
+              properties:
+                num_cpus: { equal: 2 }
+                mem_size: { greater_or_equal: 2 GB }
+          - os:
+              properties:
+                architecture: { equal: x86_64 }
+                type: linux
+                distribution: ubuntu
+</pre>
+
+<p>数据库也可以使用：</p>
+<pre>
+  node_templates:
+    my_app:
+      type: my.types.MyApplication
+      properties:
+        admin_user: { get_input: admin_username }
+        admin_password: { get_input: admin_password }
+        db_endpoint_url: { get_property: [SELF, <b style="color:magenta">database_endpoint</b>, url_path ] }         
+      requirements:
+        - <b style="color:magenta">database_endpoint</b>:
+            node: my.types.nodes.MyDatabase
+            <b style="color:magenta">node_filter</b>:
+              properties:
+                - db_version: { greater_or_equal: 5.5 }
+</pre>
+
+<p>上面指定了数据库的版本。也可以抽出来做个模板：</p>
+<pre>
+  node_templates:
+    my_app:
+      type: my.types.MyApplication
+      properties:
+        admin_user: { get_input: admin_username }
+        admin_password: { get_input: admin_password }
+        db_endpoint_url: { get_property: [SELF, database_endpoint, url_path ] }         
+      requirements:
+        - database_endpoint: <b style="color:magenta">my_abstract_database</b>
+    <b style="color:magenta">my_abstract_database</b>:
+      type: my.types.nodes.MyDatabase
+      properties:
+        - db_version: { greater_or_equal: 5.5 }
+</pre>
+
+<h3 id="u8282_u70B9_u6A21_u677F_u66FF_u6362"><a href="#u8282_u70B9_u6A21_u677F_u66FF_u6362" class="headerlink" title="节点模板替换"></a>节点模板替换</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    web_app:
+      type: tosca.nodes.WebApplication.MyWebApp
+      requirements:
+        - host: web_server
+        - database_endpoint: <b style="color:magenta">db</b>
+
+    web_server:
+      type: tosca.nodes.WebServer
+      requirements:
+        - host: server
+
+    server:
+      type: tosca.nodes.Compute
+      # 略
+
+    <b style="color:magenta">db</b>:
+      # 这是一个抽象节点
+      type: tosca.nodes.Database
+      properties:
+        user: my_db_user
+        password: secret
+        name: my_db_name
+</pre>
+
+<p>这里的<code>db</code>是一个抽象节点，可以被下面的描述文件所替换：</p>
+<pre>
+topology_template:
+  inputs:
+    db_user:
+      type: string
+    # 略
+  <b style="color:magenta">substitution_mappings:
+    node_type: tosca.nodes.Database
+    capabilities:
+      database_endpoint: [ database, database_endpoint ]</b>
+  node_templates:
+    database:
+      type: tosca.nodes.Database
+      properties:
+        user: { get_input: db_user }
+        # 略
+      requirements:
+        - host: dbms
+    dbms:
+      type: tosca.nodes.DBMS
+      # 略
+    server:
+      type: tosca.nodes.Compute
+      # 略
+</pre>
+
+<p>这里的<code>database_endpoint</code>是由<code>database</code>节点提供的<code>database_endpoint</code>。两个文件联系起来看，表明了上面的<code>web_app</code>不需要管<code>db</code>是什么样子的，有什么拓扑结构，它关心的只是<code>database_endpoint</code>。而下面由<code>database</code>、<code>dbms</code>和<code>server</code>三个节点组成的模板正好可以提供<code>database_endpoint</code>，从而替换掉<code>db</code>这个抽象节点。另外，这样的替换也支持嵌套。</p>
+<h3 id="u8282_u70B9_u6A21_u677F_u7EC4"><a href="#u8282_u70B9_u6A21_u677F_u7EC4" class="headerlink" title="节点模板组"></a>节点模板组</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    apache:
+      type: tosca.nodes.WebServer.Apache
+      properties:
+        # 略
+      requirements:
+        - host: server
+    server:
+      type: tosca.nodes.Compute
+        # 略
+  <b style="color:magenta">groups</b>:
+    <b style="color:magenta">webserver_group</b>:
+      type: tosca.groups.Root
+      members: [ apache, server ]
+
+  <b style="color:magenta">policies</b>:
+    - my_anti_collocation_policy:
+        type: my.policies.anticolocateion
+        targets: [ <b style="color:magenta">webserver_group</b> ]
+        # 可以一起处理
+</pre>
+
+<p>这个例子表明了<code>apache</code>和<code>server</code>应该是一组的关系。这样它们就可以一起被处理，比如说伸缩。</p>
+<h3 id="YAML_u5B8F"><a href="#YAML_u5B8F" class="headerlink" title="YAML宏"></a>YAML宏</h3><p>下面这个描述文件使用了宏来避免重复：</p>
+<pre>
+<b style="color:magenta">dsl_definitions:
+  my_compute_node_props: &my_compute_node_props</b>
+    disk_size: 10 GB
+    num_cpus: 1
+    mem_size: 2 GB
+
+topology_template:
+  node_templates:
+    my_server:
+      type: Compute
+      capabilities:
+        - host:
+            properties: <b style="color:magenta">*my_compute_node_props</b>
+
+    my_database:
+      type: Compute
+      capabilities:
+        - host:
+            properties: <b style="color:magenta">*my_compute_node_props</b>
+</pre>
+
+<h3 id="u4F20_u53C2"><a href="#u4F20_u53C2" class="headerlink" title="传参"></a>传参</h3><p>先看一个描述文件：</p>
+<pre>
+  node_templates: 
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      requirements:
+        - database_endpoint: mysql_database
+      interfaces:
+        Standard:
+          <b style="color:magenta">inputs</b>:
+            wp_db_port: { get_property: [ SELF, database_endpoint, port ] }
+          configure:
+            implementation: wordpress_configure.sh           
+            <b style="color:magenta">inputs</b>:
+              wp_db_port: { get_property: [ SELF, database_endpoint, port ] }
+</pre>
+
+<p>这个例子有两个<code>inputs</code>，前者指的是为所有操作都声明一个变量，后者指的是为<code>configure</code>这个操作声明一个变量。再看下一个文件：</p>
+<pre>
+  node_templates: 
+    frontend: 
+      type: MyTypes.SomeNodeType    
+      attributes: 
+        url: { <b style="color:magenta">get_operation_output</b>: [ SELF, Standard, create, generated_url ] } 
+      interfaces: 
+        Standard: 
+          create: 
+            implementation: scripts/frontend/create.sh
+          configure: 
+            implementation: scripts/frontend/configure.sh 
+            inputs: 
+              data_dir: { <b style="color:magenta">get_operation_output</b>: [ SELF, Standard, create, data_dir ] }
+</pre>
+
+<p>在这个例子里有两个<code>get_operation_output</code>，前者指的是将<code>create</code>操作的环境变量<code>generated_url</code>设置到<code>url</code>里，后者是将<code>data_dir</code>传递给<code>configure</code>操作。</p>
+<h3 id="u53D6_u52A8_u6001_u503C"><a href="#u53D6_u52A8_u6001_u503C" class="headerlink" title="取动态值"></a>取动态值</h3><p>最后一个描述文件：</p>
+<pre>
+node_types:
+  ServerNode:
+    derived_from: SoftwareComponent
+    properties:
+      <b style="color:magenta">notification_port</b>:
+        type: integer
+    capabilities:
+      # 略
+  ClientNode:
+    derived_from: SoftwareComponent
+    properties:
+      # 略
+    requirements:
+      - server:
+          capability: Endpoint
+          node: ServerNode 
+          relationship: ConnectsTo
+topology_template:          
+  node_templates:
+    my_server:
+      type: ServerNode 
+      properties:
+        notification_port: 8000
+    my_client:
+      type: ClientNode
+      requirements:
+        - server:
+            node: my_server
+            relationship: <b style="color:magenta">my_connection</b>
+  relationship_templates:
+    <b style="color:magenta">my_connection</b>:
+      type: ConnectsTo
+      interfaces:
+        Configure:
+          inputs:
+            <b style="color:magenta">targ_notify_port: { get_attribute: [ TARGET, notification_port ] }</b>
+            # 略
+</pre>
+
+<p>这个例子里，类型为<code>ClientNode</code>的<code>my_client</code>在<code>my_connection</code>关系的<code>Configure</code>操作上需要<code>notification_port</code>变量。这样的话，当类型为<code>ServerNode</code>的<code>my_server</code>连接过来时，就能取到它的<code>notification_port</code>变量，并设置到<code>targ_notify_port</code>环境变量里。有一点值得注意的是，真实的<code>notification_port</code>可能是8000，也可能不是。所以在这种情况下，不用<code>get_property</code>，而用<code>get_attribute</code>函数。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[轻松搭建Cloudify运行环境]]></title>
       <url>http://qinghua.github.io/cloudify/</url>
       <content type="html"><![CDATA[<p><a href="http://getcloudify.org/" target="_blank" rel="external">Cloudify</a>是一个开源的云应用编排系统，它允许使用DSL来描述应用的拓扑结构，并部署到任意环境中。本文大量参考了<a href="http://docs.getcloudify.org/3.3.1/intro/what-is-cloudify/" target="_blank" rel="external">官方教程</a>从零开始搭建并管理一个cloudify 3.3.1集群。<br><a id="more"></a></p>
@@ -767,7 +1230,8 @@
 <li>工作队列并行：行启动多个pod，其中一个pod成功结束了，其他pod就开始停止运行。当全部pod都停止了就算是job完成了</li>
 </ul>
 <p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
-<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
+<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。此外，Kubernetes 1.2版正式支持<a href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaler/" target="_blank" rel="external">HPA</a>。大致来说，就是根据CPU的使用率来自动扩缩容。由于获取CPU使用率需要用到heapster，所以必须部署它。</p>
+<p>值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
 <h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
 <p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png" alt=""></p>
 <p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png" alt=""></p>

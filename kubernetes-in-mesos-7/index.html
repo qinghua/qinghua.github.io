@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-5.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-6.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-7.png">
-<meta property="og:updated_time" content="2016-03-21T11:28:02.000Z">
+<meta property="og:updated_time" content="2016-03-28T00:26:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
@@ -170,7 +170,8 @@
 <li>工作队列并行：行启动多个pod，其中一个pod成功结束了，其他pod就开始停止运行。当全部pod都停止了就算是job完成了</li>
 </ul>
 <p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
-<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
+<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。此外，Kubernetes 1.2版正式支持<a href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaler/" target="_blank" rel="external">HPA</a>。大致来说，就是根据CPU的使用率来自动扩缩容。由于获取CPU使用率需要用到heapster，所以必须部署它。</p>
+<p>值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
 <h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
 <p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png" alt=""></p>
 <p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png" alt=""></p>
@@ -260,7 +261,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>25</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>26</sup></a></li>
 		  
 		
 		  
@@ -303,15 +304,19 @@
 			
 		
 			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
 			
 		
 			
@@ -319,7 +324,7 @@
 			
 		
 			
-				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
@@ -327,7 +332,7 @@
 			
 		
 			
-				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 			
@@ -339,7 +344,11 @@
 			
 		
 			
-				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
 			
 		
 			
@@ -347,19 +356,11 @@
 			
 		
 			
-				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/https/" title="https">https<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
 			
 		
 		</ul>

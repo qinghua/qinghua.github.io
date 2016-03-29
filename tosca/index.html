@@ -1,0 +1,1038 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>TOSCA简介 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TOSCA简介">
+<meta property="og:url" content="http://qinghua.github.io/tosca/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+<meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png">
+<meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png">
+<meta property="og:updated_time" content="2016-03-29T09:35:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TOSCA简介">
+<meta name="twitter:description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/tosca/" title="TOSCA简介" itemprop="url">TOSCA简介</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-28T11:29:04.000Z" itemprop="datePublished"> 发表于 2016-03-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u793A_u4F8B"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello_World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165_u8F93_u51FA"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5B89_u88C5_u8F6F_u4EF6"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u521D_u59CB_u5316_u6570_u636E_u5E93"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E24_u5C42_u5E94_u7528"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5173_u7CFB_u5B9A_u5236_u5316"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u66FF_u6362"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u7EC4"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML_u5B8F"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4F20_u53C2"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u53D6_u52A8_u6001_u503C"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p><a href="https://www.oasis-open.org/committees/tosca/" target="_blank" rel="external">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html" target="_blank" rel="external">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br><a id="more"></a></p>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
+<p>目前它的开源实现有OpenStack (Heat-Translator，Tacker，Senlin)，Alien4Cloud，Cloudify等。</p>
+<h2 id="u793A_u4F8B"><a href="#u793A_u4F8B" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello_World"><a href="#Hello_World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
+<pre>
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template for deploying a single server with predefined properties.
+
+topology_template:
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            disk_size: 10 GB
+            mem_size: 4096 MB
+        os:
+          properties:
+            architecture: x86_64
+            type: linux 
+            distribution: rhel 
+            version: 6.5 
+</pre>
+
+<p>除了TOSCA的版本<code>tosca_definitions_version</code>和描述信息<code>description</code>以外，就是这个<code>topology_template</code>了。这里我们看到有一个名为<code>my_server</code>的节点，它的类型是<code>tosca.nodes.Compute</code>。这个类型预置了两个<code>capabilities</code>信息，一个是<code>host</code>，定义了硬件信息；另一个是<code>os</code>，定义了操作系统信息。</p>
+<h3 id="u8F93_u5165_u8F93_u51FA"><a href="#u8F93_u5165_u8F93_u51FA" class="headerlink" title="输入输出"></a>输入输出</h3><p>再看看下面这个描述文件：</p>
+<pre>
+topology_template:
+  <b style="color:magenta">inputs</b>:
+    cpus:
+      type: integer
+      description: Number of CPUs for the server.
+      constraints:
+        - valid_values: [ 1, 2, 4, 8 ]
+
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: { get_input: cpus }
+            mem_size: 2048  MB
+            disk_size: 10 GB
+
+  <b style="color:magenta">outputs</b>:
+    server_ip:
+      description: The private IP address of the provisioned server.
+      value: { get_attribute: [ my_server, private_address ] }
+</pre>
+
+<p>这里的<code>inputs</code>和<code>outputs</code>分别定义了输入和输出。输入的<code>cpus</code>是在1，2，4和8中的一个整数，而输出的<code>server_ip</code>就是<code>my_server</code>这个节点的<code>private_address</code>也就是私有IP地址。另外一点是TOSCA提供了一些内置函数，在上面这个文件中使用了<code>get_input</code>和<code>get_attribute</code>。输入参数可以通过<code>get_input</code>被使用。</p>
+<h3 id="u5B89_u88C5_u8F6F_u4EF6"><a href="#u5B89_u88C5_u8F6F_u4EF6" class="headerlink" title="安装软件"></a>安装软件</h3><p>第三个描述文件如下：</p>
+<pre>
+topology_template:
+  inputs:
+    # 略
+
+  node_templates:
+    mysql:
+      type: <b style="color:magenta">tosca.nodes.DBMS.MySQL</b>
+      properties:
+        root_password: { get_input: my_mysql_rootpw }
+        port: { get_input: my_mysql_port }
+      <b style="color:magenta">requirements</b>:
+        - host: db_server
+
+    db_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        # 略
+</pre>
+
+<p>我们看到了一个新的节点类型：<code>tosca.nodes.DBMS.MySQL</code>。这个类型允许接收<code>root_password</code>和<code>port</code>的参数。在<code>requirements</code>里定义了<code>mysql</code>这个节点需要被安装到<code>db_server</code>这个节点上，这就是“关系”。如果只想表明依赖，比如说<code>service_a</code>依赖于<code>service_b</code>，也可以直接用<code>- dependency: service_b</code>来描述。上面文件的拓扑结构如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png" alt=""></p>
+<h3 id="u521D_u59CB_u5316_u6570_u636E_u5E93"><a href="#u521D_u59CB_u5316_u6570_u636E_u5E93" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>第四个描述文件如下：</p>
+<pre>
+  node_templates:
+    my_db:
+      type: <b style="color:magenta">tosca.nodes.Database.MySQL</b>
+      properties:
+        name: { get_input: database_name }
+        user: { get_input: database_user }
+        password: { get_input: database_password }
+        port: { get_input: database_port }
+      <b style="color:magenta">artifacts</b>:
+        db_content:
+          file: files/my_db_content.txt
+          type: tosca.artifacts.File
+      requirements:
+        - host: mysql
+      interfaces:
+        <b style="color:magenta">Standard:
+          create:
+            implementation: db_create.sh</b>
+            inputs:
+              db_data: { get_artifact: [ SELF, db_content ] }
+
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        root_password: { get_input: mysql_rootpw }
+        port: { get_input: mysql_port }
+      requirements:
+        - host: db_server
+
+    db_server:
+      # 略
+</pre>
+
+<p>这里的<code>tosca.nodes.Database.MySQL</code>表示一个MySQL数据库的实例。在<code>artifacts</code>的<code>db_content</code>里指定了一个文本文件，而这个文件将被<code>interfaces</code>里的<code>Create</code>所用，为<code>db_create.sh</code>脚本提供数据。<code>Standard</code>表示生命周期，可能会包含<code>configure</code>、<code>start</code>、<code>stop</code>等各种操作，而<code>db_create.sh</code>本身是对<code>tosca.nodes.Database.MySQL</code>提供的默认<code>create</code>操作的一个重写。如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png" alt=""></p>
+<h3 id="u4E24_u5C42_u5E94_u7528"><a href="#u4E24_u5C42_u5E94_u7528" class="headerlink" title="两层应用"></a>两层应用</h3><p>再来看看第五个描述文件：</p>
+<pre>
+  node_templates:
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      properties:
+        context_root: { get_input: context_root }
+        admin_user: { get_input: wp_admin_username }
+        admin_password: { get_input: wp_admin_password }
+        db_host: { get_attribute: [ db_server, private_address ] }
+      <b style="color:magenta">requirements:
+        - host: apache
+        - database_endpoint: wordpress_db</b>
+      interfaces:
+        Standard:
+          inputs:
+            db_host: { get_attribute: [ db_server, private_address ] }
+            db_port: { get_property: [ wordpress_db, port ] }
+            db_name: { get_property: [ wordpress_db, name ] }
+            db_user: { get_property: [ wordpress_db, user ] }
+            db_password: { get_property: [ wordpress_db, password ] }  
+    apache:
+      type: tosca.nodes.WebServer.Apache
+      properties:
+        # 略
+      <b style="color:magenta">requirements:
+        - host: web_server</b>
+    web_server:
+      type: tosca.nodes.Compute
+      # 略
+
+    wordpress_db:
+      type: tosca.nodes.Database.MySQL
+      # 略
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      # 略
+    db_server:
+      type: tosca.nodes.Compute
+      # 略
+</pre>
+
+<p>这个文件描述了一个很常见的拓扑结构：<code>mysql</code>里有一个<code>wordpress_db</code>，运行在<code>db_server</code>上；<code>apache</code>部署了一个<code>wordpress</code>，运行在<code>web_server</code>上。<code>wordpress</code>需要<code>wordpress_db</code>。</p>
+<h3 id="u5173_u7CFB_u5B9A_u5236_u5316"><a href="#u5173_u7CFB_u5B9A_u5236_u5316" class="headerlink" title="关系定制化"></a>关系定制化</h3><p>第六个描述文件：</p>
+<pre>
+  node_templates:
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      properties:
+        # 略
+      requirements:
+        - host: apache
+        - database_endpoint:
+            node: wordpress_db
+            <b style="color:magenta">relationship: my.types.WordpressDbConnection</b>
+    wordpress_db:
+      type: tosca.nodes.Database.MySQL
+      properties:
+        # 略
+      requirements:
+        - host: mysql
+  <b style="color:magenta">relationship_templates:
+    my.types.WordpressDbConnection:</b>
+      type: ConnectsTo
+      interfaces:
+        Configure:
+          pre_configure_source: scripts/wp_db_configure.sh
+</pre>
+
+<p>这里的关注点是<code>relationship</code>里的<code>my.types.WordpressDbConnection</code>。这是一个自定义的关系，在文件的下半部分描述了详细定义。它实际上是一个<code>ConnectsTo</code>类型，为<code>pre_configure_source</code>操作提供了一个自定义脚本。这个定义也可以单独提出一个文件，就像下面这样：</p>
+<pre>
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Definition of custom WordpressDbConnection relationship type
+
+<b style="color:magenta">relationship_types:
+  my.types.WordpressDbConnection:</b>
+    derived_from: tosca.relationships.ConnectsTo
+    interfaces:
+      Configure:
+        pre_configure_source: scripts/wp_db_configure.sh
+</pre>
+
+<h3 id="u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><a href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90" class="headerlink" title="限定需求资源"></a>限定需求资源</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        # 略
+      requirements:
+        - host:
+            <b style="color:magenta">node_filter</b>:
+              capabilities:
+                - host:
+                    properties:
+                      - num_cpus: { <b style="color:magenta">in_range</b>: [ 1, 4 ] }
+                      - mem_size: { <b style="color:magenta">greater_or_equal</b>: 2 GB }
+                - os:
+                    properties:
+                      - architecture: { <b style="color:magenta">equal</b>: x86_64 }
+                      - type: linux
+                      - distribution: ubuntu
+</pre>
+
+<p>需要关注的是<code>node_filter</code>。这里并没有指定mysql在哪个节点上启动，但是指定了一些节点信息，只有符合的节点才能够启动它。也可以抽出来做个模板：</p>
+<pre>
+  node_templates:
+    mysql:
+      type: tosca.nodes.DBMS.MySQL
+      properties:
+        # 略
+      requirements:
+        - host: <b style="color:magenta">mysql_compute</b>
+
+    <b style="color:magenta">mysql_compute</b>:
+      type: Compute
+      node_filter:
+        capabilities:
+          - host:
+              properties:
+                num_cpus: { equal: 2 }
+                mem_size: { greater_or_equal: 2 GB }
+          - os:
+              properties:
+                architecture: { equal: x86_64 }
+                type: linux
+                distribution: ubuntu
+</pre>
+
+<p>数据库也可以使用：</p>
+<pre>
+  node_templates:
+    my_app:
+      type: my.types.MyApplication
+      properties:
+        admin_user: { get_input: admin_username }
+        admin_password: { get_input: admin_password }
+        db_endpoint_url: { get_property: [SELF, <b style="color:magenta">database_endpoint</b>, url_path ] }         
+      requirements:
+        - <b style="color:magenta">database_endpoint</b>:
+            node: my.types.nodes.MyDatabase
+            <b style="color:magenta">node_filter</b>:
+              properties:
+                - db_version: { greater_or_equal: 5.5 }
+</pre>
+
+<p>上面指定了数据库的版本。也可以抽出来做个模板：</p>
+<pre>
+  node_templates:
+    my_app:
+      type: my.types.MyApplication
+      properties:
+        admin_user: { get_input: admin_username }
+        admin_password: { get_input: admin_password }
+        db_endpoint_url: { get_property: [SELF, database_endpoint, url_path ] }         
+      requirements:
+        - database_endpoint: <b style="color:magenta">my_abstract_database</b>
+    <b style="color:magenta">my_abstract_database</b>:
+      type: my.types.nodes.MyDatabase
+      properties:
+        - db_version: { greater_or_equal: 5.5 }
+</pre>
+
+<h3 id="u8282_u70B9_u6A21_u677F_u66FF_u6362"><a href="#u8282_u70B9_u6A21_u677F_u66FF_u6362" class="headerlink" title="节点模板替换"></a>节点模板替换</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    web_app:
+      type: tosca.nodes.WebApplication.MyWebApp
+      requirements:
+        - host: web_server
+        - database_endpoint: <b style="color:magenta">db</b>
+
+    web_server:
+      type: tosca.nodes.WebServer
+      requirements:
+        - host: server
+
+    server:
+      type: tosca.nodes.Compute
+      # 略
+
+    <b style="color:magenta">db</b>:
+      # 这是一个抽象节点
+      type: tosca.nodes.Database
+      properties:
+        user: my_db_user
+        password: secret
+        name: my_db_name
+</pre>
+
+<p>这里的<code>db</code>是一个抽象节点，可以被下面的描述文件所替换：</p>
+<pre>
+topology_template:
+  inputs:
+    db_user:
+      type: string
+    # 略
+  <b style="color:magenta">substitution_mappings:
+    node_type: tosca.nodes.Database
+    capabilities:
+      database_endpoint: [ database, database_endpoint ]</b>
+  node_templates:
+    database:
+      type: tosca.nodes.Database
+      properties:
+        user: { get_input: db_user }
+        # 略
+      requirements:
+        - host: dbms
+    dbms:
+      type: tosca.nodes.DBMS
+      # 略
+    server:
+      type: tosca.nodes.Compute
+      # 略
+</pre>
+
+<p>这里的<code>database_endpoint</code>是由<code>database</code>节点提供的<code>database_endpoint</code>。两个文件联系起来看，表明了上面的<code>web_app</code>不需要管<code>db</code>是什么样子的，有什么拓扑结构，它关心的只是<code>database_endpoint</code>。而下面由<code>database</code>、<code>dbms</code>和<code>server</code>三个节点组成的模板正好可以提供<code>database_endpoint</code>，从而替换掉<code>db</code>这个抽象节点。另外，这样的替换也支持嵌套。</p>
+<h3 id="u8282_u70B9_u6A21_u677F_u7EC4"><a href="#u8282_u70B9_u6A21_u677F_u7EC4" class="headerlink" title="节点模板组"></a>节点模板组</h3><p>再看一个描述文件：</p>
+<pre>
+  node_templates:
+    apache:
+      type: tosca.nodes.WebServer.Apache
+      properties:
+        # 略
+      requirements:
+        - host: server
+    server:
+      type: tosca.nodes.Compute
+        # 略
+  <b style="color:magenta">groups</b>:
+    <b style="color:magenta">webserver_group</b>:
+      type: tosca.groups.Root
+      members: [ apache, server ]
+
+  <b style="color:magenta">policies</b>:
+    - my_anti_collocation_policy:
+        type: my.policies.anticolocateion
+        targets: [ <b style="color:magenta">webserver_group</b> ]
+        # 可以一起处理
+</pre>
+
+<p>这个例子表明了<code>apache</code>和<code>server</code>应该是一组的关系。这样它们就可以一起被处理，比如说伸缩。</p>
+<h3 id="YAML_u5B8F"><a href="#YAML_u5B8F" class="headerlink" title="YAML宏"></a>YAML宏</h3><p>下面这个描述文件使用了宏来避免重复：</p>
+<pre>
+<b style="color:magenta">dsl_definitions:
+  my_compute_node_props: &my_compute_node_props</b>
+    disk_size: 10 GB
+    num_cpus: 1
+    mem_size: 2 GB
+
+topology_template:
+  node_templates:
+    my_server:
+      type: Compute
+      capabilities:
+        - host:
+            properties: <b style="color:magenta">*my_compute_node_props</b>
+
+    my_database:
+      type: Compute
+      capabilities:
+        - host:
+            properties: <b style="color:magenta">*my_compute_node_props</b>
+</pre>
+
+<h3 id="u4F20_u53C2"><a href="#u4F20_u53C2" class="headerlink" title="传参"></a>传参</h3><p>先看一个描述文件：</p>
+<pre>
+  node_templates: 
+    wordpress:
+      type: tosca.nodes.WebApplication.WordPress
+      requirements:
+        - database_endpoint: mysql_database
+      interfaces:
+        Standard:
+          <b style="color:magenta">inputs</b>:
+            wp_db_port: { get_property: [ SELF, database_endpoint, port ] }
+          configure:
+            implementation: wordpress_configure.sh           
+            <b style="color:magenta">inputs</b>:
+              wp_db_port: { get_property: [ SELF, database_endpoint, port ] }
+</pre>
+
+<p>这个例子有两个<code>inputs</code>，前者指的是为所有操作都声明一个变量，后者指的是为<code>configure</code>这个操作声明一个变量。再看下一个文件：</p>
+<pre>
+  node_templates: 
+    frontend: 
+      type: MyTypes.SomeNodeType    
+      attributes: 
+        url: { <b style="color:magenta">get_operation_output</b>: [ SELF, Standard, create, generated_url ] } 
+      interfaces: 
+        Standard: 
+          create: 
+            implementation: scripts/frontend/create.sh
+          configure: 
+            implementation: scripts/frontend/configure.sh 
+            inputs: 
+              data_dir: { <b style="color:magenta">get_operation_output</b>: [ SELF, Standard, create, data_dir ] }
+</pre>
+
+<p>在这个例子里有两个<code>get_operation_output</code>，前者指的是将<code>create</code>操作的环境变量<code>generated_url</code>设置到<code>url</code>里，后者是将<code>data_dir</code>传递给<code>configure</code>操作。</p>
+<h3 id="u53D6_u52A8_u6001_u503C"><a href="#u53D6_u52A8_u6001_u503C" class="headerlink" title="取动态值"></a>取动态值</h3><p>最后一个描述文件：</p>
+<pre>
+node_types:
+  ServerNode:
+    derived_from: SoftwareComponent
+    properties:
+      <b style="color:magenta">notification_port</b>:
+        type: integer
+    capabilities:
+      # 略
+  ClientNode:
+    derived_from: SoftwareComponent
+    properties:
+      # 略
+    requirements:
+      - server:
+          capability: Endpoint
+          node: ServerNode 
+          relationship: ConnectsTo
+topology_template:          
+  node_templates:
+    my_server:
+      type: ServerNode 
+      properties:
+        notification_port: 8000
+    my_client:
+      type: ClientNode
+      requirements:
+        - server:
+            node: my_server
+            relationship: <b style="color:magenta">my_connection</b>
+  relationship_templates:
+    <b style="color:magenta">my_connection</b>:
+      type: ConnectsTo
+      interfaces:
+        Configure:
+          inputs:
+            <b style="color:magenta">targ_notify_port: { get_attribute: [ TARGET, notification_port ] }</b>
+            # 略
+</pre>
+
+<p>这个例子里，类型为<code>ClientNode</code>的<code>my_client</code>在<code>my_connection</code>关系的<code>Configure</code>操作上需要<code>notification_port</code>变量。这样的话，当类型为<code>ServerNode</code>的<code>my_server</code>连接过来时，就能取到它的<code>notification_port</code>变量，并设置到<code>targ_notify_port</code>环境变量里。有一点值得注意的是，真实的<code>notification_port</code>可能是8000，也可能不是。所以在这种情况下，不用<code>get_property</code>，而用<code>get_attribute</code>函数。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/cloudify/">cloudify</a><a href="/tags/tosca/">tosca</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/tosca/" data-title="TOSCA简介 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/cloudify/"  title="轻松搭建Cloudify运行环境">
+ <strong>下一篇：</strong><br/> 
+ <span>轻松搭建Cloudify运行环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="tosca/" data-title="TOSCA简介" data-url="http://qinghua.github.io/tosca/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u793A_u4F8B"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello_World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165_u8F93_u51FA"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5B89_u88C5_u8F6F_u4EF6"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u521D_u59CB_u5316_u6570_u636E_u5E93"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E24_u5C42_u5E94_u7528"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5173_u7CFB_u5B9A_u5236_u5316"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u66FF_u6362"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u7EC4"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML_u5B8F"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4F20_u53C2"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u53D6_u52A8_u6001_u503C"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>26</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
