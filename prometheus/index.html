@@ -1,0 +1,614 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器轻松搭建Prometheus运行环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Prometheus是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器轻松搭建Prometheus运行环境">
+<meta property="og:url" content="http://qinghua.github.io/prometheus/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Prometheus是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。">
+<meta property="og:image" content="http://qinghua.github.io/img/prometheus-home.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/prometheus-graph.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/prometheus-push-gateway.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/grafana-prometheus-data-source.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/grafana-dashboard-menu.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/grafana-prometheus-graph.jpg">
+<meta property="og:updated_time" content="2016-03-31T05:50:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器轻松搭建Prometheus运行环境">
+<meta name="twitter:description" content="Prometheus是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/prometheus/" title="用容器轻松搭建Prometheus运行环境" itemprop="url">用容器轻松搭建Prometheus运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-30T11:01:01.000Z" itemprop="datePublished"> 发表于 2016-03-30</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6570_u636E_u6536_u96C6"><span class="toc-number">3.</span> <span class="toc-text">数据收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exporter"><span class="toc-number">4.</span> <span class="toc-text">Exporter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Push_Gateway"><span class="toc-number">5.</span> <span class="toc-text">Push Gateway</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Grafana"><span class="toc-number">6.</span> <span class="toc-text">Grafana</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://prometheus.io/" target="_blank" rel="external">Prometheus</a>是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下代码，相当于给它分配一台IP是<strong>192.168.33.18</strong>的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>Prometheus的环境搭建起来非常简单，只要一个docker镜像即可。绿色的压缩包安装方式可以参考<a href="https://prometheus.io/docs/introduction/getting_started/" target="_blank" rel="external">官方文档</a>。此外还需要一个配置文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;prometheus.yml</span><br><span class="line">global:</span><br><span class="line">  scrape_interval: <span class="number">15</span>s</span><br><span class="line">  external_labels:</span><br><span class="line">    monitor: <span class="string">'codelab-monitor'</span></span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: <span class="string">'prometheus'</span></span><br><span class="line">    scrape_interval: <span class="number">5</span>s</span><br><span class="line">    target_groups:</span><br><span class="line">      - targets: [<span class="string">'localhost:9090'</span>]</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mkdir /etc/prometheus</span><br><span class="line">sudo mv prometheus.yml /etc/prometheus</span><br></pre></td></tr></table></figure></p>
+<p>配置文件中，<code>scrape_interval</code>指的是数据获取间隔，<code>prometheus</code>这个任务里的<code>scrape_interval</code>将会在这个任务里覆盖掉默认的<code>global</code>全局值，也就是这个任务每5秒钟获取一次数据，其它任务则是每15秒钟。完整的配置文件格式，请参考<a href="http://prometheus.io/docs/operating/configuration/" target="_blank" rel="external">官方文档</a>。接下来启动Prometheus：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/docker run <span class="operator">-d</span> \</span><br><span class="line">    --name=prometheus \</span><br><span class="line">    --publish=<span class="number">9090</span>:<span class="number">9090</span> \</span><br><span class="line">    -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">    -v /var/prometheus/storage:/prometheus \</span><br><span class="line">    prom/prometheus:<span class="number">0.17</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>启动完成后，将会在<a href="http://192.168.33.18:9090" target="_blank" rel="external">http://192.168.33.18:9090</a>看到prometheus的首页：<br><img src="/img/prometheus-home.jpg" alt=""></p>
+<h2 id="u6570_u636E_u6536_u96C6"><a href="#u6570_u636E_u6536_u96C6" class="headerlink" title="数据收集"></a>数据收集</h2><p>在<a href="http://192.168.33.18:9090/metrics" target="_blank" rel="external">http://192.168.33.18:9090/metrics</a>可以看到prometheus收集到的数据。其中有一个<code>prometheus_target_interval_length_seconds</code>，表示真实的数据获取间隔。在prometheus首页输入它并回车，就可以看到一系列的数据，它们有着不同的quantile，从0.01至0.99不等。0.99的意思是有99%的数据都在这个值以内。如果我们只关心这个数，我们可以输入<code>prometheus_target_interval_length_seconds{quantile=&quot;0.99&quot;}</code>来查看。查询还支持函数，比如<code>count(prometheus_target_interval_length_seconds)</code>可以查询数量。完整的表达式可以参考<a href="https://prometheus.io/docs/querying/basics/" target="_blank" rel="external">官方文档</a>。</p>
+<p>点击<strong>Console</strong>旁边的<strong>Graph</strong>标签就可以看见时序图了：<br><img src="/img/prometheus-graph.jpg" alt=""></p>
+<p>可以随意选择指标和函数试一试，比如<code>rate(prometheus_local_storage_chunk_ops_total[1m])</code>。</p>
+<h2 id="Exporter"><a href="#Exporter" class="headerlink" title="Exporter"></a>Exporter</h2><p>Prometheus支持官方/非官方的许多种<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a>，如HAProxy，Jenkins，MySQL等，也有一些软件直接支持Prometheus而无需exporter，如Etcd，Kubernetes等。我们试一下node exporter：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=ne \</span><br><span class="line">  -p <span class="number">9100</span>:<span class="number">9100</span> \</span><br><span class="line">  prom/node-exporter</span><br></pre></td></tr></table></figure></p>
+<p>Node exporter暴露的端口是9100，所以我们需要修改一下prometheus的配置文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;prometheus.yml</span><br><span class="line">global:</span><br><span class="line">  scrape_interval: <span class="number">15</span>s</span><br><span class="line">  external_labels:</span><br><span class="line">    monitor: <span class="string">'codelab-monitor'</span></span><br><span class="line">scrape_configs:</span><br><span class="line">  - job_name: <span class="string">'node'</span></span><br><span class="line">    scrape_interval: <span class="number">5</span>s</span><br><span class="line">    target_groups:</span><br><span class="line">      - targets: [<span class="string">'192.168.33.18:9100'</span>]</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo cp prometheus.yml /etc/prometheus</span><br></pre></td></tr></table></figure></p>
+<p>重启prometheus：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker stop prometheus</span><br><span class="line">sudo rm -rf /var/prometheus/storage</span><br><span class="line">docker start prometheus</span><br></pre></td></tr></table></figure></p>
+<p>这样在页面上就可以选择节点的一些指标了。也可以访问<a href="http://192.168.33.18:9100/" target="_blank" rel="external">http://192.168.33.18:9100/</a>来直接查看Exporter的指标。</p>
+<h2 id="Push_Gateway"><a href="#Push_Gateway" class="headerlink" title="Push Gateway"></a>Push Gateway</h2><p>Prometheus采集数据是用的pull也就是拉模型，这从我们刚才设置的5秒参数就能看出来。但是有些数据并不适合采用这样的方式，对这样的数据可以使用Push Gateway服务。它就相当于一个缓存，当数据采集完成之后，就上传到这里，由Prometheus稍后再pull过来。我们来试一下，首先启动Push Gateway：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=pg \</span><br><span class="line">  -p <span class="number">9091</span>:<span class="number">9091</span> \</span><br><span class="line">  prom/pushgateway</span><br></pre></td></tr></table></figure></p>
+<p>可以访问<a href="http://192.168.33.18:9091/" target="_blank" rel="external">http://192.168.33.18:9091/</a>来查看它的页面。下个命令将会往Push Gateway上传数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"some_metric 3.14"</span> | curl --data-binary @- http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">9091</span>/metrics/job/some_job</span><br></pre></td></tr></table></figure></p>
+<p>效果是酱紫滴：<br><img src="/img/prometheus-push-gateway.jpg" alt=""></p>
+<p>而在Prometheus的配置文件里，只要把端口换成<code>9100</code>便能采集到Push Gateway的数据了。</p>
+<h2 id="Grafana"><a href="#Grafana" class="headerlink" title="Grafana"></a>Grafana</h2><p><a href="https://prometheus.io/docs/visualization/grafana/" target="_blank" rel="external">Grafana</a>是目前比较流行的监控可视化UI，它从2.5.0版开始直接支持Prometheus的数据。我们来试一下。首先启动grafana：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name grafana \</span><br><span class="line">  -p <span class="number">3000</span>:<span class="number">3000</span> \</span><br><span class="line">  grafana/grafana:<span class="number">2.6</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>打开<a href="http://192.168.33.18:3000/" target="_blank" rel="external">http://192.168.33.18:3000/</a>，就能看到grafana的登录页面了。输入默认的admin/admin登录grafana。选择左侧的<strong>Data Sources</strong>，然后点击上面的<strong>Add new</strong>按钮，便可以把prometheus作为数据源导入grafana：<br><img src="/img/grafana-prometheus-data-source.jpg" alt=""></p>
+<p>输入下面的值：</p>
+<ul>
+<li>Name：prometheus</li>
+<li>Default：true</li>
+<li>Type：Prometheus</li>
+<li>Url：<a href="http://192.168.33.18:9090/" target="_blank" rel="external">http://192.168.33.18:9090/</a></li>
+</ul>
+<p>然后点击<strong>Add</strong>按钮。之后会出来一个<strong>Test Connection</strong>的按钮，点击它便可以收到<strong>Data source is working</strong>的消息。点击左边的<strong>Dashboards</strong>回到主页，点击上面的<strong>Home</strong>，选择<strong>+ New</strong>，会出来一个绿色的小竖条，点击它便会弹出来一个菜单：<br><img src="/img/grafana-dashboard-menu.jpg" alt=""></p>
+<p>选择<strong>Add Panel</strong>和<strong>Graph</strong>，便会出来一个图。然后就可以在<strong>Query</strong>里输入prometheus支持的查询了：<br><img src="/img/grafana-prometheus-graph.jpg" alt=""></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/prometheus/">prometheus</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/prometheus/" data-title="用容器轻松搭建Prometheus运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/tosca/"  title="TOSCA简介">
+ <strong>下一篇：</strong><br/> 
+ <span>TOSCA简介
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="prometheus/" data-title="用容器轻松搭建Prometheus运行环境" data-url="http://qinghua.github.io/prometheus/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6570_u636E_u6536_u96C6"><span class="toc-number">3.</span> <span class="toc-text">数据收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exporter"><span class="toc-number">4.</span> <span class="toc-text">Exporter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Push_Gateway"><span class="toc-number">5.</span> <span class="toc-text">Push Gateway</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Grafana"><span class="toc-number">6.</span> <span class="toc-text">Grafana</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>27</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

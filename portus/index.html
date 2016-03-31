@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/portus-new-namespace.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/portus-new-member.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/portus-dashboard.jpg">
-<meta property="og:updated_time" content="2016-03-14T11:03:13.000Z">
+<meta property="og:updated_time" content="2016-03-30T06:51:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建Portus运行环境">
 <meta name="twitter:description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
@@ -123,7 +123,7 @@
 		
 		<p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a href="http://port.us.org/" target="_blank" rel="external">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。<br><a id="more"></a></p>
 <h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台叫做<strong>registry</strong>，IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">2048</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">2048</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
 <h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>我们将会把docker registry和portus都安装在同一台虚拟机上。一方面是比较方便，另一方面也避免了<a href="https://github.com/SUSE/Portus/issues/510" target="_blank" rel="external">时钟同步问题</a>。为了启动一个带认证的docker registry，首先要生成自签名证书：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; ssl.conf</span><br><span class="line">[ req ]</span><br><span class="line">prompt             = no</span><br><span class="line">distinguished_name = req_subj</span><br><span class="line">x509_extensions    = x509_ext</span><br><span class="line"></span><br><span class="line">[ req_subj ]</span><br><span class="line">CN = Localhost</span><br><span class="line"></span><br><span class="line">[ x509_ext ]</span><br><span class="line">subjectKeyIdentifier   = <span class="built_in">hash</span></span><br><span class="line">authorityKeyIdentifier = keyid,issuer</span><br><span class="line">basicConstraints       = CA:<span class="literal">true</span></span><br><span class="line">subjectAltName         = @alternate_names</span><br><span class="line"></span><br><span class="line">[ alternate_names ]</span><br><span class="line">DNS.<span class="number">1</span> = localhost</span><br><span class="line">IP.<span class="number">1</span>  = <span class="number">192.168</span>.<span class="number">33.18</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mkdir /certs</span><br><span class="line">sudo sh -c <span class="string">"openssl req -config ssl.conf \</span><br><span class="line">-new -x509 -nodes -sha256 -days 365 -newkey rsa:4096 \</span><br><span class="line">-keyout /certs/server-key.pem -out /certs/server-crt.pem"</span></span><br></pre></td></tr></table></figure></p>
 <p>证书生成好了，但是由于这是自签名证书，客户端还需要配置证书文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br><span class="line">sudo cp /certs/server-crt.pem /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/ca.crt</span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
@@ -252,7 +252,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>26</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>27</sup></a></li>
 		  
 		
 		  
@@ -307,7 +307,7 @@
 			
 		
 			
-				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
 			
 		
 			
@@ -339,11 +339,11 @@
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
 			
 		
 			

@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/InfluxDB.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/Grafana.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/kubedash.jpg">
-<meta property="og:updated_time" content="2016-03-21T11:27:52.000Z">
+<meta property="og:updated_time" content="2016-03-31T05:51:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（四）监控">
 <meta name="twitter:description" content="这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。
@@ -152,7 +152,7 @@
 <h2 id="u6570_u636E_u53EF_u89C6_u5316"><a href="#u6570_u636E_u53EF_u89C6_u5316" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a href="http://grafana.org/" target="_blank" rel="external">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg" alt=""></p>
 <p>heapster的数据除了传送出去保存起来，也可以被<a href="https://github.com/kubernetes/kubedash" target="_blank" rel="external">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg" alt=""></p>
 <h2 id="u544A_u8B66"><a href="#u544A_u8B66" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a href="https://influxdata.com/get-started/what-is-the-tick-stack/" target="_blank" rel="external">TICK stack</a>开源方案，其中的<a href="https://influxdata.com/time-series-platform/kapacitor/" target="_blank" rel="external">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a href="https://docs.influxdata.com/kapacitor/v0.2/tick/" target="_blank" rel="external">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a href="https://slack.com/" target="_blank" rel="external">Slack</a>、<a href="https://www.pagerduty.com/" target="_blank" rel="external">PagerDuty</a>和<a href="https://victorops.com/" target="_blank" rel="external">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所当然的。</p>
-<h2 id="u5176_u4ED6_u89E3_u51B3_u65B9_u6848"><a href="#u5176_u4ED6_u89E3_u51B3_u65B9_u6848" class="headerlink" title="其他解决方案"></a>其他解决方案</h2><p><a href="https://github.com/prometheus/prometheus" target="_blank" rel="external">Prometheus</a>是一个监控系统解决方案，包含了数据采集、时序数据库、UI可视化、告警等诸多功能。它的特点是可以实现多纬度的监控，在对比不同实例的监控数据图上有优势。它还有许多的<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a>可以很方便地从许多第三方应用中导出数据，如Apache、AWS、Redis等，也支持Mesos、Kubernetes和Kubernetes-Mesos。</p>
+<h2 id="u5176_u4ED6_u89E3_u51B3_u65B9_u6848"><a href="#u5176_u4ED6_u89E3_u51B3_u65B9_u6848" class="headerlink" title="其他解决方案"></a>其他解决方案</h2><p><a href="https://github.com/prometheus/prometheus" target="_blank" rel="external">Prometheus</a>是一个监控系统解决方案，包含了数据采集、时序数据库、UI可视化、告警等诸多功能。它的特点是可以实现多纬度的监控，在对比不同实例的监控数据图上有优势。它还有许多的<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a>可以很方便地从许多第三方应用中导出数据，如Apache、AWS、Redis等，也支持Mesos、Kubernetes和Kubernetes-Mesos。可以参考<a href="/prometheus">《用容器轻松搭建Prometheus运行环境》</a>来自己搭建一个测试环境。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -234,7 +234,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>26</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>27</sup></a></li>
 		  
 		
 		  
@@ -289,7 +289,7 @@
 			
 		
 			
-				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
 			
 		
 			
@@ -321,11 +321,11 @@
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
 			
 		
 			
