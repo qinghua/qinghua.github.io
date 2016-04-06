@@ -1,0 +1,608 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>Mac上的git图形工具GitUp | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="已经11岁的Git现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用git reset HEAD而不是git unadd/unstage？Mac的朋友们有福了，GitUp来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的ThoughtWorks技术雷达上，它处于试验阶段，也就是值得追求，建议尝试。让我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac上的git图形工具GitUp">
+<meta property="og:url" content="http://qinghua.github.io/gitup/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="已经11岁的Git现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用git reset HEAD而不是git unadd/unstage？Mac的朋友们有福了，GitUp来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的ThoughtWorks技术雷达上，它处于试验阶段，也就是值得追求，建议尝试。让我">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-welcome.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-map.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-new-branch.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-commit.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-new-branch-commit.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-master-commit.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-merge.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-rebase.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-snapshot.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/gitup-stashes.jpg">
+<meta property="og:updated_time" content="2016-04-06T14:41:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mac上的git图形工具GitUp">
+<meta name="twitter:description" content="已经11岁的Git现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用git reset HEAD而不是git unadd/unstage？Mac的朋友们有福了，GitUp来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的ThoughtWorks技术雷达上，它处于试验阶段，也就是值得追求，建议尝试。让我">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/gitup/" title="Mac上的git图形工具GitUp" itemprop="url">Mac上的git图形工具GitUp</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-06T13:43:21.000Z" itemprop="datePublished"> 发表于 2016-04-06</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770B_u5386_u53F2"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5408_u5E76_u548C_u884D_u5408"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770Bstash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
+		
+		</div>
+		
+		<p>已经11岁的<a href="https://git-scm.com/" target="_blank" rel="external">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/" target="_blank" rel="external">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup" target="_blank" rel="external">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>GitUp只是一个小应用程序，下载下来就能用啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir gitup</span><br><span class="line"><span class="built_in">cd</span> gitup</span><br><span class="line">wget -c https://s3-us-west-<span class="number">2</span>.amazonaws.com/gitup-builds/stable/GitUp.zip</span><br><span class="line">unzip GitUp.zip</span><br><span class="line">open GitUp.app</span><br></pre></td></tr></table></figure></p>
+<p>打开GitUp就能看见下面的界面：<br><img src="/img/gitup-welcome.jpg" alt=""></p>
+<p>然后我们新建一个git repo：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">git init</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> a &gt; a.txt</span><br><span class="line"><span class="built_in">echo</span> b &gt; b.txt</span><br><span class="line"><span class="built_in">echo</span> c &gt; c.txt</span><br><span class="line">git add a.txt</span><br><span class="line">git commit -m <span class="string">"a"</span></span><br><span class="line">git add b.txt</span><br><span class="line">git commit -m <span class="string">"bb"</span></span><br><span class="line">git add c.txt</span><br><span class="line">git commit -m <span class="string">"c"</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u67E5_u770B_u5386_u53F2"><a href="#u67E5_u770B_u5386_u53F2" class="headerlink" title="查看历史"></a>查看历史</h2><p>在刚才的GitUp欢迎界面上选择新建的test文件夹，就能看到简洁的版本历史图，有三个commit，其中两个是小圆点，一个是现在所处的HEAD。随便单击选择一个commit：<br><img src="/img/gitup-map.jpg" alt=""></p>
+<p>可以看到这个commit的信息，按上下键可以选择其它commit，按空格切换commit详细页面。在commit上右击，便能看到所有支持的操作。我们可以先右击中间的commit，选择<strong>Edit Message</strong>把先前的提交消息”bb”改成”b”。很简单吧！比输命令易用多了。之后在HEAD上右击并选择<strong>Create Branch</strong>来新建一个分支，分支名为temp。然后就能看到下图：<br><img src="/img/gitup-new-branch.jpg" alt=""></p>
+<p>可以在终端中运行<code>git branch</code>来确认自己在temp分支上。然后加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> d &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br></pre></td></tr></table></figure></p>
+<p>这时切回GitUp的界面，选择中间的视图，如下图所示：<br><img src="/img/gitup-commit.jpg" alt=""></p>
+<p>看起来很像<code>git gui</code>吧。双击<code>c.txt</code>就可以切换文件的状态。输入提交消息<code>cd</code>，然后点击<strong>Commit</strong>按钮来提交。于是就能看到下图：<br><img src="/img/gitup-new-branch-commit.jpg" alt=""></p>
+<p>双击master的小黄点就可以切换到master分支上了。然后也加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> e &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br><span class="line">git commit -am <span class="string">"ce"</span></span><br></pre></td></tr></table></figure></p>
+<p>这回的图变成这样了：<br><img src="/img/gitup-master-commit.jpg" alt=""></p>
+<h2 id="u5408_u5E76_u548C_u884D_u5408"><a href="#u5408_u5E76_u548C_u884D_u5408" class="headerlink" title="合并和衍合"></a>合并和衍合</h2><p>我们来试一下合并分支。右击temp上的小圆圈，选择<strong>Merge into Current Branch</strong>，然后点击<strong>Merge</strong>按钮就能看到冲突了。可以使用<strong>Open with Default Editor</strong>来自己解决冲突，也可以使用<strong>Resolve in Merge Tool</strong>来解决。如果是前者，可以注意一个小细节：这里的冲突提示是ours和theirs，看起来人性化了不少。合并完成后，点击<strong>Mark as Resolved</strong>，然后<strong>Commit</strong>，就可以看到图变成这样了：<br><img src="/img/gitup-merge.jpg" alt=""></p>
+<p>衍合也是类似。GitUp提供了一个逆天功能Command+Z，可以快速回退到上一次操作（再次前进是Command+Shift+Z）。这样我们很轻松就能再来一次衍合。右击temp上的小圆圈，选择<strong>Rebase Current Branch onto Here</strong>，剩下的和合并分支类似。提交之后，就可以看到图变成这样了：<br><img src="/img/gitup-rebase.jpg" alt=""></p>
+<p>GitUp还提供了强大的快照功能。我们可以点击右上方的时钟按钮来选择自己想要的快照，就像Time Machine似的。如下图：<br><img src="/img/gitup-snapshot.jpg" alt=""></p>
+<h2 id="u67E5_u770Bstash"><a href="#u67E5_u770Bstash" class="headerlink" title="查看stash"></a>查看stash</h2><p>那么第三个视图是干什么的呢？我们先stash一段代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> f &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br><span class="line">git stash</span><br><span class="line"><span class="built_in">echo</span> g &gt;&gt; c.txt</span><br></pre></td></tr></table></figure></p>
+<p>打开第三个视图，原来是stash列表，这回可以很容易看清楚了。也可以在这里stash：点击左下方的加号按钮，输入一个消息然后<strong>Save Stash</strong>，就可以看到下图：<br><img src="/img/gitup-stashes.jpg" alt=""></p>
+<p>还可以在这里轻松地<strong>Apply</strong>想要的stash，这个可视化可以有。可惜还是不支持选择特定文件stash。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/tool/">tool</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/GitUp/">GitUp</a><a href="/tags/git/">git</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/gitup/" data-title="Mac上的git图形工具GitUp | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/prometheus/"  title="用容器轻松搭建Prometheus运行环境">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建Prometheus运行环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="gitup/" data-title="Mac上的git图形工具GitUp" data-url="http://qinghua.github.io/gitup/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770B_u5386_u53F2"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5408_u5E76_u548C_u884D_u5408"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770Bstash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>27</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/GitUp/" title="GitUp">GitUp<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
