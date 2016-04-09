@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/rancher/</loc>
+    <lastmod>2016-04-09T07:48:31.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/gitup/</loc>
     <lastmod>2016-04-06T14:41:12.000Z</lastmod>
   </url>
