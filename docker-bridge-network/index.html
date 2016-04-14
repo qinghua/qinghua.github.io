@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/docker-bridge-network/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。">
-<meta property="og:updated_time" content="2016-03-04T03:31:32.000Z">
+<meta property="og:updated_time" content="2016-04-14T09:59:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker的桥接网络是怎么工作的">
 <meta name="twitter:description" content="我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。">
@@ -124,7 +124,7 @@
 <li>eth1：192.168.33.10</li>
 <li>lo：127.0.0.1</li>
 </ul>
-<p>其中的<code>eth0</code>和<code>eth1</code>是普通的以太网卡，<code>eth1</code>就是我们解除注释的IP：<code>192.168.33.10</code>。<code>lo</code>是所谓的<a href="https://en.wikipedia.org/wiki/Loopback" target="_blank" rel="external">回环网卡</a>，每台机器都有。它将这台机器/容器绑定到<code>127.0.0.1</code>的IP上，这样子就算没有真实的网卡，也能通过这个IP访问自己，对于测试来说尤其方便。最上面的<code>docker0</code>就是我们常说的网桥。怎么知道它是个网桥呢？安装<code>bridge-utils</code>的包就能看到了：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install bridge-utils</span><br><span class="line">brctl show</span><br></pre></td></tr></table></figure></p>
+<p>其中的<code>eth0</code>和<code>eth1</code>是普通的以太网卡，<code>eth1</code>就是我们解除注释的IP：<code>192.168.33.10</code>。<code>lo</code>是所谓的<a href="https://en.wikipedia.org/wiki/Loopback" target="_blank" rel="external">环回网卡</a>，每台机器都有。它将这台机器/容器绑定到<code>127.0.0.1</code>的IP上，这样子就算没有真实的网卡，也能通过这个IP访问自己，对于测试来说尤其方便。最上面的<code>docker0</code>就是我们常说的网桥。怎么知道它是个网桥呢？安装<code>bridge-utils</code>的包就能看到了：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install bridge-utils</span><br><span class="line">brctl show</span><br></pre></td></tr></table></figure></p>
 <p>网桥设备就好比交换机，可以和其他的网络设备相连接，就像在其他网络设备上拉根网线到这个交换机一样。那么docker怎么使用这个网桥呢，让我们来启动一个容器看看：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name=ubuntu ubuntu:<span class="number">14.04</span> bash</span><br></pre></td></tr></table></figure></p>
 <p>进入容器后，运行<code>ifconfig</code>，就能够看到有2个网络设备及它们的IPv4地址：</p>
 <ul>
@@ -283,7 +283,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>28</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>29</sup></a></li>
 		  
 		
 		  
@@ -320,11 +320,11 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
 			
 		
 			
@@ -340,7 +340,7 @@
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
 			
 		
 			
@@ -356,7 +356,7 @@
 			
 		
 			
-				<li><a href="/tags/rancher/" title="rancher">rancher<sup>1</sup></a></li>
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 			
@@ -376,15 +376,15 @@
 			
 		
 			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 		</ul>

@@ -20,7 +20,7 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
 <meta property="og:image" content="http://docs.ceph.com/docs/master/_images/stack.png">
-<meta property="og:updated_time" content="2016-01-28T06:38:15.000Z">
+<meta property="og:updated_time" content="2016-04-14T02:45:24.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建ceph实验环境">
 <meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
@@ -116,7 +116,7 @@
 		</div>
 		
 		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br><a id="more"></a></p>
-<p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/" target="_blank" rel="external">这篇文章</a>，把ceph介绍得很清楚。</p>
+<p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="/ceph-radosgw">这篇文章](http://www.wzxue.com/why-ceph-and-how-to-use-ceph/)，把ceph介绍得很清楚。笔者的另一篇文章《通过RADOSGW提供ceph的S3和Swift接口》</a>介绍了RADOSGW的使用方法。</p>
 <h2 id="cephfs_u65B9_u5F0F"><a href="#cephfs_u65B9_u5F0F" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
 <p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
 <p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== <span class="number">192.168</span>.<span class="number">0.20</span>:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
@@ -223,7 +223,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>28</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>29</sup></a></li>
 		  
 		
 		  
@@ -260,11 +260,11 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
 			
 		
 			
@@ -280,7 +280,7 @@
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
 			
 		
 			
@@ -296,7 +296,7 @@
 			
 		
 			
-				<li><a href="/tags/rancher/" title="rancher">rancher<sup>1</sup></a></li>
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 			
@@ -316,15 +316,15 @@
 			
 		
 			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 		</ul>

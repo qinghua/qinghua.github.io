@@ -95,6 +95,70 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/ceph-radosgw/" title="使用RADOSGW提供ceph的S3和Swift接口" itemprop="url">使用RADOSGW提供ceph的S3和Swift接口</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-12T00:07:13.000Z" itemprop="datePublished"> 发表于 2016-04-12</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a>。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker Registry在2.4版本<a href="https://github.com/docker/distribution/commit/5967d333425a8dd5d36c5bb456098839654d38af">移除了对rados的支持</a>，所以如果使用ceph作为后端存储就需要利用RADOSGW了。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/ceph-radosgw/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/openstack-swift/">openstack swift</a><a href="/tags/s3/">s3</a><a href="/tags/storage/">storage</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/ceph-radosgw/#comments" class="ds-thread-count comments-count-link" data-thread-key="ceph-radosgw/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/rancher/" title="用容器轻松搭建Rancher运行环境" itemprop="url">用容器轻松搭建Rancher运行环境</a>
   </h1>
   <p class="article-author">By
@@ -676,70 +740,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/vr-htc-vive/" title="HTC VIVE初体验" itemprop="url">HTC VIVE初体验</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-03-12T13:39:10.000Z" itemprop="datePublished"> 发表于 2016-03-12</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>没想到到深圳来出差，竟然碰上了<a href="https://bbs.htc.com/cn/news.php?mod=viewthread&amp;tid=68841">HTC Vive中国开发者峰会</a>。虽然我不是VR开发者，但怎么说也是一名消费者，借着周末赶紧去体验了一把。趁着现在热乎劲还没过去，写一下我的一些见闻及感受吧。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/vr-htc-vive/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/vr/">vr</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/HTC-Vive/">HTC Vive</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/vr-htc-vive/#comments" class="ds-thread-count comments-count-link" data-thread-key="vr-htc-vive/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -766,7 +766,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>28</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>29</sup></a></li>
 		  
 		
 		  
@@ -803,11 +803,11 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>3</sup></a></li>
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
 			
 		
 			
@@ -823,7 +823,7 @@
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
 			
 		
 			
@@ -839,7 +839,7 @@
 			
 		
 			
-				<li><a href="/tags/rancher/" title="rancher">rancher<sup>1</sup></a></li>
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 			
@@ -859,15 +859,15 @@
 			
 		
 			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 		</ul>
