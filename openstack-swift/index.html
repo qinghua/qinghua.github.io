@@ -1,0 +1,602 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>轻松搭建OpenStack Swift存储测试环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻松搭建OpenStack Swift存储测试环境">
+<meta property="og:url" content="http://qinghua.github.io/openstack-swift/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+<meta property="og:updated_time" content="2016-04-15T12:55:19.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻松搭建OpenStack Swift存储测试环境">
+<meta name="twitter:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/openstack-swift/" title="轻松搭建OpenStack Swift存储测试环境" itemprop="url">轻松搭建OpenStack Swift存储测试环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-15T11:22:14.000Z" itemprop="datePublished"> 发表于 2016-04-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8_u73AF_u5883"><span class="toc-number">3.</span> <span class="toc-text">启动环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u73AF_u5883"><span class="toc-number">4.</span> <span class="toc-text">测试环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift_u6D4B_u8BD5"><span class="toc-number">4.1.</span> <span class="toc-text">Swift测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker_Registry_u6D4B_u8BD5"><span class="toc-number">4.2.</span> <span class="toc-text">Docker Registry测试</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="/ceph-radosgw">OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》</a>介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP为<strong>192.168.33.17</strong>，内存为1G的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">1024</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>这里参考了Swift的官方文档<a href="http://docs.openstack.org/developer/swift/development_saio.html" target="_blank" rel="external">Swift All In One</a>来搭建一个swift测试环境。首先需要安装各种依赖包：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y install curl gcc memcached rsync sqlite3 xfsprogs \</span><br><span class="line">                        git-core libffi-dev python-setuptools \</span><br><span class="line">                        liberasurecode-dev</span><br><span class="line">sudo apt-get -y install python-coverage python-dev python-nose \</span><br><span class="line">                        python-xattr python-eventlet \</span><br><span class="line">                        python-greenlet python-pastedeploy \</span><br><span class="line">                        python-netifaces python-pip python-dnspython \</span><br><span class="line">                        python-mock</span><br><span class="line">sudo pip install --upgrade pip</span><br></pre></td></tr></table></figure></p>
+<p>这里就不用<code>fdisk</code>而使用较简单的环回设备来当做我们的存储：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /srv</span><br><span class="line">sudo truncate <span class="operator">-s</span> <span class="number">1</span>GB /srv/swift-disk</span><br><span class="line">sudo mkfs.xfs /srv/swift-disk</span><br><span class="line">sudo sh -c <span class="string">'echo "/srv/swift-disk /mnt/sdb1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0" &gt;&gt; /etc/fstab'</span></span><br></pre></td></tr></table></figure></p>
+<p>生成挂载点和link：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /mnt/sdb1</span><br><span class="line">sudo mount /mnt/sdb1</span><br><span class="line">sudo mkdir /mnt/sdb1/<span class="number">1</span> /mnt/sdb1/<span class="number">2</span> /mnt/sdb1/<span class="number">3</span> /mnt/sdb1/<span class="number">4</span></span><br><span class="line">sudo chown vagrant:vagrant /mnt/sdb1/*</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;<span class="number">1</span>..<span class="number">4</span>&#125;; <span class="keyword">do</span> sudo ln <span class="operator">-s</span> /mnt/sdb1/<span class="variable">$x</span> /srv/<span class="variable">$x</span>; <span class="keyword">done</span></span><br><span class="line">sudo mkdir -p /srv/<span class="number">1</span>/node/sdb1 /srv/<span class="number">1</span>/node/sdb5 \</span><br><span class="line">              /srv/<span class="number">2</span>/node/sdb2 /srv/<span class="number">2</span>/node/sdb6 \</span><br><span class="line">              /srv/<span class="number">3</span>/node/sdb3 /srv/<span class="number">3</span>/node/sdb7 \</span><br><span class="line">              /srv/<span class="number">4</span>/node/sdb4 /srv/<span class="number">4</span>/node/sdb8 \</span><br><span class="line">              /var/run/swift</span><br><span class="line">sudo chown -R vagrant:vagrant /var/run/swift</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;<span class="number">1</span>..<span class="number">4</span>&#125;; <span class="keyword">do</span> sudo chown -R vagrant:vagrant /srv/<span class="variable">$x</span>/; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
+<p>在<code>rc.local</code>里增加几条创建文件夹和授权的命令，使之能够被开机执行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$i mkdir -p /var/cache/swift /var/cache/swift2 /var/cache/swift3 /var/cache/swift4'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/cache/swift*'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i mkdir -p /var/run/swift'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/run/swift'</span> /etc/rc.local</span><br></pre></td></tr></table></figure></p>
+<p>接下来需要安装swift和它的客户端：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>; git <span class="built_in">clone</span> https://github.com/openstack/python-swiftclient.git</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/python-swiftclient; git checkout <span class="number">2.7</span>.<span class="number">0</span>; sudo python setup.py develop; <span class="built_in">cd</span> -</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/openstack/swift.git</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift; git checkout <span class="number">2.7</span>.<span class="number">0</span></span><br><span class="line">sed -i <span class="string">"s/;python_version&lt;'3.0'//"</span> requirements.txt</span><br><span class="line">sed -i <span class="string">"/dnspython3&gt;=1.12.0;python_version&gt;='3.0'/d"</span> requirements.txt</span><br><span class="line">sudo pip install -r requirements.txt; sudo python setup.py develop; sudo pip install -r <span class="built_in">test</span>-requirements.txt</span><br></pre></td></tr></table></figure></p>
+<p>然后需要配置rsync：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo cp <span class="variable">$HOME</span>/swift/doc/saio/rsyncd.conf /etc/</span><br><span class="line">sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/vagrant/"</span> /etc/rsyncd.conf</span><br><span class="line">sudo sed -i <span class="string">"s/RSYNC_ENABLE=false/RSYNC_ENABLE=true/"</span> /etc/default/rsync</span><br><span class="line">sudo service rsync restart</span><br></pre></td></tr></table></figure></p>
+<p>使用以下命令来验证rsync，应该能看到一堆的account、container和object：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync rsync://pub@localhost/</span><br></pre></td></tr></table></figure></p>
+<p>我们前面已经安装了memcached，验证一下服务是可用的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service memcached status</span><br></pre></td></tr></table></figure></p>
+<p>接下来需要配置各个节点：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; sudo cp -r saio/swift /etc/swift; <span class="built_in">cd</span> -</span><br><span class="line">sudo chown -R <span class="variable">$&#123;USER&#125;</span>:<span class="variable">$&#123;USER&#125;</span> /etc/swift</span><br><span class="line">find /etc/swift/ -name \*.conf | xargs sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/<span class="variable">$&#123;USER&#125;</span>/"</span></span><br></pre></td></tr></table></figure></p>
+<p>然后配置swift脚本，<code>/etc/swift/test.conf</code>为我们添加了三个测试账户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/bin</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; cp saio/bin/* <span class="variable">$HOME</span>/bin; <span class="built_in">cd</span> -</span><br><span class="line">chmod +x <span class="variable">$HOME</span>/bin/*</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SAIO_BLOCK_DEVICE=/srv/swift-disk"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line">sed -i <span class="string">"/^find/d"</span> <span class="variable">$HOME</span>/bin/resetswift</span><br><span class="line">cp <span class="variable">$HOME</span>/swift/<span class="built_in">test</span>/sample.conf /etc/swift/test.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SWIFT_TEST_CONFIG_FILE=/etc/swift/test.conf"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export PATH=<span class="variable">$&#123;PATH&#125;</span>:<span class="variable">$HOME</span>/bin"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line">. <span class="variable">$HOME</span>/.bashrc</span><br></pre></td></tr></table></figure></p>
+<p>Swift里有一个非常重要的概念，<a href="http://docs.openstack.org/developer/swift/overview_ring.html?highlight=ring" target="_blank" rel="external">ring</a>。通过它可以找到数据的物理位置。它的存储模型是这样的：一个账号（account）里可以有多个容器（container），容器里可以有许多个键值对，字典里的值称为对象（object）。账号和容器被存储在SQLite数据库里，而对象是以文件方式存储的。账号数据库、容器数据库和每个单独对象都有自己的ring。下面我们来构建一些ring：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">remakerings</span><br></pre></td></tr></table></figure></p>
+<h2 id="u542F_u52A8_u73AF_u5883"><a href="#u542F_u52A8_u73AF_u5883" class="headerlink" title="启动环境"></a>启动环境</h2><p>现在我们就可以用<code>startmain</code>启动swift啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'s/bind_ip = 127.0.0.1/bind_ip = 192.168.33.17/'</span> /etc/swift/proxy-server.conf</span><br><span class="line">startmain</span><br></pre></td></tr></table></figure></p>
+<p>然后用<code>test:tester/testing</code>这个预先创建好的测试账户登录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -i -H <span class="string">'X-Storage-User: test:tester'</span> -H <span class="string">'X-Storage-Pass: testing'</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> | tee auth.txt</span><br><span class="line">sudo apt-get -y install dos2unix</span><br><span class="line">dos2unix auth.txt</span><br><span class="line"><span class="built_in">export</span> X_AUTH_TOKEN=`cat auth.txt | sed -n <span class="string">'s/X-Auth-Token: \(.*\)/\1/p'</span>`</span><br><span class="line"><span class="built_in">export</span> X_STORAGE_URL=`cat auth.txt | sed -n <span class="string">'s/X-Storage-Url: \(.*\)/\1/p'</span>`</span><br><span class="line">curl -v -H <span class="string">"X-Auth-Token: <span class="variable">$X_AUTH_TOKEN</span>"</span> <span class="variable">$X_STORAGE_URL</span></span><br></pre></td></tr></table></figure></p>
+<p>上面用到<code>dos2unix</code>是因为取到的<code>X-Storage-Url</code>最后面带着<code>^M$</code>的特殊字符。直接管道的话，下一个<code>curl</code>会报错：<code>Illegal characters found in URL</code>。可以保存成文件之后使用<code>cat -A</code>来查看这些特殊字符。<br>登录完成后，就能看到swift的状态和所有容器啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">swift -A http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> -U <span class="built_in">test</span>:tester -K testing <span class="built_in">stat</span></span><br><span class="line">swift -A http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> -U <span class="built_in">test</span>:tester -K testing list</span><br></pre></td></tr></table></figure></p>
+<h2 id="u6D4B_u8BD5_u73AF_u5883"><a href="#u6D4B_u8BD5_u73AF_u5883" class="headerlink" title="测试环境"></a>测试环境</h2><h3 id="Swift_u6D4B_u8BD5"><a href="#Swift_u6D4B_u8BD5" class="headerlink" title="Swift测试"></a>Swift测试</h3><p>有兴趣的话，还可以运行下面的单元测试、功能测试和探索性测试：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/swift/.unittests</span><br><span class="line"><span class="variable">$HOME</span>/swift/.functests</span><br><span class="line"><span class="variable">$HOME</span>/swift/.probetests</span><br></pre></td></tr></table></figure></p>
+<h3 id="Docker_Registry_u6D4B_u8BD5"><a href="#Docker_Registry_u6D4B_u8BD5" class="headerlink" title="Docker Registry测试"></a>Docker Registry测试</h3><p>在Docker Registry的<code>config.yml</code>里使用以下配置：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">storage:&#10;  swift:&#10;    username: test:tester &#10;    password: testing &#10;    authurl: http://192.168.33.17:8080/auth/v1.0&#10;    container: swift</span><br></pre></td></tr></table></figure></p>
+<p>可以测试<code>docker push</code>啦。不过记得需要先登录用户哦。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/openstack-swift/">openstack swift</a><a href="/tags/storage/">storage</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/openstack-swift/" data-title="轻松搭建OpenStack Swift存储测试环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/ceph-radosgw/"  title="使用RADOSGW提供ceph的S3和Swift接口">
+ <strong>下一篇：</strong><br/> 
+ <span>使用RADOSGW提供ceph的S3和Swift接口
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="openstack-swift/" data-title="轻松搭建OpenStack Swift存储测试环境" data-url="http://qinghua.github.io/openstack-swift/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8_u73AF_u5883"><span class="toc-number">3.</span> <span class="toc-text">启动环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u73AF_u5883"><span class="toc-number">4.</span> <span class="toc-text">测试环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift_u6D4B_u8BD5"><span class="toc-number">4.1.</span> <span class="toc-text">Swift测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker_Registry_u6D4B_u8BD5"><span class="toc-number">4.2.</span> <span class="toc-text">Docker Registry测试</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>30</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/https/" title="https">https<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

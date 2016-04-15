@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/sed/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
-<meta property="og:updated_time" content="2016-03-16T05:56:34.000Z">
+<meta property="og:updated_time" content="2016-04-15T09:42:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="看例子学sed">
 <meta name="twitter:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
@@ -118,7 +118,7 @@
 <p>假设我们有一个csv文件如下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;staff.csv</span><br><span class="line">Gavo,<span class="number">35</span></span><br><span class="line">Jane,<span class="number">21</span></span><br><span class="line">Bill,<span class="number">25</span></span><br><span class="line">Jimmy,<span class="number">42</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
 <h2 id="u589E"><a href="#u589E" class="headerlink" title="增"></a>增</h2><h3 id="u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><a href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C" class="headerlink" title="在文件头/尾增加一行"></a>在文件头/尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1i Name,Age'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
 <p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'2a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
+<p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv    <span class="comment"># 指定行内容</span></span><br><span class="line">sed $<span class="string">'$a \\\n'</span> staff.csv       <span class="comment"># 增加空行</span></span><br></pre></td></tr></table></figure></p>
 <p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
 <h3 id="u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><a href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
 <p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i \ \ Hetty,29'</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
@@ -256,7 +256,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>29</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>30</sup></a></li>
 		  
 		
 		  
@@ -293,7 +293,7 @@
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>4</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>5</sup></a></li>
 			
 		
 			
@@ -317,7 +317,7 @@
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -329,7 +329,7 @@
 			
 		
 			
-				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+				<li><a href="/tags/https/" title="https">https<sup>1</sup></a></li>
 			
 		
 			
@@ -357,7 +357,7 @@
 			
 		
 			
-				<li><a href="/tags/HTC-Vive/" title="HTC Vive">HTC Vive<sup>1</sup></a></li>
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
 			
 		
 		</ul>
