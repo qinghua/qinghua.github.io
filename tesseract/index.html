@@ -6,42 +6,25 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>如果有10000台机器，你想怎么玩？（六）性能 | 懒程序员改变世界</title>
+    <title>光学字符识别软件tesseract-ocr | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎">
+    <meta name="description" content="Tesseract是一个可以将图片转换成文字的OCR（Optical Character Recognition）软件，支持包括中文简繁体的多种语言，简单易用，可以用来识别验证码。让我们来看一看吧。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如果有10000台机器，你想怎么玩？（六）性能">
-<meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-6/index.html">
+<meta property="og:title" content="光学字符识别软件tesseract-ocr">
+<meta property="og:url" content="http://qinghua.github.io/tesseract/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎">
-<meta property="og:image" content="http://qinghua.github.io/img/mesos-architecture.jpg">
-<meta property="og:updated_time" content="2016-03-23T11:07:25.000Z">
+<meta property="og:description" content="Tesseract是一个可以将图片转换成文字的OCR（Optical Character Recognition）软件，支持包括中文简繁体的多种语言，简单易用，可以用来识别验证码。让我们来看一看吧。">
+<meta property="og:image" content="http://qinghua.github.io/img/test.png">
+<meta property="og:image" content="http://qinghua.github.io/img/testcn.png">
+<meta property="og:updated_time" content="2016-04-17T10:09:45.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（六）性能">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎">
+<meta name="twitter:title" content="光学字符识别软件tesseract-ocr">
+<meta name="twitter:description" content="Tesseract是一个可以将图片转换成文字的OCR（Optical Character Recognition）软件，支持包括中文简繁体的多种语言，简单易用，可以用来识别验证码。让我们来看一看吧。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -113,50 +96,38 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/kubernetes-in-mesos-6/" title="如果有10000台机器，你想怎么玩？（六）性能" itemprop="url">如果有10000台机器，你想怎么玩？（六）性能</a>
+      <a href="/tesseract/" title="光学字符识别软件tesseract-ocr" itemprop="url">光学字符识别软件tesseract-ocr</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-02-02T11:52:32.000Z" itemprop="datePublished"> 发表于 2016-02-02</time>
+    <time datetime="2016-04-16T02:13:20.000Z" itemprop="datePublished"> 发表于 2016-04-16</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
-</li>
-</ul>
-<h2 id="u5173_u4E8E_u6027_u80FD"><a href="#u5173_u4E8E_u6027_u80FD" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html" target="_blank" rel="external">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a href="http://dockone.io/article/677" target="_blank" rel="external">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
-<p>Kubernetes v1.0仅仅支持100个节点，kubernetes v1.1已经可以支持250个节点了。官方也希望能<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/multi-cluster.md#user-content-selecting-the-right-number-of-clusters" target="_blank" rel="external">在2016年初支持1000个节点</a>。Kubernetes还提供了一个性能测试工具<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/devel/kubemark-guide.md" target="_blank" rel="external">Kubemark</a>。它由真实的master和虚拟的空节点组成，默认跑在<a href="https://cloud.google.com/container-engine/" target="_blank" rel="external">GCE</a>上，这样不需要大量机器便可以进行性能测试了。</p>
-<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><p>根据<a href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/cluster-large.md" target="_blank" rel="external">kubernetes大集群</a>这篇文章的描述，1.1版本支持最大250个节点，每个节点30个pod，每个pod 1~2个容器。当使用50台以上的节点时，最好用单独的etcd来存储事件。可以在kubernetes的api server启动参数里配置类似<code>--etcd-servers-overrides=/events#http://192.168.33.11:4001</code>这样的值来分离事件etcd。</p>
-<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的limit来增大插件的内存供给。</p>
-<p>Docker的性能方面，由于Ubuntu的docker存储驱动默认使用AUFS，速度比Device Mapper快上不少。所以如果用CentOS来做node，会明显感觉容器的启动删除都比较慢。网上也有<a href="https://www.linux-toys.com/?p=374" target="_blank" rel="external">文章</a>指出这点，笔者测试的感觉与之相符。</p>
-<h2 id="u6027_u80FD_u8C03_u4F18"><a href="#u6027_u80FD_u8C03_u4F18" class="headerlink" title="性能调优"></a>性能调优</h2><h3 id="Mesos+Kubernetes"><a href="#Mesos+Kubernetes" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos的资源分配现在是酱紫的：</p>
-<ol>
-<li>slave告诉master自己有什么资源</li>
-<li>master把这个资源包装成offer发送给framework（这里是kubernetes）</li>
-<li>framework接受或拒绝</li>
-<li>若是framework接受了，让slave运行任务<br><img src="/img/mesos-architecture.jpg" alt=""></li>
-</ol>
-<p>有一点需要注意的是mesos master并不是一收到slave的资源便把它发送给framework的。想象一下如果有1000台机器的话，那offer的发送频率得是什么样子。Mesos master是每隔一段时间发送一次。它的启动参数里有一个<code>--allocation_interval</code>，它决定了这个间隔时间，默认为1秒。当有多个slave的时候，有可能master在前一秒告诉framework有10份offer，后一秒又告诉说现在有15份（有些被拒绝的offer回来了，有些新slave能提供新offer，有些被接受了，但是还有余裕…）。</p>
-<p>Mesos+Kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#scheduling" target="_blank" rel="external">分配算法</a>现在还很原始：一个offer只会运行一个pod。所以如果请求启动的大量的pod的时候，就需要很多个offer来运行这些pod。为了提高性能，一个办法是在一个offer里安排多个pods，这个是kubernetes的未来计划，现在还不是我们的菜。另一个办法是提高mesos master的offer频率。虽然把<code>--allocation_interval</code>调低可以增加offer发送频率，但是如果offer回流得很慢，那又有什么意义呢。所以kubernetes的scheduler处理得越久，offer的流动性就越差，pod的启动速度就越慢。接着往下走，如何提高scheduler的处理速度呢？最简单的处理办法：换高配！4C8G的虚拟机撑死能扛住250台mesos slave。软件上就还得靠优化scheduler的流程了。另外，mesos master由于要不断发offer出去，还要处理被接受或拒绝的offer，也需要比较强的配置，但是kubernetes master的配置影响力更大，需要相对更好的配置。</p>
-<p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning" target="_blank" rel="external">看一看</a>。</p>
-<h3 id="u7EAFkubernetes"><a href="#u7EAFkubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
-<h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos+Kubernetes-1"><a href="#Mesos+Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
-<h3 id="u7EAFkubernetes-1"><a href="#u7EAFkubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。现在kubernetes 1.2版已经发布，支持1000个node不成问题。就是…如果按本文的标题来说，10000台机器，还是得建10个kubernetes集群才行呀。</p>
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">2.</span> <span class="toc-text">中文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PDF"><span class="toc-number">3.</span> <span class="toc-text">PDF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u51FA"><span class="toc-number">3.1.</span> <span class="toc-text">输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165"><span class="toc-number">3.2.</span> <span class="toc-text">输入</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p><a href="https://github.com/tesseract-ocr/tesseract/wiki" target="_blank" rel="external">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB" target="_blank" rel="external">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages" target="_blank" rel="external">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br><a id="more"></a></p>
+<h2 id="u5B89_u88C5"><a href="#u5B89_u88C5" class="headerlink" title="安装"></a>安装</h2><p>Tesseract只是一个小应用程序，在mac里直接安装就好啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install tesseract</span><br></pre></td></tr></table></figure></p>
+<p>下面是张包含了一些英文的图片：<br><img src="/img/test.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，对于正常字体来说，粗体、斜体、大小字号等的识别率还是很不错的。如果是手写体的字体，识别率将会严重下降。</p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>Tesseract支持多种语言，不过除了英语以外，都必须先下载语言数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/tesseract-ocr/tessdata/blob/master/chi_sim.traineddata?raw=<span class="literal">true</span></span><br><span class="line">mv chi_sim.traineddata\?raw\=<span class="literal">true</span> /usr/<span class="built_in">local</span>/Cellar/tesseract/<span class="number">3.04</span>.<span class="number">00</span>/share/tessdata/chi_sim.traineddata</span><br></pre></td></tr></table></figure></p>
+<p>从后缀名traineddata可以看出来，tesseract是可以通过训练来提高识别率的。网上有许多教程，有兴趣的朋友可以自行尝试。下面是张包含了一些中文的图片：<br><img src="/img/testcn.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> chi_sim</span><br><span class="line">cat out.txt</span><br><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> eng+chi_sim</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>毕竟汉字内容多，这回没有英文识别率那么高了，想要更加实用可能需要更多训练和校对。</p>
+<h2 id="PDF"><a href="#PDF" class="headerlink" title="PDF"></a>PDF</h2><h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>很简单，在<code>tesseract</code>命令的最后面加上<code>pdf</code>就好了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out pdf</span><br><span class="line">open out.pdf</span><br></pre></td></tr></table></figure></p>
+<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>虽然tesseract不能直接处理PDF，但是借助<a href="https://www.imagemagick.org/script/index.php" target="_blank" rel="external">ImageMagick</a>和<a href="http://www.ghostscript.com/" target="_blank" rel="external">Ghostscript</a>可以轻松地把PDF转换成图片文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install imagemagick</span><br><span class="line">brew install ghostscript</span><br><span class="line">convert -density <span class="number">100</span> -trim input.pdf output%<span class="number">04</span>d.jpg</span><br></pre></td></tr></table></figure></p>
+<p>这里的100表示DPI，<code>%04d</code>表示分页储存。有了图片之后就可以用tesseract随意操作啦。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -164,13 +135,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
+  <a class="article-category-link" href="/categories/tool/">tool</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
+  <span></span> <a href="/tags/OCR/">OCR</a><a href="/tags/tesseract/">tesseract</a>
   </div>
 
 </div>
@@ -179,7 +150,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-6/" data-title="如果有10000台机器，你想怎么玩？（六）性能 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/tesseract/" data-title="光学字符识别软件tesseract-ocr | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -192,19 +163,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/kubernetes-in-mesos-7/" title="如果有10000台机器，你想怎么玩？（七）生命周期">
-  <strong>上一篇：</strong><br/>
-  <span>
-  如果有10000台机器，你想怎么玩？（七）生命周期</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/docker-storage/"  title="Docker的存储是怎么工作的">
+<a href="/openstack-swift/"  title="轻松搭建OpenStack Swift存储测试环境">
  <strong>下一篇：</strong><br/> 
- <span>Docker的存储是怎么工作的
+ <span>轻松搭建OpenStack Swift存储测试环境
 </span>
 </a>
 </div>
@@ -213,12 +176,19 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="kubernetes-in-mesos-6/" data-title="如果有10000台机器，你想怎么玩？（六）性能" data-url="http://qinghua.github.io/kubernetes-in-mesos-6/"></div>
+	<div class="ds-thread" data-thread-key="tesseract/" data-title="光学字符识别软件tesseract-ocr" data-url="http://qinghua.github.io/tesseract/"></div>
 </section>
 
 
 </div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">2.</span> <span class="toc-text">中文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PDF"><span class="toc-number">3.</span> <span class="toc-text">PDF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u51FA"><span class="toc-number">3.1.</span> <span class="toc-text">输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165"><span class="toc-number">3.2.</span> <span class="toc-text">输入</span></a></li></ol></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -457,6 +427,8 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
         
     }
   });

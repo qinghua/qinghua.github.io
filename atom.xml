@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-04-15T12:55:19.000Z</updated>
+  <updated>2016-04-17T10:09:45.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,38 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[光学字符识别软件tesseract-ocr]]></title>
+    <link href="http://qinghua.github.io/tesseract/"/>
+    <id>http://qinghua.github.io/tesseract/</id>
+    <published>2016-04-16T02:13:20.000Z</published>
+    <updated>2016-04-17T10:09:45.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="https://github.com/tesseract-ocr/tesseract/wiki" target="_blank" rel="external">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB" target="_blank" rel="external">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages" target="_blank" rel="external">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br><a id="more"></a></p>
+<h2 id="u5B89_u88C5"><a href="#u5B89_u88C5" class="headerlink" title="安装"></a>安装</h2><p>Tesseract只是一个小应用程序，在mac里直接安装就好啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install tesseract</span><br></pre></td></tr></table></figure></p>
+<p>下面是张包含了一些英文的图片：<br><img src="/img/test.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，对于正常字体来说，粗体、斜体、大小字号等的识别率还是很不错的。如果是手写体的字体，识别率将会严重下降。</p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>Tesseract支持多种语言，不过除了英语以外，都必须先下载语言数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/tesseract-ocr/tessdata/blob/master/chi_sim.traineddata?raw=<span class="literal">true</span></span><br><span class="line">mv chi_sim.traineddata\?raw\=<span class="literal">true</span> /usr/<span class="built_in">local</span>/Cellar/tesseract/<span class="number">3.04</span>.<span class="number">00</span>/share/tessdata/chi_sim.traineddata</span><br></pre></td></tr></table></figure></p>
+<p>从后缀名traineddata可以看出来，tesseract是可以通过训练来提高识别率的。网上有许多教程，有兴趣的朋友可以自行尝试。下面是张包含了一些中文的图片：<br><img src="/img/testcn.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> chi_sim</span><br><span class="line">cat out.txt</span><br><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> eng+chi_sim</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>毕竟汉字内容多，这回没有英文识别率那么高了，想要更加实用可能需要更多训练和校对。</p>
+<h2 id="PDF"><a href="#PDF" class="headerlink" title="PDF"></a>PDF</h2><h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>很简单，在<code>tesseract</code>命令的最后面加上<code>pdf</code>就好了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out pdf</span><br><span class="line">open out.pdf</span><br></pre></td></tr></table></figure></p>
+<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>虽然tesseract不能直接处理PDF，但是借助<a href="https://www.imagemagick.org/script/index.php" target="_blank" rel="external">ImageMagick</a>和<a href="http://www.ghostscript.com/" target="_blank" rel="external">Ghostscript</a>可以轻松地把PDF转换成图片文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install imagemagick</span><br><span class="line">brew install ghostscript</span><br><span class="line">convert -density <span class="number">100</span> -trim input.pdf output%<span class="number">04</span>d.jpg</span><br></pre></td></tr></table></figure></p>
+<p>这里的100表示DPI，<code>%04d</code>表示分页储存。有了图片之后就可以用tesseract随意操作啦。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><a href="https://github.com/tesseract-ocr/tesseract/wiki">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br>]]>
+    
+    </summary>
+    
+      <category term="OCR" scheme="http://qinghua.github.io/tags/OCR/"/>
+    
+      <category term="tesseract" scheme="http://qinghua.github.io/tags/tesseract/"/>
+    
+      <category term="tool" scheme="http://qinghua.github.io/categories/tool/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[轻松搭建OpenStack Swift存储测试环境]]></title>
@@ -1452,42 +1484,6 @@ topology_template:
     </summary>
     
       <category term="salt" scheme="http://qinghua.github.io/tags/salt/"/>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[用容器轻松搭建Bamboo来提供Marathon的对外服务]]></title>
-    <link href="http://qinghua.github.io/marathon-bamboo/"/>
-    <id>http://qinghua.github.io/marathon-bamboo/</id>
-    <published>2016-02-22T11:26:11.000Z</published>
-    <updated>2016-02-22T07:04:24.000Z</updated>
-    <content type="html"><![CDATA[<p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a href="https://github.com/QubitProducts/bamboo" target="_blank" rel="external">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，但是用下面这个命令来启动marathon。它相比原来的命令多了一个<code>--event_subscriber http_callback</code>的参数，如果不配置，便不能实现HAproxy动态加载服务的功能。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.<span class="number">15.0</span> \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon \</span><br><span class="line">    --event_subscriber http_callback</span><br></pre></td></tr></table></figure></p>
-<p>现在启动Bamboo镜像，在里面指定marathon的地址：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">8000</span>:<span class="number">8000</span> \</span><br><span class="line">    -p <span class="number">80</span>:<span class="number">80</span> \</span><br><span class="line">    --name=bam \</span><br><span class="line">    <span class="operator">-e</span> MARATHON_ENDPOINT=http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ENDPOINT=http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8000</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ZK_HOST=<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_ZK_PATH=/bamboo \</span><br><span class="line">    <span class="operator">-e</span> BIND=<span class="string">":8000"</span> \</span><br><span class="line">    <span class="operator">-e</span> CONFIG_PATH=<span class="string">"config/production.example.json"</span> \</span><br><span class="line">    <span class="operator">-e</span> BAMBOO_DOCKER_AUTO_HOST=<span class="literal">true</span> \</span><br><span class="line">    gregory90/bamboo:<span class="number">0.2</span>.<span class="number">11</span></span><br></pre></td></tr></table></figure></p>
-<p>在浏览器打开<code>http://192.168.33.18:8000/</code>应该能看到下图：<br><img src="/img/bamboo.png" alt=""></p>
-<h2 id="u670D_u52A1_u53D1_u73B0"><a href="#u670D_u52A1_u53D1_u73B0" class="headerlink" title="服务发现"></a>服务发现</h2><p>现在让我们用marathon来启动一个tomcat服务。在任意一台机器上运行以下命令，把创建tomcat服务的请求发送给marathon的REST api：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps \</span><br><span class="line">    -H <span class="string">"Content-type: application/json"</span> \</span><br><span class="line">    <span class="operator">-d</span> <span class="string">'&#123;"cpus":0.5,"mem":200,"disk":0,"instances":1,"id":"tomcat", </span><br><span class="line">    "container":&#123;"docker":&#123;"image":"tomcat","network":"BRIDGE","portMappings": </span><br><span class="line">    [&#123;"containerPort":8080,"hostPort":0,"servicePort":0,"protocol":"tcp"&#125;]&#125;&#125;&#125;'</span></span><br></pre></td></tr></table></figure></p>
-<p>分别刷新marathon和bamboo，就能看到它们各自多了个tomcat的服务。点击bamboo页面上的<strong>/tomcat</strong>记录最右边的加号按钮，在<strong>acl</strong>里输入<code>path_beg -i /</code>（表示运行在根目录上，有兴趣的话可以参考HAproxy的<a href="http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#7" target="_blank" rel="external">ACL语法</a>），然后点击<strong>Create</strong>按钮：<br><img src="/img/bamboo-tomcat.png" alt=""></p>
-<p>顺利的话，打开<code>http://192.168.33.18/</code>应该能看到tomcat出现啦：<br><img src="/img/tomcat.jpg" alt=""></p>
-<p>这个时候，在marathon的页面上点击tomcat这行记录，便会到tomcat application页面里。如下图选中当前的tomcat实例，点击<strong>Kill</strong>按钮：<br><img src="/img/marathon-application-tomcat.png" alt=""></p>
-<p>稍等几秒，就会看到tomcat的服务运行地址从<code>192.168.33.19:31071</code>变成了<code>192.168.33.19:31571</code>，端口因机而异。再回去刷新tomcat的<code>http://192.168.33.18/</code>页面，是不是仍然提供服务呢？如果你手快，应该能看到<strong>503 Service Unavailable</strong>，那就多刷新两下 ：） 到slave虚拟机上用命令删除tomcat容器，再观察一下，是不是一样的效果呢？</p>
-<h2 id="u5176_u4ED6_u65B9_u6CD5"><a href="#u5176_u4ED6_u65B9_u6CD5" class="headerlink" title="其他方法"></a>其他方法</h2><p>Marathon官方还支持其它<a href="https://mesosphere.github.io/marathon/docs/service-discovery-load-balancing" target="_blank" rel="external">三种服务发现的方法</a>：</p>
-<ol>
-<li>Mesos-DNS：Mesosphere公司提供的DNS产品，不仅适用于marathon，而且适用于其它Mesos Framework。</li>
-<li>Marathon-lb：感觉上跟k8s的<a href="http://kubernetes.io/v1.1/docs/user-guide/services.html#type-nodeport" target="_blank" rel="external">NodePort</a>有点像，不过它像Bamboo那样包含了HAproxy。</li>
-<li>haproxy-marathon-bridge：现在已经不推荐了。需要在每个slave上安装HAproxy，定时更新HAproxy的配置文件。</li>
-</ol>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a href="https://github.com/QubitProducts/bamboo">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。<br>]]>
-    
-    </summary>
-    
-      <category term="bamboo" scheme="http://qinghua.github.io/tags/bamboo/"/>
-    
-      <category term="marathon" scheme="http://qinghua.github.io/tags/marathon/"/>
     
       <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
     

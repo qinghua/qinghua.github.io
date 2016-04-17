@@ -4,6 +4,24 @@
   
     
     <entry>
+      <title><![CDATA[光学字符识别软件tesseract-ocr]]></title>
+      <url>http://qinghua.github.io/tesseract/</url>
+      <content type="html"><![CDATA[<p><a href="https://github.com/tesseract-ocr/tesseract/wiki" target="_blank" rel="external">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB" target="_blank" rel="external">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages" target="_blank" rel="external">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br><a id="more"></a></p>
+<h2 id="u5B89_u88C5"><a href="#u5B89_u88C5" class="headerlink" title="安装"></a>安装</h2><p>Tesseract只是一个小应用程序，在mac里直接安装就好啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install tesseract</span><br></pre></td></tr></table></figure></p>
+<p>下面是张包含了一些英文的图片：<br><img src="/img/test.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，对于正常字体来说，粗体、斜体、大小字号等的识别率还是很不错的。如果是手写体的字体，识别率将会严重下降。</p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>Tesseract支持多种语言，不过除了英语以外，都必须先下载语言数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/tesseract-ocr/tessdata/blob/master/chi_sim.traineddata?raw=<span class="literal">true</span></span><br><span class="line">mv chi_sim.traineddata\?raw\=<span class="literal">true</span> /usr/<span class="built_in">local</span>/Cellar/tesseract/<span class="number">3.04</span>.<span class="number">00</span>/share/tessdata/chi_sim.traineddata</span><br></pre></td></tr></table></figure></p>
+<p>从后缀名traineddata可以看出来，tesseract是可以通过训练来提高识别率的。网上有许多教程，有兴趣的朋友可以自行尝试。下面是张包含了一些中文的图片：<br><img src="/img/testcn.png" alt=""></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> chi_sim</span><br><span class="line">cat out.txt</span><br><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> eng+chi_sim</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>毕竟汉字内容多，这回没有英文识别率那么高了，想要更加实用可能需要更多训练和校对。</p>
+<h2 id="PDF"><a href="#PDF" class="headerlink" title="PDF"></a>PDF</h2><h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>很简单，在<code>tesseract</code>命令的最后面加上<code>pdf</code>就好了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out pdf</span><br><span class="line">open out.pdf</span><br></pre></td></tr></table></figure></p>
+<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>虽然tesseract不能直接处理PDF，但是借助<a href="https://www.imagemagick.org/script/index.php" target="_blank" rel="external">ImageMagick</a>和<a href="http://www.ghostscript.com/" target="_blank" rel="external">Ghostscript</a>可以轻松地把PDF转换成图片文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install imagemagick</span><br><span class="line">brew install ghostscript</span><br><span class="line">convert -density <span class="number">100</span> -trim input.pdf output%<span class="number">04</span>d.jpg</span><br></pre></td></tr></table></figure></p>
+<p>这里的100表示DPI，<code>%04d</code>表示分页储存。有了图片之后就可以用tesseract随意操作啦。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[轻松搭建OpenStack Swift存储测试环境]]></title>
       <url>http://qinghua.github.io/openstack-swift/</url>
       <content type="html"><![CDATA[<p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="/ceph-radosgw">OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》</a>介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br><a id="more"></a></p>

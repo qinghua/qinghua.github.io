@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/tesseract/</loc>
+    <lastmod>2016-04-17T10:09:45.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/openstack-swift/</loc>
     <lastmod>2016-04-15T12:55:19.000Z</lastmod>
   </url>
