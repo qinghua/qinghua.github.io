@@ -2,23 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/ceph-radosgw-replication/</loc>
+    <lastmod>2016-04-23T13:38:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/kubernetes-installation/</loc>
+    <lastmod>2016-04-23T06:29:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/ceph-radosgw/</loc>
+    <lastmod>2016-04-21T09:30:54.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/openstack-swift/</loc>
+    <lastmod>2016-04-20T00:52:32.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/tesseract/</loc>
     <lastmod>2016-04-17T10:09:45.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/openstack-swift/</loc>
-    <lastmod>2016-04-15T12:55:19.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://qinghua.github.io/sed/</loc>
     <lastmod>2016-04-15T09:42:05.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/ceph-radosgw/</loc>
-    <lastmod>2016-04-15T09:02:21.000Z</lastmod>
   </url>
   
   <url>
@@ -79,11 +89,6 @@
   <url>
     <loc>http://qinghua.github.io/cloudify/</loc>
     <lastmod>2016-03-26T11:21:09.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/kubernetes-installation/</loc>
-    <lastmod>2016-03-24T03:22:30.000Z</lastmod>
   </url>
   
   <url>

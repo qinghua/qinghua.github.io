@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-installation/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文从零开始搭建一个kubernetes集群。">
-<meta property="og:updated_time" content="2016-03-24T03:22:30.000Z">
+<meta property="og:updated_time" content="2016-04-23T06:29:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="轻松搭建Kubernetes 1.2版运行环境">
 <meta name="twitter:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文从零开始搭建一个kubernetes集群。">
@@ -132,7 +132,7 @@
 <p>最后是scheduler：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:<span class="number">903</span>b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
 <p>服务器启动完毕，可以运行以下命令来查看版本，咱们用的是1.2：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> version</span><br></pre></td></tr></table></figure></p>
 <p>接下来该客户端了。首先启动kubelet：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">'inet addr:'</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2 | cut <span class="operator">-d</span><span class="string">' '</span> <span class="operator">-f</span>1`</span><br><span class="line">sudo kubernetes/server/bin/kubelet --api-servers=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">cat kubelet.log</span><br></pre></td></tr></table></figure></p>
-<p>Kuberlet启动完成后，在master上就可以看到了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get no</span><br></pre></td></tr></table></figure></p>
+<p>Kubelet启动完成后，在master上就可以看到了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get no</span><br></pre></td></tr></table></figure></p>
 <p>最后启动kube-proxy：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo kubernetes/server/bin/kube-proxy --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> &gt; proxy.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line">cat proxy.log</span><br></pre></td></tr></table></figure></p>
 <h2 id="u6D4B_u8BD5k8s_u73AF_u5883"><a href="#u6D4B_u8BD5k8s_u73AF_u5883" class="headerlink" title="测试k8s环境"></a>测试k8s环境</h2><p>环境安装好了，接下来试着启动一个pod。启动之前，由于kubernetes需要通过gcr.io/google_containers/pause:2.0的小镜像来管理pod的网络。它会自动下载，如果没有科学上网导致下载不到，那么可以先用docker hub上的kubernetes/pause来代替：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull kubernetes/pause</span><br><span class="line">docker tag kubernetes/pause gcr.io/google_containers/pause:<span class="number">2.0</span></span><br></pre></td></tr></table></figure></p>
 <p>然后就可以用命令行在任意一台虚拟机上运行一个tomcat，并生成服务：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;tomcat.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">1</span></span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      name: tomcat</span><br><span class="line">      labels:</span><br><span class="line">        app: tomcat</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: tomcat</span><br><span class="line">        image: tomcat:<span class="number">8.0</span>.<span class="number">30</span>-jre8</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: <span class="number">8080</span></span><br><span class="line">---</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">  labels: </span><br><span class="line">    app: tomcat</span><br><span class="line">spec:</span><br><span class="line">  <span class="built_in">type</span>: NodePort</span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  ports:</span><br><span class="line">  - port: <span class="number">80</span></span><br><span class="line">    targetPort: <span class="number">8080</span></span><br><span class="line">    nodePort: <span class="number">30088</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">kubernetes/server/bin/kubectl <span class="operator">-s</span> <span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> create <span class="operator">-f</span> tomcat.yaml</span><br></pre></td></tr></table></figure></p>
@@ -233,7 +233,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>30</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>31</sup></a></li>
 		  
 		
 		  
@@ -270,7 +270,7 @@
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>5</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
 			
 		
 			
@@ -278,7 +278,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
 			
 		
 			
@@ -286,11 +286,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
@@ -298,15 +302,11 @@
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
 			
 		
 			

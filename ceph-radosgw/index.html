@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/ceph-radosgw/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考《用容器轻松搭建ceph实验环境》。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker R">
-<meta property="og:updated_time" content="2016-04-15T09:02:21.000Z">
+<meta property="og:updated_time" content="2016-04-21T09:30:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用RADOSGW提供ceph的S3和Swift接口">
 <meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考《用容器轻松搭建ceph实验环境》。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker R">
@@ -121,7 +121,7 @@
 <h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先需要安装一些ceph、radosgw的依赖包，还有python-boto、swift客户端等工具可以用于测试。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y --force-yes install ceph-common radosgw python-boto</span><br><span class="line">sudo pip install --upgrade setuptools</span><br><span class="line">sudo pip install --upgrade python-swiftclient</span><br></pre></td></tr></table></figure></p>
 <p>然后就可以启动ceph/demo这个容器来轻松提供ceph服务了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">33.111</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">33.111</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
 <p>接下来的步骤主要参考的是有一点坑的<a href="http://docs.ceph.com/docs/master/radosgw/config/" target="_blank" rel="external">官方教程</a>。需要为radosgw生成一个名为<code>gateway</code>的用户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph auth del client.radosgw.gateway</span><br><span class="line">sudo ceph auth get-or-create client.radosgw.gateway osd <span class="string">'allow rwx'</span> mon <span class="string">'allow rwx'</span> -o /etc/ceph/ceph.client.radosgw.keyring</span><br></pre></td></tr></table></figure></p>
-<p>然后需要把这个用户加到<code>ceph.conf</code>配置里，提供端口为9000的<a href="https://en.wikipedia.org/wiki/FastCGI" target="_blank" rel="external">FastCGI</a>服务：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$a [client.radosgw.gateway]'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a host = vagrant-ubuntu-trusty-64'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.gateway.log'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</span><br></pre></td></tr></table></figure></p>
+<p>然后需要把这个用户加到<code>ceph.conf</code>配置里，提供端口为9000的<a href="https://en.wikipedia.org/wiki/FastCGI" target="_blank" rel="external">FastCGI</a>服务：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a [client.radosgw.gateway]'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a host = vagrant-ubuntu-trusty-64'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.gateway.log'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</span><br></pre></td></tr></table></figure></p>
 <p>其中第二行的<code>vagrant-ubuntu-trusty-64</code>，必须使用<code>hostname -s</code>得出的结果。如果是按照<a href="/ceph-radosgw/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>的做法，是不需要变的。另外<a href="https://segmentfault.com/q/1010000000256516" target="_blank" rel="external">这里</a>的第一个回答非常清晰地解释了CGI和FastCGI。<br>配置完成后就可以重启ceph容器并启动radosgw：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker restart ceph</span><br><span class="line">sudo /etc/init.d/radosgw start</span><br></pre></td></tr></table></figure></p>
 <p>为了提供HTTP服务，需要安装apache2（Red Hat系是httpd）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y --force-yes install apache2</span><br></pre></td></tr></table></figure></p>
 <p>接下来创建一个apache2的配置文件，监听80端口并把请求转发到radosgw提供的FastCGI 9000端口上：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; rgw.conf</span><br><span class="line">&lt;VirtualHost *:<span class="number">80</span>&gt;</span><br><span class="line">ServerName localhost</span><br><span class="line">DocumentRoot /var/www/html</span><br><span class="line"></span><br><span class="line">ErrorLog /var/<span class="built_in">log</span>/apache2/rgw_error.log</span><br><span class="line">CustomLog /var/<span class="built_in">log</span>/apache2/rgw_access.log combined</span><br><span class="line"></span><br><span class="line"><span class="comment"># LogLevel debug</span></span><br><span class="line"></span><br><span class="line">RewriteEngine On</span><br><span class="line"></span><br><span class="line">RewriteRule .* - [E=HTTP_AUTHORIZATION:%&#123;HTTP:Authorization&#125;,L]</span><br><span class="line"></span><br><span class="line">SetEnv proxy-nokeepalive <span class="number">1</span></span><br><span class="line"></span><br><span class="line">ProxyPass / fcgi://localhost:<span class="number">9000</span>/</span><br><span class="line"></span><br><span class="line">&lt;/VirtualHost&gt;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv rgw.conf /etc/apache2/conf-enabled/rgw.conf</span><br></pre></td></tr></table></figure></p>
@@ -150,7 +150,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/openstack-swift/">openstack swift</a><a href="/tags/s3/">s3</a><a href="/tags/storage/">storage</a>
+  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/openstack-swift/">openstack swift</a><a href="/tags/radosgw/">radosgw</a><a href="/tags/s3/">s3</a><a href="/tags/storage/">storage</a>
   </div>
 
 </div>
@@ -225,7 +225,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>30</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>31</sup></a></li>
 		  
 		
 		  
@@ -262,7 +262,7 @@
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>5</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
 			
 		
 			
@@ -270,7 +270,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
 			
 		
 			
@@ -278,11 +278,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
@@ -290,15 +294,11 @@
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
 			
 		
 			

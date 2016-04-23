@@ -1,0 +1,657 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>使用RADOSGW联盟网关跨域同步 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是如何通过RADOSGW备份一个可用区。
+
+对如何加载使用块存储和文件存储感兴趣可以参考《用容器轻松搭建ceph实验环境》
+对RADOSGW如何暴露S3和Swift接口感兴趣可以参考《通过RADOSGW提供ceph的S3和Swift接口》">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用RADOSGW联盟网关跨域同步">
+<meta property="og:url" content="http://qinghua.github.io/ceph-radosgw-replication/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是如何通过RADOSGW备份一个可用区。
+
+对如何加载使用块存储和文件存储感兴趣可以参考《用容器轻松搭建ceph实验环境》
+对RADOSGW如何暴露S3和Swift接口感兴趣可以参考《通过RADOSGW提供ceph的S3和Swift接口》">
+<meta property="og:image" content="http://qinghua.github.io/img/ceph-radosgw-replication-config.png">
+<meta property="og:image" content="http://qinghua.github.io/img/ceph-radosgw-replication-example.png">
+<meta property="og:image" content="http://docs.ceph.com/docs/master/_images/zone-sync.png">
+<meta property="og:image" content="http://docs.ceph.com/docs/master/_images/region-sync.png">
+<meta property="og:updated_time" content="2016-04-23T13:38:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用RADOSGW联盟网关跨域同步">
+<meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是如何通过RADOSGW备份一个可用区。
+
+对如何加载使用块存储和文件存储感兴趣可以参考《用容器轻松搭建ceph实验环境》
+对RADOSGW如何暴露S3和Swift接口感兴趣可以参考《通过RADOSGW提供ceph的S3和Swift接口》">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/ceph-radosgw-replication/" title="使用RADOSGW联盟网关跨域同步" itemprop="url">使用RADOSGW联盟网关跨域同步</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-22T11:01:01.000Z" itemprop="datePublished"> 发表于 2016-04-22</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u80CC_u666F_u4ECB_u7ECD"><span class="toc-number">2.</span> <span class="toc-text">背景介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u76F8_u540C_u8F96_u533A_u7684_u540C_u6B65"><span class="toc-number">3.</span> <span class="toc-text">相同辖区的同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E0D_u540C_u8F96_u533A_u7684_u540C_u6B65"><span class="toc-number">4.</span> <span class="toc-text">不同辖区的同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5E38_u89C1_u547D_u4EE4"><span class="toc-number">5.</span> <span class="toc-text">常见命令</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是如何<a href="http://docs.ceph.com/docs/master/radosgw/federated-config/" target="_blank" rel="external">通过RADOSGW备份一个可用区</a>。</p>
+<ul>
+<li>对如何加载使用块存储和文件存储感兴趣可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a></li>
+<li>对RADOSGW如何暴露S3和Swift接口感兴趣可以参考<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>us-east</strong>，它的IP是<strong>192.168.33.15</strong>；另一台叫做<strong>us-west</strong>，它的IP是<strong>192.168.33.16</strong>；第三台叫做<strong>eu-east</strong>，它的IP是<strong>192.168.33.17</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"us-east"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"us-east"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.15"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"us-west"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"us-west"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.16"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"eu-east"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"eu-east"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh us-east</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh us-west</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh eu-east</span><br></pre></td></tr></table></figure>
+<h2 id="u80CC_u666F_u4ECB_u7ECD"><a href="#u80CC_u666F_u4ECB_u7ECD" class="headerlink" title="背景介绍"></a>背景介绍</h2><p><a href="http://docs.ceph.com/docs/master/radosgw/" target="_blank" rel="external">Ceph对象网关（Ceph Object Gateway，radosgw）</a>提供了S3和Swift的API，同时也支持S3的一些概念。<a href="http://docs.ceph.com/docs/master/radosgw/config-ref/#regions" target="_blank" rel="external">辖区（region）</a>表明了一个地理位置，比如us。在这个辖区里可以有多个<a href="http://docs.ceph.com/docs/master/radosgw/config-ref/#zones" target="_blank" rel="external">域（zone）</a>，比如east和west。一个域里可以有多个实例，一个实例可以有多个<a href="http://docs.ceph.com/docs/master/glossary/#term-ceph-node" target="_blank" rel="external">节点（node）</a>。同时，配置一个域需要一系列的<a href="http://docs.ceph.com/docs/master/radosgw/config-ref/#pools" target="_blank" rel="external">存储池（pool）</a>。如下图：<br><img src="/img/ceph-radosgw-replication-config.png" alt=""></p>
+<p>对于这次练习，我们使用下图的架构：<br><img src="/img/ceph-radosgw-replication-example.png" alt=""></p>
+<p>一个us辖区里有us-east和us-west两个域，每个域里各有一个实例，分别为us-east-1和us-west-1。还有一个eu的辖区，里面有一个eu-east的域，一个为eu-east-1的实例。我们将会首先实现同一个辖区（us）里的同步，然后是不同辖区的同步。相同辖区可以同步元数据和数据对象，而不同的辖区只能同步元数据而不能同步数据对象。元数据包括网关用户和存储桶（bucket）。</p>
+<h2 id="u76F8_u540C_u8F96_u533A_u7684_u540C_u6B65"><a href="#u76F8_u540C_u8F96_u533A_u7684_u540C_u6B65" class="headerlink" title="相同辖区的同步"></a>相同辖区的同步</h2><p>首先需要安装一些ceph、radosgw的依赖包：<br><figure class="highlight sh"><figcaption><span>us-east us-west eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y --force-yes install ceph-common radosgw radosgw-agent</span><br></pre></td></tr></table></figure></p>
+<p>为了提供HTTP服务，还需要所有虚拟机都安装apache2和FastCGI：<br><figure class="highlight sh"><figcaption><span>us-east us-west eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y --force-yes install apache2 libapache2-mod-fastcgi</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以分别启动ceph/demo这个容器来轻松提供ceph服务了：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">33.15</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">33.15</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">33.16</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">33.16</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure>
+<p>然后手动在各自虚拟机上创建一些提供给域使用的存储池，这一步不是必须的，因为我们创建的网关用户是有权限自动创建存储池的：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">ceph osd pool create .us-east.rgw.root <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.rgw.control <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.rgw.gc <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.rgw.buckets <span class="number">512</span> <span class="number">512</span></span><br><span class="line">ceph osd pool create .us-east.rgw.buckets.index <span class="number">32</span> <span class="number">32</span></span><br><span class="line">ceph osd pool create .us-east.rgw.buckets.extra <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.intent-log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.usage <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.users <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.users.email <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.users.swift <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-east.users.uid <span class="number">16</span> <span class="number">16</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">ceph osd pool create .us-west.rgw.root <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.rgw.control <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.rgw.gc <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.rgw.buckets <span class="number">512</span> <span class="number">512</span></span><br><span class="line">ceph osd pool create .us-west.rgw.buckets.index <span class="number">32</span> <span class="number">32</span></span><br><span class="line">ceph osd pool create .us-west.rgw.buckets.extra <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.intent-log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.usage <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.users <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.users.email <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.users.swift <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .us-west.users.uid <span class="number">16</span> <span class="number">16</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<p>两台虚拟机对应两个实例，接下来为这两个实例分别创建密钥环（keyring），用它生成网关的用户和密钥（key），增加密钥的rwx权限并让其有权限访问Ceph对象集群：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph auth del client.radosgw.gateway</span><br><span class="line">sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo chmod +r /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph-authtool /etc/ceph/ceph.client.radosgw.keyring -n client.radosgw.us-east-<span class="number">1</span> --gen-key</span><br><span class="line">sudo ceph-authtool -n client.radosgw.us-east-<span class="number">1</span> --cap osd <span class="string">'allow rwx'</span> --cap mon <span class="string">'allow rw'</span> /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.us-east-<span class="number">1</span> -i /etc/ceph/ceph.client.radosgw.keyring</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo ceph auth del client.radosgw.gateway</span><br><span class="line">sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo chmod +r /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph-authtool /etc/ceph/ceph.client.radosgw.keyring -n client.radosgw.us-west-<span class="number">1</span> --gen-key</span><br><span class="line">sudo ceph-authtool -n client.radosgw.us-west-<span class="number">1</span> --cap osd <span class="string">'allow rwx'</span> --cap mon <span class="string">'allow rw'</span> /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.us-west-<span class="number">1</span> -i /etc/ceph/ceph.client.radosgw.keyring</span><br></pre></td></tr></table></figure>
+<p>接下来创建一个apache2的配置文件，监听80端口并把请求转发到radosgw提供的FastCGI 9000端口（稍后将会配置）上：<br><figure class="highlight sh"><figcaption><span>us-east us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; rgw.conf</span><br><span class="line">FastCgiExternalServer /var/www/s3gw.fcgi -host localhost:<span class="number">9000</span></span><br><span class="line"></span><br><span class="line">&lt;VirtualHost *:<span class="number">80</span>&gt;</span><br><span class="line">    ServerName localhost</span><br><span class="line">    ServerAlias *.localhost</span><br><span class="line">    ServerAdmin qinghua@ggg.com</span><br><span class="line">    DocumentRoot /var/www</span><br><span class="line">    RewriteEngine On</span><br><span class="line">    RewriteRule  ^/(.*) /s3gw.fcgi?%&#123;QUERY_STRING&#125; [E=HTTP_AUTHORIZATION:%&#123;HTTP:Authorization&#125;,L]</span><br><span class="line"></span><br><span class="line">    &lt;IfModule mod_fastcgi.c&gt;</span><br><span class="line">           &lt;Directory /var/www&gt;</span><br><span class="line">            Options +ExecCGI</span><br><span class="line">            AllowOverride All</span><br><span class="line">            SetHandler fastcgi-script</span><br><span class="line">            Order allow,deny</span><br><span class="line">            Allow from all</span><br><span class="line">            AuthBasicAuthoritative Off</span><br><span class="line">        &lt;/Directory&gt;</span><br><span class="line">    &lt;/IfModule&gt;</span><br><span class="line"></span><br><span class="line">    AllowEncodedSlashes On</span><br><span class="line">    ErrorLog /var/<span class="built_in">log</span>/apache2/error.log</span><br><span class="line">    CustomLog /var/<span class="built_in">log</span>/apache2/access.log combined</span><br><span class="line">    ServerSignature Off</span><br><span class="line">&lt;/VirtualHost&gt;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv rgw.conf /etc/apache2/conf-enabled/rgw.conf</span><br></pre></td></tr></table></figure></p>
+<p>由于上述配置需要用到apache2默认未加载的<a href="http://httpd.apache.org/docs/current/mod/mod_rewrite.html" target="_blank" rel="external">rewrite模块</a>，所以需要加载并重新启动apache2：<br><figure class="highlight sh"><figcaption><span>us-east us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo a2enmod rewrite</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure></p>
+<p>FastCGI需要一个脚本来启用兼容S3的接口，同样也是所有虚拟机都要配，但是实例名略有区别：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; s3gw.fcgi</span><br><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line"><span class="built_in">exec</span> /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv s3gw.fcgi /var/www/s3gw.fcgi</span><br><span class="line">sudo chmod +x /var/www/s3gw.fcgi</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; s3gw.fcgi</span><br><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line"><span class="built_in">exec</span> /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv s3gw.fcgi /var/www/s3gw.fcgi</span><br><span class="line">sudo chmod +x /var/www/s3gw.fcgi</span><br></pre></td></tr></table></figure>
+<p>现在到了在<code>ceph.conf</code>配置实例的时候了：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$a rgw region root pool = .us.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zonegroup root pool = .us.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a [client.radosgw.us-east-1]'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw region = us'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone = us-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone root pool = .us-east.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw dns name = us-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a host = us-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.us-east-1.log'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$a rgw region root pool = .us.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zonegroup root pool = .us.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a [client.radosgw.us-west-1]'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw region = us'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone = us-west'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone root pool = .us-west.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw dns name = us-west'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a host = us-west'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.us-west-1.log'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</span><br></pre></td></tr></table></figure>
+<p>配置参数及其作用可以在<a href="http://docs.ceph.com/docs/master/radosgw/config-ref/" target="_blank" rel="external">这里</a>查到，下面列出了一部分与辖区和域有关的参数：</p>
+<ul>
+<li><strong>rgw region root pool</strong>：v.67版本中指定辖区所使用的存储池</li>
+<li><strong>rgw zonegroup root pool</strong>：Jewel版本中指定辖区所使用的存储池</li>
+<li><strong>rgw region</strong>：指定该实例的辖区名</li>
+<li><strong>rgw zone</strong>：指定该实例的域名</li>
+<li><strong>rgw zone root pool</strong>：指定域所使用的存储池</li>
+</ul>
+<p>接下来在各自实例上生成一个相同的json格式的辖区文件：<br><figure class="highlight sh"><figcaption><span>us-east us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">cat &lt;&lt; EOF &gt; us.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"us"</span>,</span><br><span class="line">  <span class="string">"api_name"</span>: <span class="string">"us"</span>,</span><br><span class="line">  <span class="string">"is_master"</span>: <span class="string">"true"</span>,</span><br><span class="line">  <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.15:80\/"</span>],</span><br><span class="line">  <span class="string">"master_zone"</span>: <span class="string">"us-east"</span>,</span><br><span class="line">  <span class="string">"zones"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"us-east"</span>,</span><br><span class="line">      <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.15:80\/"</span>],</span><br><span class="line">      <span class="string">"log_meta"</span>: <span class="string">"true"</span>,</span><br><span class="line">      <span class="string">"log_data"</span>: <span class="string">"true"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"us-west"</span>,</span><br><span class="line">      <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.16:80\/"</span>],</span><br><span class="line">      <span class="string">"log_meta"</span>: <span class="string">"true"</span>,</span><br><span class="line">      <span class="string">"log_data"</span>: <span class="string">"true"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"placement_targets"</span>: [</span><br><span class="line">   &#123;</span><br><span class="line">     <span class="string">"name"</span>: <span class="string">"default-placement"</span>,</span><br><span class="line">     <span class="string">"tags"</span>: []</span><br><span class="line">   &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"default_placement"</span>: <span class="string">"default-placement"</span></span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>然后通过辖区文件生成us辖区并设置其为默认辖区：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin region <span class="built_in">set</span> --infile us.json --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">radosgw-admin region default --rgw-region=us --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin region <span class="built_in">set</span> --infile us.json --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">radosgw-admin region default --rgw-region=us --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<p>辖区搞定之后，就轮到域啦。在各自实例上生成两个相同的json格式的域文件：<br><figure class="highlight sh"><figcaption><span>us-east us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">cat &lt;&lt; EOF &gt; us-east.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"domain_root"</span>: <span class="string">".us-east.domain.rgw"</span>,</span><br><span class="line">  <span class="string">"control_pool"</span>: <span class="string">".us-east.rgw.control"</span>,</span><br><span class="line">  <span class="string">"gc_pool"</span>: <span class="string">".us-east.rgw.gc"</span>,</span><br><span class="line">  <span class="string">"log_pool"</span>: <span class="string">".us-east.log"</span>,</span><br><span class="line">  <span class="string">"intent_log_pool"</span>: <span class="string">".us-east.intent-log"</span>,</span><br><span class="line">  <span class="string">"usage_log_pool"</span>: <span class="string">".us-east.usage"</span>,</span><br><span class="line">  <span class="string">"user_keys_pool"</span>: <span class="string">".us-east.users"</span>,</span><br><span class="line">  <span class="string">"user_email_pool"</span>: <span class="string">".us-east.users.email"</span>,</span><br><span class="line">  <span class="string">"user_swift_pool"</span>: <span class="string">".us-east.users.swift"</span>,</span><br><span class="line">  <span class="string">"user_uid_pool"</span>: <span class="string">".us-east.users.uid"</span>,</span><br><span class="line">  <span class="string">"system_key"</span>: &#123;</span><br><span class="line">    <span class="string">"access_key"</span>: <span class="string">""</span>,</span><br><span class="line">    <span class="string">"secret_key"</span>: <span class="string">""</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"placement_pools"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"key"</span>: <span class="string">"default-placement"</span>,</span><br><span class="line">      <span class="string">"val"</span>: &#123;</span><br><span class="line">        <span class="string">"index_pool"</span>: <span class="string">".us-east.rgw.buckets.index"</span>,</span><br><span class="line">        <span class="string">"data_pool"</span>: <span class="string">".us-east.rgw.buckets"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sed <span class="string">'s/east/west/g'</span> us-east.json &gt; us-west.json</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>然后通过域文件生成两个域并更新辖区图（region map）：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-east --infile us-east.json --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-west --infile us-west.json --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-east --infile us-east.json --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-west --infile us-west.json --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<p>在<code>us-east-1</code>实例上，生成<code>us-east</code>的用户，并用生成的<code>access_key</code>和<code>secret_key</code>填充刚才为空的<code>us-east.json</code>文件，并将其复制到<code>us-west</code>虚拟机上：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin user create --uid=<span class="string">"us-east"</span> --display-name=<span class="string">"Region-US Zone-East"</span> --name client.radosgw.us-east-<span class="number">1</span> --system | tee eastuser.txt</span><br><span class="line"><span class="built_in">export</span> SRC_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> eastuser.txt`</span><br><span class="line"><span class="built_in">export</span> SRC_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> eastuser.txt`</span><br><span class="line">sed -i <span class="string">"s/access_key\": \"/access_key\": \"<span class="variable">$SRC_ACCESS_KEY</span>/g"</span> us-east.json</span><br><span class="line">sed -i <span class="string">"s/secret_key\": \"/secret_key\": \"<span class="variable">$SRC_SECRET_KEY</span>/g"</span> us-east.json</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line">docker cp ceph:us-east.json us-east.json</span><br><span class="line">scp us-east.json vagrant@<span class="number">192.168</span>.<span class="number">33.16</span>:/home/vagrant    <span class="comment"># vagrant的密码也是vagrant</span></span><br></pre></td></tr></table></figure></p>
+<p>在<code>us-west-1</code>实例上，生成<code>us-west</code>的用户，也用生成的<code>access_key</code>和<code>secret_key</code>填充刚才为空的<code>us-west.json</code>文件，并将其复制到<code>us-east</code>虚拟机上：<br><figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">radosgw-admin user create --uid=<span class="string">"us-west"</span> --display-name=<span class="string">"Region-US Zone-West"</span> --name client.radosgw.us-west-<span class="number">1</span> --system | tee westuser.txt</span><br><span class="line"><span class="built_in">export</span> DEST_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> westuser.txt`</span><br><span class="line"><span class="built_in">export</span> DEST_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> westuser.txt`</span><br><span class="line">sed -i <span class="string">"s/access_key\": \"/access_key\": \"<span class="variable">$DEST_ACCESS_KEY</span>/g"</span> us-west.json</span><br><span class="line">sed -i <span class="string">"s/secret_key\": \"/secret_key\": \"<span class="variable">$DEST_SECRET_KEY</span>/g"</span> us-west.json</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line">docker cp ceph:us-west.json us-west.json</span><br><span class="line">scp us-west.json vagrant@<span class="number">192.168</span>.<span class="number">33.15</span>:/home/vagrant    <span class="comment"># vagrant的密码也是vagrant</span></span><br></pre></td></tr></table></figure></p>
+<p>现在两台虚拟机的用户主文件夹里都有对方的json文件，分别复制进ceph容器里：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker cp us-west.json ceph:/us-west.json</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker cp us-east.json ceph:/us-east.json</span><br></pre></td></tr></table></figure>
+<p>接下来分别在两个实例里更新带了<code>access_key</code>和<code>secret_key</code>的各两个域：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-east --infile us-east.json --name client.radosgw.us-east-<span class="number">1</span></span><br><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-west --infile us-west.json --name client.radosgw.us-east-<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-east --infile us-east.json --name client.radosgw.us-west-<span class="number">1</span></span><br><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin zone <span class="built_in">set</span> --rgw-zone=us-west --infile us-west.json --name client.radosgw.us-west-<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>都完成了以后，就可以重启ceph服务和apache2啦：<br><figure class="highlight sh"><figcaption><span>us-east us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker restart ceph</span><br><span class="line">sudo /etc/init.d/radosgw start</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure></p>
+<p>Apache2启动完成后，在浏览器打开<a href="http://192.168.33.15/" target="_blank" rel="external">http://192.168.33.15/</a>或<a href="http://192.168.33.16/" target="_blank" rel="external">http://192.168.33.16/</a>应该能看到下面的xml：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">ListAllMyBucketsResult</span> <span class="attribute">xmlns</span>=<span class="value">"http://s3.amazonaws.com/doc/2006-03-01/"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">Owner</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">ID</span>&gt;</span>anonymous<span class="tag">&lt;/<span class="title">ID</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">DisplayName</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="title">Owner</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">Buckets</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">ListAllMyBucketsResult</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>如果只看到了500的错误，等一会儿再刷新一次即可。如果遇到麻烦，可以这样调试：输入命令<code>sudo lsof -i :9000</code>看看是否radosgw启动了这个端口。如果没有，输入命令<code>ps -ef | grep radosgw</code>看看radosgw是否正常启动。若是正常启动，应该会有一个<code>/usr/bin/radosgw -n client.radosgw.us-east-1</code>的进程。若是没有正常启动，可以检查<code>/ect/ceph/ceph.conf</code>的内容，一般都是配置有问题。</p>
+<p>搞定ceph和apache2后，在<code>us-east</code>里用python的boto库给<code>us-east-1</code>实例创建一个名为<code>my-new-bucket</code>的存储桶，并给<code>ggg</code>的key上传一句<strong>Hello world</strong>：<br><figure class="highlight sh"><figcaption><span>us-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SRC_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> us-east.json`</span><br><span class="line"><span class="built_in">export</span> SRC_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> us-east.json`</span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; s3test.py</span><br><span class="line">import boto</span><br><span class="line">import boto.s3</span><br><span class="line">import boto.s3.connection</span><br><span class="line">import os</span><br><span class="line">from boto.s3.key import Key</span><br><span class="line"></span><br><span class="line">access_key = os.environ[<span class="string">"SRC_ACCESS_KEY"</span>]</span><br><span class="line">secret_key = os.environ[<span class="string">"SRC_SECRET_KEY"</span>]</span><br><span class="line">conn = boto.connect_s3(</span><br><span class="line">  aws_access_key_id = access_key,</span><br><span class="line">  aws_secret_access_key = secret_key,</span><br><span class="line">  host = <span class="string">'192.168.33.15'</span>,</span><br><span class="line">  is_secure=False,</span><br><span class="line">  calling_format = boto.s3.connection.OrdinaryCallingFormat(),</span><br><span class="line">)</span><br><span class="line">bucket = conn.create_bucket(<span class="string">'my-new-bucket'</span>)</span><br><span class="line"></span><br><span class="line">k = Key(bucket)</span><br><span class="line">k.key = <span class="string">'ggg'</span></span><br><span class="line">k.set_contents_from_string(<span class="string">'Hello world'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> bucket <span class="keyword">in</span> conn.get_all_buckets():</span><br><span class="line">  <span class="built_in">print</span> <span class="string">"&#123;name&#125;\t&#123;created&#125;"</span>.format(</span><br><span class="line">    name = bucket.name,</span><br><span class="line">    created = bucket.creation_date,</span><br><span class="line">)</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">python s3test.py</span><br></pre></td></tr></table></figure></p>
+<p>现在就该启动<code>radosgw-agent</code>来同步数据啦：<br><figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> SRC_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> us-east.json`</span><br><span class="line"><span class="built_in">export</span> SRC_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> us-east.json`</span><br><span class="line"><span class="built_in">export</span> DEST_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> us-west.json`</span><br><span class="line"><span class="built_in">export</span> DEST_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> us-west.json`</span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; cluster-data-sync.conf</span><br><span class="line">src_zone: us-east</span><br><span class="line"><span class="built_in">source</span>: http://<span class="number">192.168</span>.<span class="number">33.15</span></span><br><span class="line">src_access_key: <span class="variable">$SRC_ACCESS_KEY</span></span><br><span class="line">src_secret_key: <span class="variable">$SRC_SECRET_KEY</span></span><br><span class="line">dest_zone: us-west</span><br><span class="line">destination: http://<span class="number">192.168</span>.<span class="number">33.16</span></span><br><span class="line">dest_access_key: <span class="variable">$DEST_ACCESS_KEY</span></span><br><span class="line">dest_secret_key: <span class="variable">$DEST_SECRET_KEY</span></span><br><span class="line"><span class="built_in">log</span>_file: /var/<span class="built_in">log</span>/radosgw/radosgw-sync-us-east-west.log</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo radosgw-agent -c cluster-data-sync.conf</span><br></pre></td></tr></table></figure></p>
+<p>再打开一个终端窗口，用以下命令查看<code>us-west-1</code>实例是不是已经把<code>my-new-bucket</code>同步过来啦：<br><figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin metadata bucket list --name client.radosgw.us-west-<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>可能是由于单机<code>ceph/demo</code>容器的性能极差，在同步对象的时候基本上就一直停在<strong>INFO:radosgw_agent.worker:syncing bucket “my-new-bucket”</strong>上。如果有真实环境的ceph应该能够很快同步过来。如果同步成功，可以用以下命令来得到刚才的<strong>Hello world</strong>：<br><figure class="highlight sh"><figcaption><span>us-west</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt; s3download.py</span><br><span class="line">import boto</span><br><span class="line">import boto.s3</span><br><span class="line">import boto.s3.connection</span><br><span class="line">import os</span><br><span class="line">from boto.s3.key import Key</span><br><span class="line"></span><br><span class="line">access_key = os.environ[<span class="string">"SRC_ACCESS_KEY"</span>]</span><br><span class="line">secret_key = os.environ[<span class="string">"SRC_SECRET_KEY"</span>]</span><br><span class="line">conn = boto.connect_s3(</span><br><span class="line">  aws_access_key_id = access_key,</span><br><span class="line">  aws_secret_access_key = secret_key,</span><br><span class="line">  host = <span class="string">'192.168.33.16'</span>,</span><br><span class="line">  is_secure=False,</span><br><span class="line">  calling_format = boto.s3.connection.OrdinaryCallingFormat(),</span><br><span class="line">)</span><br><span class="line">bucket = conn.get_bucket(<span class="string">'my-new-bucket'</span>)</span><br><span class="line"></span><br><span class="line">key = bucket.get_key(<span class="string">'ggg'</span>)</span><br><span class="line"><span class="built_in">print</span> key.get_contents_as_string()</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">python s3download.py</span><br></pre></td></tr></table></figure></p>
+<p>下面是一张同辖区同步示意图：<br><img src="http://docs.ceph.com/docs/master/_images/zone-sync.png" alt=""></p>
+<h2 id="u4E0D_u540C_u8F96_u533A_u7684_u540C_u6B65"><a href="#u4E0D_u540C_u8F96_u533A_u7684_u540C_u6B65" class="headerlink" title="不同辖区的同步"></a>不同辖区的同步</h2><p>不同的辖区只能同步元数据而不能同步数据对象。接下来我们在eu-east上，尝试同步us-east的元数据。有了<a href="/ceph-radosgw-replication/#u76F8_u540C_u8F96_u533A_u7684_u540C_u6B65">相同辖区的同步</a>的经验，这回就不详细介绍下面的命令了：<br><figure class="highlight sh"><figcaption><span>eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">33.17</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">33.17</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建存储池这一步也同上面一样是可选</span></span><br><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line">ceph osd pool create .eu-east.rgw.root <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.rgw.control <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.rgw.gc <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.rgw.buckets <span class="number">512</span> <span class="number">512</span></span><br><span class="line">ceph osd pool create .eu-east.rgw.buckets.index <span class="number">32</span> <span class="number">32</span></span><br><span class="line">ceph osd pool create .eu-east.rgw.buckets.extra <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.intent-log <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.usage <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.users <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.users.email <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.users.swift <span class="number">16</span> <span class="number">16</span></span><br><span class="line">ceph osd pool create .eu-east.users.uid <span class="number">16</span> <span class="number">16</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建密钥环和网关用户</span></span><br><span class="line">sudo ceph auth del client.radosgw.gateway</span><br><span class="line">sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo chmod +r /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph-authtool /etc/ceph/ceph.client.radosgw.keyring -n client.radosgw.eu-east-<span class="number">1</span> --gen-key</span><br><span class="line">sudo ceph-authtool -n client.radosgw.eu-east-<span class="number">1</span> --cap osd <span class="string">'allow rwx'</span> --cap mon <span class="string">'allow rw'</span> /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line">sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.eu-east-<span class="number">1</span> -i /etc/ceph/ceph.client.radosgw.keyring</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置apache2</span></span><br><span class="line">cat &lt;&lt; EOF &gt; rgw.conf</span><br><span class="line">FastCgiExternalServer /var/www/s3gw.fcgi -host localhost:<span class="number">9000</span></span><br><span class="line"></span><br><span class="line">&lt;VirtualHost *:<span class="number">80</span>&gt;</span><br><span class="line"></span><br><span class="line">    ServerName localhost</span><br><span class="line">    ServerAlias *.localhost</span><br><span class="line">    ServerAdmin qinghua@ggg.com</span><br><span class="line">    DocumentRoot /var/www</span><br><span class="line">    RewriteEngine On</span><br><span class="line">    RewriteRule  ^/(.*) /s3gw.fcgi?%&#123;QUERY_STRING&#125; [E=HTTP_AUTHORIZATION:%&#123;HTTP:Authorization&#125;,L]</span><br><span class="line"></span><br><span class="line">    &lt;IfModule mod_fastcgi.c&gt;</span><br><span class="line">           &lt;Directory /var/www&gt;</span><br><span class="line">            Options +ExecCGI</span><br><span class="line">            AllowOverride All</span><br><span class="line">            SetHandler fastcgi-script</span><br><span class="line">            Order allow,deny</span><br><span class="line">            Allow from all</span><br><span class="line">            AuthBasicAuthoritative Off</span><br><span class="line">        &lt;/Directory&gt;</span><br><span class="line">    &lt;/IfModule&gt;</span><br><span class="line"></span><br><span class="line">    AllowEncodedSlashes On</span><br><span class="line">    ErrorLog /var/<span class="built_in">log</span>/apache2/error.log</span><br><span class="line">    CustomLog /var/<span class="built_in">log</span>/apache2/access.log combined</span><br><span class="line">    ServerSignature Off</span><br><span class="line"></span><br><span class="line">&lt;/VirtualHost&gt;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv rgw.conf /etc/apache2/conf-enabled/rgw.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置FastCGI</span></span><br><span class="line">cat &lt;&lt; EOF &gt; s3gw.fcgi</span><br><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line"><span class="built_in">exec</span> /usr/bin/radosgw -c /etc/ceph/ceph.conf -n client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo mv s3gw.fcgi /var/www/s3gw.fcgi</span><br><span class="line">sudo chmod +x /var/www/s3gw.fcgi</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置ceph</span></span><br><span class="line">sudo sed -i <span class="string">'$a rgw region root pool = .eu.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zonegroup root pool = .eu.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a [client.radosgw.eu-east-1]'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw region = eu'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone = eu-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw zone root pool = .eu-east.rgw.root'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw dns name = eu-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a host = eu-east'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.eu-east-1.log'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</span><br><span class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</span><br></pre></td></tr></table></figure></p>
+<p>接下来就是辖区和域的配置了。需要设置us的辖区和eu自己的辖区，否则会报错：<strong>AssertionError: No master zone found for region default</strong>。但是域只用设置eu自己的就好：<br><figure class="highlight sh"><figcaption><span>eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it ceph bash</span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; us.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"us"</span>,</span><br><span class="line">  <span class="string">"api_name"</span>: <span class="string">"us"</span>,</span><br><span class="line">  <span class="string">"is_master"</span>: <span class="string">"true"</span>,</span><br><span class="line">  <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.15:80\/"</span>],</span><br><span class="line">  <span class="string">"master_zone"</span>: <span class="string">"us-east"</span>,</span><br><span class="line">  <span class="string">"zones"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"us-east"</span>,</span><br><span class="line">      <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.15:80\/"</span>],</span><br><span class="line">      <span class="string">"log_meta"</span>: <span class="string">"true"</span>,</span><br><span class="line">      <span class="string">"log_data"</span>: <span class="string">"true"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"us-west"</span>,</span><br><span class="line">      <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.16:80\/"</span>],</span><br><span class="line">      <span class="string">"log_meta"</span>: <span class="string">"true"</span>,</span><br><span class="line">      <span class="string">"log_data"</span>: <span class="string">"true"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"placement_targets"</span>: [</span><br><span class="line">   &#123;</span><br><span class="line">     <span class="string">"name"</span>: <span class="string">"default-placement"</span>,</span><br><span class="line">     <span class="string">"tags"</span>: []</span><br><span class="line">   &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"default_placement"</span>: <span class="string">"default-placement"</span></span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; eu.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"eu"</span>,</span><br><span class="line">  <span class="string">"api_name"</span>: <span class="string">"eu"</span>,</span><br><span class="line">  <span class="string">"is_master"</span>: <span class="string">"false"</span>,</span><br><span class="line">  <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.15:80\/"</span>],</span><br><span class="line">  <span class="string">"master_zone"</span>: <span class="string">"eu-east"</span>,</span><br><span class="line">  <span class="string">"zones"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"eu-east"</span>,</span><br><span class="line">      <span class="string">"endpoints"</span>: [<span class="string">"http:\/\/192.168.33.17:80\/"</span>],</span><br><span class="line">      <span class="string">"log_meta"</span>: <span class="string">"true"</span>,</span><br><span class="line">      <span class="string">"log_data"</span>: <span class="string">"true"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"placement_targets"</span>: [</span><br><span class="line">   &#123;</span><br><span class="line">     <span class="string">"name"</span>: <span class="string">"default-placement"</span>,</span><br><span class="line">     <span class="string">"tags"</span>: []</span><br><span class="line">   &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"default_placement"</span>: <span class="string">"default-placement"</span></span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置辖区</span></span><br><span class="line">radosgw-admin region <span class="built_in">set</span> --infile us.json --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line"></span><br><span class="line">radosgw-admin region <span class="built_in">set</span> --infile eu.json --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line">radosgw-admin region default --rgw-region=eu --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; eu-east.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"domain_root"</span>: <span class="string">".eu-east.domain.rgw"</span>,</span><br><span class="line">  <span class="string">"control_pool"</span>: <span class="string">".eu-east.rgw.control"</span>,</span><br><span class="line">  <span class="string">"gc_pool"</span>: <span class="string">".eu-east.rgw.gc"</span>,</span><br><span class="line">  <span class="string">"log_pool"</span>: <span class="string">".eu-east.log"</span>,</span><br><span class="line">  <span class="string">"intent_log_pool"</span>: <span class="string">".eu-east.intent-log"</span>,</span><br><span class="line">  <span class="string">"usage_log_pool"</span>: <span class="string">".eu-east.usage"</span>,</span><br><span class="line">  <span class="string">"user_keys_pool"</span>: <span class="string">".eu-east.users"</span>,</span><br><span class="line">  <span class="string">"user_email_pool"</span>: <span class="string">".eu-east.users.email"</span>,</span><br><span class="line">  <span class="string">"user_swift_pool"</span>: <span class="string">".eu-east.users.swift"</span>,</span><br><span class="line">  <span class="string">"user_uid_pool"</span>: <span class="string">".eu-east.users.uid"</span>,</span><br><span class="line">  <span class="string">"system_key"</span>: &#123;</span><br><span class="line">    <span class="string">"access_key"</span>: <span class="string">""</span>,</span><br><span class="line">    <span class="string">"secret_key"</span>: <span class="string">""</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"placement_pools"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"key"</span>: <span class="string">"default-placement"</span>,</span><br><span class="line">      <span class="string">"val"</span>: &#123;</span><br><span class="line">        <span class="string">"index_pool"</span>: <span class="string">".eu-east.rgw.buckets.index"</span>,</span><br><span class="line">        <span class="string">"data_pool"</span>: <span class="string">".eu-east.rgw.buckets"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置域</span></span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=eu-east --infile eu-east.json --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line">radosgw-admin regionmap update --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建用户</span></span><br><span class="line">radosgw-admin user create --uid=<span class="string">"eu-east"</span> --display-name=<span class="string">"Region-EU Zone-East"</span> --name client.radosgw.eu-east-<span class="number">1</span> --system | tee eastuser.txt</span><br><span class="line"><span class="built_in">export</span> SRC_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> eastuser.txt`</span><br><span class="line"><span class="built_in">export</span> SRC_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> eastuser.txt`</span><br><span class="line">sed -i <span class="string">"s/access_key\": \"/access_key\": \"<span class="variable">$SRC_ACCESS_KEY</span>/g"</span> eu-east.json</span><br><span class="line">sed -i <span class="string">"s/secret_key\": \"/secret_key\": \"<span class="variable">$SRC_SECRET_KEY</span>/g"</span> eu-east.json</span><br><span class="line"></span><br><span class="line">radosgw-admin zone <span class="built_in">set</span> --rgw-zone=eu-east --infile eu-east.json --name client.radosgw.eu-east-<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>都完成了以后，就可以重启ceph服务和apache2啦：<br><figure class="highlight sh"><figcaption><span>eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker restart ceph</span><br><span class="line">sudo /etc/init.d/radosgw start</span><br><span class="line">sudo a2enmod rewrite</span><br><span class="line">sudo service apache2 restart</span><br></pre></td></tr></table></figure></p>
+<p>最后同步元数据：<br><figure class="highlight sh"><figcaption><span>eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">scp vagrant@<span class="number">192.168</span>.<span class="number">33.15</span>:/home/vagrant/us-east.json .    <span class="comment"># vagrant的密码也是vagrant</span></span><br><span class="line"></span><br><span class="line">docker cp ceph:eu-east.json eu-east.json</span><br><span class="line"><span class="built_in">export</span> SRC_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> us-east.json`</span><br><span class="line"><span class="built_in">export</span> SRC_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> us-east.json`</span><br><span class="line"><span class="built_in">export</span> DEST_ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> eu-east.json`</span><br><span class="line"><span class="built_in">export</span> DEST_SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> eu-east.json`</span><br><span class="line"></span><br><span class="line">cat &lt;&lt; EOF &gt; cluster-data-sync.conf</span><br><span class="line">src_zone: us-east</span><br><span class="line"><span class="built_in">source</span>: http://<span class="number">192.168</span>.<span class="number">33.15</span></span><br><span class="line">src_access_key: <span class="variable">$SRC_ACCESS_KEY</span></span><br><span class="line">src_secret_key: <span class="variable">$SRC_SECRET_KEY</span></span><br><span class="line">dest_zone: eu-east</span><br><span class="line">destination: http://<span class="number">192.168</span>.<span class="number">33.17</span></span><br><span class="line">dest_access_key: <span class="variable">$DEST_ACCESS_KEY</span></span><br><span class="line">dest_secret_key: <span class="variable">$DEST_SECRET_KEY</span></span><br><span class="line"><span class="built_in">log</span>_file: /var/<span class="built_in">log</span>/radosgw/radosgw-sync-eu-east-west.log</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo radosgw-agent -c cluster-data-sync.conf --metadata-only</span><br></pre></td></tr></table></figure></p>
+<p>如果不加<code>--metadata-only</code>，则会报错：<strong>ERROR:root:data sync can only occur between zones in the same region</strong>。同步完成后，我们运行以下命令查看现在<code>eu-east-1</code>实例里的存储桶：<br><figure class="highlight sh"><figcaption><span>eu-east</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> ceph radosgw-admin metadata bucket list --name client.radosgw.eu-east-<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>应该能够看到先前在<code>us-east-1</code>创建的<code>my-new-bucket</code>。下面是一张不同辖区同步示意图：<br><img src="http://docs.ceph.com/docs/master/_images/region-sync.png" alt=""></p>
+<h2 id="u5E38_u89C1_u547D_u4EE4"><a href="#u5E38_u89C1_u547D_u4EE4" class="headerlink" title="常见命令"></a>常见命令</h2><p>再介绍一些ceph的常见命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">rados lspools                                                <span class="comment"># 列出所有的存储池</span></span><br><span class="line">rados ls -p .rgw.root                                        <span class="comment"># 列出.rgw.root存储池的所有对象</span></span><br><span class="line">rados get zone_info.default obj.txt -p .rgw.root             <span class="comment"># 将.rgw.root存储池的zone_info.default对象内容保存到obj.txt文件</span></span><br><span class="line">rados rm region_info.default -p .us.rgw.root                 <span class="comment"># 删除.us.rgw.root存储池的region_info.default对象</span></span><br><span class="line">radosgw-admin region list --name client.radosgw.us-east-<span class="number">1</span>    <span class="comment"># 列出client.radosgw.us-east-1实例的所有辖区</span></span><br><span class="line">radosgw-admin region get --name client.radosgw.us-east-<span class="number">1</span>     <span class="comment"># 查看client.radosgw.us-east-1实例的主辖区</span></span><br><span class="line">radosgw-admin zone list --name client.radosgw.us-east-<span class="number">1</span>      <span class="comment"># 列出client.radosgw.us-east-1实例的所有域</span></span><br><span class="line">radosgw-admin zone get --name client.radosgw.us-east-<span class="number">1</span>       <span class="comment"># 查看client.radosgw.us-east-1实例的主域</span></span><br></pre></td></tr></table></figure></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/radosgw/">radosgw</a><a href="/tags/storage/">storage</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/ceph-radosgw-replication/" data-title="使用RADOSGW联盟网关跨域同步 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/tesseract/"  title="光学字符识别软件tesseract-ocr">
+ <strong>下一篇：</strong><br/> 
+ <span>光学字符识别软件tesseract-ocr
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="ceph-radosgw-replication/" data-title="使用RADOSGW联盟网关跨域同步" data-url="http://qinghua.github.io/ceph-radosgw-replication/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u80CC_u666F_u4ECB_u7ECD"><span class="toc-number">2.</span> <span class="toc-text">背景介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u76F8_u540C_u8F96_u533A_u7684_u540C_u6B65"><span class="toc-number">3.</span> <span class="toc-text">相同辖区的同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E0D_u540C_u8F96_u533A_u7684_u540C_u6B65"><span class="toc-number">4.</span> <span class="toc-text">不同辖区的同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5E38_u89C1_u547D_u4EE4"><span class="toc-number">5.</span> <span class="toc-text">常见命令</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>31</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/flannel/" title="flannel">flannel<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/swarm/" title="swarm">swarm<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/salt/" title="salt">salt<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/encryption/" title="encryption">encryption<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -13,16 +13,16 @@
     
 
     
-    <meta name="description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+    <meta name="description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack。上次在《通过RADOSGW提供ceph的S3和Swift接口》一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
 <meta property="og:type" content="article">
 <meta property="og:title" content="轻松搭建OpenStack Swift存储测试环境">
 <meta property="og:url" content="http://qinghua.github.io/openstack-swift/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
-<meta property="og:updated_time" content="2016-04-15T12:55:19.000Z">
+<meta property="og:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack。上次在《通过RADOSGW提供ceph的S3和Swift接口》一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+<meta property="og:updated_time" content="2016-04-20T00:52:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="轻松搭建OpenStack Swift存储测试环境">
-<meta name="twitter:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
+<meta name="twitter:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack。上次在《通过RADOSGW提供ceph的S3和Swift接口》一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -114,7 +114,7 @@
 		
 		</div>
 		
-		<p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="/ceph-radosgw">OpenStack](http://www.openstack.org/)。上次《通过RADOSGW提供ceph的S3和Swift接口》</a>介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br><a id="more"></a></p>
+		<p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="http://www.openstack.org/" target="_blank" rel="external">OpenStack</a>。上次在<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br><a id="more"></a></p>
 <h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP为<strong>192.168.33.17</strong>，内存为1G的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">1024</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
@@ -223,7 +223,7 @@
 		  
 		
 		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>30</sup></a></li>
+			<li><a href="/categories/devops/" title="devops">devops<sup>31</sup></a></li>
 		  
 		
 		  
@@ -260,7 +260,7 @@
 			
 		
 			
-				<li><a href="/tags/storage/" title="storage">storage<sup>5</sup></a></li>
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
 			
 		
 			
@@ -268,7 +268,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
 			
 		
 			
@@ -276,11 +276,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/ceph/" title="ceph">ceph<sup>2</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
@@ -288,15 +292,11 @@
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/certficate/" title="certficate">certficate<sup>1</sup></a></li>
 			
 		
 			
