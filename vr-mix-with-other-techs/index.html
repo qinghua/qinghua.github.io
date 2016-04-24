@@ -6,26 +6,27 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>用容器轻松搭建Chronos运行环境 | 懒程序员改变世界</title>
+    <title>VR和其他科技的结合意味着什么 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+    <meta name="description" content="随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在《无人驾驶汽车意味着什么》里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用容器轻松搭建Chronos运行环境">
-<meta property="og:url" content="http://qinghua.github.io/mesos-chronos/index.html">
+<meta property="og:title" content="VR和其他科技的结合意味着什么">
+<meta property="og:url" content="http://qinghua.github.io/vr-mix-with-other-techs/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
-<meta property="og:image" content="http://qinghua.github.io/img/chronos.jpg">
-<meta property="og:image" content="http://qinghua.github.io/img/chronos-run-job.jpg">
-<meta property="og:image" content="http://qinghua.github.io/img/chronos-graph.png">
-<meta property="og:updated_time" content="2016-02-17T01:28:36.000Z">
+<meta property="og:description" content="随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在《无人驾驶汽车意味着什么》里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。">
+<meta property="og:image" content="http://qinghua.github.io/img/vr-skydiving.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/vr-robot.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/vr-humanoid.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/vr-move.jpg">
+<meta property="og:updated_time" content="2016-04-24T02:07:14.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用容器轻松搭建Chronos运行环境">
-<meta name="twitter:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+<meta name="twitter:title" content="VR和其他科技的结合意味着什么">
+<meta name="twitter:description" content="随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在《无人驾驶汽车意味着什么》里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -97,14 +98,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/mesos-chronos/" title="用容器轻松搭建Chronos运行环境" itemprop="url">用容器轻松搭建Chronos运行环境</a>
+      <a href="/vr-mix-with-other-techs/" title="VR和其他科技的结合意味着什么" itemprop="url">VR和其他科技的结合意味着什么</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-02-15T13:04:31.000Z" itemprop="datePublished"> 发表于 2016-02-15</time>
+    <time datetime="2016-04-23T13:23:22.000Z" itemprop="datePublished"> 发表于 2016-04-23</time>
     
   </p>
 </header>
@@ -113,49 +114,31 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u65E0_u4EBA_u673A"><span class="toc-number">1.</span> <span class="toc-text">无人机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u673A_u5668_u4EBA"><span class="toc-number">2.</span> <span class="toc-text">机器人</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3D_u6253_u5370"><span class="toc-number">3.</span> <span class="toc-text">3D打印</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4EBA_u5DE5_u667A_u80FD"><span class="toc-number">4.</span> <span class="toc-text">人工智能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u7545_u60F3"><span class="toc-number">5.</span> <span class="toc-text">其他畅想</span></a></li></ol>
 		
 		</div>
 		
-		<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
-<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ch \</span><br><span class="line">    mesosphere/chronos:chronos-<span class="number">2.4</span>.<span class="number">0</span>-<span class="number">0.1</span>.<span class="number">20150828104228</span>.ubuntu1404-mesos-<span class="number">0.27</span>.<span class="number">0</span>-<span class="number">0.2</span>.<span class="number">190</span>.ubuntu1404 \</span><br><span class="line">    usr/bin/chronos \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk_hosts zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon \</span><br><span class="line">    --cluster_name ggg</span><br></pre></td></tr></table></figure></p>
-<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg" alt=""></p>
-<h2 id="u8FD0_u884C_u4F5C_u4E1A"><a href="#u8FD0_u884C_u4F5C_u4E1A" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
+		<p>随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在<a href="http://gigix.thoughtworkers.org/2015/8/28/driverless-cars/" target="_blank" rel="external">《无人驾驶汽车意味着什么》</a>里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。<br><a id="more"></a></p>
+<h2 id="u65E0_u4EBA_u673A"><a href="#u65E0_u4EBA_u673A" class="headerlink" title="无人机"></a>无人机</h2><p>曾几何时，拍照、摄像还是摄影师的专利，随着数码相机的普及尤其是手机摄像头的发展，到了现在的自媒体时代，人人都喜欢拍一点什么。数量上去了，大家就开始想到提高质量。无人机给了我们这样一个上帝视角，在某种程度上圆了人类的飞行梦。现在的技术可以做到实时在手机上查看无人机正在拍摄的高清视频。VR结合无人机，会产生什么样的效果呢？看看这幅图：<br><img src="/img/vr-skydiving.jpg" alt=""></p>
+<p>跳伞的话，只能下不能上，横向移动范围有限。VR结合无人机，能够带来更高一筹的高空体验，并且大大降低了安全事故发生的概率。当然无人机坏掉砸在路人脑袋上这种事就不在我们讨论范围内了…</p>
+<h2 id="u673A_u5668_u4EBA"><a href="#u673A_u5668_u4EBA" class="headerlink" title="机器人"></a>机器人</h2><p>VR结合无人机，无论多么狂拽炫酷吊炸天，仍然是小众玩家的福利。而真正能够影响普通人的，应该算是和机器人结合。想像这样的世界：虽然分身乏术，但是你可以购买一个机器人，让它帮你去远方开会，到时候VR直接连接上这个机器人就好啦。这种方案的话，需要成熟的无人驾驶技术的配合，才能让机器人自动到达目的地。<br><img src="/img/vr-robot.jpg" alt=""></p>
+<p>继续往里思考，为什么非要买一个机器人跑到远方去呢？是不是可以直接租赁一个远方的机器人呢？假设有一个提供机器人租赁的公司，直接在开会地点附近有一个机器人租赁点，与会人员就没必要派遣机器人过去了，直接每个人租一个机器人开会就好啦。</p>
+<h2 id="3D_u6253_u5370"><a href="#3D_u6253_u5370" class="headerlink" title="3D打印"></a>3D打印</h2><p>虽然VR结合机器人听起来令人心动，但是有一个问题就是，大家都是机器人了，那我在VR里看出去都是一堆的机器人有什么用？根本不知道谁是谁，干脆直接电话会议或者视频会议不就好了嘛，反正表情动作眼神都很难感觉出来。这时候3D打印就派上用场了。假设到时候的3D打印技术非常成熟，你在家里就能很轻易地将你现在的模型传送给机器人租赁公司，而公司可以在较短的时间内打印一个像你一样的机器人，于是你在别人的眼里并不是一个机器人，而是真正的“你”。每个人都是自己的样子，开会就像是在现场一样。到时候的材料工艺也应该有很大进步，可以实现材料回收再利用，这样可以大大降低租用机器人的成本。<br><img src="/img/vr-humanoid.jpg" alt=""></p>
+<p>想象一下在一个会议里，里面所有的“人”都只是躯壳，而真实的人都在其它地方，是不是有点儿感觉怪怪的了？</p>
+<h2 id="u4EBA_u5DE5_u667A_u80FD"><a href="#u4EBA_u5DE5_u667A_u80FD" class="headerlink" title="人工智能"></a>人工智能</h2><p>VR结合3D打印，开始带来一丝怪异的感觉了。再加上人工智能的混入，就已经不是“怪异”两个字就能形容的了。想象你面对一个“人”，音容笑貌都是某个你熟悉的人，但“ta”可能并不是你熟悉的“ta”…“ta”可能是个具有人工智能的机器人！在良性的环境下，“ta”只可能是真人戴着VR在跟你交流，或者由于真人在忙其它事情，“ta”现在是个尽力在模仿真人的善意人工智能；在恶性的环境下，“它”可能被其他人所控制，要对你做出一些诈骗等恶意行为；最恶劣的是“ta”可能发展了自己的意识，你根本不知道“ta”在想什么，“ta”想干什么。这里引用霍金的预言：“成功制造出一台人工智能机器人将是人类历史上的里程碑。但不幸的是，它也可能会成为我们历史上最后的一个里程碑”。黑客帝国里的场景，也有可能变成现实。</p>
+<h2 id="u5176_u4ED6_u7545_u60F3"><a href="#u5176_u4ED6_u7545_u60F3" class="headerlink" title="其他畅想"></a>其他畅想</h2><p>在上文的模型里，可以预见的是，信息安全将会是未来的重中之重。传输自己的模型给机器人公司，需要小心传错对象或被黑客拦截；VR连接远程机器人，需要小心机器人可能被其他人捷足先登；对人工智能，也许也需要必要的防范。虽然有许多安全上的顾虑，但也正是这些技术，可以让我们更加安全。矿工附身在机器人上，用自己的娴熟技巧采矿；消防员附身在机器人上，可以身冲火海而不会收到任何损伤；对于户外极限运动爱好者来说，这真的是加了无数条命呀。话说回来，如果要实现这样的效果，光自动驾驶是远远不够的。可能还需要如下的几点：</p>
 <ul>
-<li>NAME：test</li>
-<li>COMMAND：docker run -d busybox sleep 30</li>
-<li>SCHEDULE P：T1M</li>
-</ul>
-<p>如下图所示：<br><img src="/img/chronos-run-job.jpg" alt=""></p>
-<p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
-<p><em>T1M的意思是：1分钟之后。1M的意思是：1个月之后。1Y2M3DT4H5M6S的意思是：1年2月3天4小时5分钟6秒之后。</em></p>
-<h2 id="u7BA1_u7406_u4F5C_u4E1A"><a href="#u7BA1_u7406_u4F5C_u4E1A" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
-<p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
-<ul>
-<li>NAME：test2</li>
-<li>COMMAND：date &gt;&gt; /tmp/test.txt</li>
-<li>PARENTS: test</li>
-</ul>
-<p>这回我们并没有设置SCHEDULE，而是设置了一个PARENTS为<strong>test</strong>，它的意思就是当test运行成功时，运行这个test2的作业。等1分钟，test作业再次运行后，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到当前时间已经被写进<code>/tmp/test.txt</code>文件中，test2作业也被成功运行了。</p>
-<p>我们再创建第三个作业：</p>
-<ul>
-<li>NAME：test3</li>
-<li>COMMAND：echo “hello world” &gt;&gt; /tmp/test.txt</li>
-<li>PARENTS: test, test2</li>
-</ul>
-<p>这次test3依赖于test和test2，那么它们之间是“或”还是“和”的关系呢？我们强制运行一次test，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到增加了一行日期和一行hello world。强制运行一次test2，却只增加了一行日期而没有增加hello world。由此推断，只有当test2和test全部被执行后，才会执行一次test3。那如果我们要“或”的关系怎么办呢？首先把test3的PARENTS修改为test，记得作业是有一个复制功能的吧？再复制一份test3把它的PARENTS设成test2就好啦。</p>
-<p>最后介绍一下那个<strong>Graph</strong>按钮，它可以显示一幅图来表示作业之间的依赖关系。对于我们的示例来说，这图应该是长这样的：<br><img src="/img/chronos-graph.png" alt=""></p>
-<p>对于一个非常复杂的作业系统来说，这样的图能让我们很容易找到并分析作业间的依赖关系，从而采取优化措施。许多持续集成系统也都能提供类似的依赖图供管理员决策。</p>
-<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
-<li>这个版本的chronos页面上有一些bug，会导致有时候侧面的作业详细信息栏显示有问题，刷新一下整个页面或者尝试多点击几次左边的作业表就好了。</li>
-<li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
-<li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">parents</span>": <span class="value">[</span><br><span class="line">    <span class="string">"test"</span></span><br><span class="line">  ]</span>,</span><br><span class="line">  "<span class="attribute">name</span>": <span class="value"><span class="string">"test4"</span></span>,</span><br><span class="line">  "<span class="attribute">command</span>": <span class="value"><span class="string">"echo test4 &gt;&gt; /tmp/test.txt"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<li>高带宽+低延迟的移动网络：没有高带宽的支持，收到的VR场景数据可能分辨率或刷新率低，降低沉浸式体验。没有低延迟的支持，机器人反应慢就不那么适合争分夺秒型任务。</li>
+<li><p>移动：现在大多数的VR都不支持移动。即使像HTC Vive那样，由于受到空间制约，也只是有限支持。如果要实用化，下图的平面移动能够满足一定的需求，不过还需考虑包含上下的三维空间。<br><img src="/img/vr-move.jpg" alt=""></p>
 </li>
-</ol>
-<p>然后运行以下命令来发送请求给chronos：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/dependency <span class="operator">-d</span> @<span class="built_in">test</span>4.json -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
-<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/scheduler/job/<span class="built_in">test</span>4 -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+<li><p>材料和传感器：为了完美体验触感，也许还需要能够快速打印出具有一定质量、密度、硬度的物质，需要极高的材料工艺，并且需要机器人身上安装高精度传感器实时传回需要的材料数据。</p>
+</li>
+<li>环境：微风轻抚和狂风暴雨是完全不一样的感受。还要考虑温度、湿度等感觉。</li>
+<li>嗅觉支持：虽然人类的鼻子没有狗鼻子那么灵敏，但是现实生活中，有时候气味是决定下一步行动的原因。比如闻到了焦糊味就去厨房看看。相比起来，对于味觉的支持就可以缓一缓了。</li>
+<li>梦境或意识：除了上面的移动、材料和传感器的硬派支持，还有一种方式是以类似催眠、梦境或者存意识的方式来支持这种感觉的传递。阿凡达！！</li>
+</ul>
+<p>由于有了机器人替身，战争的形式也应该会发生变化。士兵们不需要搏命了，也许打战变成了一场游戏。开战前拔掉对方的VR中心可能变成了一种战略选择。毕竟如果存在由人控制的机器人对人类的战争，那结果应该像是现代兵器对战冷兵器时代，是一边倒的。希望不要有战争。即使有战争也别培育出作战型人工智能。</p>
+<p>再想点儿其他贴近生活的方面，可能人们就不太需要出行了。现在的上班族大多经历过天天挤公交地铁或者开车堵在路上的罪。以后不需要了。公司摆一个你的机器人躯壳，家里来副VR眼镜，一切搞定。还有什么场景需要出行？旅游？现在的VR都已经快要解决这个问题了，各大VR视频资源库里已经有不少全景漫游的视频了。风景变化不大，甚至不需要机器人的代劳，直接数字化就好了。什么九寨沟一年四季各有各的看点？巴尔夏明神庙被炸毁？华南虎灭绝了？统统都能看到。购物也是同理，送货上门应该算是未来商店最基本的服务之一了。探亲？这个确实有些不好回答，也许有些家庭无所谓真的假的，有些家庭会更倾向于真人探亲。对了，吃饭和看病机器人就没法代劳了吧？何不反过来想想这个问题，虽然机器人不能代替你去饭店吃饭，但是大厨可以附身在你家的机器人上，给你做出美味佳肴！没有趁手的工具？3D打印！看病也是同理，就是可能会由于医疗器械比较昂贵或者各种许可证、专利问题，也许最终还是得你亲自跑一趟。上厕所？想必你每天上厕所不至于跑个几公里吧…不管怎样，VR和其他技术的结合确实能够大大减少出行的次数。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -163,13 +146,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
+  <a class="article-category-link" href="/categories/vr/">vr</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/chronos/">chronos</a><a href="/tags/mesos/">mesos</a>
+  <span></span> <a href="/tags/thought/">thought</a>
   </div>
 
 </div>
@@ -178,7 +161,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/vr-mix-with-other-techs/" data-title="VR和其他科技的结合意味着什么 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -191,19 +174,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/docker-swarm/" title="轻松搭建Docker Swarm运行环境">
-  <strong>上一篇：</strong><br/>
-  <span>
-  轻松搭建Docker Swarm运行环境</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/mesos-marathon/"  title="用容器轻松搭建Marathon运行环境">
+<a href="/ceph-radosgw-replication/"  title="使用RADOSGW联盟网关跨域同步">
  <strong>下一篇：</strong><br/> 
- <span>用容器轻松搭建Marathon运行环境
+ <span>使用RADOSGW联盟网关跨域同步
 </span>
 </a>
 </div>
@@ -212,7 +187,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境" data-url="http://qinghua.github.io/mesos-chronos/"></div>
+	<div class="ds-thread" data-thread-key="vr-mix-with-other-techs/" data-title="VR和其他科技的结合意味着什么" data-url="http://qinghua.github.io/vr-mix-with-other-techs/"></div>
 </section>
 
 
@@ -222,7 +197,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u65E0_u4EBA_u673A"><span class="toc-number">1.</span> <span class="toc-text">无人机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u673A_u5668_u4EBA"><span class="toc-number">2.</span> <span class="toc-text">机器人</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3D_u6253_u5370"><span class="toc-number">3.</span> <span class="toc-text">3D打印</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4EBA_u5DE5_u667A_u80FD"><span class="toc-number">4.</span> <span class="toc-text">人工智能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u7545_u60F3"><span class="toc-number">5.</span> <span class="toc-text">其他畅想</span></a></li></ol>
  
   </div>
 

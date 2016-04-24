@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-04-23T13:38:47.000Z</updated>
+  <updated>2016-04-24T02:07:14.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -13,6 +13,45 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[VR和其他科技的结合意味着什么]]></title>
+    <link href="http://qinghua.github.io/vr-mix-with-other-techs/"/>
+    <id>http://qinghua.github.io/vr-mix-with-other-techs/</id>
+    <published>2016-04-23T13:23:22.000Z</published>
+    <updated>2016-04-24T02:07:14.000Z</updated>
+    <content type="html"><![CDATA[<p>随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在<a href="http://gigix.thoughtworkers.org/2015/8/28/driverless-cars/" target="_blank" rel="external">《无人驾驶汽车意味着什么》</a>里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。<br><a id="more"></a></p>
+<h2 id="u65E0_u4EBA_u673A"><a href="#u65E0_u4EBA_u673A" class="headerlink" title="无人机"></a>无人机</h2><p>曾几何时，拍照、摄像还是摄影师的专利，随着数码相机的普及尤其是手机摄像头的发展，到了现在的自媒体时代，人人都喜欢拍一点什么。数量上去了，大家就开始想到提高质量。无人机给了我们这样一个上帝视角，在某种程度上圆了人类的飞行梦。现在的技术可以做到实时在手机上查看无人机正在拍摄的高清视频。VR结合无人机，会产生什么样的效果呢？看看这幅图：<br><img src="/img/vr-skydiving.jpg" alt=""></p>
+<p>跳伞的话，只能下不能上，横向移动范围有限。VR结合无人机，能够带来更高一筹的高空体验，并且大大降低了安全事故发生的概率。当然无人机坏掉砸在路人脑袋上这种事就不在我们讨论范围内了…</p>
+<h2 id="u673A_u5668_u4EBA"><a href="#u673A_u5668_u4EBA" class="headerlink" title="机器人"></a>机器人</h2><p>VR结合无人机，无论多么狂拽炫酷吊炸天，仍然是小众玩家的福利。而真正能够影响普通人的，应该算是和机器人结合。想像这样的世界：虽然分身乏术，但是你可以购买一个机器人，让它帮你去远方开会，到时候VR直接连接上这个机器人就好啦。这种方案的话，需要成熟的无人驾驶技术的配合，才能让机器人自动到达目的地。<br><img src="/img/vr-robot.jpg" alt=""></p>
+<p>继续往里思考，为什么非要买一个机器人跑到远方去呢？是不是可以直接租赁一个远方的机器人呢？假设有一个提供机器人租赁的公司，直接在开会地点附近有一个机器人租赁点，与会人员就没必要派遣机器人过去了，直接每个人租一个机器人开会就好啦。</p>
+<h2 id="3D_u6253_u5370"><a href="#3D_u6253_u5370" class="headerlink" title="3D打印"></a>3D打印</h2><p>虽然VR结合机器人听起来令人心动，但是有一个问题就是，大家都是机器人了，那我在VR里看出去都是一堆的机器人有什么用？根本不知道谁是谁，干脆直接电话会议或者视频会议不就好了嘛，反正表情动作眼神都很难感觉出来。这时候3D打印就派上用场了。假设到时候的3D打印技术非常成熟，你在家里就能很轻易地将你现在的模型传送给机器人租赁公司，而公司可以在较短的时间内打印一个像你一样的机器人，于是你在别人的眼里并不是一个机器人，而是真正的“你”。每个人都是自己的样子，开会就像是在现场一样。到时候的材料工艺也应该有很大进步，可以实现材料回收再利用，这样可以大大降低租用机器人的成本。<br><img src="/img/vr-humanoid.jpg" alt=""></p>
+<p>想象一下在一个会议里，里面所有的“人”都只是躯壳，而真实的人都在其它地方，是不是有点儿感觉怪怪的了？</p>
+<h2 id="u4EBA_u5DE5_u667A_u80FD"><a href="#u4EBA_u5DE5_u667A_u80FD" class="headerlink" title="人工智能"></a>人工智能</h2><p>VR结合3D打印，开始带来一丝怪异的感觉了。再加上人工智能的混入，就已经不是“怪异”两个字就能形容的了。想象你面对一个“人”，音容笑貌都是某个你熟悉的人，但“ta”可能并不是你熟悉的“ta”…“ta”可能是个具有人工智能的机器人！在良性的环境下，“ta”只可能是真人戴着VR在跟你交流，或者由于真人在忙其它事情，“ta”现在是个尽力在模仿真人的善意人工智能；在恶性的环境下，“它”可能被其他人所控制，要对你做出一些诈骗等恶意行为；最恶劣的是“ta”可能发展了自己的意识，你根本不知道“ta”在想什么，“ta”想干什么。这里引用霍金的预言：“成功制造出一台人工智能机器人将是人类历史上的里程碑。但不幸的是，它也可能会成为我们历史上最后的一个里程碑”。黑客帝国里的场景，也有可能变成现实。</p>
+<h2 id="u5176_u4ED6_u7545_u60F3"><a href="#u5176_u4ED6_u7545_u60F3" class="headerlink" title="其他畅想"></a>其他畅想</h2><p>在上文的模型里，可以预见的是，信息安全将会是未来的重中之重。传输自己的模型给机器人公司，需要小心传错对象或被黑客拦截；VR连接远程机器人，需要小心机器人可能被其他人捷足先登；对人工智能，也许也需要必要的防范。虽然有许多安全上的顾虑，但也正是这些技术，可以让我们更加安全。矿工附身在机器人上，用自己的娴熟技巧采矿；消防员附身在机器人上，可以身冲火海而不会收到任何损伤；对于户外极限运动爱好者来说，这真的是加了无数条命呀。话说回来，如果要实现这样的效果，光自动驾驶是远远不够的。可能还需要如下的几点：</p>
+<ul>
+<li>高带宽+低延迟的移动网络：没有高带宽的支持，收到的VR场景数据可能分辨率或刷新率低，降低沉浸式体验。没有低延迟的支持，机器人反应慢就不那么适合争分夺秒型任务。</li>
+<li><p>移动：现在大多数的VR都不支持移动。即使像HTC Vive那样，由于受到空间制约，也只是有限支持。如果要实用化，下图的平面移动能够满足一定的需求，不过还需考虑包含上下的三维空间。<br><img src="/img/vr-move.jpg" alt=""></p>
+</li>
+<li><p>材料和传感器：为了完美体验触感，也许还需要能够快速打印出具有一定质量、密度、硬度的物质，需要极高的材料工艺，并且需要机器人身上安装高精度传感器实时传回需要的材料数据。</p>
+</li>
+<li>环境：微风轻抚和狂风暴雨是完全不一样的感受。还要考虑温度、湿度等感觉。</li>
+<li>嗅觉支持：虽然人类的鼻子没有狗鼻子那么灵敏，但是现实生活中，有时候气味是决定下一步行动的原因。比如闻到了焦糊味就去厨房看看。相比起来，对于味觉的支持就可以缓一缓了。</li>
+<li>梦境或意识：除了上面的移动、材料和传感器的硬派支持，还有一种方式是以类似催眠、梦境或者存意识的方式来支持这种感觉的传递。阿凡达！！</li>
+</ul>
+<p>由于有了机器人替身，战争的形式也应该会发生变化。士兵们不需要搏命了，也许打战变成了一场游戏。开战前拔掉对方的VR中心可能变成了一种战略选择。毕竟如果存在由人控制的机器人对人类的战争，那结果应该像是现代兵器对战冷兵器时代，是一边倒的。希望不要有战争。即使有战争也别培育出作战型人工智能。</p>
+<p>再想点儿其他贴近生活的方面，可能人们就不太需要出行了。现在的上班族大多经历过天天挤公交地铁或者开车堵在路上的罪。以后不需要了。公司摆一个你的机器人躯壳，家里来副VR眼镜，一切搞定。还有什么场景需要出行？旅游？现在的VR都已经快要解决这个问题了，各大VR视频资源库里已经有不少全景漫游的视频了。风景变化不大，甚至不需要机器人的代劳，直接数字化就好了。什么九寨沟一年四季各有各的看点？巴尔夏明神庙被炸毁？华南虎灭绝了？统统都能看到。购物也是同理，送货上门应该算是未来商店最基本的服务之一了。探亲？这个确实有些不好回答，也许有些家庭无所谓真的假的，有些家庭会更倾向于真人探亲。对了，吃饭和看病机器人就没法代劳了吧？何不反过来想想这个问题，虽然机器人不能代替你去饭店吃饭，但是大厨可以附身在你家的机器人上，给你做出美味佳肴！没有趁手的工具？3D打印！看病也是同理，就是可能会由于医疗器械比较昂贵或者各种许可证、专利问题，也许最终还是得你亲自跑一趟。上厕所？想必你每天上厕所不至于跑个几公里吧…不管怎样，VR和其他技术的结合确实能够大大减少出行的次数。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>随着VR走进现实，人们的双眼纷纷看到了它在影视、游戏等产业的巨大钱景。借用熊杰在<a href="http://gigix.thoughtworkers.org/2015/8/28/driverless-cars/">《无人驾驶汽车意味着什么》</a>里的一句话：“然而技术的成熟与投入实用远不是变革的终点，恰恰相反，这只是一场更为深远的变革的起点”。我脑洞大开，畅想一下VR和其他科技结合之后，将会如何影响我们的生活。看上去下一个十年又要迎来一次技术大爆炸。<br>]]>
+    
+    </summary>
+    
+      <category term="thought" scheme="http://qinghua.github.io/tags/thought/"/>
+    
+      <category term="vr" scheme="http://qinghua.github.io/categories/vr/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[使用RADOSGW联盟网关跨域同步]]></title>
@@ -1450,78 +1489,6 @@ topology_template:
     </summary>
     
       <category term="awk" scheme="http://qinghua.github.io/tags/awk/"/>
-    
-      <category term="linux/unix" scheme="http://qinghua.github.io/categories/linux-unix/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[看例子学sed]]></title>
-    <link href="http://qinghua.github.io/sed/"/>
-    <id>http://qinghua.github.io/sed/</id>
-    <published>2016-02-26T13:18:07.000Z</published>
-    <updated>2016-04-15T09:42:05.000Z</updated>
-    <content type="html"><![CDATA[<p>这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。<br><a id="more"></a></p>
-<p>假设我们有一个csv文件如下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt; EOF &gt;staff.csv</span><br><span class="line">Gavo,<span class="number">35</span></span><br><span class="line">Jane,<span class="number">21</span></span><br><span class="line">Bill,<span class="number">25</span></span><br><span class="line">Jimmy,<span class="number">42</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
-<h2 id="u589E"><a href="#u589E" class="headerlink" title="增"></a>增</h2><h3 id="u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C"><a href="#u5728_u6587_u4EF6_u5934/_u5C3E_u589E_u52A0_u4E00_u884C" class="headerlink" title="在文件头/尾增加一行"></a>在文件头/尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1i Name,Age'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
-<p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'2a Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>要是想在文件尾增加一行的话，用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'$a Hetty,29'</span> staff.csv    <span class="comment"># 指定行内容</span></span><br><span class="line">sed $<span class="string">'$a \\\n'</span> staff.csv       <span class="comment"># 增加空行</span></span><br></pre></td></tr></table></figure></p>
-<p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
-<h3 id="u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C"><a href="#u5728_u5339_u914D_u7684_u5730_u65B9_u589E_u52A0_u4E00_u884C" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i Hetty,29'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/i \ \ Hetty,29'</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">'/21/i Hetty,29'</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">'/J/i Hetty,29'</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure></p>
-<p>下面这个命令可以在Gavo后面增加两行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/a Hetty,29\nEmma,45'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<h2 id="u5220"><a href="#u5220" class="headerlink" title="删"></a>删</h2><h3 id="u5220_u9664_u7279_u5B9A_u884C"><a href="#u5220_u9664_u7279_u5B9A_u884C" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1d'</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">'$d'</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">'/Jane/d'</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">'/21/d'</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">'/J/d'</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="u5220_u9664_u5173_u8054_u884C"><a href="#u5220_u9664_u5173_u8054_u884C" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;d;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>其中的<code>N</code>就是下一行（next line）的意思。如果不想删除Gavo这行，用这个命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Gavo/&#123;N;s/\n.*//;&#125;'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>相当于匹配了两行也就是<code>Gavo,35\nJane,21</code>之后，再把<code>\n</code>之后的所有文本替换成空白，即删除。替换的命令在下面的<a href="/sed/#u6539">改</a>中会详细介绍。</p>
-<h2 id="u6539"><a href="#u6539" class="headerlink" title="改"></a>改</h2><h3 id="u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE"><a href="#u6240_u6709_u884C_u5934/_u5C3E_u589E_u52A0_u9879_u76EE" class="headerlink" title="所有行头/尾增加项目"></a>所有行头/尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/^/China,/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
-<p>其中的<code>s</code>表示替换（substitute），<code>^</code>表示开头，相对应的<code>$</code>表示结尾。</p>
-<h3 id="u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE"><a href="#u6240_u6709_u884C_u4FEE_u6539_u9879_u76EE" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'s/China/US/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure>
-<p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/,[A-Z][a-z]*/&amp;-dev/'</span> staff.csv</span><br><span class="line">sed -r <span class="string">'s/(,.*),/\1-dev,/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
-<h3 id="u6B63_u5219_u66FF_u6362"><a href="#u6B63_u5219_u66FF_u6362" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">'s/[^,]+/"&amp;"/g'</span> staff.csv</span><br><span class="line">sed <span class="operator">-e</span> <span class="string">'s/^\|$/"/g'</span> <span class="operator">-e</span> <span class="string">'s/,/","/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。</p>
-<h3 id="u5168_u5C40_u66FF_u6362"><a href="#u5168_u5C40_u66FF_u6362" class="headerlink" title="全局替换"></a>全局替换</h3><p>把所有的<code>l</code>改成<code>L</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/l/L/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
-<p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/l/L/g; s/m/M/g'</span> staff.csv</span><br><span class="line">sed <span class="operator">-e</span> <span class="string">'s/l/L/g'</span> <span class="operator">-e</span> <span class="string">'s/m/M/g'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<h3 id="u5927_u5C0F_u5199_u66FF_u6362"><a href="#u5927_u5C0F_u5199_u66FF_u6362" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/.*/\L&amp;/'</span> staff.csv</span><br><span class="line">sed <span class="string">'s/.*/\U&amp;/'</span> staff.csv</span><br></pre></td></tr></table></figure>
-<p><code>\L</code>就是全部小写（lowercase），<code>\U</code>就是全部大写（uppercase）。<code>&amp;</code>在上文有提到，表示匹配上的内容。</p>
-<h3 id="u4FEE_u6539_u6307_u5B9A_u884C"><a href="#u4FEE_u6539_u6307_u5B9A_u884C" class="headerlink" title="修改指定行"></a>修改指定行</h3><p>现在表头的第一列也成了US，把它改成Country：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">'1s/US/Country/'</span> staff.csv</span><br><span class="line">cat staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>把第2行到4行的US替换成China：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'2,4s/US/China/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>把第3行整行替换掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'3s/.*/China,Hetty,29/'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<h3 id="u5220_u9664_u6240_u6709_u7B26_u53F7"><a href="#u5220_u9664_u6240_u6709_u7B26_u53F7" class="headerlink" title="删除所有符号"></a>删除所有符号</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'s/[[:punct:]]//g'</span> staff.csv</span><br></pre></td></tr></table></figure>
-<p><code>[[:punct:]]</code>是正则表达式中预先定义的子字符类（character classes），代表所有的标点符号。sed支持的<a href="http://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html" target="_blank" rel="external">子字符类</a>如下：</p>
-<ul>
-<li>[:alnum:]：[0-9A-Za-z]</li>
-<li>[:alpha:]：[A-Za-z]</li>
-<li>[:blank:]：空格和TAB</li>
-<li>[:cntrl:]：控制字符（Control characters），ASCII码为000~037和177 (DEL)</li>
-<li>[:digit:]：[0-9]</li>
-<li>[:graph:]：[:alnum:]和[:punct:]</li>
-<li>[:lower:]：[a-z]</li>
-<li>[:print:]：[:alnum:]、[:punct:]和空格</li>
-<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . / : ; &lt; = &gt; ? @ [ \ ] ^ _ ` { | } ~</li>
-<li>[:space:]：[:blank:]和回车、换行等</li>
-<li>[:upper:]：[A-Z]</li>
-<li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
-</ul>
-<h2 id="u67E5"><a href="#u67E5" class="headerlink" title="查"></a>查</h2><h3 id="u67E5_u770B_u7279_u5B9A_u884C"><a href="#u67E5_u770B_u7279_u5B9A_u884C" class="headerlink" title="查看特定行"></a>查看特定行</h3><p>查（print）也和<a href="/sed/#u589E">増</a>很类似，区别是把<code>i</code>或<code>a</code>换成<code>p</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'1p'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">'1p'</span> staff.csv         <span class="comment"># 查看第一行</span></span><br><span class="line">sed -n <span class="string">'$p'</span> staff.csv         <span class="comment"># 查看最后一行</span></span><br><span class="line">sed -n <span class="string">'/Jane/p'</span> staff.csv    <span class="comment"># 查看包含Jane的一行</span></span><br><span class="line">sed -n <span class="string">'/21/p'</span> staff.csv      <span class="comment"># 查看包含21的一行</span></span><br><span class="line">sed -n <span class="string">'/J/p'</span> staff.csv       <span class="comment"># 查看包含J的两行</span></span><br><span class="line">sed -n <span class="string">'/21$/p'</span> staff.csv     <span class="comment"># 查看以21结尾的一行</span></span><br><span class="line">sed -n <span class="string">'/21/!p'</span> staff.csv     <span class="comment"># 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure></p>
-<p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
-<h3 id="u67E5_u770B_u884C_u8303_u56F4"><a href="#u67E5_u770B_u884C_u8303_u56F4" class="headerlink" title="查看行范围"></a>查看行范围</h3><p>如果想要查看直到匹配某条记录，用下面这条命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'/Jane/q'</span> staff.csv</span><br></pre></td></tr></table></figure></p>
-<p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">'1,/Jane/p'</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Gavo/,/Jane/p'</span> staff.csv    <span class="comment"># 从匹配Gavo的记录开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">'/Jane/,$p'</span> staff.csv         <span class="comment"># 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="u67E5_u770B_u5947/_u5076_u6570_u884C"><a href="#u67E5_u770B_u5947/_u5076_u6570_u884C" class="headerlink" title="查看奇/偶数行"></a>查看奇/偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">'n;d'</span> staff.csv       <span class="comment"># 奇数行</span></span><br><span class="line">sed <span class="string">'1d;n;d'</span> staff.csv    <span class="comment"># 偶数行</span></span><br></pre></td></tr></table></figure>
-<p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
-<h3 id="u4ECE_u5355_u884C_u4E2D_u67E5_u627E"><a href="#u4ECE_u5355_u884C_u4E2D_u67E5_u627E" class="headerlink" title="从单行中查找"></a>从单行中查找</h3><p>比如想从<strong>I am 18 years old</strong>里查找18这个年龄，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"I am 18 years old"</span> | sed -n <span class="string">"s/I am \(.*\) years old/\1/p"</span></span><br></pre></td></tr></table></figure></p>
-<p>这里<code>\1</code>代表第一个被匹配上的内容也就是<code>\(.*\)</code>。发挥想象力：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"I am 18 years old"</span> | sed -n <span class="string">"s/I am \(.*\) \(.*\) old/\2: \1/p"</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p>The UNIX School 里的<a href="http://www.theunixschool.com/p/awk-sed.html" target="_blank" rel="external">awk and sed tutorials</a>含有大量的例子和解释，非常容易上手，本文就是以其为基础整理而成。<br>酷壳的<a href="http://coolshell.cn/articles/9104.html" target="_blank" rel="external">sed 简明教程</a>很适合入门。<br>当然还有最全面的<a href="http://www.gnu.org/software/sed/manual/sed.html" target="_blank" rel="external">官方文档</a>。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。<br>]]>
-    
-    </summary>
-    
-      <category term="sed" scheme="http://qinghua.github.io/tags/sed/"/>
     
       <category term="linux/unix" scheme="http://qinghua.github.io/categories/linux-unix/"/>
     

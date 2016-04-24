@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/vr-mix-with-other-techs/</loc>
+    <lastmod>2016-04-24T02:07:14.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/ceph-radosgw-replication/</loc>
     <lastmod>2016-04-23T13:38:47.000Z</lastmod>
   </url>
