@@ -1,0 +1,620 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>轻松了解Kubernetes认证功能 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻松了解Kubernetes认证功能">
+<meta property="og:url" content="http://qinghua.github.io/kubernetes-security/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
+<meta property="og:updated_time" content="2016-04-29T14:04:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻松了解Kubernetes认证功能">
+<meta name="twitter:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-security/" title="轻松了解Kubernetes认证功能" itemprop="url">轻松了解Kubernetes认证功能</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-29T11:31:01.000Z" itemprop="datePublished"> 发表于 2016-04-29</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u90E8_u7F72"><span class="toc-number">2.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9A8C_u8BC1"><span class="toc-number">3.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u5316kubectl"><span class="toc-number">4.</span> <span class="toc-text">简化kubectl</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://kubernetes.io/docs/whatisk8s/" target="_blank" rel="external">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文介绍kubernetes的安全性配置。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先需要搭建kubernetes集群环境，可以参考<a href="/kubernetes-installation">《轻松搭建Kubernetes 1.2版运行环境》</a>来安装自己的kubernetes集群，运行到flannel配置完成即可。接下来的api server等设置的参数可以参考本文。</p>
+<p>结果应该是有三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>，运行着k8s的api server、controller manager和scheduler；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP分别是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，运行着k8s的kubelet和kube-proxy，当做k8s的两个节点。</p>
+<h2 id="u90E8_u7F72"><a href="#u90E8_u7F72" class="headerlink" title="部署"></a>部署</h2><p>最简单的方式就是通过基于CSV的基本认证。首先需要创建api server的基本认证文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">mkdir security</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="number">123456</span>,admin,qinghua &gt; security/basic_auth.csv                      <span class="comment"># 格式：用户名,密码,用户ID</span></span><br></pre></td></tr></table></figure></p>
+<p>然后就可以生成CA和api server的证书了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> security</span><br><span class="line"></span><br><span class="line">openssl genrsa -out ca.key <span class="number">2048</span></span><br><span class="line">openssl req -x509 -new -nodes -key ca.key -subj <span class="string">"/CN=192.168.33.17"</span> -days <span class="number">10000</span> -out ca.crt</span><br><span class="line">openssl genrsa -out server.key <span class="number">2048</span></span><br><span class="line">openssl req -new -key server.key -subj <span class="string">"/CN=192.168.33.17"</span> -out server.csr</span><br><span class="line">openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days <span class="number">10000</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br></pre></td></tr></table></figure></p>
+<p>上面的命令会生成若干证书相关文件，作用如下：</p>
+<ul>
+<li>ca.key：自己生成的CA的私钥，用于模拟一个CA</li>
+<li>ca.crt：用自己的私钥自签名的CA证书</li>
+<li>server.key：api server的私钥，用于配置api server的https</li>
+<li>server.csr：api server的证书请求文件，用于请求api server的证书</li>
+<li>server.crt：用自己模拟的CA签发的api server的证书，用于配置api server的https</li>
+</ul>
+<p>接下来启动api server，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-apiserver/" target="_blank" rel="external">kube-apiserver官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=<span class="number">192.168</span>.<span class="number">33.17</span> \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=<span class="number">0.0</span>.<span class="number">0.0</span> \</span><br><span class="line">  --etcd-servers=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> \</span><br><span class="line">  --service-cluster-ip-range=<span class="number">11.0</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=<span class="number">443</span> \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv</span><br></pre></td></tr></table></figure></p>
+<p>还需要启动controller manager，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-controller-manager/" target="_blank" rel="external">kube-controller-manager官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=cm \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</span><br><span class="line">  kube-controller-manager \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --cluster-cidr=<span class="number">10.245</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --allocate-node-cidrs=<span class="literal">true</span> \</span><br><span class="line">  --root-ca-file=/security/ca.crt \</span><br><span class="line">  --service-account-private-key-file=/security/server.key</span><br></pre></td></tr></table></figure></p>
+<p>最后是scheduler，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-scheduler/" target="_blank" rel="external">kube-scheduler官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:<span class="number">903</span>b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
+<p>可以运行以下命令来确认安全配置已经生效：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -k -u admin:<span class="number">123456</span> https://<span class="number">127.0</span>.<span class="number">0.1</span>/</span><br><span class="line">curl -k -u admin:<span class="number">123456</span> https://<span class="number">127.0</span>.<span class="number">0.1</span>/api/v1</span><br></pre></td></tr></table></figure></p>
+<p>最后启动kubelet和kube-proxy，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kubelet/" target="_blank" rel="external">kubelet官方文档</a>和<a href="http://kubernetes.io/docs/admin/kube-proxy/" target="_blank" rel="external">kube-proxy官方文档</a>：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">'inet addr:'</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2 | cut <span class="operator">-d</span><span class="string">' '</span> <span class="operator">-f</span>1`</span><br><span class="line"></span><br><span class="line">sudo kubernetes/server/bin/kubelet \</span><br><span class="line">  --api-servers=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --cluster-dns=<span class="number">11.0</span>.<span class="number">0.10</span> \</span><br><span class="line">  --cluster-domain=cluster.local \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> \</span><br><span class="line">  --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line"></span><br><span class="line">sudo kubernetes/server/bin/kube-proxy \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> &gt; proxy.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure></p>
+<h2 id="u9A8C_u8BC1"><a href="#u9A8C_u8BC1" class="headerlink" title="验证"></a>验证</h2><p>如果需要通过https访问，kubectl的命令就略微有点儿麻烦了，需要用<code>basic_auth.csv</code>里配置的<code>admin/123456</code>来登录：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> https://<span class="number">192.168</span>.<span class="number">33.17</span> --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=<span class="number">123456</span> get po</span><br></pre></td></tr></table></figure></p>
+<p>因为8080端口还开着，所以也可以通过http访问：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get po</span><br></pre></td></tr></table></figure></p>
+<p>配置完成后，可以看到系统里有TYPE为<code>kubernetes.io/service-account-token</code>的秘密：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get secret</span><br></pre></td></tr></table></figure></p>
+<p>里面有三条数据，分别是<code>ca.crt</code>，<code>namespace</code>和<code>token</code>，可以通过以下命令看到：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> describe secret</span><br></pre></td></tr></table></figure></p>
+<p>如果你通过kubernetes启动了一个pod，就可以在容器的<code>/var/run/secrets/kubernetes.io/serviceaccount/</code>目录里看到以三个文件的形式看到这三条数据（这是<code>--admission-control=ServiceAccount</code>的功劳），当pod需要访问系统服务的时候，就可以使用它们了。可以使用以下命令看到系统的服务账号：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get serviceAccount</span><br></pre></td></tr></table></figure></p>
+<h2 id="u7B80_u5316kubectl"><a href="#u7B80_u5316kubectl" class="headerlink" title="简化kubectl"></a>简化kubectl</h2><p>如果我们通过设置<code>--insecure-port=0</code>把api server的http端口关闭，那它就只能通过https访问了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> apiserver</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=<span class="number">192.168</span>.<span class="number">33.17</span> \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=<span class="number">0.0</span>.<span class="number">0.0</span> \</span><br><span class="line">  --etcd-servers=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> \</span><br><span class="line">  --service-cluster-ip-range=<span class="number">11.0</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=<span class="number">443</span> \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv \</span><br><span class="line">  --insecure-port=<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>这样的话，就连取个pod都得这么麻烦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> https://<span class="number">192.168</span>.<span class="number">33.17</span> --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=<span class="number">123456</span> get po</span><br></pre></td></tr></table></figure></p>
+<p>幸运的是，kubernetes提供了一种方式，让我们可以大大简化命令，只用这样就好了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure></p>
+<p>下面就让我们来试一下吧！首先用<code>kubectl config</code>命令来配置admin用户：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-credentials admin --username=admin --password=<span class="number">123456</span></span><br></pre></td></tr></table></figure></p>
+<p>然后是api server的访问方式，给集群起个名字叫qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-cluster qinghua --insecure-skip-tls-verify=<span class="literal">true</span> --server=https://<span class="number">192.168</span>.<span class="number">33.17</span></span><br></pre></td></tr></table></figure></p>
+<p>接下来创建一个context，它连接用户admin和集群qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-context default/qinghua --user=admin --namespace=default --cluster=qinghua</span><br></pre></td></tr></table></figure></p>
+<p>最后设置一下默认的context：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config use-context default/qinghua</span><br></pre></td></tr></table></figure></p>
+<p>然后就可以用我们的简化版啦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure></p>
+<p>可以通过以下命令来看到当前kubectl的配置：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config view</span><br></pre></td></tr></table></figure></p>
+<p>能够看到如下内容：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">clusters:</span><br><span class="line">- cluster:</span><br><span class="line">    insecure-skip-tls-verify: <span class="literal">true</span></span><br><span class="line">    server: https://<span class="number">192.168</span>.<span class="number">33.17</span></span><br><span class="line">  name: qinghua</span><br><span class="line">contexts:</span><br><span class="line">- context:</span><br><span class="line">    cluster: qinghua</span><br><span class="line">    namespace: default</span><br><span class="line">    user: admin</span><br><span class="line">  name: default/qinghua</span><br><span class="line">current-context: default/qinghua</span><br><span class="line">kind: Config</span><br><span class="line">preferences: &#123;&#125;</span><br><span class="line">users:</span><br><span class="line">- name: admin</span><br><span class="line">  user:</span><br><span class="line">    password: <span class="string">"123456"</span></span><br><span class="line">    username: admin</span><br></pre></td></tr></table></figure></p>
+<p>实际上这些配置都存放在<code>~/.kube/config</code>文件里：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ~/.kube/config</span><br></pre></td></tr></table></figure></p>
+<p>修改这个文件也可以实时生效。细心的童鞋们可以看到，cluster、context和users都是集合，也就是说如果需要切换用户和集群等，只需要设置默认context就可以了，非常方便。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/kubernetes/">kubernetes</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/kubernetes-security/" data-title="轻松了解Kubernetes认证功能 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/kubernetes-deployment/"  title="轻松了解Kubernetes部署功能">
+ <strong>下一篇：</strong><br/> 
+ <span>轻松了解Kubernetes部署功能
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="kubernetes-security/" data-title="轻松了解Kubernetes认证功能" data-url="http://qinghua.github.io/kubernetes-security/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u90E8_u7F72"><span class="toc-number">2.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9A8C_u8BC1"><span class="toc-number">3.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u5316kubectl"><span class="toc-number">4.</span> <span class="toc-text">简化kubectl</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

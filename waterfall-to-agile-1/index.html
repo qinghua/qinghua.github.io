@@ -1,0 +1,623 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>传统企业敏捷转型纪实（一） | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，PI Planning（启动会议）上发生的事。本系列目前有两篇：
+
+传统企业敏捷转型纪实（一）
+传统企业敏捷转型纪实（二）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="传统企业敏捷转型纪实（一）">
+<meta property="og:url" content="http://qinghua.github.io/waterfall-to-agile-1/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，PI Planning（启动会议）上发生的事。本系列目前有两篇：
+
+传统企业敏捷转型纪实（一）
+传统企业敏捷转型纪实（二）">
+<meta property="og:updated_time" content="2016-04-29T14:32:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="传统企业敏捷转型纪实（一）">
+<meta name="twitter:description" content="这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，PI Planning（启动会议）上发生的事。本系列目前有两篇：
+
+传统企业敏捷转型纪实（一）
+传统企业敏捷转型纪实（二）">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/waterfall-to-agile-1/" title="传统企业敏捷转型纪实（一）" itemprop="url">传统企业敏捷转型纪实（一）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished"> 发表于 2016-01-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u56E2_u961F_u6784_u5EFA"><span class="toc-number">1.</span> <span class="toc-text">团队构建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E86_u89E3_u4EA7_u54C1"><span class="toc-number">2.</span> <span class="toc-text">了解产品</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65E5_u7A0B_u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">日程管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4F30_u7B97_u5DE5_u4F5C_u91CF"><span class="toc-number">4.</span> <span class="toc-text">估算工作量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FED_u4EE3_u8BA1_u5212"><span class="toc-number">5.</span> <span class="toc-text">迭代计划</span></a></li></ol>
+		
+		</div>
+		
+		<p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/" target="_blank" rel="external">PI Planning</a>（启动会议）上发生的事。本系列目前有两篇：</p>
+<ul>
+<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
+<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="u56E2_u961F_u6784_u5EFA"><a href="#u56E2_u961F_u6784_u5EFA" class="headerlink" title="团队构建"></a>团队构建</h2><p>这个部门由四个团队组成，各自主管产品的一部分。每个团队都有对交付负责的人，称为PO（Product Owner）。Ken的第一步是让所有团队选出一名SPO（Super Product Owner），来对整个产品负责。SPO不做兼职，负责解决各种问题，其最重要的任务是做决策。而对于一款探索性的产品来说，决策是没有对错之分的，只是它需要靠执行力和客户反馈来修正。PO们需要力挺SPO，充分信任SPO的决策，并以团队的执行力来保证决策的执行。所以有个PO与SPO隔空喊话效忠的过程。</p>
+<p>这个部门比较特殊的地方在于，大部分成员属于两个外包公司，其中有不少新人。大家对敏捷都没有什么概念，对要做的事也心有疑虑。有鉴于此，Ken让两个外包公司的人各选出1名leader来当<a href="http://scaledagileframework.com/scrum-master/" target="_blank" rel="external">SM</a>（scrum master）。如果团队成员士气低落，不管任何原因，都可以找SM沟通。如果涉及到甲方公司，便由SM来沟通PO处理。这样做的目的是让每个团队成员都有渠道摆脱自己受到的干扰，增加工作效率。团队成员也需要在团队中建立起自己的人脉，好让自己遇到问题时容易找人帮忙。SM主要负责沟通，PO带领团队前进。这样的构建适用于200~300人以下的团队。</p>
+<h2 id="u4E86_u89E3_u4EA7_u54C1"><a href="#u4E86_u89E3_u4EA7_u54C1" class="headerlink" title="了解产品"></a>了解产品</h2><p>要做好产品，首先需要让团队成员理解产品，建立共识。如果只见树木不见森林，那么人人都只是开发自己的那一亩三分地，根本无从得知自己的工作在整个产品中处于什么样的位置，那怎么能做好这个产品呢？现实中，这个产品有着非常复杂的架构，甚至没有一个人能完整地解释整个架构图。Ken建议SPO找几个资深人员，专门抽出一天时间给所有人都讲清楚架构。这很重要，如果你连孩子是男是女都不知道，怎么抚养ta？团队成员需要非常了解产品，而不仅仅是某个需求或者某个版本。要做产品，不是为了做事而做事。同时，Ken也建议所有成员都花时间在架构课之前自学其中的一些重要技术，以便让自己能够在架构课上更加清除对方究竟在讲什么。也就是预习，省的回头听不懂。</p>
+<h2 id="u65E5_u7A0B_u7BA1_u7406"><a href="#u65E5_u7A0B_u7BA1_u7406" class="headerlink" title="日程管理"></a>日程管理</h2><p>接下来用倒推法确定迭代截止日。假设产品5月底上线，需要提前一个月也就是4月底出beta版。需要3周的SIT时间，所以差不多是4月8号所有迭代完成。如果每两周一个迭代，从下周一算第一迭代开始，扣去春节，那么正好有5个迭代。如何能保证按时交付呢？需求可能发生变化，环境可能有问题，心情可能不太好影响了效率。迭代的意义在于提早发现风险。所以每个团队成员遇到问题时，需要尽快把这个问题暴露出来，否则，按时完成是不太可能的。</p>
+<h2 id="u4F30_u7B97_u5DE5_u4F5C_u91CF"><a href="#u4F30_u7B97_u5DE5_u4F5C_u91CF" class="headerlink" title="估算工作量"></a>估算工作量</h2><p>因为是从瀑布开发模式转过来的，所以现在每个团队手里都有一大堆需求。这里使用估点的方式来估算每个需求的工作量，转化成各个<a href="https://en.wikipedia.org/wiki/User_story" target="_blank" rel="external">User Story</a>。先找一个清晰的需求，最好半天就能开发完成，再半天测试完成。对这个story估点为1。以其为基准，其他的story与它相比较，得到其他story的估点。估的点数是在一个斐波那契数列里的：<a href="https://en.wikipedia.org/wiki/Planning_poker" target="_blank" rel="external">1，2，3，5，8，13，20，40，100</a>（当然后面几个不是）。例如基准story是3点，如果一个story感觉比它难上两个等级，那这个story应该是8个点。如果比它容易一个等级，那应该是2个点。如果难上4个等级呢？因为估点是个主观的过程，而且是比较不精确的。所以当差别很大的时候误差也会很大的。20，40，100这三个数虽然不是斐波那契数列，但也有它的含义。如果一个story只有一行字，谁也说不清它包含着什么，那就是100点。如果知道一部分，那就是40点。如果知道得更多，那就是20点。当然这也是非常主观且粗糙的，但是当你看到这3个数的时候自然就知道应该先把需求搞清楚。</p>
+<p>值得一提的是如果一个story估点为8，并不意味着它需要在整8天的时候做完。这个story和其他story一样，需要在最短的时间内有质量地完成。8代表着这个story的复杂度，或者说它是一个风险识别指标。如果做这个story的时候出了问题，需要开发人员尽快把这个问题暴露出来，就像上面讲的那样。而PO、SPO应该要想办法解决这个问题。如果问题超出SPO的权力，那就需要SPO的决策–可以选择不做这个story，或者只做一部分，或者绕过去。估点往往需要很长的时间。为了效率起见，当<a href="https://en.wikipedia.org/wiki/Business_analyst" target="_blank" rel="external">Business Analyst</a>讲完story时，团队成员应该有意识地思考：这个story有什么业务价值？是必须要做的吗？只有必要的story才估点。估点时新人由于还不熟悉背景，可以仅旁观不参与。参与的成员们同时伸手指表示点数，如果一样就记下点数，跳到下一个story。否则，大家就需要解释为什么自己估的点数是这个数，最后由PO拍脑袋做决策。</p>
+<p>估点是个很费时，但又很重要的事情，所以先由一个团队演示几个story，其他团队观看，等大家都了解了，再由所有团队自行估点。</p>
+<h2 id="u8FED_u4EE3_u8BA1_u5212"><a href="#u8FED_u4EE3_u8BA1_u5212" class="headerlink" title="迭代计划"></a>迭代计划</h2><p>最后就是安排工作量了。先要确认所有人力是否可以100%地投入。资深成员可以算全职，新人算半职，资深成员但还兼其他工作安排的也算半职。假如说最后我们得到了这样的数：</p>
+<ul>
+<li>全职开发：3个</li>
+<li>半职开发：4个</li>
+<li>全职测试：1个</li>
+<li>半职测试：2个</li>
+</ul>
+<p>如果第一迭代有10个工作日，那么我们就能计算出来最大工作量：<code>(3+1)×10+(4+2)×10÷2=70</code>。由于是春节，可能请假会比较多，扣去请假天数，也许得到60点。然后是打折，由各组PO和SPO商量，得到一个折扣。这个折扣可能是：我们组对外部环境依赖很多，第一迭代刚开始效率会很低，春节假期效率不高，团队成员都是单身需要相亲无心干活等等等等。比如说第一迭代打个7折，就能得到合理工作量：<code>60×7=42</code>。由此，我们就得到最大工作量和合理工作量。算出各个迭代的工作量，把它们写在显眼处。最后将先前估好点的story按优先级及依赖顺序往里安排，点数到合理工作量即可。至此，一个看似合理的、由团队成员做出的计划便产生了。项目启动会议完成。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/agile/">agile</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/agile/">agile</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/waterfall-to-agile-1/" data-title="传统企业敏捷转型纪实（一） | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）监控">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如果有10000台机器，你想怎么玩？（四）监控</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/mysql-replication/"  title="基于docker的MySQL主从复制（replication）">
+ <strong>下一篇：</strong><br/> 
+ <span>基于docker的MySQL主从复制（replication）
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="waterfall-to-agile-1/" data-title="传统企业敏捷转型纪实（一）" data-url="http://qinghua.github.io/waterfall-to-agile-1/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u56E2_u961F_u6784_u5EFA"><span class="toc-number">1.</span> <span class="toc-text">团队构建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E86_u89E3_u4EA7_u54C1"><span class="toc-number">2.</span> <span class="toc-text">了解产品</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65E5_u7A0B_u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">日程管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4F30_u7B97_u5DE5_u4F5C_u91CF"><span class="toc-number">4.</span> <span class="toc-text">估算工作量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FED_u4EE3_u8BA1_u5212"><span class="toc-number">5.</span> <span class="toc-text">迭代计划</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/bamboo/" title="bamboo">bamboo<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2016 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
