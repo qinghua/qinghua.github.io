@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://qinghua.github.io/"/>
-  <updated>2016-04-29T14:04:17.000Z</updated>
+  <updated>2016-05-19T14:22:56.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -14,6 +14,50 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>使用IntelliJ IDEA社区版调试tomcat</title>
+    <link href="http://qinghua.github.io/intellij-idea-community-run-tomcat/"/>
+    <id>http://qinghua.github.io/intellij-idea-community-run-tomcat/</id>
+    <published>2016-05-18T12:12:00.000Z</published>
+    <updated>2016-05-19T14:22:56.000Z</updated>
+    
+    <content type="html">&lt;p&gt;&lt;a href=&quot;https://dzone.com/articles/why-idea-better-eclipse&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;IntelliJ IDEA在重构方面碾压eclipse&lt;/a&gt;。但是IDEA的免费社区版是&lt;a href=&quot;https://www.jetbrains.com/idea/features/editions_comparison_matrix.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;不支持tomcat插件的&lt;/a&gt;。如果你正在用IDEA社区版开发一个web应用，可以使用下文的方式来调试运行在tomcat里的web应用。笔者目前使用的IDEA版本为2016.1.1。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;u51C6_u5907_u73AF_u5883&quot;&gt;&lt;a href=&quot;#u51C6_u5907_u73AF_u5883&quot; class=&quot;headerlink&quot; title=&quot;准备环境&quot;&gt;&lt;/a&gt;准备环境&lt;/h2&gt;&lt;p&gt;假设我们有一个项目，已经用IDEA打开了，并且这个项目可以构建成一个&lt;code&gt;ggg-webapp.war&lt;/code&gt;的包。在菜单&lt;code&gt;Run&lt;/code&gt;-&amp;gt;&lt;code&gt;Edit Configurations&lt;/code&gt;里，新增一个&lt;code&gt;Remote&lt;/code&gt;，填入下图所示的参数：&lt;br&gt;&lt;img src=&quot;/img/idea-debug-configurations.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Name：叫啥都行，这里是tomcat-debug&lt;/li&gt;
+&lt;li&gt;Host：准备运行tomcat的机器IP，可以是vagrant虚拟机&lt;/li&gt;
+&lt;li&gt;Port：随便选一个端口就好，别跟其它端口冲突&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Tomcat的话可以用docker启动，比较方便。这里选用的是tomcat:7。复制&lt;code&gt;Command line arguments for running remote JVM&lt;/code&gt;里的值，用它代替下面的&lt;code&gt;JAVA_OPTS&lt;/code&gt;参数里的内容，然后运行tomcat并把war包复制到webapps目录里：&lt;br&gt;&lt;figure class=&quot;highlight sh&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;docker run &lt;span class=&quot;operator&quot;&gt;-d&lt;/span&gt; --net=host --name=tomcat &lt;span class=&quot;operator&quot;&gt;-e&lt;/span&gt; JAVA_OPTS=&lt;span class=&quot;string&quot;&gt;&#39;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007&#39;&lt;/span&gt; tomcat:&lt;span class=&quot;number&quot;&gt;7&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;docker cp ggg-webapp.war tomcat:/usr/&lt;span class=&quot;built_in&quot;&gt;local&lt;/span&gt;/tomcat/webapps/&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;Tomcat启动完成后，选择菜单&lt;code&gt;Run&lt;/code&gt;-&amp;gt;&lt;code&gt;Debug &amp;#39;tomcat-debug&amp;#39;&lt;/code&gt;，就会显示&lt;code&gt;Connected to the target VM, address: &amp;#39;192.168.33.88:7007&amp;#39;, transport: &amp;#39;socket&amp;#39;&lt;/code&gt;，然后就可以顺利debug了。&lt;/p&gt;
+&lt;h2 id=&quot;u5176_u5B83&quot;&gt;&lt;a href=&quot;#u5176_u5B83&quot; class=&quot;headerlink&quot; title=&quot;其它&quot;&gt;&lt;/a&gt;其它&lt;/h2&gt;&lt;p&gt;附送一些调试快捷键：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;F7：Step into&lt;/li&gt;
+&lt;li&gt;F8：Step over&lt;/li&gt;
+&lt;li&gt;F9：Run&lt;/li&gt;
+&lt;li&gt;Shift+F7：Smart step into（弹出对话框让你选择进入哪个方法）&lt;/li&gt;
+&lt;li&gt;Shift+F8：Step out&lt;/li&gt;
+&lt;li&gt;Ctrl+F8 / Command+F8：Toggle Breakpoint&lt;/li&gt;
+&lt;li&gt;Alt+F8：Evaluate expression&lt;/li&gt;
+&lt;li&gt;Alt+F9：Run To Cursor&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://dzone.com/articles/why-idea-better-eclipse&quot;&gt;IntelliJ IDEA在重构方面碾压eclipse&lt;/a&gt;。但是IDEA的免费社区版是&lt;a href=&quot;https://www.jetbrains.com/idea/features/editions_comparison_matrix.html&quot;&gt;不支持tomcat插件的&lt;/a&gt;。如果你正在用IDEA社区版开发一个web应用，可以使用下文的方式来调试运行在tomcat里的web应用。笔者目前使用的IDEA版本为2016.1.1。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="tool" scheme="http://qinghua.github.io/categories/tool/"/>
+    
+    
+      <category term="IntelliJ IDEA" scheme="http://qinghua.github.io/tags/IntelliJ-IDEA/"/>
+    
+      <category term="tomcat" scheme="http://qinghua.github.io/tags/tomcat/"/>
+    
+  </entry>
   
   <entry>
     <title>轻松了解Kubernetes认证功能</title>
@@ -1520,66 +1564,6 @@ topology_template:
       <category term="nfs" scheme="http://qinghua.github.io/tags/nfs/"/>
     
       <category term="storage" scheme="http://qinghua.github.io/tags/storage/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>如果有10000台机器，你想怎么玩？（八）网络</title>
-    <link href="http://qinghua.github.io/kubernetes-in-mesos-8/"/>
-    <id>http://qinghua.github.io/kubernetes-in-mesos-8/</id>
-    <published>2016-03-02T11:30:29.000Z</published>
-    <updated>2016-03-21T11:28:05.000Z</updated>
-    
-    <content type="html">&lt;p&gt;这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-1&quot;&gt;如果有10000台机器，你想怎么玩？（一）概述&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-2&quot;&gt;如果有10000台机器，你想怎么玩？（二）高可用&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-3&quot;&gt;如果有10000台机器，你想怎么玩？（三）持久化&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-4&quot;&gt;如果有10000台机器，你想怎么玩？（四）监控&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-5&quot;&gt;如果有10000台机器，你想怎么玩？（五）日志&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-6&quot;&gt;如果有10000台机器，你想怎么玩？（六）性能&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-7&quot;&gt;如果有10000台机器，你想怎么玩？（七）生命周期&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-8&quot;&gt;如果有10000台机器，你想怎么玩？（八）网络&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-9&quot;&gt;如果有10000台机器，你想怎么玩？（九）安全性&lt;/a&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;Docker_u7684_u7F51_u7EDC_u6A21_u578B&quot;&gt;&lt;a href=&quot;#Docker_u7684_u7F51_u7EDC_u6A21_u578B&quot; class=&quot;headerlink&quot; title=&quot;Docker的网络模型&quot;&gt;&lt;/a&gt;Docker的网络模型&lt;/h2&gt;&lt;p&gt;Docker默认使用&lt;a href=&quot;/docker-bridge-network&quot;&gt;桥接网络&lt;/a&gt;。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个&lt;a href=&quot;/docker-overlay-network&quot;&gt;覆盖网络&lt;/a&gt;overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。&lt;/p&gt;
-&lt;h2 id=&quot;Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B&quot;&gt;&lt;a href=&quot;#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B&quot; class=&quot;headerlink&quot; title=&quot;Kubernetes的网络模型&quot;&gt;&lt;/a&gt;&lt;a href=&quot;http://kubernetes.io/docs/admin/networking/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Kubernetes的网络模型&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;所有的容器可以在不使用NAT的情况下相互通信&lt;/li&gt;
-&lt;li&gt;所有的主机和容器可以在不使用NAT的情况下相互通信&lt;/li&gt;
-&lt;li&gt;容器自己的IP和外部看它的IP是一样的&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用&lt;a href=&quot;https://github.com/coreos/flannel#flannel&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Flannel&lt;/a&gt;，也有人使用&lt;a href=&quot;http://kubernetes.io/docs/admin/ovs-networking/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Open vSwitch&lt;/a&gt;、&lt;a href=&quot;https://github.com/zettio/weave&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Weave&lt;/a&gt;、&lt;a href=&quot;https://github.com/Metaswitch/calico&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Calico&lt;/a&gt;。就flannel来说，它的网络传输如下图：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;Flannel会在每个主机上运行一个叫做flanneld的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flanneld去。有兴趣的话可以参考&lt;a href=&quot;http://dockone.io/article/618&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《一篇文章带你了解Flannel》&lt;/a&gt;。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。&lt;/p&gt;
-&lt;p&gt;虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考&lt;a href=&quot;http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这篇文章&lt;/a&gt;。&lt;/p&gt;
-&lt;h2 id=&quot;Kubernetes_u7684_u670D_u52A1&quot;&gt;&lt;a href=&quot;#Kubernetes_u7684_u670D_u52A1&quot; class=&quot;headerlink&quot; title=&quot;Kubernetes的服务&quot;&gt;&lt;/a&gt;&lt;a href=&quot;http://kubernetes.io/docs/user-guide/services/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Kubernetes的服务&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做&lt;code&gt;gcr.io/google_containers/pause&lt;/code&gt;的容器。Pod自身的两个容器都是通过在&lt;code&gt;docker run&lt;/code&gt;时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：&lt;br&gt;&lt;img src=&quot;/img/pause.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。&lt;/p&gt;
-&lt;h2 id=&quot;Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B&quot;&gt;&lt;a href=&quot;#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B&quot; class=&quot;headerlink&quot; title=&quot;Kubernetes-Mesos的网络模型&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Kubernetes-Mesos的网络模型&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以&lt;strong&gt;pod的IP:端口&lt;/strong&gt;的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以&lt;strong&gt;主机IP:端口&lt;/strong&gt;的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数&lt;code&gt;-host-port-endpoints=false&lt;/code&gt;（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-1&quot;&gt;如果有10000台机器，你想怎么玩？（一）概述&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-2&quot;&gt;如果有10000台机器，你想怎么玩？（二）高可用&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-3&quot;&gt;如果有10000台机器，你想怎么玩？（三）持久化&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-4&quot;&gt;如果有10000台机器，你想怎么玩？（四）监控&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-5&quot;&gt;如果有10000台机器，你想怎么玩？（五）日志&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-6&quot;&gt;如果有10000台机器，你想怎么玩？（六）性能&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-7&quot;&gt;如果有10000台机器，你想怎么玩？（七）生命周期&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-8&quot;&gt;如果有10000台机器，你想怎么玩？（八）网络&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;/kubernetes-in-mesos-9&quot;&gt;如果有10000台机器，你想怎么玩？（九）安全性&lt;/a&gt;
-    
-    </summary>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
-    
-    
-      <category term="kubernetes" scheme="http://qinghua.github.io/tags/kubernetes/"/>
-    
-      <category term="mesos" scheme="http://qinghua.github.io/tags/mesos/"/>
     
   </entry>
   

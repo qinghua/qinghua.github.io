@@ -4,6 +4,32 @@
   
     
     <entry>
+      <title><![CDATA[使用IntelliJ IDEA社区版调试tomcat]]></title>
+      <url>http://qinghua.github.io/intellij-idea-community-run-tomcat/</url>
+      <content type="html"><![CDATA[<p><a href="https://dzone.com/articles/why-idea-better-eclipse" target="_blank" rel="external">IntelliJ IDEA在重构方面碾压eclipse</a>。但是IDEA的免费社区版是<a href="https://www.jetbrains.com/idea/features/editions_comparison_matrix.html" target="_blank" rel="external">不支持tomcat插件的</a>。如果你正在用IDEA社区版开发一个web应用，可以使用下文的方式来调试运行在tomcat里的web应用。笔者目前使用的IDEA版本为2016.1.1。<br><a id="more"></a></p>
+<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>假设我们有一个项目，已经用IDEA打开了，并且这个项目可以构建成一个<code>ggg-webapp.war</code>的包。在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Remote</code>，填入下图所示的参数：<br><img src="/img/idea-debug-configurations.jpg" alt=""></p>
+<ul>
+<li>Name：叫啥都行，这里是tomcat-debug</li>
+<li>Host：准备运行tomcat的机器IP，可以是vagrant虚拟机</li>
+<li>Port：随便选一个端口就好，别跟其它端口冲突</li>
+</ul>
+<p>Tomcat的话可以用docker启动，比较方便。这里选用的是tomcat:7。复制<code>Command line arguments for running remote JVM</code>里的值，用它代替下面的<code>JAVA_OPTS</code>参数里的内容，然后运行tomcat并把war包复制到webapps目录里：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host --name=tomcat <span class="operator">-e</span> JAVA_OPTS=<span class="string">'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007'</span> tomcat:<span class="number">7</span></span><br><span class="line">docker cp ggg-webapp.war tomcat:/usr/<span class="built_in">local</span>/tomcat/webapps/</span><br></pre></td></tr></table></figure></p>
+<p>Tomcat启动完成后，选择菜单<code>Run</code>-&gt;<code>Debug &#39;tomcat-debug&#39;</code>，就会显示<code>Connected to the target VM, address: &#39;192.168.33.88:7007&#39;, transport: &#39;socket&#39;</code>，然后就可以顺利debug了。</p>
+<h2 id="u5176_u5B83"><a href="#u5176_u5B83" class="headerlink" title="其它"></a>其它</h2><p>附送一些调试快捷键：</p>
+<ul>
+<li>F7：Step into</li>
+<li>F8：Step over</li>
+<li>F9：Run</li>
+<li>Shift+F7：Smart step into（弹出对话框让你选择进入哪个方法）</li>
+<li>Shift+F8：Step out</li>
+<li>Ctrl+F8 / Command+F8：Toggle Breakpoint</li>
+<li>Alt+F8：Evaluate expression</li>
+<li>Alt+F9：Run To Cursor</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[轻松了解Kubernetes认证功能]]></title>
       <url>http://qinghua.github.io/kubernetes-security/</url>
       <content type="html"><![CDATA[<p><a href="http://kubernetes.io/docs/whatisk8s/" target="_blank" rel="external">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文介绍kubernetes的安全性配置。<br><a id="more"></a></p>
