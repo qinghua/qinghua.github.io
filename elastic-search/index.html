@@ -1,0 +1,636 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器快速上手Elasticsearch | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。
+对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器快速上手Elasticsearch">
+<meta property="og:url" content="http://qinghua.github.io/elastic-search/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。
+对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器快速上手Elasticsearch">
+<meta name="twitter:description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。
+对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/elastic-search/" title="用容器快速上手Elasticsearch" itemprop="url">用容器快速上手Elasticsearch</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-08-28T13:06:34.000Z" itemprop="datePublished"> 发表于 2016-08-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8"><span class="toc-number">1.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7D22_u5F15"><span class="toc-number">2.</span> <span class="toc-text">索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u641C_u7D22"><span class="toc-number">3.</span> <span class="toc-text">搜索</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u8BE2"><span class="toc-number">3.1.</span> <span class="toc-text">查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7B80_u6613_u641C_u7D22"><span class="toc-number">3.2.</span> <span class="toc-text">简易搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u8BE2DSL"><span class="toc-number">3.3.</span> <span class="toc-text">查询DSL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5168_u6587_u641C_u7D22"><span class="toc-number">3.4.</span> <span class="toc-text">全文搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7EDF_u8BA1"><span class="toc-number">3.5.</span> <span class="toc-text">统计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">4.</span> <span class="toc-text">中文</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elasticsearch</a>是用Java开发的基于<a href="https://lucene.apache.org/" target="_blank" rel="external">Apache Lucene</a>的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。</p>
+<p>对<a href="http://lucene.apache.org/solr/" target="_blank" rel="external">Apache Solr</a>入门有兴趣的朋友请参考<a href="/solr">用容器快速上手Apache Solr</a>。<br><a id="more"></a></p>
+<h2 id="u542F_u52A8"><a href="#u542F_u52A8" class="headerlink" title="启动"></a>启动</h2><p>关于Elasticsearch的入门知识，有一本gitbook：<a href="https://www.gitbook.com/book/fuxiaopang/learnelasticsearch/details" target="_blank" rel="external">《Elasticsearch 权威指南》</a>翻译得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Elasticsearch：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=host --name=es elasticsearch:2.3.5</div></pre></td></tr></table></figure></p>
+<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a href="http://192.168.99.100:9200/" target="_blank" rel="external">http://192.168.99.100:9200/</a>来从Elasticsearch获得json数据了：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"name"</span> : <span class="string">"Lorvex"</span>,</div><div class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch"</span>,</div><div class="line">  <span class="attr">"version"</span> : &#123;</div><div class="line">    <span class="attr">"number"</span> : <span class="string">"2.3.5"</span>,</div><div class="line">    <span class="attr">"build_hash"</span> : <span class="string">"90f439ff60a3c0f497f91663701e64ccd01edbb4"</span>,</div><div class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-07-27T10:36:52Z"</span>,</div><div class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</div><div class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"5.5.0"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>也可以使用<code>_cat</code>直接在命令行获取Elasticsearch的健康状态和节点状态：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'192.168.99.100:9200/_cat/health?v'</span></div><div class="line">curl <span class="string">'192.168.99.100:9200/_cat/nodes?v'</span></div></pre></td></tr></table></figure></p>
+<h2 id="u7D22_u5F15"><a href="#u7D22_u5F15" class="headerlink" title="索引"></a>索引</h2><p>与Solr不同，Elasticsearch只支持json格式。创建索引的过程，就是向服务器POST数据的过程：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl -XPOST <span class="string">'http://192.168.99.100:9200/megacorp/employee'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "first_name" : "John",</div><div class="line">    "last_name" :  "Smith",</div><div class="line">    "age" :        25,</div><div class="line">    "about" :      "I love to go rock climbing",</div><div class="line">    "interests": [ "sports", "music" ]</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>立刻就能得到Elasticsearch返回的结果：<strong>{“_index”:”megacorp”,”_type”:”employee”,”_id”:”AVbK2ssDm7bdYo65QJ6k”,”_version”:1,”_shards”:{“total”:2,”successful”:1,”failed”:0},”created”:true}</strong>。Url里的megacorp是索引的名字（想象成一个数据库），employee是类型的名字（想象成一张表）。返回的<code>_id</code>是Elasticsearch随机创建的一个ID，用于标识数据。</p>
+<p>可以通过以下url获取Elasticsearch的索引信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/_cat/indices?v'</span></div></pre></td></tr></table></figure></p>
+<p>修改索引的话，发出PUT请求就可以了（别忘了把ID换成你自己生成的<code>_id</code>）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl -XPUT <span class="string">'http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "first_name" : "Johnie",</div><div class="line">    "last_name" :  "Smithreen",</div><div class="line">    "age" :        38,</div><div class="line">    "about" :      "I do not love to go rock climbing",</div><div class="line">    "interests": []</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>如果指定的ID不存在，那么PUT也会新建一条记录。删除索引的话，发出DELETE请求就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -XDELETE <span class="string">'http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k'</span></div></pre></td></tr></table></figure></p>
+<p>或者删除整个索引：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -XDELETE <span class="string">'http://192.168.99.100:9200/megacorp'</span></div></pre></td></tr></table></figure></p>
+<p>再次获取索引信息，便会看到已经没有索引了。让我们加上三条数据，以备下一节搜索使用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">curl -XPOST <span class="string">'http://192.168.99.100:9200/megacorp/employee/1'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "first_name" : "John",</div><div class="line">    "last_name" :  "Smith",</div><div class="line">    "age" :        25,</div><div class="line">    "about" :      "I love to go rock climbing",</div><div class="line">    "interests": [ "sports", "music" ]</div><div class="line">&#125;'</div><div class="line">curl -XPOST <span class="string">'http://192.168.99.100:9200/megacorp/employee/2'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "first_name" :  "Jane",</div><div class="line">    "last_name" :   "Smith",</div><div class="line">    "age" :         32,</div><div class="line">    "about" :       "I like to collect rock albums",</div><div class="line">    "interests":  [ "music" ]</div><div class="line">&#125;'</div><div class="line">curl -XPOST <span class="string">'http://192.168.99.100:9200/megacorp/employee/3'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "first_name" :  "Douglas",</div><div class="line">    "last_name" :   "Fir",</div><div class="line">    "age" :         35,</div><div class="line">    "about":        "I like to build cabinets",</div><div class="line">    "interests":  [ "forestry" ]</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<h2 id="u641C_u7D22"><a href="#u641C_u7D22" class="headerlink" title="搜索"></a>搜索</h2><h3 id="u67E5_u8BE2"><a href="#u67E5_u8BE2" class="headerlink" title="查询"></a>查询</h3><p>要查看刚刚创建的数据，直接get就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/1'</span></div><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/2'</span></div><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/3'</span></div></pre></td></tr></table></figure></p>
+<p>全部查询改一下url就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span></div><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/_search'</span></div><div class="line">curl <span class="string">'http://192.168.99.100:9200/_search'</span></div></pre></td></tr></table></figure></p>
+<h3 id="u7B80_u6613_u641C_u7D22"><a href="#u7B80_u6613_u641C_u7D22" class="headerlink" title="简易搜索"></a>简易搜索</h3><p>上面的命令都只能算查询，还不算搜索。接下来让我们尝试Elasticsearch强大的搜索功能：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search?q=last_name:Smith'</span></div><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "query" : &#123;</div><div class="line">        "match" : &#123;</div><div class="line">            "last_name" : "Smith"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<h3 id="u67E5_u8BE2DSL"><a href="#u67E5_u8BE2DSL" class="headerlink" title="查询DSL"></a>查询DSL</h3><p>上面两条命令都是去获取<code>last_name</code>为<code>Smith</code>的数据，但是下面一条用到了<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html" target="_blank" rel="external">查询DSL</a>。这是Elasticsearch提供的DSL查询语言，可以通过它完成更加复杂的搜索。接下来除了<code>Smith</code>以外，我们还要增加30岁以上这一条件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "query" : &#123;</div><div class="line">        "filtered" : &#123;</div><div class="line">            "filter" : &#123;</div><div class="line">                "range" : &#123;</div><div class="line">                    "age" : &#123; "gt" : 30 &#125; </div><div class="line">                &#125;</div><div class="line">            &#125;,</div><div class="line">            "query" : &#123;</div><div class="line">                "match" : &#123;</div><div class="line">                    "last_name" : "smith" </div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>在这里介绍一下<code>filter</code>和<code>query</code>。可以这么理解：<code>filter</code>是精确查找（想象成sql里where子句的=、&lt;、&gt;），速度快，有缓存。<code>query</code>是模糊查找（想象成sql里where子句的like，但是能根据匹配度打分），虽然没有<code>filter</code>那么快，但是查询结果能更准确一些。业务上的查询通常都是同时使用二者，通过<code>filter</code>快速找到对象数据，再通过<code>query</code>来匹配。</p>
+<h3 id="u5168_u6587_u641C_u7D22"><a href="#u5168_u6587_u641C_u7D22" class="headerlink" title="全文搜索"></a>全文搜索</h3><p>接下来尝试全文搜索，从<code>about</code>的句子里查询想要的数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "query" : &#123;</div><div class="line">        "match" : &#123;</div><div class="line">            "about" : "rock climbing"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>查到了两个结果。返回值包含了一项<code>_score</code>，既含有<code>rock</code>又含有<code>climbing</code>的数据，得分明显高于只含有<code>rock</code>的数据。理所当然的，得分高的数据排在上面。如果想要精确匹配<code>rock climbing</code>，把<code>match</code>改为<code>match_phrase</code>就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "query" : &#123;</div><div class="line">        "match_phrase" : &#123;</div><div class="line">            "about" : "rock climbing"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<h3 id="u7EDF_u8BA1"><a href="#u7EDF_u8BA1" class="headerlink" title="统计"></a>统计</h3><p>查找最受欢迎的兴趣：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">  "aggs": &#123;</div><div class="line">    "all_interests": &#123;</div><div class="line">      "terms": &#123; "field": "interests" &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>查找每个兴趣的平均年龄：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:9200/megacorp/employee/_search'</span> <span class="_">-d</span> <span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "aggs" : &#123;</div><div class="line">        "all_interests" : &#123;</div><div class="line">            "terms" : &#123; "field" : "interests" &#125;,</div><div class="line">            "aggs" : &#123;</div><div class="line">                "avg_age" : &#123;</div><div class="line">                    "avg" : &#123; "field" : "age" &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div></pre></td></tr></table></figure></p>
+<p>这些数据都是实时计算出来的。就像使用SQL来查询数据库一样，Elasticsearch提供了自己的DSL来让我们基于复杂的条件来搜索。<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html" target="_blank" rel="external">这里</a>是统计功能的官方文档。</p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>同Solr一样，要想让Elasticsearch支持中文分词，需要使用中文分词组件。这里我们还是用<a href="https://github.com/medcl/elasticsearch-analysis-mmseg" target="_blank" rel="external">mmseg插件</a>。首先下载并解压：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">wget -c https://github.com/medcl/elasticsearch-analysis-mmseg/releases/download/v1.9.4/elasticsearch-analysis-mmseg-1.9.4.zip</div><div class="line">unzip <span class="_">-d</span> elasticsearch-analysis-mmseg-1.9.4 elasticsearch-analysis-mmseg-1.9.4.zip</div><div class="line">sed -i <span class="string">'s/2.3.4/2.3.5/'</span> elasticsearch-analysis-mmseg-1.9.4/plugin-descriptor.properties</div></pre></td></tr></table></figure></p>
+<p>1.9.4版的插件只支持Elasticsearch 2.3.4版，要想支持2.3.5，就需要把<code>elasticsearch.version</code>配置改为<code>2.3.5</code>。除此之外，还需要加点儿东西到Elasticsearch的配置文件里：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt; EOF &gt; es.yml</div><div class="line">network.host: 0.0.0.0</div><div class="line">index:</div><div class="line">  analysis:</div><div class="line">    analyzer:</div><div class="line">      mmseg_maxword:</div><div class="line">        <span class="built_in">type</span>: custom</div><div class="line">        filter:</div><div class="line">        - lowercase</div><div class="line">        tokenizer: mmseg_maxword</div><div class="line">      mmseg_maxword_with_cut_letter_digi:</div><div class="line">        <span class="built_in">type</span>: custom</div><div class="line">        filter:</div><div class="line">        - lowercase</div><div class="line">        - cut_letter_digit</div><div class="line">        tokenizer: mmseg_maxword</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<p>上述配置文件的具体语法可以参考<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html" target="_blank" rel="external">这里</a>。接下来就可以启动容器了，分别挂载配置文件和插件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> es</div><div class="line">docker run <span class="_">-d</span> --net=host --name=es \</div><div class="line">    -v `<span class="built_in">pwd</span>`/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml \</div><div class="line">    -v `<span class="built_in">pwd</span>`/elasticsearch-analysis-mmseg-1.9.4/:/usr/share/elasticsearch/plugins/elasticsearch-analysis-mmseg-1.9.4/ \</div><div class="line">    elasticsearch:2.3.5</div></pre></td></tr></table></figure></p>
+<p>Elasticsearch服务启动后，就可以增加索引和<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html" target="_blank" rel="external">映射</a>（mapping，可以理解为数据类型，有点像solr的schema），并且插入一些数据了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">curl -XPUT http://192.168.99.100:9200/index</div><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/_mapping <span class="_">-d</span><span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "fulltext": &#123;</div><div class="line">        "_all": &#123;</div><div class="line">            "analyzer": "mmseg_maxword",</div><div class="line">            "search_analyzer": "mmseg_maxword",</div><div class="line">            "term_vector": "no",</div><div class="line">            "store": "false"</div><div class="line">        &#125;,</div><div class="line">        "properties": &#123;</div><div class="line">            "content": &#123;</div><div class="line">                "type": "string",</div><div class="line">                "store": "no",</div><div class="line">                "term_vector": "with_positions_offsets",</div><div class="line">                "analyzer": "mmseg_maxword",</div><div class="line">                "search_analyzer": "mmseg_maxword",</div><div class="line">                "include_in_all": "true",</div><div class="line">                "boost": 8</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;'</div><div class="line"></div><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/1 <span class="_">-d</span><span class="string">'&#123;content:"美国留给伊拉克的是个烂摊子吗"&#125;'</span></div><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/2 <span class="_">-d</span><span class="string">'&#123;content:"公安部：各地校车将享最高路权"&#125;'</span></div><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/3 <span class="_">-d</span><span class="string">'&#123;content:"中韩渔警冲突调查：韩警平均每天扣1艘中国渔船"&#125;'</span></div><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/4 <span class="_">-d</span><span class="string">'&#123;content:"中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首"&#125;'</span></div></pre></td></tr></table></figure></p>
+<p>最后搜索<code>中国</code>看看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/_search  <span class="_">-d</span><span class="string">'</span></div><div class="line">&#123;</div><div class="line">    "query" : &#123; "term" : &#123; "content" : "中国" &#125;&#125;,</div><div class="line">    "highlight" : &#123;</div><div class="line">        "pre_tags" : ["&lt;tag1&gt;", "&lt;tag2&gt;"],</div><div class="line">        "post_tags" : ["&lt;/tag1&gt;", "&lt;/tag2&gt;"],</div><div class="line">        "fields" : &#123;</div><div class="line">            "content" : &#123;&#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">'</div></pre></td></tr></table></figure></p>
+<p>可以使用<code>_analyze</code>来查看分析的过程：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">"http://192.168.99.100:9200/index/_analyze?analyzer=mmseg_maxword&amp;pretty=true"</span> <span class="_">-d</span> <span class="string">"美国留给伊拉克的是个烂摊子吗"</span></div></pre></td></tr></table></figure></p>
+<p>可见，这句话被解析成：美国、留给、伊、拉克、的、是个、烂、摊子、吗，还不是非常完美。<code>伊拉克</code>、<code>烂摊子</code>都没有很好地识别出来。</p>
+<p>有兴趣的话，还可以重建容器，跟无中文分词的效果对比一下。除了mmseg，大神medcl还写了一个<a href="https://github.com/medcl/elasticsearch-rtf" target="_blank" rel="external">elasticsearch-rtf版本</a>，涵盖诸多中文分词工具，可以直接使用。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/elasticsearch/">elasticsearch</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/elastic-search/" data-title="用容器快速上手Elasticsearch | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/alibaba_druid/" title="不止于数据库连接池的Druid">
+  <strong>上一篇：</strong><br/>
+  <span>
+  不止于数据库连接池的Druid</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/redis-cluster/"  title="用容器轻松搭建redis主从和集群环境">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器轻松搭建redis主从和集群环境
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="elastic-search/" data-title="用容器快速上手Elasticsearch" data-url="http://qinghua.github.io/elastic-search/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8"><span class="toc-number">1.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7D22_u5F15"><span class="toc-number">2.</span> <span class="toc-text">索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u641C_u7D22"><span class="toc-number">3.</span> <span class="toc-text">搜索</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u8BE2"><span class="toc-number">3.1.</span> <span class="toc-text">查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7B80_u6613_u641C_u7D22"><span class="toc-number">3.2.</span> <span class="toc-text">简易搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u8BE2DSL"><span class="toc-number">3.3.</span> <span class="toc-text">查询DSL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5168_u6587_u641C_u7D22"><span class="toc-number">3.4.</span> <span class="toc-text">全文搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7EDF_u8BA1"><span class="toc-number">3.5.</span> <span class="toc-text">统计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">4.</span> <span class="toc-text">中文</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

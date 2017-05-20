@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-security/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
-<meta property="og:updated_time" content="2016-04-29T14:04:17.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="轻松了解Kubernetes认证功能">
 <meta name="twitter:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
@@ -34,7 +34,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -117,8 +117,8 @@
 		<p><a href="http://kubernetes.io/docs/whatisk8s/" target="_blank" rel="external">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文介绍kubernetes的安全性配置。<br><a id="more"></a></p>
 <h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先需要搭建kubernetes集群环境，可以参考<a href="/kubernetes-installation">《轻松搭建Kubernetes 1.2版运行环境》</a>来安装自己的kubernetes集群，运行到flannel配置完成即可。接下来的api server等设置的参数可以参考本文。</p>
 <p>结果应该是有三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>，运行着k8s的api server、controller manager和scheduler；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP分别是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，运行着k8s的kubelet和kube-proxy，当做k8s的两个节点。</p>
-<h2 id="u90E8_u7F72"><a href="#u90E8_u7F72" class="headerlink" title="部署"></a>部署</h2><p>最简单的方式就是通过基于CSV的基本认证。首先需要创建api server的基本认证文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">mkdir security</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="number">123456</span>,admin,qinghua &gt; security/basic_auth.csv                      <span class="comment"># 格式：用户名,密码,用户ID</span></span><br></pre></td></tr></table></figure></p>
-<p>然后就可以生成CA和api server的证书了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> security</span><br><span class="line"></span><br><span class="line">openssl genrsa -out ca.key <span class="number">2048</span></span><br><span class="line">openssl req -x509 -new -nodes -key ca.key -subj <span class="string">"/CN=192.168.33.17"</span> -days <span class="number">10000</span> -out ca.crt</span><br><span class="line">openssl genrsa -out server.key <span class="number">2048</span></span><br><span class="line">openssl req -new -key server.key -subj <span class="string">"/CN=192.168.33.17"</span> -out server.csr</span><br><span class="line">openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days <span class="number">10000</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br></pre></td></tr></table></figure></p>
+<h2 id="u90E8_u7F72"><a href="#u90E8_u7F72" class="headerlink" title="部署"></a>部署</h2><p>最简单的方式就是通过基于CSV的基本认证。首先需要创建api server的基本认证文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir security</div><div class="line"></div><div class="line"><span class="built_in">echo</span> 123456,admin,qinghua &gt; security/basic_auth.csv                      <span class="comment"># 格式：用户名,密码,用户ID</span></div></pre></td></tr></table></figure></p>
+<p>然后就可以生成CA和api server的证书了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> security</div><div class="line"></div><div class="line">openssl genrsa -out ca.key 2048</div><div class="line">openssl req -x509 -new -nodes -key ca.key -subj <span class="string">"/CN=192.168.33.17"</span> -days 10000 -out ca.crt</div><div class="line">openssl genrsa -out server.key 2048</div><div class="line">openssl req -new -key server.key -subj <span class="string">"/CN=192.168.33.17"</span> -out server.csr</div><div class="line">openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 10000</div><div class="line"></div><div class="line"><span class="built_in">cd</span> ..</div></pre></td></tr></table></figure></p>
 <p>上面的命令会生成若干证书相关文件，作用如下：</p>
 <ul>
 <li>ca.key：自己生成的CA的私钥，用于模拟一个CA</li>
@@ -127,27 +127,27 @@
 <li>server.csr：api server的证书请求文件，用于请求api server的证书</li>
 <li>server.crt：用自己模拟的CA签发的api server的证书，用于配置api server的https</li>
 </ul>
-<p>接下来启动api server，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-apiserver/" target="_blank" rel="external">kube-apiserver官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=<span class="number">192.168</span>.<span class="number">33.17</span> \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=<span class="number">0.0</span>.<span class="number">0.0</span> \</span><br><span class="line">  --etcd-servers=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> \</span><br><span class="line">  --service-cluster-ip-range=<span class="number">11.0</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=<span class="number">443</span> \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv</span><br></pre></td></tr></table></figure></p>
-<p>还需要启动controller manager，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-controller-manager/" target="_blank" rel="external">kube-controller-manager官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=cm \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</span><br><span class="line">  kube-controller-manager \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --cluster-cidr=<span class="number">10.245</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --allocate-node-cidrs=<span class="literal">true</span> \</span><br><span class="line">  --root-ca-file=/security/ca.crt \</span><br><span class="line">  --service-account-private-key-file=/security/server.key</span><br></pre></td></tr></table></figure></p>
-<p>最后是scheduler，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-scheduler/" target="_blank" rel="external">kube-scheduler官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:<span class="number">903</span>b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span></span><br></pre></td></tr></table></figure></p>
-<p>可以运行以下命令来确认安全配置已经生效：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -k -u admin:<span class="number">123456</span> https://<span class="number">127.0</span>.<span class="number">0.1</span>/</span><br><span class="line">curl -k -u admin:<span class="number">123456</span> https://<span class="number">127.0</span>.<span class="number">0.1</span>/api/v1</span><br></pre></td></tr></table></figure></p>
-<p>最后启动kubelet和kube-proxy，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kubelet/" target="_blank" rel="external">kubelet官方文档</a>和<a href="http://kubernetes.io/docs/admin/kube-proxy/" target="_blank" rel="external">kube-proxy官方文档</a>：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">'inet addr:'</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2 | cut <span class="operator">-d</span><span class="string">' '</span> <span class="operator">-f</span>1`</span><br><span class="line"></span><br><span class="line">sudo kubernetes/server/bin/kubelet \</span><br><span class="line">  --api-servers=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --cluster-dns=<span class="number">11.0</span>.<span class="number">0.10</span> \</span><br><span class="line">  --cluster-domain=cluster.local \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> \</span><br><span class="line">  --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br><span class="line"></span><br><span class="line">sudo kubernetes/server/bin/kube-proxy \</span><br><span class="line">  --master=<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> &gt; proxy.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure></p>
-<h2 id="u9A8C_u8BC1"><a href="#u9A8C_u8BC1" class="headerlink" title="验证"></a>验证</h2><p>如果需要通过https访问，kubectl的命令就略微有点儿麻烦了，需要用<code>basic_auth.csv</code>里配置的<code>admin/123456</code>来登录：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> https://<span class="number">192.168</span>.<span class="number">33.17</span> --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=<span class="number">123456</span> get po</span><br></pre></td></tr></table></figure></p>
-<p>因为8080端口还开着，所以也可以通过http访问：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get po</span><br></pre></td></tr></table></figure></p>
-<p>配置完成后，可以看到系统里有TYPE为<code>kubernetes.io/service-account-token</code>的秘密：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get secret</span><br></pre></td></tr></table></figure></p>
-<p>里面有三条数据，分别是<code>ca.crt</code>，<code>namespace</code>和<code>token</code>，可以通过以下命令看到：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> describe secret</span><br></pre></td></tr></table></figure></p>
-<p>如果你通过kubernetes启动了一个pod，就可以在容器的<code>/var/run/secrets/kubernetes.io/serviceaccount/</code>目录里看到以三个文件的形式看到这三条数据（这是<code>--admission-control=ServiceAccount</code>的功劳），当pod需要访问系统服务的时候，就可以使用它们了。可以使用以下命令看到系统的服务账号：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span> get serviceAccount</span><br></pre></td></tr></table></figure></p>
-<h2 id="u7B80_u5316kubectl"><a href="#u7B80_u5316kubectl" class="headerlink" title="简化kubectl"></a>简化kubectl</h2><p>如果我们通过设置<code>--insecure-port=0</code>把api server的http端口关闭，那它就只能通过https访问了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> apiserver</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=<span class="number">192.168</span>.<span class="number">33.17</span> \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=<span class="number">0.0</span>.<span class="number">0.0</span> \</span><br><span class="line">  --etcd-servers=http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">4001</span> \</span><br><span class="line">  --service-cluster-ip-range=<span class="number">11.0</span>.<span class="number">0.0</span>/<span class="number">16</span> \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=<span class="number">443</span> \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv \</span><br><span class="line">  --insecure-port=<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>这样的话，就连取个pod都得这么麻烦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl <span class="operator">-s</span> https://<span class="number">192.168</span>.<span class="number">33.17</span> --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=<span class="number">123456</span> get po</span><br></pre></td></tr></table></figure></p>
-<p>幸运的是，kubernetes提供了一种方式，让我们可以大大简化命令，只用这样就好了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure></p>
-<p>下面就让我们来试一下吧！首先用<code>kubectl config</code>命令来配置admin用户：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-credentials admin --username=admin --password=<span class="number">123456</span></span><br></pre></td></tr></table></figure></p>
-<p>然后是api server的访问方式，给集群起个名字叫qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-cluster qinghua --insecure-skip-tls-verify=<span class="literal">true</span> --server=https://<span class="number">192.168</span>.<span class="number">33.17</span></span><br></pre></td></tr></table></figure></p>
-<p>接下来创建一个context，它连接用户admin和集群qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config <span class="built_in">set</span>-context default/qinghua --user=admin --namespace=default --cluster=qinghua</span><br></pre></td></tr></table></figure></p>
-<p>最后设置一下默认的context：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config use-context default/qinghua</span><br></pre></td></tr></table></figure></p>
-<p>然后就可以用我们的简化版啦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure></p>
-<p>可以通过以下命令来看到当前kubectl的配置：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/kubernetes/server/bin/kubectl config view</span><br></pre></td></tr></table></figure></p>
-<p>能够看到如下内容：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">clusters:</span><br><span class="line">- cluster:</span><br><span class="line">    insecure-skip-tls-verify: <span class="literal">true</span></span><br><span class="line">    server: https://<span class="number">192.168</span>.<span class="number">33.17</span></span><br><span class="line">  name: qinghua</span><br><span class="line">contexts:</span><br><span class="line">- context:</span><br><span class="line">    cluster: qinghua</span><br><span class="line">    namespace: default</span><br><span class="line">    user: admin</span><br><span class="line">  name: default/qinghua</span><br><span class="line">current-context: default/qinghua</span><br><span class="line">kind: Config</span><br><span class="line">preferences: &#123;&#125;</span><br><span class="line">users:</span><br><span class="line">- name: admin</span><br><span class="line">  user:</span><br><span class="line">    password: <span class="string">"123456"</span></span><br><span class="line">    username: admin</span><br></pre></td></tr></table></figure></p>
-<p>实际上这些配置都存放在<code>~/.kube/config</code>文件里：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ~/.kube/config</span><br></pre></td></tr></table></figure></p>
+<p>接下来启动api server，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-apiserver/" target="_blank" rel="external">kube-apiserver官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">  --name=apiserver \</div><div class="line">  --net=host \</div><div class="line">  -v /home/vagrant/security:/security \</div><div class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</div><div class="line">  kube-apiserver \</div><div class="line">  --advertise-address=192.168.33.17 \</div><div class="line">  --admission-control=ServiceAccount \</div><div class="line">  --insecure-bind-address=0.0.0.0 \</div><div class="line">  --etcd-servers=http://192.168.33.17:4001 \</div><div class="line">  --service-cluster-ip-range=11.0.0.0/16 \</div><div class="line">  --tls-cert-file=/security/server.crt \</div><div class="line">  --tls-private-key-file=/security/server.key \</div><div class="line">  --secure-port=443 \</div><div class="line">  --basic-auth-file=/security/basic_auth.csv</div></pre></td></tr></table></figure></p>
+<p>还需要启动controller manager，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-controller-manager/" target="_blank" rel="external">kube-controller-manager官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">  --name=cm \</div><div class="line">  -v /home/vagrant/security:/security \</div><div class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</div><div class="line">  kube-controller-manager \</div><div class="line">  --master=192.168.33.17:8080 \</div><div class="line">  --cluster-cidr=10.245.0.0/16 \</div><div class="line">  --allocate-node-cidrs=<span class="literal">true</span> \</div><div class="line">  --root-ca-file=/security/ca.crt \</div><div class="line">  --service-account-private-key-file=/security/server.key</div></pre></td></tr></table></figure></p>
+<p>最后是scheduler，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kube-scheduler/" target="_blank" rel="external">kube-scheduler官方文档</a>：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">  --name=scheduler \</div><div class="line">  gcr.io/google_containers/kube-scheduler:903b34d5ed7367ec4dddf846675613c9 \</div><div class="line">  kube-scheduler \</div><div class="line">  --master=192.168.33.17:8080</div></pre></td></tr></table></figure></p>
+<p>可以运行以下命令来确认安全配置已经生效：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl -k -u admin:123456 https://127.0.0.1/</div><div class="line">curl -k -u admin:123456 https://127.0.0.1/api/v1</div></pre></td></tr></table></figure></p>
+<p>最后启动kubelet和kube-proxy，参数的作用可以参考<a href="http://kubernetes.io/docs/admin/kubelet/" target="_blank" rel="external">kubelet官方文档</a>和<a href="http://kubernetes.io/docs/admin/kube-proxy/" target="_blank" rel="external">kube-proxy官方文档</a>：<br><figure class="highlight sh"><figcaption><span>node1 node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">'inet addr:'</span> | cut <span class="_">-d</span>: <span class="_">-f</span>2 | cut <span class="_">-d</span><span class="string">' '</span> <span class="_">-f</span>1`</div><div class="line"></div><div class="line">sudo kubernetes/server/bin/kubelet \</div><div class="line">  --api-servers=192.168.33.17:8080 \</div><div class="line">  --cluster-dns=11.0.0.10 \</div><div class="line">  --cluster-domain=cluster.local \</div><div class="line">  --hostname-override=<span class="variable">$NODE_IP</span> \</div><div class="line">  --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log 2&gt;&amp;1 &amp;</div><div class="line"></div><div class="line">sudo kubernetes/server/bin/kube-proxy \</div><div class="line">  --master=192.168.33.17:8080 \</div><div class="line">  --hostname-override=<span class="variable">$NODE_IP</span> &gt; proxy.log 2&gt;&amp;1 &amp;</div></pre></td></tr></table></figure></p>
+<h2 id="u9A8C_u8BC1"><a href="#u9A8C_u8BC1" class="headerlink" title="验证"></a>验证</h2><p>如果需要通过https访问，kubectl的命令就略微有点儿麻烦了，需要用<code>basic_auth.csv</code>里配置的<code>admin/123456</code>来登录：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> https://192.168.33.17 --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=123456 get po</div></pre></td></tr></table></figure></p>
+<p>因为8080端口还开着，所以也可以通过http访问：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> http://192.168.33.17:8080 get po</div></pre></td></tr></table></figure></p>
+<p>配置完成后，可以看到系统里有TYPE为<code>kubernetes.io/service-account-token</code>的秘密：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> http://192.168.33.17:8080 get secret</div></pre></td></tr></table></figure></p>
+<p>里面有三条数据，分别是<code>ca.crt</code>，<code>namespace</code>和<code>token</code>，可以通过以下命令看到：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> http://192.168.33.17:8080 describe secret</div></pre></td></tr></table></figure></p>
+<p>如果你通过kubernetes启动了一个pod，就可以在容器的<code>/var/run/secrets/kubernetes.io/serviceaccount/</code>目录里看到以三个文件的形式看到这三条数据（这是<code>--admission-control=ServiceAccount</code>的功劳），当pod需要访问系统服务的时候，就可以使用它们了。可以使用以下命令看到系统的服务账号：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> http://192.168.33.17:8080 get serviceAccount</div></pre></td></tr></table></figure></p>
+<h2 id="u7B80_u5316kubectl"><a href="#u7B80_u5316kubectl" class="headerlink" title="简化kubectl"></a>简化kubectl</h2><p>如果我们通过设置<code>--insecure-port=0</code>把api server的http端口关闭，那它就只能通过https访问了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> apiserver</div><div class="line">docker run <span class="_">-d</span> \</div><div class="line">  --name=apiserver \</div><div class="line">  --net=host \</div><div class="line">  -v /home/vagrant/security:/security \</div><div class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</div><div class="line">  kube-apiserver \</div><div class="line">  --advertise-address=192.168.33.17 \</div><div class="line">  --admission-control=ServiceAccount \</div><div class="line">  --insecure-bind-address=0.0.0.0 \</div><div class="line">  --etcd-servers=http://192.168.33.17:4001 \</div><div class="line">  --service-cluster-ip-range=11.0.0.0/16 \</div><div class="line">  --tls-cert-file=/security/server.crt \</div><div class="line">  --tls-private-key-file=/security/server.key \</div><div class="line">  --secure-port=443 \</div><div class="line">  --basic-auth-file=/security/basic_auth.csv \</div><div class="line">  --insecure-port=0</div></pre></td></tr></table></figure></p>
+<p>这样的话，就连取个pod都得这么麻烦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl <span class="_">-s</span> https://192.168.33.17 --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=123456 get po</div></pre></td></tr></table></figure></p>
+<p>幸运的是，kubernetes提供了一种方式，让我们可以大大简化命令，只用这样就好了：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl get po</div></pre></td></tr></table></figure></p>
+<p>下面就让我们来试一下吧！首先用<code>kubectl config</code>命令来配置admin用户：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl config <span class="built_in">set</span>-credentials admin --username=admin --password=123456</div></pre></td></tr></table></figure></p>
+<p>然后是api server的访问方式，给集群起个名字叫qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl config <span class="built_in">set</span>-cluster qinghua --insecure-skip-tls-verify=<span class="literal">true</span> --server=https://192.168.33.17</div></pre></td></tr></table></figure></p>
+<p>接下来创建一个context，它连接用户admin和集群qinghua：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl config <span class="built_in">set</span>-context default/qinghua --user=admin --namespace=default --cluster=qinghua</div></pre></td></tr></table></figure></p>
+<p>最后设置一下默认的context：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl config use-context default/qinghua</div></pre></td></tr></table></figure></p>
+<p>然后就可以用我们的简化版啦：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl get po</div></pre></td></tr></table></figure></p>
+<p>可以通过以下命令来看到当前kubectl的配置：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">kubernetes/server/bin/kubectl config view</div></pre></td></tr></table></figure></p>
+<p>能够看到如下内容：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">apiVersion: v1</div><div class="line">clusters:</div><div class="line">- cluster:</div><div class="line">    insecure-skip-tls-verify: <span class="literal">true</span></div><div class="line">    server: https://192.168.33.17</div><div class="line">  name: qinghua</div><div class="line">contexts:</div><div class="line">- context:</div><div class="line">    cluster: qinghua</div><div class="line">    namespace: default</div><div class="line">    user: admin</div><div class="line">  name: default/qinghua</div><div class="line">current-context: default/qinghua</div><div class="line">kind: Config</div><div class="line">preferences: &#123;&#125;</div><div class="line">users:</div><div class="line">- name: admin</div><div class="line">  user:</div><div class="line">    password: <span class="string">"123456"</span></div><div class="line">    username: admin</div></pre></td></tr></table></figure></p>
+<p>实际上这些配置都存放在<code>~/.kube/config</code>文件里：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat ~/.kube/config</div></pre></td></tr></table></figure></p>
 <p>修改这个文件也可以实时生效。细心的童鞋们可以看到，cluster、context和users都是集合，也就是说如果需要切换用户和集群等，只需要设置默认context就可以了，非常方便。</p>
   
 	</div>
@@ -233,15 +233,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -249,7 +259,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -282,7 +292,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -290,15 +300,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -306,43 +320,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -370,8 +380,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -408,7 +418,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

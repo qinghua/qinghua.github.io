@@ -27,10 +27,11 @@
 <meta property="og:image" content="http://qinghua.github.io/img/ca2.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/ca3.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/github-ca.jpg">
-<meta property="og:updated_time" content="2016-03-19T07:18:32.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="证书的那些事儿">
 <meta name="twitter:description" content="现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/ziyan.jpg">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -42,7 +43,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -149,19 +150,19 @@
 <li>增强型证书（Extended Validation SSL Certificate）：总之就是验证流程更麻烦，结果就是可以在地址栏显示公司的名称，增加可信度。就像这样：<br><img src="/img/github-ca.jpg" alt=""></li>
 </ul>
 <p>申请证书需要给CA提供一个<a href="https://en.wikipedia.org/wiki/Certificate_signing_request" target="_blank" rel="external">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，如果CA方面没有问题，就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
-<h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="operator">-e</span> -des <span class="operator">-a</span>    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX19NMXhTRoTNJE0YV+TKcRL0+xzT9UMUN5Y= | openssl enc <span class="operator">-d</span> -des <span class="operator">-a</span></span><br></pre></td></tr></table></figure></p>
-<p>其中的<code>-a</code>代表base64编码。还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">cat private.pem</span><br></pre></td></tr></table></figure></p>
-<p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.pem -pubout -out public.pem</span><br><span class="line">cat public.pem</span><br></pre></td></tr></table></figure></p>
-<p>接下来用刚刚生成的公钥加密，私钥解密：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -encrypt -pubin -inkey public.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -decrypt -inkey private.pem</span><br></pre></td></tr></table></figure></p>
-<p>然后私钥加密，公钥解密。注意这个的意义其实是私钥签名，公钥认证：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -sign -inkey private.pem -out encrypt</span><br><span class="line">cat encrypt</span><br><span class="line">cat encrypt | openssl rsautl -verify -pubin -inkey public.pem</span><br></pre></td></tr></table></figure></p>
-<h3 id="u6563_u5217"><a href="#u6563_u5217" class="headerlink" title="散列"></a>散列</h3><p>现在轮到散列算法了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -md5</span><br><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -sha1</span><br></pre></td></tr></table></figure></p>
-<p>也可以用linux自带的小工具实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | md5sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha1sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha224sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha256sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha384sum</span><br><span class="line"><span class="built_in">echo</span> Hello World! | sha512sum</span><br></pre></td></tr></table></figure></p>
+<h2 id="u52A8_u624B_u65F6_u95F4"><a href="#u52A8_u624B_u65F6_u95F4" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="u52A0_u89E3_u5BC6"><a href="#u52A0_u89E3_u5BC6" class="headerlink" title="加解密"></a>加解密</h3><p><a href="https://en.wikipedia.org/wiki/OpenSSL" target="_blank" rel="external">OpenSSL</a>是SSL/TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> Hello World! | openssl enc <span class="_">-e</span> -des <span class="_">-a</span>    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></div><div class="line"><span class="built_in">echo</span> U2FsdGVkX19NMXhTRoTNJE0YV+TKcRL0+xzT9UMUN5Y= | openssl enc <span class="_">-d</span> -des <span class="_">-a</span></div></pre></td></tr></table></figure></p>
+<p>其中的<code>-a</code>代表base64编码。还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">openssl genrsa -out private.pem 2048</div><div class="line">cat private.pem</div></pre></td></tr></table></figure></p>
+<p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">openssl rsa -in private.pem -pubout -out public.pem</div><div class="line">cat public.pem</div></pre></td></tr></table></figure></p>
+<p>接下来用刚刚生成的公钥加密，私钥解密：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -encrypt -pubin -inkey public.pem -out encrypt</div><div class="line">cat encrypt</div><div class="line">cat encrypt | openssl rsautl -decrypt -inkey private.pem</div></pre></td></tr></table></figure></p>
+<p>然后私钥加密，公钥解密。注意这个的意义其实是私钥签名，公钥认证：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -sign -inkey private.pem -out encrypt</div><div class="line">cat encrypt</div><div class="line">cat encrypt | openssl rsautl -verify -pubin -inkey public.pem</div></pre></td></tr></table></figure></p>
+<h3 id="u6563_u5217"><a href="#u6563_u5217" class="headerlink" title="散列"></a>散列</h3><p>现在轮到散列算法了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -md5</div><div class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -sha1</div></pre></td></tr></table></figure></p>
+<p>也可以用linux自带的小工具实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> Hello World! | md5sum</div><div class="line"><span class="built_in">echo</span> Hello World! | sha1sum</div><div class="line"><span class="built_in">echo</span> Hello World! | sha224sum</div><div class="line"><span class="built_in">echo</span> Hello World! | sha256sum</div><div class="line"><span class="built_in">echo</span> Hello World! | sha384sum</div><div class="line"><span class="built_in">echo</span> Hello World! | sha512sum</div></pre></td></tr></table></figure></p>
 <p>是不是越来越长了？散列越长越不容易被碰撞。</p>
-<h3 id="u8BC1_u4E66"><a href="#u8BC1_u4E66" class="headerlink" title="证书"></a>证书</h3><p>申请证书，首先需要生成CSR文件。而CSR文件需要先生成私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem <span class="number">2048</span></span><br><span class="line">openssl req -new -key private.pem -out domain.csr</span><br><span class="line">cat domain.csr</span><br></pre></td></tr></table></figure></p>
-<p>生成私钥文件是可以加密的，加上一个参数比如<code>-des3</code>就可以了。生成CSR文件的时候需要填写各种信息，没耐心就随便写点什么甚至一路回车也行，反正又不是真的去找CA。如果你真的有需求，<a href="https://support.rackspace.com/how-to/generate-a-csr-with-openssl/#create-a-csr" target="_blank" rel="external">这里有一张表格</a>说明了应该怎么填。填完的东西可以这么看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -noout -text -in domain.csr</span><br></pre></td></tr></table></figure></p>
-<p>现在我们假装自己是个CA，有自己的密钥对，然后对刚才提交的CSR文件签名：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private_ca.pem <span class="number">2048</span></span><br><span class="line">openssl x509 -req -days <span class="number">365</span> -in domain.csr -signkey private_ca.pem -out my_domain.crt</span><br><span class="line">cat my_domain.crt</span><br></pre></td></tr></table></figure></p>
-<p>大功告成！生成的my_domain.crt就是我们要的证书。由于这个是自签名证书，默认是不被我们的操作系统信任的。如果我们需要增加信任，可以参考<a href="https://briansnelson.com/How_to_add_trusted_root_certificates" target="_blank" rel="external">这里</a>。比如在Ubuntu/Debian里可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo cp my_domain.crt /usr/<span class="built_in">local</span>/share/ca-certificates/</span><br><span class="line">sudo update-ca-certificates</span><br></pre></td></tr></table></figure></p>
-<p>如果要取消信任，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rm /usr/<span class="built_in">local</span>/share/ca-certificates/my_domain.crt</span><br><span class="line">sudo update-ca-certificates --fresh</span><br></pre></td></tr></table></figure></p>
+<h3 id="u8BC1_u4E66"><a href="#u8BC1_u4E66" class="headerlink" title="证书"></a>证书</h3><p>申请证书，首先需要生成CSR文件。而CSR文件需要先生成私钥：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">openssl genrsa -out private.pem 2048</div><div class="line">openssl req -new -key private.pem -out domain.csr</div><div class="line">cat domain.csr</div></pre></td></tr></table></figure></p>
+<p>生成私钥文件是可以加密的，加上一个参数比如<code>-des3</code>就可以了。生成CSR文件的时候需要填写各种信息，没耐心就随便写点什么甚至一路回车也行，反正又不是真的去找CA。如果你真的有需求，<a href="https://support.rackspace.com/how-to/generate-a-csr-with-openssl/#create-a-csr" target="_blank" rel="external">这里有一张表格</a>说明了应该怎么填。填完的东西可以这么看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl req -noout -text -in domain.csr</div></pre></td></tr></table></figure></p>
+<p>现在我们假装自己是个CA，有自己的密钥对，然后对刚才提交的CSR文件签名：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">openssl genrsa -out private_ca.pem 2048</div><div class="line">openssl x509 -req -days 365 -in domain.csr -signkey private_ca.pem -out my_domain.crt</div><div class="line">cat my_domain.crt</div></pre></td></tr></table></figure></p>
+<p>大功告成！生成的my_domain.crt就是我们要的证书。由于这个是自签名证书，默认是不被我们的操作系统信任的。如果我们需要增加信任，可以参考<a href="https://briansnelson.com/How_to_add_trusted_root_certificates" target="_blank" rel="external">这里</a>。比如在Ubuntu/Debian里可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo cp my_domain.crt /usr/<span class="built_in">local</span>/share/ca-certificates/</div><div class="line">sudo update-ca-certificates</div></pre></td></tr></table></figure></p>
+<p>如果要取消信任，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo rm /usr/<span class="built_in">local</span>/share/ca-certificates/my_domain.crt</div><div class="line">sudo update-ca-certificates --fresh</div></pre></td></tr></table></figure></p>
 <h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://computer.howstuffworks.com/encryption.htm" target="_blank" rel="external">How Encryption Works</a><br><a href="http://victor1980.blog.51cto.com/3664622/1659447" target="_blank" rel="external">有关SSL证书的一些事儿</a><br><a href="http://seanlook.com/2015/01/07/tls-ssl/" target="_blank" rel="external">SSL/TLS原理详解</a><br><a href="http://seanlook.com/2015/01/15/openssl-certificate-encryption/" target="_blank" rel="external">OpenSSL 与 SSL 数字证书概念贴</a><br><a href="https://program-think.blogspot.com/2010/02/introduce-digital-certificate-and-ca.html" target="_blank" rel="external">数字证书及 CA 的扫盲介绍</a><br><a href="https://program-think.blogspot.com/2014/11/https-ssl-tls-1.html" target="_blank" rel="external">扫盲 HTTPS 和 SSL/TLS 协议</a><br><a href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html" target="_blank" rel="external">数字签名是什么？</a><br><a href="http://boxingp.github.io/blog/2015/04/04/should-cnnic-certificate-to-be-trusted/" target="_blank" rel="external">CNNIC证书值得信任吗？</a></p>
   
 	</div>
@@ -176,7 +177,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/certficate/">certficate</a><a href="/tags/encryption/">encryption</a><a href="/tags/https/">https</a>
+  <span></span> <a href="/tags/encryption/">encryption</a><a href="/tags/https/">https</a><a href="/tags/certficate/">certficate</a>
   </div>
 
 </div>
@@ -247,15 +248,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -263,7 +274,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -296,7 +307,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -304,15 +315,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -320,43 +335,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -384,8 +395,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -422,7 +433,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

@@ -1,0 +1,618 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器轻松搭建redis主从和集群环境 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Redis是目前使用得非常广泛的开源分布式缓存。它支持诸多数据结构和数据持久化，并且通过Redis Sentinel和Redis cluster来支持高可用。本文旨在通过docker轻松搭建redis的主从/集群环境。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器轻松搭建redis主从和集群环境">
+<meta property="og:url" content="http://qinghua.github.io/redis-cluster/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Redis是目前使用得非常广泛的开源分布式缓存。它支持诸多数据结构和数据持久化，并且通过Redis Sentinel和Redis cluster来支持高可用。本文旨在通过docker轻松搭建redis的主从/集群环境。">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器轻松搭建redis主从和集群环境">
+<meta name="twitter:description" content="Redis是目前使用得非常广泛的开源分布式缓存。它支持诸多数据结构和数据持久化，并且通过Redis Sentinel和Redis cluster来支持高可用。本文旨在通过docker轻松搭建redis的主从/集群环境。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/redis-cluster/" title="用容器轻松搭建redis主从和集群环境" itemprop="url">用容器轻松搭建redis主从和集群环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-08-24T01:18:57.000Z" itemprop="datePublished"> 发表于 2016-08-24</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u4ECE"><span class="toc-number">1.</span> <span class="toc-text">主从</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96C6_u7FA4"><span class="toc-number">2.</span> <span class="toc-text">集群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u4ECE_u96C6_u7FA4"><span class="toc-number">3.</span> <span class="toc-text">主从集群</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://redis.io/" target="_blank" rel="external">Redis</a>是目前使用得非常广泛的开源分布式缓存。它支持诸多数据结构和数据持久化，并且通过<a href="http://redis.io/topics/sentinel" target="_blank" rel="external">Redis Sentinel</a>和<a href="http://redis.io/topics/cluster-tutorial" target="_blank" rel="external">Redis cluster</a>来支持高可用。本文旨在通过docker轻松搭建redis的主从/集群环境。<br><a id="more"></a></p>
+<h2 id="u4E3B_u4ECE"><a href="#u4E3B_u4ECE" class="headerlink" title="主从"></a>主从</h2><p>用容器启动redis实例非常容易：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run --net=host --name=master <span class="_">-d</span> redis:3.2.0</div></pre></td></tr></table></figure></p>
+<p>这就搞定了。进去看一看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it master redis-cli</div><div class="line"><span class="built_in">set</span> ggg 123</div><div class="line">keys *</div><div class="line">get ggg</div><div class="line"><span class="built_in">exit</span></div></pre></td></tr></table></figure></p>
+<p>可以通过配置文件、启动参数或者命令来新建一个从实例。接下来我们用启动参数的方式：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run --net=host --name=slave <span class="_">-d</span> redis:3.2.0 redis-server --port 6380 --slaveof 127.0.0.1 6379</div></pre></td></tr></table></figure></p>
+<p>进去看一看，就能看到刚才创建的ggg已经被同步过来了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it slave redis-cli</div><div class="line">keys *</div><div class="line">get ggg</div><div class="line"><span class="built_in">exit</span></div></pre></td></tr></table></figure></p>
+<p>最后把刚刚创建的实例都删除掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> master slave</div></pre></td></tr></table></figure></p>
+<h2 id="u96C6_u7FA4"><a href="#u96C6_u7FA4" class="headerlink" title="集群"></a>集群</h2><p>Redis的集群至少是3个实例。接下来为这3个实例创建3个端口不同的配置文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt; EOF &gt; redis1.conf</div><div class="line">port 6381</div><div class="line">cluster-enabled yes</div><div class="line">cluster-config-file nodes.conf</div><div class="line">cluster-node-timeout 5000</div><div class="line">appendonly yes</div><div class="line">EOF</div><div class="line"></div><div class="line">cp redis1.conf redis2.conf</div><div class="line">sed -i <span class="string">'s/6381/6382/'</span> redis2.conf</div><div class="line"></div><div class="line">cp redis1.conf redis3.conf</div><div class="line">sed -i <span class="string">'s/6381/6383/'</span> redis3.conf</div></pre></td></tr></table></figure></p>
+<p>通过刚刚创建的配置文件来启动3个redis实例：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker run --net=host --name=redis1 -v `<span class="built_in">pwd</span>`/redis1.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis2 -v `<span class="built_in">pwd</span>`/redis2.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis3 -v `<span class="built_in">pwd</span>`/redis3.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div></pre></td></tr></table></figure></p>
+<p>创建集群最简单的方式是用源代码库里的<code>redis-trib.rb</code>脚本。我们需要先下载源代码并安装<code>redis</code>的gem使之能够运行这个脚本：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">git <span class="built_in">clone</span> https://github.com/antirez/redis</div><div class="line"></div><div class="line">sudo gem install redis</div><div class="line"></div><div class="line">ruby redis/src/redis-trib.rb create 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383</div></pre></td></tr></table></figure></p>
+<p>运行<code>redis-trib.rb</code>会提示：<strong>Can I set the above configuration? (type ‘yes’ to accept)</strong>，输入<code>yes</code>回车即可。Redis集群就这样搭建好了。我们进去看一看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it redis1 redis-cli -p 6381</div><div class="line">cluster nodes</div><div class="line"><span class="built_in">set</span> ggg 123</div><div class="line"><span class="built_in">set</span> gggg 234</div><div class="line"><span class="built_in">exit</span></div></pre></td></tr></table></figure></p>
+<p>第一个ggg可以顺利设置成功，但是第二个gggg就不行了，我们会看到错误：<strong>(error) MOVED 6392 127.0.0.1:6382</strong>。这是由于redis<a href="http://redis.io/topics/cluster-tutorial#redis-cluster-data-sharding" target="_blank" rel="external">分片（sharding）</a>的缘故。如果频繁地在控制台里切换实例也怪麻烦的，幸好<code>redis-cli</code>提供了一个<code>-c</code>的参数，允许以集群的方式连接：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it redis1 redis-cli -c -p 6381</div><div class="line"><span class="built_in">set</span> gggg 234</div><div class="line">keys *</div><div class="line"><span class="built_in">exit</span></div></pre></td></tr></table></figure></p>
+<p>再次设置gggg，就会看到：<strong>Redirected to slot [6392] located at 127.0.0.1:6382</strong>，它表明redis已经把我们连接到6382的实例上去了。最后把前面创建的实例都删除掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> redis1 redis2 redis3</div></pre></td></tr></table></figure></p>
+<h2 id="u4E3B_u4ECE_u96C6_u7FA4"><a href="#u4E3B_u4ECE_u96C6_u7FA4" class="headerlink" title="主从集群"></a>主从集群</h2><p>主从集群就是给三个主实例各加一个从实例。现在已经有了三个主实例的配置文件了，再来三个从集群的，一共是6个：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">cp redis1.conf redis4.conf</div><div class="line">cp redis1.conf redis5.conf</div><div class="line">cp redis1.conf redis6.conf</div><div class="line"></div><div class="line">sed -i <span class="string">'s/6381/6384/'</span> redis4.conf</div><div class="line">sed -i <span class="string">'s/6381/6385/'</span> redis5.conf</div><div class="line">sed -i <span class="string">'s/6381/6386/'</span> redis6.conf</div><div class="line"></div><div class="line">docker run --net=host --name=redis1 -v `<span class="built_in">pwd</span>`/redis1.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis2 -v `<span class="built_in">pwd</span>`/redis2.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis3 -v `<span class="built_in">pwd</span>`/redis3.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis4 -v `<span class="built_in">pwd</span>`/redis4.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis5 -v `<span class="built_in">pwd</span>`/redis5.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div><div class="line">docker run --net=host --name=redis6 -v `<span class="built_in">pwd</span>`/redis6.conf:/usr/<span class="built_in">local</span>/etc/redis/redis.conf <span class="_">-d</span> redis:3.2.0 redis-server /usr/<span class="built_in">local</span>/etc/redis/redis.conf</div></pre></td></tr></table></figure></p>
+<p>一条命令即可启动主从集群：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ruby redis/src/redis-trib.rb create --replicas 1 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384 127.0.0.1:6385 127.0.0.1:6386</div></pre></td></tr></table></figure></p>
+<p>然后就可以在里面随意测试啦。最后把创建的实例都删除掉：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> redis1 redis2 redis3 redis4 redis5 redis6</div></pre></td></tr></table></figure></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/redis/">redis</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/redis-cluster/" data-title="用容器轻松搭建redis主从和集群环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/elastic-search/" title="用容器快速上手Elasticsearch">
+  <strong>上一篇：</strong><br/>
+  <span>
+  用容器快速上手Elasticsearch</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/solr/"  title="用容器快速上手Apache Solr">
+ <strong>下一篇：</strong><br/> 
+ <span>用容器快速上手Apache Solr
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="redis-cluster/" data-title="用容器轻松搭建redis主从和集群环境" data-url="http://qinghua.github.io/redis-cluster/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u4ECE"><span class="toc-number">1.</span> <span class="toc-text">主从</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96C6_u7FA4"><span class="toc-number">2.</span> <span class="toc-text">集群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u4ECE_u96C6_u7FA4"><span class="toc-number">3.</span> <span class="toc-text">主从集群</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

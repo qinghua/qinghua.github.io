@@ -20,10 +20,11 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们知道Docker官方提供了一个公有的registry叫做Docker Hub。但是企业内部可能有些镜像还是不方便放到公网上去，所以docker也提供了registry镜像来让需要的人自己搭建私有仓库。本文从零开始搭建Docker Registry的运行环境，并添加用户界面和认证功能。">
 <meta property="og:image" content="http://qinghua.github.io/img/docker-registry-web.png">
-<meta property="og:updated_time" content="2016-03-07T08:59:01.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="轻松搭建Docker Registry运行环境">
 <meta name="twitter:description" content="我们知道Docker官方提供了一个公有的registry叫做Docker Hub。但是企业内部可能有些镜像还是不方便放到公网上去，所以docker也提供了registry镜像来让需要的人自己搭建私有仓库。本文从零开始搭建Docker Registry的运行环境，并添加用户界面和认证功能。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/docker-registry-web.png">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -35,7 +36,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -116,29 +117,29 @@
 		</div>
 		
 		<p>我们知道Docker官方提供了一个公有的registry叫做Docker Hub。但是企业内部可能有些镜像还是不方便放到公网上去，所以docker也提供了registry镜像来让需要的人自己搭建私有仓库。本文从零开始搭建Docker Registry的运行环境，并添加用户界面和认证功能。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>registry</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.19</strong>。Registry配上界面会比较耗内存，所以我们给它1G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"registry"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"registry"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line">  host.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">    v.memory = <span class="number">1024</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"client"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"client"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh registry</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh client</span><br></pre></td></tr></table></figure>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动一个registry是很容易的：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>这里指定了一个<code>/var/lib/registry</code>的卷，是为了把真实的镜像数据储存在主机上，而别在容器挂掉之后丢失数据。就算这样，也还是不保险。要是主机挂了呢？Docker官方建议可以放到<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/rados.md" target="_blank" rel="external">ceph</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/swift.md" target="_blank" rel="external">swift</a>这样的存储里，或是<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/s3.md" target="_blank" rel="external">亚马逊S3</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/azure.md" target="_blank" rel="external">微软Azure</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/gcs.md" target="_blank" rel="external">谷歌GCS</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/oss.md" target="_blank" rel="external">阿里云OSS</a>之类的云商那里。Docker registry提供了配置文件，可以从容器里复制出来查看：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker cp registry:/etc/docker/registry/config.yml config.yml</span><br><span class="line">cat config.yml</span><br></pre></td></tr></table></figure></p>
-<p>配置文件里有一个<code>storage</code>，按照<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#storage" target="_blank" rel="external">这里</a>写的配置，然后执行以下命令重新挂载这个文件来启动registry就可以了，有条件的话可以去试一试：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker rm -fv registry</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</span><br><span class="line">    registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>Docker Registry配置完了，我们在client上传一个镜像试试：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br><span class="line">docker tag busybox:<span class="number">1.24</span>.<span class="number">1</span> <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<p>结果push的时候就挂了。原来是我们没有配置认证信息，所以这是一个“不安全”的registry。Docker要求在docker daemon的启动参数里增加<code>--insecure-registry</code>，才能允许我们上传镜像：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<p>这回就没问题啦。同样地在registry端也配置一下，然后把registry:2.3.0这个镜像上传：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br><span class="line">docker tag registry:<span class="number">2.3</span>.<span class="number">0</span> <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/library/registry:<span class="number">2.3</span>.<span class="number">0</span></span><br><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/library/registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>如果是没有用户的镜像（通常是官方镜像），打标签和上传都需要加一个<code>library/</code>。客户端必须再配置一个参数<code>--registry-mirror</code>才能在我们自己的私有registry里下载镜像：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker</span><br><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000 --registry-mirror http://192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br><span class="line">docker pull registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>应该有飞一般的感觉了吧。如果镜像不在registry里，客户端会自动去docker hub下载。但是每次打标签再上传岂不是很麻烦？所幸docker提供了一个proxy的功能。只要在<code>config.yml</code>里增加如下配置，重启registry容器即可。这样，客户端pull的镜像，也会自动同步到registry里去。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy:&#10;  remoteurl: https://registry-1.docker.io</span><br></pre></td></tr></table></figure></p>
-<h2 id="u754C_u9762"><a href="#u754C_u9762" class="headerlink" title="界面"></a>界面</h2><p>Docker官方只提供了REST API，并没有给我们一个界面。好在有热心人士出马，所以我们只需执行以下命令就可以给我们的私有库提供一个UI了：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">8080</span>:<span class="number">8080</span> \</span><br><span class="line">    --name web \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_HOST=<span class="number">172.17</span>.<span class="number">0.1</span> \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_PORT=<span class="number">5000</span>\</span><br><span class="line">    hyper/docker-registry-web</span><br></pre></td></tr></table></figure></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>registry</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.19</strong>。Registry配上界面会比较耗内存，所以我们给它1G内存，默认是512M。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"registry"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"registry"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line">  host.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">    v.memory = <span class="number">1024</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"client"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"client"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh registry</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh client</div></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动一个registry是很容易的：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 5000:5000 \</div><div class="line">    --name registry \</div><div class="line">    --restart=always \</div><div class="line">    -v /var/lib/registry:/var/lib/registry \</div><div class="line">    registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>这里指定了一个<code>/var/lib/registry</code>的卷，是为了把真实的镜像数据储存在主机上，而别在容器挂掉之后丢失数据。就算这样，也还是不保险。要是主机挂了呢？Docker官方建议可以放到<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/rados.md" target="_blank" rel="external">ceph</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/swift.md" target="_blank" rel="external">swift</a>这样的存储里，或是<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/s3.md" target="_blank" rel="external">亚马逊S3</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/azure.md" target="_blank" rel="external">微软Azure</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/gcs.md" target="_blank" rel="external">谷歌GCS</a>、<a href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/oss.md" target="_blank" rel="external">阿里云OSS</a>之类的云商那里。Docker registry提供了配置文件，可以从容器里复制出来查看：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker cp registry:/etc/docker/registry/config.yml config.yml</div><div class="line">cat config.yml</div></pre></td></tr></table></figure></p>
+<p>配置文件里有一个<code>storage</code>，按照<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#storage" target="_blank" rel="external">这里</a>写的配置，然后执行以下命令重新挂载这个文件来启动registry就可以了，有条件的话可以去试一试：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">docker rm -fv registry</div><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 5000:5000 \</div><div class="line">    --name registry \</div><div class="line">    --restart=always \</div><div class="line">    -v /var/lib/registry:/var/lib/registry \</div><div class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</div><div class="line">    registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>Docker Registry配置完了，我们在client上传一个镜像试试：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker pull busybox:1.24.1</div><div class="line">docker tag busybox:1.24.1 192.168.33.18:5000/busybox:1.24.1</div><div class="line">docker push 192.168.33.18:5000/busybox:1.24.1</div></pre></td></tr></table></figure></p>
+<p>结果push的时候就挂了。原来是我们没有配置认证信息，所以这是一个“不安全”的registry。Docker要求在docker daemon的启动参数里增加<code>--insecure-registry</code>，才能允许我们上传镜像：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></div><div class="line">sudo service docker restart</div><div class="line">docker push 192.168.33.18:5000/busybox:1.24.1</div></pre></td></tr></table></figure></p>
+<p>这回就没问题啦。同样地在registry端也配置一下，然后把registry:2.3.0这个镜像上传：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></div><div class="line">sudo service docker restart</div><div class="line">docker tag registry:2.3.0 192.168.33.18:5000/library/registry:2.3.0</div><div class="line">docker push 192.168.33.18:5000/library/registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>如果是没有用户的镜像（通常是官方镜像），打标签和上传都需要加一个<code>library/</code>。客户端必须再配置一个参数<code>--registry-mirror</code>才能在我们自己的私有registry里下载镜像：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker</div><div class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"--insecure-registry 192.168.33.18:5000 --registry-mirror http://192.168.33.18:5000\" &gt;&gt; /etc/default/docker'</span></div><div class="line">sudo service docker restart</div><div class="line">docker pull registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>应该有飞一般的感觉了吧。如果镜像不在registry里，客户端会自动去docker hub下载。但是每次打标签再上传岂不是很麻烦？所幸docker提供了一个proxy的功能。只要在<code>config.yml</code>里增加如下配置，重启registry容器即可。这样，客户端pull的镜像，也会自动同步到registry里去。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">proxy:</div><div class="line">  remoteurl: https://registry-1.docker.io</div></pre></td></tr></table></figure></p>
+<h2 id="u754C_u9762"><a href="#u754C_u9762" class="headerlink" title="界面"></a>界面</h2><p>Docker官方只提供了REST API，并没有给我们一个界面。好在有热心人士出马，所以我们只需执行以下命令就可以给我们的私有库提供一个UI了：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 8080:8080 \</div><div class="line">    --name web \</div><div class="line">    <span class="_">-e</span> REGISTRY_HOST=172.17.0.1 \</div><div class="line">    <span class="_">-e</span> REGISTRY_PORT=5000\</div><div class="line">    hyper/docker-registry-web</div></pre></td></tr></table></figure></p>
 <p>然后打开<code>http://192.168.33.18:8080</code>，应该就能看到如下界面：<br><img src="/img/docker-registry-web.png" alt=""></p>
 <p>上面是个简易版，如果有更深入的需求，可以尝试SUSE的<a href="http://port.us.org/" target="_blank" rel="external">Portus</a>。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。</p>
-<h2 id="u8BA4_u8BC1"><a href="#u8BA4_u8BC1" class="headerlink" title="认证"></a>认证</h2><p>我们刚刚配好的insecure registry是不支持认证的，如果要上产品环境，找CA申请一个证书吧。我们自己测试的话，可以用自签名证书。我们准备使用IP代替域名，所以需要在证书里面包含我们的IP：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /certs</span><br><span class="line">sudo sed -i <span class="string">'/^\[ v3_ca \]$/a subjectAltName = IP:192.168.33.18'</span> /etc/ssl/openssl.cnf</span><br><span class="line">sudo sh -c <span class="string">"openssl req \</span><br><span class="line">    -newkey rsa:4096 -nodes -sha256 -keyout /certs/domain.key \</span><br><span class="line">    -x509 -days 365 -out /certs/domain.crt"</span></span><br></pre></td></tr></table></figure></p>
-<p>随便填点值完成这繁琐的流程，就能看见certs里面多了两个文件。现在可以用以下命令来启动registry：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> registry</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</span><br><span class="line">    registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>客户端现在就不需要<code>--insecure-registry</code>了，但是由于这是自签名证书，客户端还需要把证书文件复制过去：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker</span><br><span class="line">sudo mkdir -p /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/</span><br><span class="line">sudo scp vagrant@<span class="number">192.168</span>.<span class="number">33.18</span>:/certs/domain.crt /etc/docker/certs.d/<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/ca.crt</span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
-<p>注意vagrant的默认密码也是vagrant。现在push就没有问题了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<p>提示镜像已经存在，并没有阻止我们提交。接下来我们加上认证。首先在registry生成用户名hello和密码world：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /auth</span><br><span class="line">sudo sh -c <span class="string">"docker run --entrypoint htpasswd registry:2.3.0 -Bbn hello world &gt; /auth/htpasswd"</span></span><br></pre></td></tr></table></figure></p>
-<p>还得指定认证方式和认证文件等参数，重新启动registry容器：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> registry</span><br><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    -p <span class="number">5000</span>:<span class="number">5000</span> \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /auth:/auth \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_AUTH=htpasswd \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_AUTH_HTPASSWD_REALM=<span class="string">"Registry Realm"</span> \</span><br><span class="line">    <span class="operator">-e</span> REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \</span><br><span class="line">    registry:<span class="number">2.3</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
-<p>这回客户端用<code>docker push 192.168.33.18:5000/busybox:1.24.1</code>来尝试push就会失败啦。但是我们可以用用户名hello和密码world登录啦：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u hello -p world <span class="operator">-e</span> email_whatever <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span></span><br></pre></td></tr></table></figure></p>
-<p>再次push，就没有问题了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push <span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">5000</span>/busybox:<span class="number">1.24</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u8BA4_u8BC1"><a href="#u8BA4_u8BC1" class="headerlink" title="认证"></a>认证</h2><p>我们刚刚配好的insecure registry是不支持认证的，如果要上产品环境，找CA申请一个证书吧。我们自己测试的话，可以用自签名证书。我们准备使用IP代替域名，所以需要在证书里面包含我们的IP：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /certs</div><div class="line">sudo sed -i <span class="string">'/^\[ v3_ca \]$/a subjectAltName = IP:192.168.33.18'</span> /etc/ssl/openssl.cnf</div><div class="line">sudo sh -c <span class="string">"openssl req \</span></div><div class="line">    -newkey rsa:4096 -nodes -sha256 -keyout /certs/domain.key \</div><div class="line">    -x509 -days 365 -out /certs/domain.crt"</div></pre></td></tr></table></figure></p>
+<p>随便填点值完成这繁琐的流程，就能看见certs里面多了两个文件。现在可以用以下命令来启动registry：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> registry</div><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 5000:5000 \</div><div class="line">    --name registry \</div><div class="line">    --restart=always \</div><div class="line">    -v /var/lib/registry:/var/lib/registry \</div><div class="line">    -v /certs:/certs \</div><div class="line">    <span class="_">-e</span> REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</div><div class="line">    <span class="_">-e</span> REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</div><div class="line">    registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>客户端现在就不需要<code>--insecure-registry</code>了，但是由于这是自签名证书，客户端还需要把证书文件复制过去：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">'$d'</span> /etc/default/docker</div><div class="line">sudo mkdir -p /etc/docker/certs.d/192.168.33.18:5000/</div><div class="line">sudo scp vagrant@192.168.33.18:/certs/domain.crt /etc/docker/certs.d/192.168.33.18:5000/ca.crt</div><div class="line">sudo service docker restart</div></pre></td></tr></table></figure></p>
+<p>注意vagrant的默认密码也是vagrant。现在push就没有问题了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker push 192.168.33.18:5000/busybox:1.24.1</div></pre></td></tr></table></figure></p>
+<p>提示镜像已经存在，并没有阻止我们提交。接下来我们加上认证。首先在registry生成用户名hello和密码world：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /auth</div><div class="line">sudo sh -c <span class="string">"docker run --entrypoint htpasswd registry:2.3.0 -Bbn hello world &gt; /auth/htpasswd"</span></div></pre></td></tr></table></figure></p>
+<p>还得指定认证方式和认证文件等参数，重新启动registry容器：<br><figure class="highlight sh"><figcaption><span>registry</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> registry</div><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 5000:5000 \</div><div class="line">    --name registry \</div><div class="line">    --restart=always \</div><div class="line">    -v /var/lib/registry:/var/lib/registry \</div><div class="line">    -v /auth:/auth \</div><div class="line">    -v /certs:/certs \</div><div class="line">    <span class="_">-e</span> REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</div><div class="line">    <span class="_">-e</span> REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</div><div class="line">    <span class="_">-e</span> REGISTRY_AUTH=htpasswd \</div><div class="line">    <span class="_">-e</span> REGISTRY_AUTH_HTPASSWD_REALM=<span class="string">"Registry Realm"</span> \</div><div class="line">    <span class="_">-e</span> REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \</div><div class="line">    registry:2.3.0</div></pre></td></tr></table></figure></p>
+<p>这回客户端用<code>docker push 192.168.33.18:5000/busybox:1.24.1</code>来尝试push就会失败啦。但是我们可以用用户名hello和密码world登录啦：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker login -u hello -p world <span class="_">-e</span> email_whatever 192.168.33.18:5000</div></pre></td></tr></table></figure></p>
+<p>再次push，就没有问题了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker push 192.168.33.18:5000/busybox:1.24.1</div></pre></td></tr></table></figure></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -223,15 +224,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -239,7 +250,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -272,7 +283,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -280,15 +291,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -296,43 +311,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -360,8 +371,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -398,7 +409,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

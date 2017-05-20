@@ -1,0 +1,633 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>领域驱动设计DDD | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Domain Driven Design（DDD）是Eric Evans于2004在其同名著作里提出的概念，它指明了让软件设计满足理想需求模型的方向。但是建模、设计这种事本来就很抽象，读懂这样的大作也是需要消耗不少脑细胞。本文希望能尽量以简单加实例的方式介绍DDD里的一些常见概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="领域驱动设计DDD">
+<meta property="og:url" content="http://qinghua.github.io/ddd/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Domain Driven Design（DDD）是Eric Evans于2004在其同名著作里提出的概念，它指明了让软件设计满足理想需求模型的方向。但是建模、设计这种事本来就很抽象，读懂这样的大作也是需要消耗不少脑细胞。本文希望能尽量以简单加实例的方式介绍DDD里的一些常见概念。">
+<meta property="og:image" content="http://qinghua.github.io/img/ddd-context-map.jpg">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="领域驱动设计DDD">
+<meta name="twitter:description" content="Domain Driven Design（DDD）是Eric Evans于2004在其同名著作里提出的概念，它指明了让软件设计满足理想需求模型的方向。但是建模、设计这种事本来就很抽象，读懂这样的大作也是需要消耗不少脑细胞。本文希望能尽量以简单加实例的方式介绍DDD里的一些常见概念。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/ddd-context-map.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/ddd/" title="领域驱动设计DDD" itemprop="url">领域驱动设计DDD</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-12-04T14:14:10.000Z" itemprop="datePublished"> 发表于 2016-12-04</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u4EC0_u4E48_u662F_u9886_u57DF"><span class="toc-number">1.1.</span> <span class="toc-text">什么是领域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8981DDD_u505A_u4EC0_u4E48"><span class="toc-number">1.2.</span> <span class="toc-text">要DDD做什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6218_u7565_u5EFA_u6A21_uFF08Strategic_Modeling_uFF09"><span class="toc-number">2.</span> <span class="toc-text">战略建模（Strategic Modeling）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u901A_u7528_u8BED_u8A00_uFF08Ubiquitous_Language_uFF09"><span class="toc-number">2.1.</span> <span class="toc-text">通用语言（Ubiquitous Language）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u754C_u4E0A_u4E0B_u6587_uFF08Bounded_Context_uFF09"><span class="toc-number">2.2.</span> <span class="toc-text">限界上下文（Bounded Context）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6218_u672F_u5EFA_u6A21_uFF08Tactical_Modeling_uFF09"><span class="toc-number">3.</span> <span class="toc-text">战术建模（Tactical Modeling）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6A21_u578B"><span class="toc-number">3.1.</span> <span class="toc-text">模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u5B9E_u4F53_uFF08Entity_uFF09"><span class="toc-number">3.1.1.</span> <span class="toc-text">实体（Entity）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u503C_u5BF9_u8C61_uFF08Value_Object_uFF09"><span class="toc-number">3.1.2.</span> <span class="toc-text">值对象（Value Object）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u9886_u57DF_u670D_u52A1_uFF08Domain_Service_uFF09"><span class="toc-number">3.1.3.</span> <span class="toc-text">领域服务（Domain Service）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u9886_u57DF_u4E8B_u4EF6_uFF08Domain_Event_uFF09"><span class="toc-number">3.1.4.</span> <span class="toc-text">领域事件（Domain Event）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u6A21_u5757_uFF08Module_uFF09"><span class="toc-number">3.1.5.</span> <span class="toc-text">模块（Module）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u751F_u547D_u5468_u671F"><span class="toc-number">3.2.</span> <span class="toc-text">生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u805A_u5408_uFF08Aggregate_uFF09"><span class="toc-number">3.2.1.</span> <span class="toc-text">聚合（Aggregate）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u5DE5_u5382_uFF08Factory_uFF09"><span class="toc-number">3.2.2.</span> <span class="toc-text">工厂（Factory）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u8D44_u6E90_u5E93_uFF08Repository_uFF09"><span class="toc-number">3.2.3.</span> <span class="toc-text">资源库（Repository）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://en.wikipedia.org/wiki/Domain-driven_design" target="_blank" rel="external">Domain Driven Design</a>（DDD）是Eric Evans于2004在其同名著作里提出的概念，它指明了让软件设计满足理想需求模型的方向。但是建模、设计这种事本来就很抽象，读懂这样的大作也是需要消耗不少脑细胞。本文希望能尽量以简单加实例的方式介绍DDD里的一些常见概念。<br><a id="more"></a></p>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><h3 id="u4EC0_u4E48_u662F_u9886_u57DF"><a href="#u4EC0_u4E48_u662F_u9886_u57DF" class="headerlink" title="什么是领域"></a>什么是领域</h3><p>《领域驱动设计》书里写的是：用户会把软件程序应用于某个主体区域，这个区域就是软件的领域。简单来说，就认为是公司的某块业务好了。如果领域比较大，可以将其拆分为多个子域（Subdomain），子域包含核心域（Core Domain）和支撑子域（Supporting Subdomain），核心域顾名思义，是最重要的子域，我们应该把关注点集中在它上面；其余的子域都是支撑子域。支撑子域里有一类特殊的用于解决通用问题的子域，称为通用子域（Generic Subdomain），例如用户和权限等。不过这些都是相对而言的，对于消费方来说，他的支撑子域有可能就是你的核心域。个别子域可能会有交集，称为共享内核（Shared Kernel），目的是减少重复，但是仍保持两个独立的上下文。由于不同子域的开发团队可能会同时修改共享内核，所以需要小心并注意沟通。</p>
+<h3 id="u8981DDD_u505A_u4EC0_u4E48"><a href="#u8981DDD_u505A_u4EC0_u4E48" class="headerlink" title="要DDD做什么"></a>要DDD做什么</h3><p>DDD试图解决的是软件的复杂性问题，如果软件比较复杂，或者是预期会很复杂，或者是你不知道，那么都可以开始考虑DDD。否则，由于维系领域模型需要实现大量的封装和隔离，DDD会带来较大的成本。但是，DDD并不是一个笨重的开发过程，它能够和敏捷开发很好地结合起来，另外，DDD也倾向于“测试先行，逐步改进”。</p>
+<h2 id="u6218_u7565_u5EFA_u6A21_uFF08Strategic_Modeling_uFF09"><a href="#u6218_u7565_u5EFA_u6A21_uFF08Strategic_Modeling_uFF09" class="headerlink" title="战略建模（Strategic Modeling）"></a>战略建模（Strategic Modeling）</h2><h3 id="u901A_u7528_u8BED_u8A00_uFF08Ubiquitous_Language_uFF09"><a href="#u901A_u7528_u8BED_u8A00_uFF08Ubiquitous_Language_uFF09" class="headerlink" title="通用语言（Ubiquitous Language）"></a>通用语言（Ubiquitous Language）</h3><p>其实写软件就像是翻译，把领域上的业务需求翻译成软件的各个功能。业务需求来自领域专家（Domain Expert），程序员们需要把领域专家的语言翻译成程序。如果程序员们翻译的时候使用的是自己的语言，而领域专家使用自己的行话，导致术语不一致，就会使得沟通不顺畅，难于消化知识。所以团队需要一种通用语言来进行沟通。这样的通用语言尽量以业务语言为主，而非技术语言。一开始的通用语言可能不尽完美，但它就像是代码一样，经常需要重构。例如：“创建一个订单”就比“插入一条订单数据”更容易让领域专家明白谈话的背景。</p>
+<h3 id="u9650_u754C_u4E0A_u4E0B_u6587_uFF08Bounded_Context_uFF09"><a href="#u9650_u754C_u4E0A_u4E0B_u6587_uFF08Bounded_Context_uFF09" class="headerlink" title="限界上下文（Bounded Context）"></a>限界上下文（Bounded Context）</h3><p>通用语言里，同一个名词在不同的场景里不一定有相同的意思。比如用户，在推荐好友（可能关注年龄、性别、地域）或是浏览商品（可能关注喜好、历史购买记录）的时候有着不同的含义。所谓的不同的场景，其实就是不同的限界上下文。子域在限界上下文中完成开发。限界上下文主要用来封装通用语言和领域模型，显式地定义了领域模型的边界。不同的限界上下文，都会有一套自己的通用语言。通过这样的划分方式，来让每个限界上下文都尽量保持简单，也算是<a href="https://en.wikipedia.org/wiki/Single_responsibility_principle" target="_blank" rel="external">SRP</a>原则在不同粒度上的一个体现。如果不去做这样的划分，可能最终这个软件就会演变成一个<a href="https://en.wikipedia.org/wiki/Big_ball_of_mud" target="_blank" rel="external">大泥球</a>，或者说是<a href="https://en.wikipedia.org/wiki/Monolithic_application" target="_blank" rel="external">单块系统</a>。尽管如此，对于比较小的业务或项目来说，可能只会有一个限界上下文。现在流行的<a href="https://en.wikipedia.org/wiki/Microservices" target="_blank" rel="external">微服务</a>，很大程度上就是按照限界上下文来划分服务。例如：商品上下文，订单上下文，物流上下文等。当然，如果子域很小，不见得非得微服务化。</p>
+<p>不同的限界上下文之间，通过上下文映射图（Context Map）来进行交互。上下文映射图其实就是一个简单的框图，表示限界上下文之间的的映射关系。下面这张图就是一个简单的例子：<br><img src="/img/ddd-context-map.jpg" alt=""></p>
+<p>U表示上游（Upstream）的被依赖方，D表示下游（Downstream）的依赖方。由于上下游的限界上下文模型不同，实现时，可以用RPC、Restful、消息机制等集成方式。另外，下游需要防腐层（Anticorruption Layer）来将上游的返回内容翻译为下游的领域模型。如果防腐层过多地使用了各种赋值，从而导致上下游的模型非常类似，那就需要看看是否下游过多地使用了上游的数据，从而导致自己的模型不清晰。</p>
+<h2 id="u6218_u672F_u5EFA_u6A21_uFF08Tactical_Modeling_uFF09"><a href="#u6218_u672F_u5EFA_u6A21_uFF08Tactical_Modeling_uFF09" class="headerlink" title="战术建模（Tactical Modeling）"></a>战术建模（Tactical Modeling）</h2><h3 id="u6A21_u578B"><a href="#u6A21_u578B" class="headerlink" title="模型"></a>模型</h3><h4 id="u5B9E_u4F53_uFF08Entity_uFF09"><a href="#u5B9E_u4F53_uFF08Entity_uFF09" class="headerlink" title="实体（Entity）"></a>实体（Entity）</h4><p>所谓领域，反映到代码里就是模型。模型分为实体和值对象两种。实体是有标识（Identity）的，两个拥有相同属性的实体不是相等的，除非它们的标识相等；而不同实体的标识不能相等。例如：某人下了两个相同的订单，里面都购买了相同的商品。这两个订单就是有标识（订单号）的两个实体，虽然内容相同，但它们是两个不同的实体。常用的标识有自增数字、Guid、自然标识（如邮箱、身份证号）等。实体具有生命周期，它们的内容可能在这期间会发生改变，但是标识是永远不会变化的。实体作为领域模型的主体，需要拥有自己的方法，方法名来自于通用语言。通过这些方法来保证自己始终是一致的状态，而非被调用者set来set去。例如：<code>people.runTo(x, y)</code>，而非<code>people.setX(x);people.setY(y);</code></p>
+<h4 id="u503C_u5BF9_u8C61_uFF08Value_Object_uFF09"><a href="#u503C_u5BF9_u8C61_uFF08Value_Object_uFF09" class="headerlink" title="值对象（Value Object）"></a>值对象（Value Object）</h4><p>实体用来表示领域中的一个东西，而值对象只用于描述或度量一个东西。值对象没有任何标识，只要两个值对象的属性相等，那么它们就是相等的。值对象是不可变的，如果要改变值对象的内容，那就重新创建一个值对象。值对象没有生命周期，因为它只是值而已。例如：金额（含数值和货币单位），颜色（含rgb值）等。因为不需要标识，所以它们其实比实体要简单许多。Java里的String类，就具有一个值对象的行为；C#的Struct其实就是一个值对象，不过一般还是会用Class来表示值对象。</p>
+<p>不同的领域需求可能会催生不同的建模。例如：考虑一下演出的售票系统。如果需求是对号入座，那么座位就是实体，一旦某张演出票关联了某个座位，那么这个座位就再也不能被其它的演出票所关联了。如果需求是先到先坐，那么座位就是值对象，我们只关心卖了多少张演出票，不要超过座位上限即可，而并不用关心哪个座位被哪张票所关联了。</p>
+<p>DDD的一个反模式就是拥有一堆<code>get</code>和<code>set</code>方法的贫血领域对象（Anemic Domain Object）。这样的对象只是一个数据持有器（data holder），而非我们想要的领域模型。值对象和实体一样，都需要有自己的方法。例如：金额值对象，有一个<code>Add</code>的方法，接受一个金额参数，返回一个新的值对象。</p>
+<p>实体里可以包含值对象，值对象里也可以包含实体。</p>
+<h4 id="u9886_u57DF_u670D_u52A1_uFF08Domain_Service_uFF09"><a href="#u9886_u57DF_u670D_u52A1_uFF08Domain_Service_uFF09" class="headerlink" title="领域服务（Domain Service）"></a>领域服务（Domain Service）</h4><p>有些操作不属于实体或者值对象，那就不用强塞给它们，创建领域服务来提供这些操作吧。留意通用语言，如果里面出现了名词，那一般就是实体或值对象；如果里面出现了动词，那通常就意味着领域服务。例如：支付，这是一个比较明显的业务操作。另外，如果有什么操作会让实体变得臃肿，也可以使用领域服务来解决。但是，不能把所有的东西都堆到领域服务里，过度使用领域服务会导致贫血对象的产生。</p>
+<p>据Eric Evans所言，设计良好的领域服务具有以下三个特征：</p>
+<ul>
+<li>操作不是实体/值对象的一个自然的部分</li>
+<li>接口根据领域模型的其它元素定义</li>
+<li>操作无状态</li>
+</ul>
+<p>还需要注意的是，不要把领域服务和应用服务混起来了。我们在领域服务里处理业务逻辑，而并不在应用服务里处理。应用服务是领域模型的直接客户，负责处理事务、安全等操作。</p>
+<h4 id="u9886_u57DF_u4E8B_u4EF6_uFF08Domain_Event_uFF09"><a href="#u9886_u57DF_u4E8B_u4EF6_uFF08Domain_Event_uFF09" class="headerlink" title="领域事件（Domain Event）"></a>领域事件（Domain Event）</h4><p>《领域驱动设计》一书出版之后，DDD社区并没有停止前进的步伐。领域事件就是在那之后提出来的。领域事件是一个定义了领域专家所关心的事件的对象。当关心的状态由于模型行为而发生改变时，系统将发布领域事件。如果通用语言里出现了：“当……的时候，需要……”通常就意味着一个领域事件。例如：当订单完成支付时，商品需要出库。这里的订单完成支付就预示着一个OrderPaidEvent，里面持有着这个订单的标识。领域事件代表的是已经发生的事，所以命名上通常都使用过去时（如Paid）。对领域事件的处理就像是一个观察者模式，由领域事件的订阅方来决定。订阅方既可以是本地的限界上下文，也可以是外部的限界上下文。</p>
+<h4 id="u6A21_u5757_uFF08Module_uFF09"><a href="#u6A21_u5757_uFF08Module_uFF09" class="headerlink" title="模块（Module）"></a>模块（Module）</h4><p>如果领域模型发展得比较快，很难整体来讨论它，因为太大了。我们可以将模块视为Java中的包或是C#中的命名空间。将模型组织到不同的模块中，可以有效地降低领域的复杂性。模块之间应该是低耦合的，而模块内部应该是高内聚的。模块的名称应该是通用语言的组成部分，反映出领域的深层知识。</p>
+<h3 id="u751F_u547D_u5468_u671F"><a href="#u751F_u547D_u5468_u671F" class="headerlink" title="生命周期"></a>生命周期</h3><h4 id="u805A_u5408_uFF08Aggregate_uFF09"><a href="#u805A_u5408_uFF08Aggregate_uFF09" class="headerlink" title="聚合（Aggregate）"></a>聚合（Aggregate）</h4><p>聚合就是一组应该呆在一起的对象，聚合根（Aggregate Root）就是聚合在一起的基础，并提供对这个聚合的操作。聚合除了聚合根以外，还有自己的边界（boundary），即聚合里有什么。例如：一个订单可以有多个订单明细，订单明细不可能脱离订单而存在，而订单也不可能没有订单明细。这种情况下，订单和订单明细就是一个聚合，而订单就是这个聚合的聚合根，订单和订单明细就处于这个聚合的边界之内。如果要变更订单明细，我们需要通过操作聚合根订单来实现，如<code>order.changeItemCount()</code>，而非订单明细自身。另外一个例子：一名客户可以有多个订单，订单不可能脱离客户而存在，而客户却可以没有订单。这种情况下，客户和订单就是不同的两个聚合，一个聚合以客户为聚合根，另一个聚合以订单为聚合根，引用客户的标识。客户里并不引用订单的标识，这样将关联减至最少有助于简化对象的关系网。但是带来的一个麻烦就是如果要查找某位客户的所有订单，就不得不从所有的订单里查，而不能从客户这个聚合里直接获得。最后再举一个多对多的例子：一个班级可以有多名学生，学生可以脱离这个班级而存在，而班级不能没有学生，学生也不能不在班级里。这种情况下，班级和学生也是不同的两个聚合，一个聚合以班级为聚合根，引用学生的标识；另一个聚合以学生为聚合根，引用班级的标识，将多对多转换成两个一对多。</p>
+<p>聚合是持久化的一个单位，我们需要保证以聚合为单位的数据一致性。如果聚合太大，那就会导致并发修改困难，多人并发修改同一个聚合里的不同项目，结果就是只有第一个提交的人成功修改，其它人不得不重新刷新聚合才能再次修改。大聚合还会导致性能问题，因为操作实体时会将整个大聚合同时加载进内存。珍爱生命，拒绝大聚合。</p>
+<p>聚合根必须是实体而非值对象，因为它需要整体持久化，所以一定会有标识。而聚合根里的各个元素，既可能是实体，也可能是值对象。例如：一个订单（聚合根）一般会有订单明细（实体）和送货地址（值对象）。这些元素里可以有对聚合根的引用，但是不能相互引用。任何对其它元素的操作都必须通过聚合根来进行。聚合根里的标识是全局的，聚合根里的实体标识是聚合里唯一的本地标识，因为对它的访问都是通过聚合根来操作的。聚合根拥有自己独立的生命周期，其实体的生命周期从属于其所属的聚合，值对象因为只是值而已，并没有生命周期。</p>
+<h4 id="u5DE5_u5382_uFF08Factory_uFF09"><a href="#u5DE5_u5382_uFF08Factory_uFF09" class="headerlink" title="工厂（Factory）"></a>工厂（Factory）</h4><p>工厂是生命周期的开始阶段，它可以用来创建复杂的对象或是一整个聚合。复杂对象的创建是领域层的职责，但它并不属于被创建的对象自身的职责。实体和值对象的工厂不太一样，因为值对象是不可变的，所以需要工厂一次性创建一个完整的值对象出来。而实体工厂则可以选择创建之后再补充一些细节。</p>
+<h4 id="u8D44_u6E90_u5E93_uFF08Repository_uFF09"><a href="#u8D44_u6E90_u5E93_uFF08Repository_uFF09" class="headerlink" title="资源库（Repository）"></a>资源库（Repository）</h4><p>资源库是生命周期的结束，它封装了基础设施以提供查询和持久化聚合的操作。这样能够让我们始终聚焦于模型，而把对象的存储和访问都委托给资源库来完成。以订单和订单明细的聚合为例，因为一定是通过订单这个聚合根来获取订单明细，所以可以有订单的资源库，但是不能有订单明细的资源库。也就是说，只有聚合才拥有资源库。需要注意的是，资源库并不是数据库的封装，而是领域层与基础设施之间的桥梁。DDD关心的是领域内的模型，而并非是数据库的操作。理想的资源库对客户（而非开发者）隐藏了内部的工作细节，委托基础设施层来干那些脏活，到关系型数据库、NOSQL、甚至内存里读取和存储数据。</p>
+<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://book.douban.com/subject/5344973/" target="_blank" rel="external">《领域驱动设计》</a><br><a href="https://book.douban.com/subject/25844633/" target="_blank" rel="external">《实现领域驱动设计》</a><br><a href="http://www.infoq.com/cn/minibooks/domain-driven-design-quickly-new" target="_blank" rel="external">《领域驱动设计精简版》</a> by InfoQ<br><a href="http://devlicio.us/blogs/casey/archive/2009/02/09/domain-driven-design-a-step-by-step-guide.aspx" target="_blank" rel="external">《Domain Driven Design: A Step by Step Guide》</a>系列</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/architecture/">architecture</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDD/">DDD</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/ddd/" data-title="领域驱动设计DDD | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/terminal-recorder/" title="终端录制工具推荐">
+  <strong>上一篇：</strong><br/>
+  <span>
+  终端录制工具推荐</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/flyway/"  title="轻松上手数据库版本管理工具Flyway">
+ <strong>下一篇：</strong><br/> 
+ <span>轻松上手数据库版本管理工具Flyway
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="ddd/" data-title="领域驱动设计DDD" data-url="http://qinghua.github.io/ddd/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u4EC0_u4E48_u662F_u9886_u57DF"><span class="toc-number">1.1.</span> <span class="toc-text">什么是领域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8981DDD_u505A_u4EC0_u4E48"><span class="toc-number">1.2.</span> <span class="toc-text">要DDD做什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6218_u7565_u5EFA_u6A21_uFF08Strategic_Modeling_uFF09"><span class="toc-number">2.</span> <span class="toc-text">战略建模（Strategic Modeling）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u901A_u7528_u8BED_u8A00_uFF08Ubiquitous_Language_uFF09"><span class="toc-number">2.1.</span> <span class="toc-text">通用语言（Ubiquitous Language）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u754C_u4E0A_u4E0B_u6587_uFF08Bounded_Context_uFF09"><span class="toc-number">2.2.</span> <span class="toc-text">限界上下文（Bounded Context）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6218_u672F_u5EFA_u6A21_uFF08Tactical_Modeling_uFF09"><span class="toc-number">3.</span> <span class="toc-text">战术建模（Tactical Modeling）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6A21_u578B"><span class="toc-number">3.1.</span> <span class="toc-text">模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u5B9E_u4F53_uFF08Entity_uFF09"><span class="toc-number">3.1.1.</span> <span class="toc-text">实体（Entity）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u503C_u5BF9_u8C61_uFF08Value_Object_uFF09"><span class="toc-number">3.1.2.</span> <span class="toc-text">值对象（Value Object）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u9886_u57DF_u670D_u52A1_uFF08Domain_Service_uFF09"><span class="toc-number">3.1.3.</span> <span class="toc-text">领域服务（Domain Service）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u9886_u57DF_u4E8B_u4EF6_uFF08Domain_Event_uFF09"><span class="toc-number">3.1.4.</span> <span class="toc-text">领域事件（Domain Event）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u6A21_u5757_uFF08Module_uFF09"><span class="toc-number">3.1.5.</span> <span class="toc-text">模块（Module）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u751F_u547D_u5468_u671F"><span class="toc-number">3.2.</span> <span class="toc-text">生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u805A_u5408_uFF08Aggregate_uFF09"><span class="toc-number">3.2.1.</span> <span class="toc-text">聚合（Aggregate）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u5DE5_u5382_uFF08Factory_uFF09"><span class="toc-number">3.2.2.</span> <span class="toc-text">工厂（Factory）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u8D44_u6E90_u5E93_uFF08Repository_uFF09"><span class="toc-number">3.2.3.</span> <span class="toc-text">资源库（Repository）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

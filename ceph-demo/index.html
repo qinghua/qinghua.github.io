@@ -20,10 +20,11 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
 <meta property="og:image" content="http://docs.ceph.com/docs/master/_images/stack.png">
-<meta property="og:updated_time" content="2016-04-14T02:45:24.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建ceph实验环境">
 <meta name="twitter:description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。">
+<meta name="twitter:image" content="http://docs.ceph.com/docs/master/_images/stack.png">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -35,7 +36,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -117,23 +118,23 @@
 		
 		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。<br><a id="more"></a></p>
 <p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png" alt=""><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a href="/ceph-radosgw">这篇文章](http://www.wzxue.com/why-ceph-and-how-to-use-ceph/)，把ceph介绍得很清楚。笔者的另一篇文章《通过RADOSGW提供ceph的S3和Swift接口》</a>介绍了RADOSGW的使用方法。</p>
-<h2 id="cephfs_u65B9_u5F0F"><a href="#cephfs_u65B9_u5F0F" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="operator">-e</span> MON_IP=<span class="number">192.168</span>.<span class="number">0.20</span> <span class="operator">-e</span> CEPH_NETWORK=<span class="number">192.168</span>.<span class="number">0.0</span>/<span class="number">24</span> --name=ceph ceph/demo</span><br></pre></td></tr></table></figure></p>
+<h2 id="cephfs_u65B9_u5F0F"><a href="#cephfs_u65B9_u5F0F" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a href="https://hub.docker.com/r/ceph/demo/" target="_blank" rel="external">deph/demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="_">-e</span> MON_IP=192.168.0.20 <span class="_">-e</span> CEPH_NETWORK=192.168.0.0/24 --name=ceph ceph/demo</div></pre></td></tr></table></figure></p>
 <p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
-<p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== <span class="number">192.168</span>.<span class="number">0.20</span>:/ /mnt/cephfs</span><br></pre></td></tr></table></figure></p>
+<p>直接作为cephfs来加载就是一句话的事情：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== 192.168.0.20:/ /mnt/cephfs</div></pre></td></tr></table></figure></p>
 <p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
-<h2 id="rbd_u65B9_u5F0F"><a href="#rbd_u65B9_u5F0F" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure></p>
-<p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg <span class="number">128</span></span><br></pre></td></tr></table></figure></p>
-<p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure></p>
-<p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size <span class="number">1024</span></span><br></pre></td></tr></table></figure></p>
-<p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph/demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rbd ls ggg</span><br><span class="line">rbd info ggg/qqq</span><br></pre></td></tr></table></figure></p>
-<p>接下来要把qqq image映射到块设备中，可能需要root权限：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rbd map ggg/qqq</span><br></pre></td></tr></table></figure></p>
-<p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure></p>
-<p>格式化之：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure></p>
-<p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /mnt/rbd/qqq</span><br><span class="line">sudo mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line">ls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure></p>
-<h2 id="u8FD8_u539F_u73AF_u5883"><a href="#u8FD8_u539F_u73AF_u5883" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo umount /mnt/rbd/qqq</span><br><span class="line">sudo rbd unmap /dev/rbd1</span><br><span class="line">rbd rm ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure></p>
+<h2 id="rbd_u65B9_u5F0F"><a href="#rbd_u65B9_u5F0F" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a href="http://docs.ceph.com/docs/master/rados/operations/pools/" target="_blank" rel="external">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">apt-get install -y ceph-common</div><div class="line">yum install -y ceph-common</div></pre></td></tr></table></figure></p>
+<p>准备工作做完了，我们首先创建一个名为ggg的pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ceph osd pool create ggg 128</div></pre></td></tr></table></figure></p>
+<p>128代表<a href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/" target="_blank" rel="external">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ceph osd lspools</div></pre></td></tr></table></figure></p>
+<p>然后在ggg这个pool里创建一个名为qqq的image：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rbd create ggg/qqq --size 1024</div></pre></td></tr></table></figure></p>
+<p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph/demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rbd ls ggg</div><div class="line">rbd info ggg/qqq</div></pre></td></tr></table></figure></p>
+<p>接下来要把qqq image映射到块设备中，可能需要root权限：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo rbd map ggg/qqq</div></pre></td></tr></table></figure></p>
+<p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rbd showmapped</div></pre></td></tr></table></figure></p>
+<p>格式化之：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo mkfs.ext4 -m0 /dev/rbd1</div></pre></td></tr></table></figure></p>
+<p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo mkdir -p /mnt/rbd/qqq</div><div class="line">sudo mount /dev/rbd1 /mnt/rbd/qqq</div><div class="line">ls /mnt/rbd/qqq/</div></pre></td></tr></table></figure></p>
+<h2 id="u8FD8_u539F_u73AF_u5883"><a href="#u8FD8_u539F_u73AF_u5883" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo umount /mnt/rbd/qqq</div><div class="line">sudo rbd unmap /dev/rbd1</div><div class="line">rbd rm ggg/qqq</div><div class="line">ceph osd pool delete ggg</div></pre></td></tr></table></figure></p>
 <p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
-<p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure></p>
-<p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker rm <span class="operator">-f</span> ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure></p>
+<p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</div></pre></td></tr></table></figure></p>
+<p>最后删掉ceph容器（如果你愿意，还有ceph/demo镜像），就当一切都没有发生过：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> ceph</div><div class="line">docker rmi ceph/demo</div></pre></td></tr></table></figure></p>
 <p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
   
 	</div>
@@ -219,15 +220,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -235,7 +246,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -268,7 +279,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -276,15 +287,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -292,43 +307,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -356,8 +367,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -394,7 +405,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

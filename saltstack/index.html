@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/saltstack/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt (1) 入门是个不错的参考教程。">
-<meta property="og:updated_time" content="2016-04-11T01:42:11.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SaltStack环境安装及入门">
 <meta name="twitter:description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt (1) 入门是个不错的参考教程。">
@@ -34,7 +34,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -115,16 +115,16 @@
 		</div>
 		
 		<p><a href="http://saltstack.com/" target="_blank" rel="external">SaltStack</a>简称salt，是一个配置管理工具，类似<a href="http://www.ansible.com/get-started" target="_blank" rel="external">Ansible</a>、<a href="https://www.chef.io/chef/" target="_blank" rel="external">Chef</a>和<a href="https://puppetlabs.com/" target="_blank" rel="external">Puppet</a>，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有<a href="http://docs.saltstack.cn/zh_CN/latest/" target="_blank" rel="external">部分中文文档</a>。它分为服务器（master）和客户端（minion），服务器也是一个客户端。<a href="http://ohmystack.com/articles/salt-1-basic/" target="_blank" rel="external">Salt (1) 入门</a>是个不错的参考教程。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init ubuntu/trusty64</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>minion1</strong>和<strong>minion2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，其中minion2安装CentOS，其它安装Ubuntu。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"master"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"minion1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"minion1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"minion2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.box = <span class="string">"bento/centos-7.1"</span></span><br><span class="line">  host.vm.hostname = <span class="string">"minion2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>改好之后，分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion1</span><br></pre></td></tr></table></figure>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion2</span><br></pre></td></tr></table></figure>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先在master的虚拟机上安装salt-master和salt-minion，注意master自己也是一个minion：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/<span class="number">14.04</span>/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</span><br><span class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y salt-minion</span><br><span class="line">sudo apt-get install -y salt-master</span><br></pre></td></tr></table></figure></p>
-<p>然后在minion上安装salt-minion，这次salt-master就没有必要了，Ubuntu和CentOS的安装方法不太一样：<br><figure class="highlight sh"><figcaption><span>minion1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/<span class="number">14.04</span>/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</span><br><span class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y salt-minion</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sudo rpm --import https://repo.saltstack.com/yum/redhat/<span class="number">7</span>/x86_64/latest/SALTSTACK-GPG-KEY.pub</span><br><span class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt;/etc/yum.repos.d/saltstack.repo</span><br><span class="line">[saltstack-repo]</span><br><span class="line">name=SaltStack repo for RHEL/CentOS 7</span><br><span class="line">baseurl=https://repo.saltstack.com/yum/redhat/7/x86_64/latest</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</span><br><span class="line">EOF"</span></span><br><span class="line">sudo yum clean expire-cache</span><br><span class="line">sudo yum update</span><br><span class="line">sudo yum install -y salt-minion</span><br></pre></td></tr></table></figure>
-<p>默认安装好的minion会自动试图连接到名为salt的master去，所以我们得配置一下，然后重新启动salt-minion服务：<br><figure class="highlight sh"><figcaption><span>master and minion1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</span><br><span class="line">sudo service salt-minion restart</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</span><br><span class="line">sudo systemctl start salt-minion</span><br></pre></td></tr></table></figure>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init ubuntu/trusty64</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>minion1</strong>和<strong>minion2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，其中minion2安装CentOS，其它安装Ubuntu。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"master"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"minion1"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"minion1"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"minion2"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.box = <span class="string">"bento/centos-7.1"</span></div><div class="line">  host.vm.hostname = <span class="string">"minion2"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
+<p>改好之后，分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh master</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh minion1</div></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh minion2</div></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先在master的虚拟机上安装salt-master和salt-minion，注意master自己也是一个minion：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</div><div class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install -y salt-minion</div><div class="line">sudo apt-get install -y salt-master</div></pre></td></tr></table></figure></p>
+<p>然后在minion上安装salt-minion，这次salt-master就没有必要了，Ubuntu和CentOS的安装方法不太一样：<br><figure class="highlight sh"><figcaption><span>minion1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -</div><div class="line">sudo sh -c <span class="string">"echo 'deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main' &gt;&gt; /etc/apt/sources.list"</span></div><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install -y salt-minion</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">sudo rpm --import https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</div><div class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt;/etc/yum.repos.d/saltstack.repo</span></div><div class="line">[saltstack-repo]</div><div class="line">name=SaltStack repo for RHEL/CentOS 7</div><div class="line">baseurl=https://repo.saltstack.com/yum/redhat/7/x86_64/latest</div><div class="line">enabled=1</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</div><div class="line">EOF"</div><div class="line">sudo yum clean expire-cache</div><div class="line">sudo yum update</div><div class="line">sudo yum install -y salt-minion</div></pre></td></tr></table></figure>
+<p>默认安装好的minion会自动试图连接到名为salt的master去，所以我们得配置一下，然后重新启动salt-minion服务：<br><figure class="highlight sh"><figcaption><span>master and minion1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</div><div class="line">sudo service salt-minion restart</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>minion2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">"s/#master: salt/master: 192.168.33.17/"</span> /etc/salt/minion</div><div class="line">sudo systemctl start salt-minion</div></pre></td></tr></table></figure>
 <p>随便在哪台虚拟机上运行<code>sudo tail -1 /var/log/salt/minion</code>，如果看到错误消息<strong>The Salt Master has cached the public key for this node</strong>，那就说明前面的安装都是顺利的—这是因为第一次运行的时候，需要建立互信。Salt维护着一个互信列表，在master上运行<code>sudo salt-key</code>可以看到这个表，现在应该是这样子的：<br><strong>Accepted Keys:</strong><br><strong>Denied Keys:</strong><br><strong>Unaccepted Keys:</strong><br>master<br>minion1<br>minion2<br><strong>Rejected Keys:</strong></p>
 <p>从上表可以看出，互信列表里的记录有<a href="https://docs.saltstack.com/en/latest/ref/cli/salt-key.html#description" target="_blank" rel="external">四种状态</a>：</p>
 <ul>
@@ -133,20 +133,20 @@
 <li>Rejected：运维人员运行命令拒绝</li>
 <li>Denied：master自动拒绝（比如ID重复等）</li>
 </ul>
-<p>现在所有的minion包括master自己都是处于Unaccepted的状态。运行以下命令就可以把它们都加入到Accepted：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo salt-key --accept=master --yes</span><br><span class="line">sudo salt-key --accept=minion1 --yes</span><br><span class="line">sudo salt-key --accept=minion2 --yes</span><br></pre></td></tr></table></figure></p>
+<p>现在所有的minion包括master自己都是处于Unaccepted的状态。运行以下命令就可以把它们都加入到Accepted：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo salt-key --accept=master --yes</div><div class="line">sudo salt-key --accept=minion1 --yes</div><div class="line">sudo salt-key --accept=minion2 --yes</div></pre></td></tr></table></figure></p>
 <p>如果minion太多了，也可以用<code>sudo salt-key --accept-all --yes</code>来全部accept。忽略<code>--yes</code>可以让我们手动确认所有的Unaccepted记录。再次运行<code>sudo salt-key</code>，确认所有的minion都已经加入到Accepted Keys里了，安装步骤就此完成。</p>
 <p>小贴士：可以用<code>sudo salt-key --reject=minion2</code>来把minion2加入到Rejected列表中。用<code>sudo salt-key --include-all --accept-all</code>来把Rejected列表中的minion再加到Accepted中来。</p>
-<h2 id="u8FD0_u884C_u547D_u4EE4"><a href="#u8FD0_u884C_u547D_u4EE4" class="headerlink" title="运行命令"></a>运行命令</h2><h3 id="salt"><a href="#salt" class="headerlink" title="salt"></a>salt</h3><p>安装完成之后，在master上运行<code>sudo salt &#39;*&#39; test.ping</code>可以看到各minion是否能联通。其中的<strong>*</strong>代表<a href="https://docs.saltstack.com/en/latest/topics/targeting/index.html" target="_blank" rel="external">目标（target）</a>，这里即是所有的minion（master现在也是一个minion），<strong>test.ping</strong>称为<a href="https://docs.saltstack.com/en/latest/ref/modules/" target="_blank" rel="external">执行模块（execution module）</a>，也就是需要在目标上调用的方法。<a href="https://docs.saltstack.com/en/latest/ref/modules/all/index.html" target="_blank" rel="external">这个列表</a>里记载了所有的原生执行模块。我们来尝试一下其中的<a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.cmdmod.html#module-salt.modules.cmdmod" target="_blank" rel="external">cmdmod</a>模块：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo salt minion1 cmd.run <span class="string">'ifconfig'</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u8FD0_u884C_u547D_u4EE4"><a href="#u8FD0_u884C_u547D_u4EE4" class="headerlink" title="运行命令"></a>运行命令</h2><h3 id="salt"><a href="#salt" class="headerlink" title="salt"></a>salt</h3><p>安装完成之后，在master上运行<code>sudo salt &#39;*&#39; test.ping</code>可以看到各minion是否能联通。其中的<strong>*</strong>代表<a href="https://docs.saltstack.com/en/latest/topics/targeting/index.html" target="_blank" rel="external">目标（target）</a>，这里即是所有的minion（master现在也是一个minion），<strong>test.ping</strong>称为<a href="https://docs.saltstack.com/en/latest/ref/modules/" target="_blank" rel="external">执行模块（execution module）</a>，也就是需要在目标上调用的方法。<a href="https://docs.saltstack.com/en/latest/ref/modules/all/index.html" target="_blank" rel="external">这个列表</a>里记载了所有的原生执行模块。我们来尝试一下其中的<a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.cmdmod.html#module-salt.modules.cmdmod" target="_blank" rel="external">cmdmod</a>模块：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo salt minion1 cmd.run <span class="string">'ifconfig'</span></div></pre></td></tr></table></figure></p>
 <p>这就相当于在minion1上直接运行ifconfig了。</p>
-<h3 id="salt-call"><a href="#salt-call" class="headerlink" title="salt-call"></a>salt-call</h3><p>Salt还提供了一个<code>salt-call</code>命令，它只能在本机执行，所以无需输入目标。在master上运行<code>sudo salt-call cmd.run &#39;hostname&#39;</code>，效果相当于直接本地运行命令。有所不同的是，它相当于运行在salt的机制上。Salt需要两个端口来运行：通过<a href="http://zeromq.org/" target="_blank" rel="external">ZeroMQ</a>在4505发消息，4506用来接收结果，所有的minion都会订阅4505端口。也就是说，运行这条命令使用了这两个端口。配合上<code>--log-level=debug</code>的参数，使得<code>salt-call</code>非常适用于调试。运行以下命令：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo salt-call --log-level=debug disk.usage</span><br></pre></td></tr></table></figure></p>
+<h3 id="salt-call"><a href="#salt-call" class="headerlink" title="salt-call"></a>salt-call</h3><p>Salt还提供了一个<code>salt-call</code>命令，它只能在本机执行，所以无需输入目标。在master上运行<code>sudo salt-call cmd.run &#39;hostname&#39;</code>，效果相当于直接本地运行命令。有所不同的是，它相当于运行在salt的机制上。Salt需要两个端口来运行：通过<a href="http://zeromq.org/" target="_blank" rel="external">ZeroMQ</a>在4505发消息，4506用来接收结果，所有的minion都会订阅4505端口。也就是说，运行这条命令使用了这两个端口。配合上<code>--log-level=debug</code>的参数，使得<code>salt-call</code>非常适用于调试。运行以下命令：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo salt-call --log-level=debug disk.usage</div></pre></td></tr></table></figure></p>
 <p>从打印出来的调试信息，我们能看到原来<strong>disk.usage</strong>模块用的是<code>df -P</code>命令。</p>
 <h3 id="salt-run"><a href="#salt-run" class="headerlink" title="salt-run"></a>salt-run</h3><p>最后再介绍一个<code>salt-run</code>命令。我们简单地试一试在master上运行<code>sudo salt-run manage.up</code>，这个manage.up是个runner，在这里它的作用类似于test.ping模块，也是查看所有minion的状态，但是不需要指定目标即可使用。它一般分为几个步骤，一个步骤内并行执行，步骤之间串行执行。比如先部署好数据库（步骤A）再部署应用服务器（步骤B）。<code>salt-run</code>运行的命令称为runner，<a href="https://docs.saltstack.com/en/latest/ref/runners/all/index.html" target="_blank" rel="external">这个列表</a>里记载了所有的原生runner。</p>
-<h2 id="u6307_u5B9A_u76EE_u6807"><a href="#u6307_u5B9A_u76EE_u6807" class="headerlink" title="指定目标"></a>指定目标</h2><p>Salt支持多种方式来指定目标，简单尝试一下就知道啦。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo salt <span class="string">'minion*'</span> test.ping                      <span class="comment"># 通配符，以"minion"开头的minion</span></span><br><span class="line">sudo salt -L <span class="string">'minion1,minion2'</span> test.ping           <span class="comment"># 列表，minion1和minion2</span></span><br><span class="line">sudo salt -E <span class="string">'minion(1|2)'</span> test.ping               <span class="comment"># 正则表达式，minion1或minion2</span></span><br><span class="line">sudo salt -S <span class="string">'192.168.33.19'</span> test.ping             <span class="comment"># IP，minion2</span></span><br><span class="line">sudo salt -G <span class="string">'os:Ubuntu'</span> test.ping                 <span class="comment"># Grains，操作系统为Ubuntu</span></span><br><span class="line">sudo salt -C <span class="string">'minion* and G@os:Ubuntu'</span> test.ping   <span class="comment"># 组合，以"minion"开头的minion并且操作系统为Ubuntu</span></span><br><span class="line">sudo salt -C <span class="string">'master or G@os:CentOS'</span> test.ping     <span class="comment"># 组合，master或操作系统为CentOS（不区分大小写）</span></span><br><span class="line">sudo salt -I <span class="string">'region:cn'</span> test.ping                 <span class="comment"># Pillar，region为cn的minion</span></span><br></pre></td></tr></table></figure></p>
-<p>其中的<a href="https://docs.saltstack.com/en/latest/topics/targeting/grains.html" target="_blank" rel="external">Grains</a>是minion的属性，包含机器名、IP、操作系统、CPU等多种信息。可以运行<code>sudo salt &#39;*&#39; grains.items</code>来查看所有的grains数据。那<a href="https://docs.saltstack.com/en/latest/topics/pillar/index.html" target="_blank" rel="external">Pillar</a>又是什么鬼？简言之，Pillar是存放在master的变量，Grains是minion自己的常量。上面的命令中，Pillar这行应该会报错：<strong>No minions matched the target</strong>，这是因为我们没有在master上加Pillar的缘故。Pillar文件为yaml格式，默认存放在<code>/srv/pillar</code>里。由于pillar只会加密传送给指定的minion，所以可以存放密码等敏感信息。我们来加两个文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/pillar/top.sls</span><br><span class="line">base:</span><br><span class="line">  '*':</span><br><span class="line">    - default</span><br><span class="line">EOF"</span></span><br><span class="line">sudo sh -c <span class="string">"echo 'region: cn' &gt; /srv/pillar/default.sls"</span></span><br></pre></td></tr></table></figure></p>
-<p>首先创建的<code>top.sls</code>是一个默认的入口文件，它表示所有minion都适用<code>default.sls</code>文件。而<code>default.sls</code>里指定了变量。运行以下的命令：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo salt <span class="string">'*'</span> pillar.items            <span class="comment"># 生成、分发、查看现在的pillar。用pillar.raw可以仅查看当前值</span></span><br><span class="line">sudo salt -I <span class="string">'region:cn'</span> test.ping    <span class="comment"># 再次运行test.ping，以pillar为目标</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u6307_u5B9A_u76EE_u6807"><a href="#u6307_u5B9A_u76EE_u6807" class="headerlink" title="指定目标"></a>指定目标</h2><p>Salt支持多种方式来指定目标，简单尝试一下就知道啦。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">sudo salt <span class="string">'minion*'</span> test.ping                      <span class="comment"># 通配符，以"minion"开头的minion</span></div><div class="line">sudo salt -L <span class="string">'minion1,minion2'</span> test.ping           <span class="comment"># 列表，minion1和minion2</span></div><div class="line">sudo salt -E <span class="string">'minion(1|2)'</span> test.ping               <span class="comment"># 正则表达式，minion1或minion2</span></div><div class="line">sudo salt -S <span class="string">'192.168.33.19'</span> test.ping             <span class="comment"># IP，minion2</span></div><div class="line">sudo salt -G <span class="string">'os:Ubuntu'</span> test.ping                 <span class="comment"># Grains，操作系统为Ubuntu</span></div><div class="line">sudo salt -C <span class="string">'minion* and G@os:Ubuntu'</span> test.ping   <span class="comment"># 组合，以"minion"开头的minion并且操作系统为Ubuntu</span></div><div class="line">sudo salt -C <span class="string">'master or G@os:CentOS'</span> test.ping     <span class="comment"># 组合，master或操作系统为CentOS（不区分大小写）</span></div><div class="line">sudo salt -I <span class="string">'region:cn'</span> test.ping                 <span class="comment"># Pillar，region为cn的minion</span></div></pre></td></tr></table></figure></p>
+<p>其中的<a href="https://docs.saltstack.com/en/latest/topics/targeting/grains.html" target="_blank" rel="external">Grains</a>是minion的属性，包含机器名、IP、操作系统、CPU等多种信息。可以运行<code>sudo salt &#39;*&#39; grains.items</code>来查看所有的grains数据。那<a href="https://docs.saltstack.com/en/latest/topics/pillar/index.html" target="_blank" rel="external">Pillar</a>又是什么鬼？简言之，Pillar是存放在master的变量，Grains是minion自己的常量。上面的命令中，Pillar这行应该会报错：<strong>No minions matched the target</strong>，这是因为我们没有在master上加Pillar的缘故。Pillar文件为yaml格式，默认存放在<code>/srv/pillar</code>里。由于pillar只会加密传送给指定的minion，所以可以存放密码等敏感信息。我们来加两个文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/pillar/top.sls</span></div><div class="line">base:</div><div class="line">  '*':</div><div class="line">    - default</div><div class="line">EOF"</div><div class="line">sudo sh -c <span class="string">"echo 'region: cn' &gt; /srv/pillar/default.sls"</span></div></pre></td></tr></table></figure></p>
+<p>首先创建的<code>top.sls</code>是一个默认的入口文件，它表示所有minion都适用<code>default.sls</code>文件。而<code>default.sls</code>里指定了变量。运行以下的命令：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo salt <span class="string">'*'</span> pillar.items            <span class="comment"># 生成、分发、查看现在的pillar。用pillar.raw可以仅查看当前值</span></div><div class="line">sudo salt -I <span class="string">'region:cn'</span> test.ping    <span class="comment"># 再次运行test.ping，以pillar为目标</span></div></pre></td></tr></table></figure></p>
 <p>就能看到现在已经不报错了，所有的minion都是目标。</p>
-<h2 id="u7EF4_u6301_u72B6_u6001_uFF08State_uFF09"><a href="#u7EF4_u6301_u72B6_u6001_uFF08State_uFF09" class="headerlink" title="维持状态（State）"></a>维持状态（State）</h2><p>Salt提供了<a href="https://docs.saltstack.com/en/latest/topics/tutorials/starting_states.html" target="_blank" rel="external">state</a>（点开一看，设计哲学是“简单，简单，简单”。大家都知道重要的事情说三遍）的方式让我们维持所有minion的状态一致。我们来加两个文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/salt/top.sls</span><br><span class="line">base:</span><br><span class="line">  '*':</span><br><span class="line">    - default</span><br><span class="line">EOF"</span></span><br><span class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/salt/default.sls</span><br><span class="line">/tmp/ggg:</span><br><span class="line">  file.directory:</span><br><span class="line">    - makedirs: True</span><br><span class="line">EOF"</span></span><br></pre></td></tr></table></figure></p>
-<p>如同pillar，首先创建的<code>top.sls</code>是一个默认的入口文件，<code>default.sls</code>里指定了这个状态需要有<code>/tmp/ggg</code>这个文件夹。接下来让我们来运行它：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo salt <span class="string">'master'</span> state.show_sls default    <span class="comment"># 检查并显示default的state</span></span><br><span class="line">sudo salt <span class="string">'master'</span> state.sls default         <span class="comment"># 运行default的state</span></span><br><span class="line">ls /tmp                                      <span class="comment"># 能够看到ggg文件夹已经创建好了</span></span><br><span class="line">sudo salt <span class="string">'master'</span> state.sls default         <span class="comment"># 再次运行default的state</span></span><br><span class="line">ls /tmp                                      <span class="comment"># 运行几次都一样，维持状态</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u7EF4_u6301_u72B6_u6001_uFF08State_uFF09"><a href="#u7EF4_u6301_u72B6_u6001_uFF08State_uFF09" class="headerlink" title="维持状态（State）"></a>维持状态（State）</h2><p>Salt提供了<a href="https://docs.saltstack.com/en/latest/topics/tutorials/starting_states.html" target="_blank" rel="external">state</a>（点开一看，设计哲学是“简单，简单，简单”。大家都知道重要的事情说三遍）的方式让我们维持所有minion的状态一致。我们来加两个文件：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/salt/top.sls</span></div><div class="line">base:</div><div class="line">  '*':</div><div class="line">    - default</div><div class="line">EOF"</div><div class="line">sudo sh -c <span class="string">"cat &lt;&lt; EOF &gt; /srv/salt/default.sls</span></div><div class="line">/tmp/ggg:</div><div class="line">  file.directory:</div><div class="line">    - makedirs: True</div><div class="line">EOF"</div></pre></td></tr></table></figure></p>
+<p>如同pillar，首先创建的<code>top.sls</code>是一个默认的入口文件，<code>default.sls</code>里指定了这个状态需要有<code>/tmp/ggg</code>这个文件夹。接下来让我们来运行它：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">sudo salt <span class="string">'master'</span> state.show_sls default    <span class="comment"># 检查并显示default的state</span></div><div class="line">sudo salt <span class="string">'master'</span> state.sls default         <span class="comment"># 运行default的state</span></div><div class="line">ls /tmp                                      <span class="comment"># 能够看到ggg文件夹已经创建好了</span></div><div class="line">sudo salt <span class="string">'master'</span> state.sls default         <span class="comment"># 再次运行default的state</span></div><div class="line">ls /tmp                                      <span class="comment"># 运行几次都一样，维持状态</span></div></pre></td></tr></table></figure></p>
 <p>State可以说是salt的核心功能。它通过yaml格式的数据文件sls（<strong>S</strong>a<strong>L</strong>t <strong>S</strong>tate file）确保了一个系统应该是什么状态的。<a href="https://docs.saltstack.com/en/latest/ref/states/all/" target="_blank" rel="external">这个列表</a>里记载了所有可用的状态。</p>
   
 	</div>
@@ -232,15 +232,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -248,7 +258,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -281,7 +291,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -289,15 +299,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -305,43 +319,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -369,8 +379,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -407,7 +417,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

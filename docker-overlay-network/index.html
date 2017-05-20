@@ -20,10 +20,11 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
 <meta property="og:image" content="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg">
-<meta property="og:updated_time" content="2016-03-21T07:26:03.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker的覆盖网络是怎么工作的">
 <meta name="twitter:description" content="我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自维基百科）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flan">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -35,7 +36,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -124,28 +125,28 @@
 <li>Network：由数个可以相互通信的Endpoint组成，不同的网络相互隔离</li>
 </ul>
 <p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>conf</strong>，它的IP是<strong>192.168.33.19</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.17</strong>和<strong>192.168.33.18</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node1"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"node2"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"conf"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"conf"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh conf</span><br></pre></td></tr></table></figure>
-<p>Ubuntu 14.04的内核版本是3.13，而<a href="https://github.com/docker/docker/issues/14145" target="_blank" rel="external">使用docker overlay网络需要Linux内核版本3.16+</a>，所以需要升级内核，建议升级到3.19或以上。因为我们用node1和node2来跑覆盖网络，所以只用升级这两台虚拟机就好了，conf不用管。命令如下：<br><figure class="highlight sh"><figcaption><span>node1 and node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install linux-generic-lts-vivid</span><br><span class="line"></span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure></p>
-<p>等待重启之后，重新连接进vagrant虚拟机：<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>conf</strong>，它的IP是<strong>192.168.33.19</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.17</strong>和<strong>192.168.33.18</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"node1"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"node1"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"node2"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"node2"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"conf"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"conf"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh node1</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh node2</div></pre></td></tr></table></figure>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh conf</div></pre></td></tr></table></figure>
+<p>Ubuntu 14.04的内核版本是3.13，而<a href="https://github.com/docker/docker/issues/14145" target="_blank" rel="external">使用docker overlay网络需要Linux内核版本3.16+</a>，所以需要升级内核，建议升级到3.19或以上。因为我们用node1和node2来跑覆盖网络，所以只用升级这两台虚拟机就好了，conf不用管。命令如下：<br><figure class="highlight sh"><figcaption><span>node1 and node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install linux-generic-lts-vivid</div><div class="line"></div><div class="line">sudo reboot</div></pre></td></tr></table></figure></p>
+<p>等待重启之后，重新连接进vagrant虚拟机：<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh node1</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh node2</div></pre></td></tr></table></figure>
 <p>完成之后再用<code>uname -r</code>看一下，现在应该已经是3.19了。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>如上所述，docker的overlay网络支持consul，etcd，zookeeper等键值存储系统。这里我们使用比较轻量点的etcd，整个镜像不到15Mb。运行以下命令启动etcd：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  kubernetes/etcd:<span class="number">2.0</span>.<span class="number">5</span> \</span><br><span class="line">  /usr/<span class="built_in">local</span>/bin/etcd \</span><br><span class="line">  --addr=<span class="number">192.168</span>.<span class="number">33.19</span>:<span class="number">4001</span> \</span><br><span class="line">  --bind-addr=<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">4001</span> \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure></p>
-<p>在node上，docker daemon启动参数里需要支持TCP，指定键值存储等。在node1和node2上分别运行以下命令：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.17:2375\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.18:2375\" &gt;&gt; /etc/default/docker'</span></span><br><span class="line">sudo service docker restart</span><br></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>如上所述，docker的overlay网络支持consul，etcd，zookeeper等键值存储系统。这里我们使用比较轻量点的etcd，整个镜像不到15Mb。运行以下命令启动etcd：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">  --net=host \</div><div class="line">  --name=etcd \</div><div class="line">  kubernetes/etcd:2.0.5 \</div><div class="line">  /usr/<span class="built_in">local</span>/bin/etcd \</div><div class="line">  --addr=192.168.33.19:4001 \</div><div class="line">  --bind-addr=0.0.0.0:4001 \</div><div class="line">  --data-dir=/var/etcd/data</div></pre></td></tr></table></figure></p>
+<p>在node上，docker daemon启动参数里需要支持TCP，指定键值存储等。在node1和node2上分别运行以下命令：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.17:2375\" &gt;&gt; /etc/default/docker'</span></div><div class="line">sudo service docker restart</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo sh -c <span class="string">'echo DOCKER_OPTS=\"-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.18:2375\" &gt;&gt; /etc/default/docker'</span></div><div class="line">sudo service docker restart</div></pre></td></tr></table></figure>
 <p>有了这些，就可以开始创建overlay网络了。</p>
-<h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>现在在node1或者node2上创建两个overlay网络backend和frontend：<br><figure class="highlight sh"><figcaption><span>node1 or node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker network create --driver overlay --subnet=<span class="number">10.0</span>.<span class="number">7.0</span>/<span class="number">24</span> backend</span><br><span class="line">docker network create --driver overlay --subnet=<span class="number">10.0</span>.<span class="number">8.0</span>/<span class="number">24</span> frontend</span><br><span class="line">docker network ls</span><br></pre></td></tr></table></figure></p>
+<h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>现在在node1或者node2上创建两个overlay网络backend和frontend：<br><figure class="highlight sh"><figcaption><span>node1 or node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker network create --driver overlay --subnet=10.0.7.0/24 backend</div><div class="line">docker network create --driver overlay --subnet=10.0.8.0/24 frontend</div><div class="line">docker network ls</div></pre></td></tr></table></figure></p>
 <p>所有的网络在节点上是分享的，不管在哪个node上运行<code>docker network ls</code>，都能看到全部网络。另外，墙裂建议创建覆盖网络的时候使用<code>--subnet</code>，否则，docker将随机分配一个子网段，虽然docker内部是不会出现重复IP的，但是跟docker外部的其他虚拟机、容器等就不能保证不重复了。</p>
-<p>现在在node1上分别用两个网络各自创建一个容器：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=backend --name=be1 busybox sleep <span class="number">3600</span></span><br><span class="line">docker run <span class="operator">-d</span> --net=frontend --name=fe1 busybox sleep <span class="number">3600</span></span><br><span class="line">docker <span class="built_in">exec</span> be1 ifconfig</span><br><span class="line">docker <span class="built_in">exec</span> fe1 ifconfig</span><br></pre></td></tr></table></figure></p>
-<p>执行上面的<code>ifconfig</code>可以看到，eth0的IP地址确实是在指定的<code>subnet</code>里的。然后在node2上用backend网络创建一个容器：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=backend --name=be2 busybox sleep <span class="number">3600</span></span><br><span class="line">docker <span class="built_in">exec</span> be2 ifconfig</span><br></pre></td></tr></table></figure></p>
-<p>容器建好以后，我们可以<code>ping</code>一下看看：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> be2 ping -c <span class="number">4</span> be1</span><br><span class="line">docker <span class="built_in">exec</span> be2 ping -c <span class="number">4</span> fe1</span><br></pre></td></tr></table></figure></p>
+<p>现在在node1上分别用两个网络各自创建一个容器：<br><figure class="highlight sh"><figcaption><span>node1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=backend --name=be1 busybox sleep 3600</div><div class="line">docker run <span class="_">-d</span> --net=frontend --name=fe1 busybox sleep 3600</div><div class="line">docker <span class="built_in">exec</span> be1 ifconfig</div><div class="line">docker <span class="built_in">exec</span> fe1 ifconfig</div></pre></td></tr></table></figure></p>
+<p>执行上面的<code>ifconfig</code>可以看到，eth0的IP地址确实是在指定的<code>subnet</code>里的。然后在node2上用backend网络创建一个容器：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=backend --name=be2 busybox sleep 3600</div><div class="line">docker <span class="built_in">exec</span> be2 ifconfig</div></pre></td></tr></table></figure></p>
+<p>容器建好以后，我们可以<code>ping</code>一下看看：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> be2 ping -c 4 be1</div><div class="line">docker <span class="built_in">exec</span> be2 ping -c 4 fe1</div></pre></td></tr></table></figure></p>
 <p>上面命令<code>ping</code>里的主机名可以换成IP。运行完可以看到，node2上是可以访问node1上的相同overlay网络的，但是不同的overlay网络不能访问。在node1运行<code>docker exec be1 ping -c 4 fe1</code>也能知道，即使主机相同，不同的overlay网络也是不能访问的，这就很好地实现了网络隔离。原来默认使用bridge的时候，相同主机的所有容器都是可以相互访问的，而不同主机的所有容器都是不能相互访问的。</p>
-<p>最后我们再按照上面的原理图中间那个容器那样，创建一个既使用backend网络也使用frontend网络的容器：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> --net=backend --name=bf2 busybox sleep <span class="number">3600</span></span><br><span class="line">docker network connect frontend bf2</span><br><span class="line">docker <span class="built_in">exec</span> bf2 ifconfig</span><br></pre></td></tr></table></figure></p>
-<p>从上面的<code>ifconfig</code>中可以看到，这个新容器既有<code>10.0.7</code>网段的IP地址，又有<code>10.0.8</code>网段的IP地址。网络搭好以后，我们可以<code>ping</code>一下看看，果然它能够和两个覆盖网络里的容器通信：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> bf2 ping -c <span class="number">4</span> be1</span><br><span class="line">docker <span class="built_in">exec</span> bf2 ping -c <span class="number">4</span> fe1</span><br></pre></td></tr></table></figure></p>
-<p>有兴趣的话，我们还可以去conf虚拟机上看看etcd里面的东东：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/nodes                           <span class="comment"># 所有的节点信息</span></span><br><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/network/v1.<span class="number">0</span>/endpoint           <span class="comment"># 所有的endpoint信息</span></span><br><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/network/v1.<span class="number">0</span>/overlay/network    <span class="comment"># 所有的overlay网络信息</span></span><br></pre></td></tr></table></figure></p>
+<p>最后我们再按照上面的原理图中间那个容器那样，创建一个既使用backend网络也使用frontend网络的容器：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=backend --name=bf2 busybox sleep 3600</div><div class="line">docker network connect frontend bf2</div><div class="line">docker <span class="built_in">exec</span> bf2 ifconfig</div></pre></td></tr></table></figure></p>
+<p>从上面的<code>ifconfig</code>中可以看到，这个新容器既有<code>10.0.7</code>网段的IP地址，又有<code>10.0.8</code>网段的IP地址。网络搭好以后，我们可以<code>ping</code>一下看看，果然它能够和两个覆盖网络里的容器通信：<br><figure class="highlight sh"><figcaption><span>node2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> bf2 ping -c 4 be1</div><div class="line">docker <span class="built_in">exec</span> bf2 ping -c 4 fe1</div></pre></td></tr></table></figure></p>
+<p>有兴趣的话，我们还可以去conf虚拟机上看看etcd里面的东东：<br><figure class="highlight sh"><figcaption><span>conf</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/nodes                           <span class="comment"># 所有的节点信息</span></div><div class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/network/v1.0/endpoint           <span class="comment"># 所有的endpoint信息</span></div><div class="line">docker <span class="built_in">exec</span> -it etcd etcdctl ls /docker/network/v1.0/overlay/network    <span class="comment"># 所有的overlay网络信息</span></div></pre></td></tr></table></figure></p>
 <h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://xelatex.github.io/2015/11/15/Battlefield-Calico-Flannel-Weave-and-Docker-Overlay-Network/" target="_blank" rel="external">这篇文章</a>比较了Docker Overlay Network、Flannel、Calico、Weave等4种覆盖网络，作者还有其它文章分别使用了这些覆盖网络。<br>此外，当然还有<a href="https://docs.docker.com/engine/userguide/networking/dockernetworks/#an-overlay-network" target="_blank" rel="external">Docker官方文档</a>和<a href="https://docs.docker.com/engine/userguide/networking/get-started-overlay/" target="_blank" rel="external">新手教程</a>。</p>
   
 	</div>
@@ -231,15 +232,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -247,7 +258,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -280,7 +291,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -288,15 +299,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -304,43 +319,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -368,8 +379,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -406,7 +417,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

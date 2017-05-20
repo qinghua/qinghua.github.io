@@ -1,0 +1,616 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>《DevOps实践》出版啦 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="从开始试译到现在经过了半年多，我和马博文的译作《DevOps实践》终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《DevOps实践》出版啦">
+<meta property="og:url" content="http://qinghua.github.io/practical-devops/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="从开始试译到现在经过了半年多，我和马博文的译作《DevOps实践》终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。">
+<meta property="og:image" content="http://qinghua.github.io/img/practical_devops_en.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/practical_devops_cn.png">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《DevOps实践》出版啦">
+<meta name="twitter:description" content="从开始试译到现在经过了半年多，我和马博文的译作《DevOps实践》终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/practical_devops_en.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/practical-devops/" title="《DevOps实践》出版啦" itemprop="url">《DevOps实践》出版啦</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-09-21T00:48:20.000Z" itemprop="datePublished"> 发表于 2016-09-21</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8BD1_u8005_u5E8F"><span class="toc-number">2.</span> <span class="toc-text">译者序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u81F4_u8C22"><span class="toc-number">3.</span> <span class="toc-text">致谢</span></a></li></ol>
+		
+		</div>
+		
+		<p>从开始试译到现在经过了半年多，我和马博文的译作<a href="https://book.douban.com/subject/26878481/" target="_blank" rel="external">《DevOps实践》</a>终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。<br><a id="more"></a></p>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>《DevOps实践》介绍了DevOps的起源和概览，并通过一个贯穿全书的例子，从架构开始，到代码的存储、构建、测试、部署、监控，直至流程的跟踪，推荐了许多可用的工具和可行的示范，是一本DevOps实践方面不可多得的参考书籍。</p>
+<p>《DevOps实践》面向愿意承担更大责任的开发人员和系统管理员，也很适合愿意更好地支持开发人员的运维人员。无须任何DevOps知识即可快速上手！</p>
+<p><img src="/img/practical_devops_en.jpg" alt=""><br><img src="/img/practical_devops_cn.png" alt=""></p>
+<h2 id="u8BD1_u8005_u5E8F"><a href="#u8BD1_u8005_u5E8F" class="headerlink" title="译者序"></a>译者序</h2><p>什么是DevOps？我的前同事李光磊将其译为开发自运维，他还写了篇很有意思的博客来说明：<a href="http://liguanglei.name/blogs/2015/04/22/devops-chinese-name/" target="_blank" rel="external">http://liguanglei.name/blogs/2015/04/22/devops-chinese-name/</a>。这个将开发和运维结合起来的词，代表了一种文化，那就是大家共同协作。狭义上的大家，指的是开发和运维，广义上，指的是所有软件生命周期里参与的角色。</p>
+<p>“共同协作”是个富有正能量的词。感觉上，随便往哪儿一套都是政治正确的。那为什么要在DevOps里着重强调呢？DevOps到底解决了什么问题？归根结底，就是提高产品质量。爱思考的你，可能心里已经有千万个提高产品质量的方案从脑海里呼啸而过。代码审查、自动化测试、持续集成、代码质量管理工具、程序员鼓励师……对对对，这些方案都能在某种程度上解决一些层次的问题。但是，产品质量的根源在哪儿呢？在于人。如果开发者对自己要做的事情不负责甚至压根儿不知道后果，怎么能指望这样的人能够生产出来高质量的代码呢？举个例子：作为开发者，我知道自己写的代码会由测试部门来进一步测试，在有进度压力的时候，我就会更倾向于去想：“那就先这么凑合吧着，反正有问题的话QA们会说的”。如果我不知道部署和维护产品是怎么一回事，我就不会主动地在产品里写上日志的代码。对于运维人员来说，由于处于软件生命周期的下游，相信对类似的场景感触更甚。DevOps能够做到的事，就是让人有这个意识：需要对产品的质量负责。DevOps能够提供一个平台或机制，让我能够从中找到所需的资源。</p>
+<p>“共同协作”也是个虚无缥缈的词。它应该如何落地呢？这就是本书想要给读者们带来的内容。在实践上，从架构开始，到代码的存储、构建、测试、部署、监控，直至流程的跟踪，本书推荐了许多可用的工具和练习，确实无愧于《DevOps实战》之名。细度全文可以有一个全局的概览并充实读者们的DevOps工具箱；而在实际场景中再查阅本书，将其当做一本各种技术的快速参考手册也不失为明智之举。本书的许多实例通过Docker启动，在紧随潮流技术的同时也简化了练习步骤，值得花些时间试试。在企业里，使用自动化和持续交付来提高代码部署频率，降低代码上线间隔。这样的指标是比较容易统计的，在让管理人员满意的同时，也能减少开发和运维的痛苦。只有让各角色都真切地感受到实惠，大家才会更加愿意从心底接受并积极参与到这一过程中。</p>
+<p>“共同协作”还是个看上去很美的词。为什么大家还不赶紧拥抱它？因为它的成本可能还挺高的。大型企业在管理上，通常权责分明，从而导致某个角色的成员都不愿意轻易踏足其它领域。流程繁琐，导致一个小小的改进也需要漫长的批复。安全性要求高，引发各种违规，进一步导致没有和其他人分享的意愿。员工操作权限管理精密，上不了网、下不了包、开不了虚拟机……这些问题，虽然不至于疾在骨髓，但起码也在肠胃了。而且，自动化测试、部署流水线等都需要比较大的成本。在看见收益和认清自己之前，可能大多数人也会像蔡桓公那样默认拒绝吧：“医之好治不病以为功”。成本最低的时候，可能就是开始写第一行产品代码的时候。话虽如此，任何时候都是实现DevOps的最佳时机，因为它的成本随企业的扩大和代码库的膨胀，一定是越来越高的。另外，完全地追求技术上的卓越而忽视成本也不是DevOps的推荐做法。读者们在阅读时，也会看到DevOps在一些状况下采取的权衡方案。</p>
+<p>你希望在一个大家敞开心胸，相互拥抱的环境里共同协作打造最好的产品，还是守着自己的一亩三分地，与人争辩这是谁的责任，抱怨人们冷漠的同时拒绝其他人的“与你无关”的要求？从本书开始，应用自己获得的知识，并尝试改造这个世界吧！</p>
+<h2 id="u81F4_u8C22"><a href="#u81F4_u8C22" class="headerlink" title="致谢"></a>致谢</h2><p>感谢作者Joakim Verona，本书涵盖了大量可以练习的实例，想必花了你很多的心血。<br>感谢ThoughtWorks，授人的不止是持续集成、持续交付，还有持续学习。<br>感谢林帆，没有你，我就不会有这样难忘的翻译经历。<a href="https://book.douban.com/subject/26670565/" target="_blank" rel="external">《CoreOS实践之路》</a>只是你的开始，希望能看到更多的佳作问世。<br>感谢永恒的侠少，让我可以集中精力专注于翻译之上，你还为本书想了一个漂亮的副标题。<br>感谢马博文，你的经验与高效让本书的翻译可以提前完成。顺祝你的另一本译作<a href="http://item.jd.com/11935577.html" target="_blank" rel="external">《Scala编程实战》</a>大卖。<br>感谢小伙伴张博，你给我的初稿指出了许多宝贵意见。<br>感谢文心、瑞民、光磊，这篇译者序里也流淌着你们的汗水。<br>感谢张骏，我从你的<a href="https://book.douban.com/subject/26772677/" target="_blank" rel="external">《微服务设计》</a>的代码库里获取了许多宝贵的经验与灵感。<br>感谢家人和朋友们，我永远离不开你们的支持。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/book/">book</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/practical-devops/" data-title="《DevOps实践》出版啦 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/dubbo-3/" title="监控与管理dubbo服务">
+  <strong>上一篇：</strong><br/>
+  <span>
+  监控与管理dubbo服务</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/alibaba_druid/"  title="不止于数据库连接池的Druid">
+ <strong>下一篇：</strong><br/> 
+ <span>不止于数据库连接池的Druid
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="practical-devops/" data-title="《DevOps实践》出版啦" data-url="http://qinghua.github.io/practical-devops/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8BD1_u8005_u5E8F"><span class="toc-number">2.</span> <span class="toc-text">译者序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u81F4_u8C22"><span class="toc-number">3.</span> <span class="toc-text">致谢</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

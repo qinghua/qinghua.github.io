@@ -13,15 +13,12 @@
     
 
     
-    <meta name="description">
-<meta property="og:type" content="website">
+    <meta property="og:type" content="website">
 <meta property="og:title" content="懒程序员改变世界">
 <meta property="og:url" content="http://qinghua.github.io/page/4/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="懒程序员改变世界">
-<meta name="twitter:description">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -33,7 +30,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -95,20 +92,597 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/kubernetes-in-mesos-7/" title="如果有10000台机器，你想怎么玩？（七）生命周期" itemprop="url">如果有10000台机器，你想怎么玩？（七）生命周期</a>
+      <a href="/tesseract/" title="光学字符识别软件tesseract-ocr" itemprop="url">光学字符识别软件tesseract-ocr</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2016-02-03T10:41:27.000Z" itemprop="datePublished"> 发表于 2016-02-03</time>
+    <time datetime="2016-04-16T02:13:20.000Z" itemprop="datePublished"> 发表于 2016-04-16</time>
     
   </p>
 </header>
     <div class="article-content">
         
-        <p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
+        <p><a href="https://github.com/tesseract-ocr/tesseract/wiki">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/tesseract/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/tool/">tool</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/OCR/">OCR</a><a href="/tags/tesseract/">tesseract</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/tesseract/#comments" class="ds-thread-count comments-count-link" data-thread-key="tesseract/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/openstack-swift/" title="轻松搭建OpenStack Swift存储测试环境" itemprop="url">轻松搭建OpenStack Swift存储测试环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-15T11:22:14.000Z" itemprop="datePublished"> 发表于 2016-04-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://docs.openstack.org/developer/swift/">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="http://www.openstack.org/">OpenStack</a>。上次在<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/openstack-swift/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/storage/">storage</a><a href="/tags/openstack-swift/">openstack swift</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/openstack-swift/#comments" class="ds-thread-count comments-count-link" data-thread-key="openstack-swift/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/ceph-radosgw/" title="使用RADOSGW提供ceph的S3和Swift接口" itemprop="url">使用RADOSGW提供ceph的S3和Swift接口</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-12T00:07:13.000Z" itemprop="datePublished"> 发表于 2016-04-12</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a>。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker Registry在2.4版本<a href="https://github.com/docker/distribution/commit/5967d333425a8dd5d36c5bb456098839654d38af">移除了对rados的支持</a>，所以如果使用ceph作为后端存储就需要利用RADOSGW了。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/ceph-radosgw/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/storage/">storage</a><a href="/tags/radosgw/">radosgw</a><a href="/tags/s3/">s3</a><a href="/tags/openstack-swift/">openstack swift</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/ceph-radosgw/#comments" class="ds-thread-count comments-count-link" data-thread-key="ceph-radosgw/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/rancher/" title="用容器轻松搭建Rancher运行环境" itemprop="url">用容器轻松搭建Rancher运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-09T03:31:01.000Z" itemprop="datePublished"> 发表于 2016-04-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://rancher.com/">Rancher</a>是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:<br><img src="/img/rancher-feature.png" alt=""></p>
+<p>2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/rancher/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/rancher/">rancher</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/rancher/#comments" class="ds-thread-count comments-count-link" data-thread-key="rancher/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/gitup/" title="Mac上的git图形工具GitUp" itemprop="url">Mac上的git图形工具GitUp</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-06T13:43:21.000Z" itemprop="datePublished"> 发表于 2016-04-06</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>已经11岁的<a href="https://git-scm.com/">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/gitup/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/tool/">tool</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/git/">git</a><a href="/tags/GitUp/">GitUp</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/gitup/#comments" class="ds-thread-count comments-count-link" data-thread-key="gitup/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/prometheus/" title="用容器轻松搭建Prometheus运行环境" itemprop="url">用容器轻松搭建Prometheus运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-30T11:01:01.000Z" itemprop="datePublished"> 发表于 2016-03-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="https://prometheus.io/">Prometheus</a>是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/prometheus/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/prometheus/">prometheus</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/prometheus/#comments" class="ds-thread-count comments-count-link" data-thread-key="prometheus/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/tosca/" title="TOSCA简介" itemprop="url">TOSCA简介</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-28T11:29:04.000Z" itemprop="datePublished"> 发表于 2016-03-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="https://www.oasis-open.org/committees/tosca/">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/tosca/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/cloudify/">cloudify</a><a href="/tags/tosca/">tosca</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/tosca/#comments" class="ds-thread-count comments-count-link" data-thread-key="tosca/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/cloudify/" title="轻松搭建Cloudify运行环境" itemprop="url">轻松搭建Cloudify运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-26T11:21:30.000Z" itemprop="datePublished"> 发表于 2016-03-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://getcloudify.org/">Cloudify</a>是一个开源的云应用编排系统，它允许使用DSL来描述应用的拓扑结构，并部署到任意环境中。本文大量参考了<a href="http://docs.getcloudify.org/3.3.1/intro/what-is-cloudify/">官方教程</a>从零开始搭建并管理一个cloudify 3.3.1集群。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/cloudify/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/cloudify/">cloudify</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/cloudify/#comments" class="ds-thread-count comments-count-link" data-thread-key="cloudify/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-installation/" title="轻松搭建Kubernetes 1.2版运行环境" itemprop="url">轻松搭建Kubernetes 1.2版运行环境</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-22T13:14:31.000Z" itemprop="datePublished"> 发表于 2016-03-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/kubernetes-installation/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/kubernetes/">kubernetes</a><a href="/tags/flannel/">flannel</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/kubernetes-installation/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-installation/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/kubernetes-in-mesos-9/" title="如果有10000台机器，你想怎么玩？（九）安全性" itemprop="url">如果有10000台机器，你想怎么玩？（九）安全性</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-03-21T11:24:40.000Z" itemprop="datePublished"> 发表于 2016-03-21</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这次聊聊mesos+k8s的安全性，还有多租户。</p>
 <ul>
 <li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
 <li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
@@ -123,7 +697,7 @@
         
         <p class="article-more-link">
           
-            <a href="/kubernetes-in-mesos-7/#more">Read More</a>
+            <a href="/kubernetes-in-mesos-9/#more">Read More</a>
           
        </p>
     </div>
@@ -149,619 +723,7 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/kubernetes-in-mesos-7/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-7/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/kubernetes-in-mesos-6/" title="如果有10000台机器，你想怎么玩？（六）性能" itemprop="url">如果有10000台机器，你想怎么玩？（六）性能</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-02-02T11:52:32.000Z" itemprop="datePublished"> 发表于 2016-02-02</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/kubernetes-in-mesos-6/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/kubernetes-in-mesos-6/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-6/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/docker-storage/" title="Docker的存储是怎么工作的" itemprop="url">Docker的存储是怎么工作的</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-29T10:00:00.000Z" itemprop="datePublished"> 发表于 2016-01-29</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们都知道docker支持多种存储驱动，默认在ubuntu上使用AUFS，其他Linux系统上使用devicemapper。这篇文章从零开始，用一些Linux的命令来使用这些不同的存储，包括AUFS、Device Mapper、Btrfs和Overlay。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/docker-storage/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/storage/">storage</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/docker-storage/#comments" class="ds-thread-count comments-count-link" data-thread-key="docker-storage/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/docker-bridge-network/" title="Docker的桥接网络是怎么工作的" itemprop="url">Docker的桥接网络是怎么工作的</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-26T10:00:00.000Z" itemprop="datePublished"> 发表于 2016-01-26</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/docker-bridge-network/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/network/">network</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/docker-bridge-network/#comments" class="ds-thread-count comments-count-link" data-thread-key="docker-bridge-network/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/ansible-large-scale-cluster/" title="用ansible管理大规模集群" itemprop="url">用ansible管理大规模集群</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-21T00:23:45.000Z" itemprop="datePublished"> 发表于 2016-01-21</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p><a href="http://www.ansible.com/get-started">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/ansible-large-scale-cluster/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/ansible/">ansible</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/ansible-large-scale-cluster/#comments" class="ds-thread-count comments-count-link" data-thread-key="ansible-large-scale-cluster/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/waterfall-to-agile-2/" title="传统企业敏捷转型纪实（二）" itemprop="url">传统企业敏捷转型纪实（二）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-20T12:11:05.000Z" itemprop="datePublished"> 发表于 2016-01-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/waterfall-to-agile-2/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/agile/">agile</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/agile/">agile</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/waterfall-to-agile-2/#comments" class="ds-thread-count comments-count-link" data-thread-key="waterfall-to-agile-2/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/kubernetes-in-mesos-5/" title="如果有10000台机器，你想怎么玩？（五）日志" itemprop="url">如果有10000台机器，你想怎么玩？（五）日志</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-18T11:59:00.000Z" itemprop="datePublished"> 发表于 2016-01-18</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/kubernetes-in-mesos-5/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/kubernetes-in-mesos-5/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-5/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/kubernetes-in-mesos-4/" title="如果有10000台机器，你想怎么玩？（四）监控" itemprop="url">如果有10000台机器，你想怎么玩？（四）监控</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-15T11:12:59.000Z" itemprop="datePublished"> 发表于 2016-01-15</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/kubernetes-in-mesos-4/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/kubernetes-in-mesos-4/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-4/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/waterfall-to-agile-1/" title="传统企业敏捷转型纪实（一）" itemprop="url">传统企业敏捷转型纪实（一）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-13T13:39:15.000Z" itemprop="datePublished"> 发表于 2016-01-13</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/waterfall-to-agile-1/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/agile/">agile</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/agile/">agile</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/waterfall-to-agile-1/#comments" class="ds-thread-count comments-count-link" data-thread-key="waterfall-to-agile-1/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/mysql-replication/" title="基于docker的MySQL主从复制（replication）" itemprop="url">基于docker的MySQL主从复制（replication）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-01-11T02:20:35.000Z" itemprop="datePublished"> 发表于 2016-01-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p><a href="http://dev.mysql.com/doc/refman/5.7/en/replication.html">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/mysql-replication/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/db/">db</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/mysql/">mysql</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/mysql-replication/#comments" class="ds-thread-count comments-count-link" data-thread-key="mysql-replication/" data-count-type="comments">&nbsp;</a>
+		<a href="/kubernetes-in-mesos-9/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-9/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -777,7 +739,7 @@
 
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
   </nav>
 
 </div>
@@ -797,15 +759,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -813,7 +785,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -846,7 +818,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -854,15 +826,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -870,43 +846,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -934,8 +906,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -972,7 +944,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

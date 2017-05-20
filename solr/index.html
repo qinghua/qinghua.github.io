@@ -1,0 +1,666 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用容器快速上手Apache Solr | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="Apache Solr是用Java开发的基于Apache Lucene的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。
+对Elasticsearch入门有兴趣的朋友请参考用容器快速上手Elasticsearch。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器快速上手Apache Solr">
+<meta property="og:url" content="http://qinghua.github.io/solr/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Apache Solr是用Java开发的基于Apache Lucene的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。
+对Elasticsearch入门有兴趣的朋友请参考用容器快速上手Elasticsearch。">
+<meta property="og:image" content="http://qinghua.github.io/img/solr-dashboard.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/solr-query.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/solr-analysis.jpg">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用容器快速上手Apache Solr">
+<meta name="twitter:description" content="Apache Solr是用Java开发的基于Apache Lucene的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。
+对Elasticsearch入门有兴趣的朋友请参考用容器快速上手Elasticsearch。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/solr-dashboard.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/solr/" title="用容器快速上手Apache Solr" itemprop="url">用容器快速上手Apache Solr</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-08-13T05:51:10.000Z" itemprop="datePublished"> 发表于 2016-08-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8"><span class="toc-number">1.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7D22_u5F15"><span class="toc-number">2.</span> <span class="toc-text">索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xml"><span class="toc-number">2.1.</span> <span class="toc-text">xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#json"><span class="toc-number">2.2.</span> <span class="toc-text">json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#csv"><span class="toc-number">2.3.</span> <span class="toc-text">csv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">2.4.</span> <span class="toc-text">其它</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u8BE2"><span class="toc-number">3.</span> <span class="toc-text">查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">4.</span> <span class="toc-text">中文</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://lucene.apache.org/solr/" target="_blank" rel="external">Apache Solr</a>是用Java开发的基于<a href="https://lucene.apache.org/" target="_blank" rel="external">Apache Lucene</a>的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。</p>
+<p>对<a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elasticsearch</a>入门有兴趣的朋友请参考<a href="/elastic-search">用容器快速上手Elasticsearch</a>。<br><a id="more"></a></p>
+<h2 id="u542F_u52A8"><a href="#u542F_u52A8" class="headerlink" title="启动"></a>启动</h2><p>关于Solr的入门知识，有一本gitbook：<a href="https://www.gitbook.com/book/paynexu/create-your-vertical-search-engine-with-solr/details" target="_blank" rel="external">《用Solr构建垂直搜索引擎》</a>写得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Solr：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> -p 8983:8983 --name solr solr:6.1.0</div></pre></td></tr></table></figure></p>
+<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a href="http://192.168.99.100:8983/solr" target="_blank" rel="external">http://192.168.99.100:8983/solr</a>来访问Solr Admin了：<br><img src="/img/solr-dashboard.jpg" alt=""></p>
+<p>在Solr里，<a href="https://cwiki.apache.org/confluence/display/solr/Solr+Cores+and+solr.xml" target="_blank" rel="external">Core</a>可以认为是一个集合，一个Solr实例可以有多个Core。可以说Solr实例和Core的关系像是数据库实例和数据库的关系。现在我们来新建一个core，命名为ggg：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</div></pre></td></tr></table></figure></p>
+<h2 id="u7D22_u5F15"><a href="#u7D22_u5F15" class="headerlink" title="索引"></a>索引</h2><p>Solr支持<a href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-XMLFormattedIndexUpdates" target="_blank" rel="external">xml</a>、<a href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-JSONFormattedIndexUpdates" target="_blank" rel="external">json</a>和<a href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-CSVFormattedIndexUpdates" target="_blank" rel="external">csv</a>格式的数据文件用于索引。接下来让我们来试试。首先登录进solr容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it --user=solr solr bash</div></pre></td></tr></table></figure></p>
+<h3 id="xml"><a href="#xml" class="headerlink" title="xml"></a>xml</h3><p>Solr存储的对象称为Document，每个Document数个Field组成，每个Field代表一个属性。现在按照<code>&lt;add&gt;&lt;doc&gt;&lt;field name=&quot;&quot;&gt;</code>的格式来生成一个xml文件：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt;EOF &gt; books.xml</div><div class="line">&lt;add&gt;</div><div class="line">  &lt;doc&gt;</div><div class="line">    &lt;field name=<span class="string">"id"</span>&gt;978-0641723445&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"name"</span>&gt;The Lightning Thief&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"author"</span>&gt;Rick Riordan&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"series_t"</span>&gt;Percy Jackson and the Olympians&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"sequence_i"</span>&gt;1&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"genre_s"</span>&gt;fantasy&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"inStock"</span>&gt;<span class="literal">true</span>&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"price"</span>&gt;12.50&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"pages_i"</span>&gt;384&lt;/field&gt;</div><div class="line">  &lt;/doc&gt;</div><div class="line">  &lt;doc&gt;</div><div class="line">    &lt;field name=<span class="string">"id"</span>&gt;978-1423103349&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"name"</span>&gt;The Sea of Monsters&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"author"</span>&gt;Rick Riordan&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"series_t"</span>&gt;Percy Jackson and the Olympians&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"sequence_i"</span>&gt;2&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"inStock"</span>&gt;<span class="literal">true</span>&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"price"</span>&gt;6.49&lt;/field&gt;</div><div class="line">    &lt;field name=<span class="string">"pages_i"</span>&gt;304&lt;/field&gt;</div><div class="line">  &lt;/doc&gt;</div><div class="line">&lt;/add&gt;</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<p>细心的你可能已经发现了下面一条数据里并没有<code>fantasy</code>，我故意的~~现在用以下命令将这个xml导入索引：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">bin/post -c ggg books.xml</div></pre></td></tr></table></figure></p>
+<p>索引完成后，在Solr Admin的ggg Core的Query里，直接点击Execute Query便可以看到我们新索引的这两条数据：<br><img src="/img/solr-query.jpg" alt=""></p>
+<p>在<code>q</code>里输入搜索的关键词便可以查询索引：</p>
+<ul>
+<li>Rick Riordan：匹配作者</li>
+<li>Jackson：分词可以工作</li>
+<li>the：不区分大小写</li>
+<li>fantasy：不符合的记录不会被查询到</li>
+<li>fantasy 0123：不是所有关键词都会被使用</li>
+<li>0123：但如果只有查不到的关键词，那就是查不到</li>
+<li>fantasy -Rick：<code>-</code>表示过滤</li>
+<li>Lightni：单词不全不能匹配</li>
+<li>Lightn?ng：<code>?</code>匹配一位</li>
+<li>L*g：<code>*</code>匹配多位</li>
+<li>Lightnixx~：<code>~</code>用于模糊查询</li>
+<li>Lightnxxx~：<code>~</code>最多就匹配两位</li>
+</ul>
+<p>还有很多查询的技巧，可以在<a href="https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser" target="_blank" rel="external">这里</a>找到。</p>
+<p>再次导入相同的数据：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">bin/post -c ggg books.xml</div></pre></td></tr></table></figure></p>
+<p>可以看到查询结果并没有变化。这是因为solr会根据<code>id</code>来区分每一个数据。如果更新xml再导入，那就会覆盖掉旧的数据。现在让我们把漏了的<code>fantasy</code>补上：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sed -i <span class="string">'/&lt;field name="sequence_i"&gt;2&lt;\/field&gt;/a \ \ \ \ &lt;field name="genre_s"&gt;fantasy&lt;\/field&gt;'</span> books.xml</div><div class="line">cat books.xml</div><div class="line">bin/post -c ggg books.xml</div></pre></td></tr></table></figure></p>
+<p>可以查询<code>fantasy</code>看到结果变成了两条。</p>
+<h3 id="json"><a href="#json" class="headerlink" title="json"></a>json</h3><p>接下来创建一个json文件并索引：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt;EOF &gt; books.json</div><div class="line">[</div><div class="line">  &#123;</div><div class="line">    <span class="string">"id"</span> : <span class="string">"978-1857995879"</span>,</div><div class="line">    <span class="string">"cat"</span> : [<span class="string">"book"</span>,<span class="string">"paperback"</span>],</div><div class="line">    <span class="string">"name"</span> : <span class="string">"Sophie's World : The Greek Philosophers"</span>,</div><div class="line">    <span class="string">"author"</span> : <span class="string">"Jostein Gaarder"</span>,</div><div class="line">    <span class="string">"sequence_i"</span> : 1,</div><div class="line">    <span class="string">"genre_s"</span> : <span class="string">"fantasy"</span>,</div><div class="line">    <span class="string">"inStock"</span> : <span class="literal">true</span>,</div><div class="line">    <span class="string">"price"</span> : 3.07,</div><div class="line">    <span class="string">"pages_i"</span> : 64</div><div class="line">  &#125;</div><div class="line">,</div><div class="line">  &#123;</div><div class="line">    <span class="string">"id"</span> : <span class="string">"978-1933988177"</span>,</div><div class="line">    <span class="string">"cat"</span> : [<span class="string">"book"</span>,<span class="string">"paperback"</span>],</div><div class="line">    <span class="string">"name"</span> : <span class="string">"Lucene in Action, Second Edition"</span>,</div><div class="line">    <span class="string">"author"</span> : <span class="string">"Michael McCandless"</span>,</div><div class="line">    <span class="string">"sequence_i"</span> : 1,</div><div class="line">    <span class="string">"genre_s"</span> : <span class="string">"IT"</span>,</div><div class="line">    <span class="string">"inStock"</span> : <span class="literal">true</span>,</div><div class="line">    <span class="string">"price"</span> : 30.50,</div><div class="line">    <span class="string">"pages_i"</span> : 475</div><div class="line">  &#125;</div><div class="line">]</div><div class="line">EOF</div><div class="line"></div><div class="line">bin/post -c ggg books.json</div></pre></td></tr></table></figure></p>
+<p>查询一下<code>978</code>，就能看到json文件的内容也被索引进来了。</p>
+<h3 id="csv"><a href="#csv" class="headerlink" title="csv"></a>csv</h3><p>接下来创建一个csv文件并索引：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt;EOF &gt; books.csv</div><div class="line">id,cat,name,price,<span class="keyword">in</span>Stock,author,series_t,sequence_i,genre_s</div><div class="line">0553573403,book,A Game of Thrones,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">"A Song of Ice and Fire"</span>,1,fantasy</div><div class="line">0553579908,book,A Clash of Kings,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">"A Song of Ice and Fire"</span>,2,fantasy</div><div class="line">055357342X,book,A Storm of Swords,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">"A Song of Ice and Fire"</span>,3,fantasy</div><div class="line">0553293354,book,Foundation,7.99,<span class="literal">true</span>,Isaac Asimov,Foundation Novels,1,scifi</div><div class="line">0812521390,book,The Black Company,6.99,<span class="literal">false</span>,Glen Cook,The Chronicles of The Black Company,1,fantasy</div><div class="line">0812550706,book,Ender<span class="string">'s Game,6.99,true,Orson Scott Card,Ender,1,scifi</span></div><div class="line">0441385532,book,Jhereg,7.95,false,Steven Brust,Vlad Taltos,1,fantasy</div><div class="line">0380014300,book,Nine Princes In Amber,6.99,true,Roger Zelazny,the Chronicles of Amber,1,fantasy</div><div class="line">0805080481,book,The Book of Three,5.99,true,Lloyd Alexander,The Chronicles of Prydain,1,fantasy</div><div class="line">080508049X,book,The Black Cauldron,5.99,true,Lloyd Alexander,The Chronicles of Prydain,2,fantasy</div><div class="line">EOF</div><div class="line"></div><div class="line">bin/post -c ggg books.csv</div></pre></td></tr></table></figure></p>
+<p>查询一下<code>*:*</code>，就能看到csv文件的内容也被索引进来了。一共有14条<code>numFound</code>记录，但是只会显示10条。通过<code>Query</code>页面上的<code>start, rows</code>，就可以很方便地查询分页。</p>
+<h3 id="u5176_u5B83"><a href="#u5176_u5B83" class="headerlink" title="其它"></a>其它</h3><p><code>bin/post</code>这个命令也能索引文件夹，不管里面的文件是什么格式：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">mkdir books</div><div class="line">mv books.xml books</div><div class="line">mv books.json books</div><div class="line">mv books.csv books</div><div class="line"></div><div class="line">bin/post -c ggg books</div></pre></td></tr></table></figure></p>
+<p>还有一个比较基本的需求是使用The Data Import Handler (DIH)来索引数据库。可以参考<a href="https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler</a>。</p>
+<p>再有就是如何在程序中更新数据。Solr支持多种语言的客户端，对于Java来说，可以参考<a href="https://cwiki.apache.org/confluence/display/solr/Using+SolrJ" target="_blank" rel="external">SolrJ</a>。</p>
+<p>还可以通过http请求来更新索引：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:8983/solr/ggg/update?commit=true'</span> \</div><div class="line">  -H <span class="string">'Contenttype: application/json'</span> \</div><div class="line">  <span class="_">-d</span> <span class="string">'[&#123;"id":"12345","name":"Practical DevOps","author":"Joakim Verona","gere_s":"IT"&#125;]'</span></div></pre></td></tr></table></figure></p>
+<p>删除索引：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">bin/post -c ggg <span class="_">-d</span> <span class="string">"&lt;delete&gt;&lt;id&gt;12345&lt;/id&gt;&lt;/delete&gt;"</span></div></pre></td></tr></table></figure></p>
+<h2 id="u67E5_u8BE2"><a href="#u67E5_u8BE2" class="headerlink" title="查询"></a>查询</h2><p>其实上一节已经介绍了不少查询相关的内容了。在查询页面的右上角有一个url，例如<a href="http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=*:*&amp;wt=json" target="_blank" rel="external">http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=<em>:</em>&amp;wt=json</a>。只要对其发出<code>get</code>请求，便可以获取到查询结果。当然直接<code>curl</code>也可以：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl <span class="string">'http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=*:*&amp;wt=json'</span></div></pre></td></tr></table></figure></p>
+<p>至于<code>Query</code>页面上的其它查询条件，可以在<a href="http://wiki.apache.org/solr/CommonQueryParameters" target="_blank" rel="external">http://wiki.apache.org/solr/CommonQueryParameters</a>上查到。这里简介如下：</p>
+<ul>
+<li>fq（Filter Query）：过滤查询，可以指定多个条件并缓存。例如：<code>inStock:false</code></li>
+<li>sort：排序。例如：<code>sequence_i desc</code></li>
+<li>start：查询结果忽略掉前n条</li>
+<li>rows：查询结果数量</li>
+<li>fl（Field List）：指定查询结果字段。例如<code>author, sequence_i</code></li>
+<li>df（Default Field）：指定查询字段。</li>
+<li>wt（Write Type）：指定输出格式，有xml，json，python，ruby，php，csv等多项可选</li>
+</ul>
+<p>还有一些高级功能，本文旨在入门，就不细说了。访问<a href="http://192.168.99.100:8983/solr/ggg/browse" target="_blank" rel="external">http://192.168.99.100:8983/solr/ggg/browse</a>可以查看已索引的所有数据。最后输入<code>exit</code>退出solr容器。</p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>在没有使用任何中文分词组件的情况下，Solr会把所有中文的每个字当成一个词来检索。要想让Solr支持中文分词，需要使用中文分词组件。<a href="http://www.hansight.com/blog-lucene4.10-with-chinese-segment.html" target="_blank" rel="external">《与Lucene 4.10配合的中文分词比较》</a>一文里介绍了几种中文分词组件并做了比较。虽然我们用的是Solr 6.1.0版，但是也是很有参考意义的。接下来我们使用<a href="https://github.com/chenlb/mmseg4j-solr" target="_blank" rel="external">mmseg4j</a>来试一下。</p>
+<p>目前的mmseg4j暂时不支持solr 6.1.0，不过已经有热心人士提交<a href="http://amao12580.github.io/post/2016/07/mmseg4j-solr-compatible-solr-6-1/" target="_blank" rel="external">pull request</a>了，只是还没合并进去。我们本着简单的原则，替换solr镜像成5.3.1版本。在作者的github上指定的<a href="https://pan.baidu.com/s/1dD7qMFf#path=%252Fmmseg4j-solr" target="_blank" rel="external">百度网盘</a>里下载<code>mmseg4j-solr-2.3.0-with-mmseg4j-core.zip</code>，解压后得到两个jar文件。之后重新创建一个solr容器并再次生成ggg的core：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">docker rm <span class="_">-f</span> solr</div><div class="line">docker create -p 8983:8983 --name solr solr:5.3.1</div><div class="line">docker cp mmseg4j-core-1.10.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/</div><div class="line">docker cp mmseg4j-solr-2.3.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/</div><div class="line">docker start solr</div><div class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</div></pre></td></tr></table></figure></p>
+<p>现在用solr提供的<a href="https://cwiki.apache.org/confluence/display/solr/Schema+API" target="_blank" rel="external">Schema API</a>来配置mmseg4j：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it --user=solr solr bash</div><div class="line"></div><div class="line">curl -X POST -H <span class="string">'Content-type:application/json'</span> --data-binary <span class="string">'&#123;</span></div><div class="line">  "add-field-type":&#123;</div><div class="line">    "name":"textComplex",</div><div class="line">    "class":"solr.TextField",</div><div class="line">    "positionIncrementGap":"100",</div><div class="line">    "analyzer":&#123;</div><div class="line">      "tokenizer":&#123; </div><div class="line">        "class":"com.chenlb.mmseg4j.solr.MMSegTokenizerFactory",</div><div class="line">        "mode":"complex",</div><div class="line">        "dicPath":"dic"</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;' http://192.168.99.100:8983/solr/ggg/schema</div><div class="line"></div><div class="line">curl -X POST -H <span class="string">'Content-type:application/json'</span> --data-binary <span class="string">'&#123;</span></div><div class="line">  "add-field-type":&#123;</div><div class="line">    "name":"textMaxWord",</div><div class="line">    "class":"solr.TextField",</div><div class="line">    "positionIncrementGap":"100",</div><div class="line">    "analyzer":&#123;</div><div class="line">      "tokenizer":&#123; </div><div class="line">        "class":"com.chenlb.mmseg4j.solr.MMSegTokenizerFactory",</div><div class="line">        "mode":"max-word"</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;' http://192.168.99.100:8983/solr/ggg/schema</div></pre></td></tr></table></figure></p>
+<p>上面的命令增加了<code>textComplex</code>和<code>textMaxWord</code>两种字段类型，它们的区别在<a href="https://paynexu.gitbooks.io/create-your-vertical-search-engine-with-solr/content/configure-mmseg4j-analyzer-on-solr5.html#complex和maxword两种类型的区别" target="_blank" rel="external">这里</a>解释得很清楚。下面就可以在<code>Analysis</code>页面上，看到我们的分词生效了：<br><img src="/img/solr-analysis.jpg" alt=""></p>
+<p>还可以尝试用<code>孙悟空吃香蕉</code>这个短句来测试<code>textComplex</code>和<code>textMaxWord</code>的不同效果。接下来将<code>field desc</code>添加到<code>textComplex</code>里：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">curl -X POST -H <span class="string">'Content-type:application/json'</span> --data-binary <span class="string">'&#123;</span></div><div class="line">  "add-field":&#123;</div><div class="line">     "name":"desc",</div><div class="line">     "type":"textComplex",</div><div class="line">     "stored":true &#125;</div><div class="line">&#125;' http://192.168.99.100:8983/solr/ggg/schema</div></pre></td></tr></table></figure></p>
+<p>现在让我们来索引几条包含<code>field desc</code>的中文数据：<br><figure class="highlight sh"><figcaption><span>solr</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt;EOF &gt; cities.csv</div><div class="line">id,city,desc</div><div class="line">010,北京,简称“京”，是中华人民共和国首都、直辖市和京津冀城市群的中心，中国的政治、文化、交通、科技创新和国际交往中心，中国经济、金融的决策和管理中心</div><div class="line">021,上海,简称沪，别称申，中华人民共和国直辖市、国家中心城市之一，也是中国按行政区划主城区内人口排名的最大的城市</div><div class="line">EOF</div><div class="line"></div><div class="line">bin/post -c ggg cities.csv</div></pre></td></tr></table></figure></p>
+<p>现在在<code>Query</code>页面上，输入<code>desc:中华人民共和国</code>就可以找到相对应的记录，而输入<code>desc:人民</code>就已经不能检索到结果啦。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/development/">development</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/solr/">solr</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/solr/" data-title="用容器快速上手Apache Solr | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/redis-cluster/" title="用容器轻松搭建redis主从和集群环境">
+  <strong>上一篇：</strong><br/>
+  <span>
+  用容器轻松搭建redis主从和集群环境</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/spring-scheduler/"  title="Spring Scheduler的使用与坑">
+ <strong>下一篇：</strong><br/> 
+ <span>Spring Scheduler的使用与坑
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="solr/" data-title="用容器快速上手Apache Solr" data-url="http://qinghua.github.io/solr/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8"><span class="toc-number">1.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7D22_u5F15"><span class="toc-number">2.</span> <span class="toc-text">索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xml"><span class="toc-number">2.1.</span> <span class="toc-text">xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#json"><span class="toc-number">2.2.</span> <span class="toc-text">json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#csv"><span class="toc-number">2.3.</span> <span class="toc-text">csv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">2.4.</span> <span class="toc-text">其它</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u8BE2"><span class="toc-number">3.</span> <span class="toc-text">查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E2D_u6587"><span class="toc-number">4.</span> <span class="toc-text">中文</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://qinghua.github.io/openstack-swift/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack。上次在《通过RADOSGW提供ceph的S3和Swift接口》一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
-<meta property="og:updated_time" content="2016-04-20T00:52:32.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="轻松搭建OpenStack Swift存储测试环境">
 <meta name="twitter:description" content="Swift（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了OpenStack。上次在《通过RADOSGW提供ceph的S3和Swift接口》一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！">
@@ -34,7 +34,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -115,25 +115,25 @@
 		</div>
 		
 		<p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="http://www.openstack.org/" target="_blank" rel="external">OpenStack</a>。上次在<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP为<strong>192.168.33.17</strong>，内存为1G的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></span><br><span class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> |v|</span><br><span class="line">  v.memory = <span class="number">1024</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure></p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>这里参考了Swift的官方文档<a href="http://docs.openstack.org/developer/swift/development_saio.html" target="_blank" rel="external">Swift All In One</a>来搭建一个swift测试环境。首先需要安装各种依赖包：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y install curl gcc memcached rsync sqlite3 xfsprogs \</span><br><span class="line">                        git-core libffi-dev python-setuptools \</span><br><span class="line">                        liberasurecode-dev</span><br><span class="line">sudo apt-get -y install python-coverage python-dev python-nose \</span><br><span class="line">                        python-xattr python-eventlet \</span><br><span class="line">                        python-greenlet python-pastedeploy \</span><br><span class="line">                        python-netifaces python-pip python-dnspython \</span><br><span class="line">                        python-mock</span><br><span class="line">sudo pip install --upgrade pip</span><br></pre></td></tr></table></figure></p>
-<p>这里就不用<code>fdisk</code>而使用较简单的环回设备来当做我们的存储：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /srv</span><br><span class="line">sudo truncate <span class="operator">-s</span> <span class="number">1</span>GB /srv/swift-disk</span><br><span class="line">sudo mkfs.xfs /srv/swift-disk</span><br><span class="line">sudo sh -c <span class="string">'echo "/srv/swift-disk /mnt/sdb1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0" &gt;&gt; /etc/fstab'</span></span><br></pre></td></tr></table></figure></p>
-<p>生成挂载点和link：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /mnt/sdb1</span><br><span class="line">sudo mount /mnt/sdb1</span><br><span class="line">sudo mkdir /mnt/sdb1/<span class="number">1</span> /mnt/sdb1/<span class="number">2</span> /mnt/sdb1/<span class="number">3</span> /mnt/sdb1/<span class="number">4</span></span><br><span class="line">sudo chown vagrant:vagrant /mnt/sdb1/*</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;<span class="number">1</span>..<span class="number">4</span>&#125;; <span class="keyword">do</span> sudo ln <span class="operator">-s</span> /mnt/sdb1/<span class="variable">$x</span> /srv/<span class="variable">$x</span>; <span class="keyword">done</span></span><br><span class="line">sudo mkdir -p /srv/<span class="number">1</span>/node/sdb1 /srv/<span class="number">1</span>/node/sdb5 \</span><br><span class="line">              /srv/<span class="number">2</span>/node/sdb2 /srv/<span class="number">2</span>/node/sdb6 \</span><br><span class="line">              /srv/<span class="number">3</span>/node/sdb3 /srv/<span class="number">3</span>/node/sdb7 \</span><br><span class="line">              /srv/<span class="number">4</span>/node/sdb4 /srv/<span class="number">4</span>/node/sdb8 \</span><br><span class="line">              /var/run/swift</span><br><span class="line">sudo chown -R vagrant:vagrant /var/run/swift</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;<span class="number">1</span>..<span class="number">4</span>&#125;; <span class="keyword">do</span> sudo chown -R vagrant:vagrant /srv/<span class="variable">$x</span>/; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
-<p>在<code>rc.local</code>里增加几条创建文件夹和授权的命令，使之能够被开机执行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'$i mkdir -p /var/cache/swift /var/cache/swift2 /var/cache/swift3 /var/cache/swift4'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/cache/swift*'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i mkdir -p /var/run/swift'</span> /etc/rc.local</span><br><span class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/run/swift'</span> /etc/rc.local</span><br></pre></td></tr></table></figure></p>
-<p>接下来需要安装swift和它的客户端：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>; git <span class="built_in">clone</span> https://github.com/openstack/python-swiftclient.git</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/python-swiftclient; git checkout <span class="number">2.7</span>.<span class="number">0</span>; sudo python setup.py develop; <span class="built_in">cd</span> -</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/openstack/swift.git</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift; git checkout <span class="number">2.7</span>.<span class="number">0</span></span><br><span class="line">sed -i <span class="string">"s/;python_version&lt;'3.0'//"</span> requirements.txt</span><br><span class="line">sed -i <span class="string">"/dnspython3&gt;=1.12.0;python_version&gt;='3.0'/d"</span> requirements.txt</span><br><span class="line">sudo pip install -r requirements.txt; sudo python setup.py develop; sudo pip install -r <span class="built_in">test</span>-requirements.txt</span><br></pre></td></tr></table></figure></p>
-<p>然后需要配置rsync：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo cp <span class="variable">$HOME</span>/swift/doc/saio/rsyncd.conf /etc/</span><br><span class="line">sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/vagrant/"</span> /etc/rsyncd.conf</span><br><span class="line">sudo sed -i <span class="string">"s/RSYNC_ENABLE=false/RSYNC_ENABLE=true/"</span> /etc/default/rsync</span><br><span class="line">sudo service rsync restart</span><br></pre></td></tr></table></figure></p>
-<p>使用以下命令来验证rsync，应该能看到一堆的account、container和object：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync rsync://pub@localhost/</span><br></pre></td></tr></table></figure></p>
-<p>我们前面已经安装了memcached，验证一下服务是可用的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service memcached status</span><br></pre></td></tr></table></figure></p>
-<p>接下来需要配置各个节点：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; sudo cp -r saio/swift /etc/swift; <span class="built_in">cd</span> -</span><br><span class="line">sudo chown -R <span class="variable">$&#123;USER&#125;</span>:<span class="variable">$&#123;USER&#125;</span> /etc/swift</span><br><span class="line">find /etc/swift/ -name \*.conf | xargs sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/<span class="variable">$&#123;USER&#125;</span>/"</span></span><br></pre></td></tr></table></figure></p>
-<p>然后配置swift脚本，<code>/etc/swift/test.conf</code>为我们添加了三个测试账户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/bin</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; cp saio/bin/* <span class="variable">$HOME</span>/bin; <span class="built_in">cd</span> -</span><br><span class="line">chmod +x <span class="variable">$HOME</span>/bin/*</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SAIO_BLOCK_DEVICE=/srv/swift-disk"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line">sed -i <span class="string">"/^find/d"</span> <span class="variable">$HOME</span>/bin/resetswift</span><br><span class="line">cp <span class="variable">$HOME</span>/swift/<span class="built_in">test</span>/sample.conf /etc/swift/test.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SWIFT_TEST_CONFIG_FILE=/etc/swift/test.conf"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export PATH=<span class="variable">$&#123;PATH&#125;</span>:<span class="variable">$HOME</span>/bin"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</span><br><span class="line">. <span class="variable">$HOME</span>/.bashrc</span><br></pre></td></tr></table></figure></p>
-<p>Swift里有一个非常重要的概念，<a href="http://docs.openstack.org/developer/swift/overview_ring.html?highlight=ring" target="_blank" rel="external">ring</a>。通过它可以找到数据的物理位置。它的存储模型是这样的：一个账号（account）里可以有多个容器（container），容器里可以有许多个键值对，字典里的值称为对象（object）。账号和容器被存储在SQLite数据库里，而对象是以文件方式存储的。账号数据库、容器数据库和每个单独对象都有自己的ring。下面我们来构建一些ring：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">remakerings</span><br></pre></td></tr></table></figure></p>
-<h2 id="u542F_u52A8_u73AF_u5883"><a href="#u542F_u52A8_u73AF_u5883" class="headerlink" title="启动环境"></a>启动环境</h2><p>现在我们就可以用<code>startmain</code>启动swift啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'s/bind_ip = 127.0.0.1/bind_ip = 192.168.33.17/'</span> /etc/swift/proxy-server.conf</span><br><span class="line">startmain</span><br></pre></td></tr></table></figure></p>
-<p>然后用<code>test:tester/testing</code>这个预先创建好的测试账户登录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -i -H <span class="string">'X-Storage-User: test:tester'</span> -H <span class="string">'X-Storage-Pass: testing'</span> http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> | tee auth.txt</span><br><span class="line">sudo apt-get -y install dos2unix</span><br><span class="line">dos2unix auth.txt</span><br><span class="line"><span class="built_in">export</span> X_AUTH_TOKEN=`cat auth.txt | sed -n <span class="string">'s/X-Auth-Token: \(.*\)/\1/p'</span>`</span><br><span class="line"><span class="built_in">export</span> X_STORAGE_URL=`cat auth.txt | sed -n <span class="string">'s/X-Storage-Url: \(.*\)/\1/p'</span>`</span><br><span class="line">curl -v -H <span class="string">"X-Auth-Token: <span class="variable">$X_AUTH_TOKEN</span>"</span> <span class="variable">$X_STORAGE_URL</span></span><br></pre></td></tr></table></figure></p>
-<p>上面用到<code>dos2unix</code>是因为取到的<code>X-Storage-Url</code>最后面带着<code>^M$</code>的特殊字符。直接管道的话，下一个<code>curl</code>会报错：<code>Illegal characters found in URL</code>。可以保存成文件之后使用<code>cat -A</code>来查看这些特殊字符。<br>登录完成后，就能看到swift的状态和所有容器啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">swift -A http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> -U <span class="built_in">test</span>:tester -K testing <span class="built_in">stat</span></span><br><span class="line">swift -A http://<span class="number">192.168</span>.<span class="number">33.17</span>:<span class="number">8080</span>/auth/v1.<span class="number">0</span> -U <span class="built_in">test</span>:tester -K testing list</span><br></pre></td></tr></table></figure></p>
-<h2 id="u6D4B_u8BD5_u73AF_u5883"><a href="#u6D4B_u8BD5_u73AF_u5883" class="headerlink" title="测试环境"></a>测试环境</h2><h3 id="Swift_u6D4B_u8BD5"><a href="#Swift_u6D4B_u8BD5" class="headerlink" title="Swift测试"></a>Swift测试</h3><p>有兴趣的话，还可以运行下面的单元测试、功能测试和探索性测试：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$HOME</span>/swift/.unittests</span><br><span class="line"><span class="variable">$HOME</span>/swift/.functests</span><br><span class="line"><span class="variable">$HOME</span>/swift/.probetests</span><br></pre></td></tr></table></figure></p>
-<h3 id="Docker_Registry_u6D4B_u8BD5"><a href="#Docker_Registry_u6D4B_u8BD5" class="headerlink" title="Docker Registry测试"></a>Docker Registry测试</h3><p>在Docker Registry的<code>config.yml</code>里使用以下配置：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">storage:&#10;  swift:&#10;    username: test:tester &#10;    password: testing &#10;    authurl: http://192.168.33.17:8080/auth/v1.0&#10;    container: swift</span><br></pre></td></tr></table></figure></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP为<strong>192.168.33.17</strong>，内存为1G的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></div><div class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">  v.memory = <span class="number">1024</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh</div></pre></td></tr></table></figure></p>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>这里参考了Swift的官方文档<a href="http://docs.openstack.org/developer/swift/development_saio.html" target="_blank" rel="external">Swift All In One</a>来搭建一个swift测试环境。首先需要安装各种依赖包：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get -y install curl gcc memcached rsync sqlite3 xfsprogs \</div><div class="line">                        git-core libffi-dev python-setuptools \</div><div class="line">                        liberasurecode-dev</div><div class="line">sudo apt-get -y install python-coverage python-dev python-nose \</div><div class="line">                        python-xattr python-eventlet \</div><div class="line">                        python-greenlet python-pastedeploy \</div><div class="line">                        python-netifaces python-pip python-dnspython \</div><div class="line">                        python-mock</div><div class="line">sudo pip install --upgrade pip</div></pre></td></tr></table></figure></p>
+<p>这里就不用<code>fdisk</code>而使用较简单的环回设备来当做我们的存储：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /srv</div><div class="line">sudo truncate <span class="_">-s</span> 1GB /srv/swift-disk</div><div class="line">sudo mkfs.xfs /srv/swift-disk</div><div class="line">sudo sh -c <span class="string">'echo "/srv/swift-disk /mnt/sdb1 xfs loop,noatime,nodiratime,nobarrier,logbufs=8 0 0" &gt;&gt; /etc/fstab'</span></div></pre></td></tr></table></figure></p>
+<p>生成挂载点和link：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /mnt/sdb1</div><div class="line">sudo mount /mnt/sdb1</div><div class="line">sudo mkdir /mnt/sdb1/1 /mnt/sdb1/2 /mnt/sdb1/3 /mnt/sdb1/4</div><div class="line">sudo chown vagrant:vagrant /mnt/sdb1/*</div><div class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;1..4&#125;; <span class="keyword">do</span> sudo ln <span class="_">-s</span> /mnt/sdb1/<span class="variable">$x</span> /srv/<span class="variable">$x</span>; <span class="keyword">done</span></div><div class="line">sudo mkdir -p /srv/1/node/sdb1 /srv/1/node/sdb5 \</div><div class="line">              /srv/2/node/sdb2 /srv/2/node/sdb6 \</div><div class="line">              /srv/3/node/sdb3 /srv/3/node/sdb7 \</div><div class="line">              /srv/4/node/sdb4 /srv/4/node/sdb8 \</div><div class="line">              /var/run/swift</div><div class="line">sudo chown -R vagrant:vagrant /var/run/swift</div><div class="line"><span class="keyword">for</span> x <span class="keyword">in</span> &#123;1..4&#125;; <span class="keyword">do</span> sudo chown -R vagrant:vagrant /srv/<span class="variable">$x</span>/; <span class="keyword">done</span></div></pre></td></tr></table></figure></p>
+<p>在<code>rc.local</code>里增加几条创建文件夹和授权的命令，使之能够被开机执行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">'$i mkdir -p /var/cache/swift /var/cache/swift2 /var/cache/swift3 /var/cache/swift4'</span> /etc/rc.local</div><div class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/cache/swift*'</span> /etc/rc.local</div><div class="line">sudo sed -i <span class="string">'$i mkdir -p /var/run/swift'</span> /etc/rc.local</div><div class="line">sudo sed -i <span class="string">'$i chown vagrant:vagrant /var/run/swift'</span> /etc/rc.local</div></pre></td></tr></table></figure></p>
+<p>接下来需要安装swift和它的客户端：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>; git <span class="built_in">clone</span> https://github.com/openstack/python-swiftclient.git</div><div class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/python-swiftclient; git checkout 2.7.0; sudo python setup.py develop; <span class="built_in">cd</span> -</div><div class="line">git <span class="built_in">clone</span> https://github.com/openstack/swift.git</div><div class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift; git checkout 2.7.0</div><div class="line">sed -i <span class="string">"s/;python_version&lt;'3.0'//"</span> requirements.txt</div><div class="line">sed -i <span class="string">"/dnspython3&gt;=1.12.0;python_version&gt;='3.0'/d"</span> requirements.txt</div><div class="line">sudo pip install -r requirements.txt; sudo python setup.py develop; sudo pip install -r <span class="built_in">test</span>-requirements.txt</div></pre></td></tr></table></figure></p>
+<p>然后需要配置rsync：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo cp <span class="variable">$HOME</span>/swift/doc/saio/rsyncd.conf /etc/</div><div class="line">sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/vagrant/"</span> /etc/rsyncd.conf</div><div class="line">sudo sed -i <span class="string">"s/RSYNC_ENABLE=false/RSYNC_ENABLE=true/"</span> /etc/default/rsync</div><div class="line">sudo service rsync restart</div></pre></td></tr></table></figure></p>
+<p>使用以下命令来验证rsync，应该能看到一堆的account、container和object：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rsync rsync://pub@localhost/</div></pre></td></tr></table></figure></p>
+<p>我们前面已经安装了memcached，验证一下服务是可用的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo service memcached status</div></pre></td></tr></table></figure></p>
+<p>接下来需要配置各个节点：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; sudo cp -r saio/swift /etc/swift; <span class="built_in">cd</span> -</div><div class="line">sudo chown -R <span class="variable">$&#123;USER&#125;</span>:<span class="variable">$&#123;USER&#125;</span> /etc/swift</div><div class="line">find /etc/swift/ -name \*.conf | xargs sudo sed -i <span class="string">"s/&lt;your-user-name&gt;/<span class="variable">$&#123;USER&#125;</span>/"</span></div></pre></td></tr></table></figure></p>
+<p>然后配置swift脚本，<code>/etc/swift/test.conf</code>为我们添加了三个测试账户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">mkdir -p <span class="variable">$HOME</span>/bin</div><div class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span>/swift/doc; cp saio/bin/* <span class="variable">$HOME</span>/bin; <span class="built_in">cd</span> -</div><div class="line">chmod +x <span class="variable">$HOME</span>/bin/*</div><div class="line"><span class="built_in">echo</span> <span class="string">"export SAIO_BLOCK_DEVICE=/srv/swift-disk"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</div><div class="line">sed -i <span class="string">"/^find/d"</span> <span class="variable">$HOME</span>/bin/resetswift</div><div class="line">cp <span class="variable">$HOME</span>/swift/<span class="built_in">test</span>/sample.conf /etc/swift/test.conf</div><div class="line"><span class="built_in">echo</span> <span class="string">"export SWIFT_TEST_CONFIG_FILE=/etc/swift/test.conf"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</div><div class="line"><span class="built_in">echo</span> <span class="string">"export PATH=<span class="variable">$&#123;PATH&#125;</span>:<span class="variable">$HOME</span>/bin"</span> &gt;&gt; <span class="variable">$HOME</span>/.bashrc</div><div class="line">. <span class="variable">$HOME</span>/.bashrc</div></pre></td></tr></table></figure></p>
+<p>Swift里有一个非常重要的概念，<a href="http://docs.openstack.org/developer/swift/overview_ring.html?highlight=ring" target="_blank" rel="external">ring</a>。通过它可以找到数据的物理位置。它的存储模型是这样的：一个账号（account）里可以有多个容器（container），容器里可以有许多个键值对，字典里的值称为对象（object）。账号和容器被存储在SQLite数据库里，而对象是以文件方式存储的。账号数据库、容器数据库和每个单独对象都有自己的ring。下面我们来构建一些ring：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">remakerings</div></pre></td></tr></table></figure></p>
+<h2 id="u542F_u52A8_u73AF_u5883"><a href="#u542F_u52A8_u73AF_u5883" class="headerlink" title="启动环境"></a>启动环境</h2><p>现在我们就可以用<code>startmain</code>启动swift啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo sed -i <span class="string">'s/bind_ip = 127.0.0.1/bind_ip = 192.168.33.17/'</span> /etc/swift/proxy-server.conf</div><div class="line">startmain</div></pre></td></tr></table></figure></p>
+<p>然后用<code>test:tester/testing</code>这个预先创建好的测试账户登录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">curl -i -H <span class="string">'X-Storage-User: test:tester'</span> -H <span class="string">'X-Storage-Pass: testing'</span> http://192.168.33.17:8080/auth/v1.0 | tee auth.txt</div><div class="line">sudo apt-get -y install dos2unix</div><div class="line">dos2unix auth.txt</div><div class="line"><span class="built_in">export</span> X_AUTH_TOKEN=`cat auth.txt | sed -n <span class="string">'s/X-Auth-Token: \(.*\)/\1/p'</span>`</div><div class="line"><span class="built_in">export</span> X_STORAGE_URL=`cat auth.txt | sed -n <span class="string">'s/X-Storage-Url: \(.*\)/\1/p'</span>`</div><div class="line">curl -v -H <span class="string">"X-Auth-Token: <span class="variable">$X_AUTH_TOKEN</span>"</span> <span class="variable">$X_STORAGE_URL</span></div></pre></td></tr></table></figure></p>
+<p>上面用到<code>dos2unix</code>是因为取到的<code>X-Storage-Url</code>最后面带着<code>^M$</code>的特殊字符。直接管道的话，下一个<code>curl</code>会报错：<code>Illegal characters found in URL</code>。可以保存成文件之后使用<code>cat -A</code>来查看这些特殊字符。<br>登录完成后，就能看到swift的状态和所有容器啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">swift -A http://192.168.33.17:8080/auth/v1.0 -U <span class="built_in">test</span>:tester -K testing <span class="built_in">stat</span></div><div class="line">swift -A http://192.168.33.17:8080/auth/v1.0 -U <span class="built_in">test</span>:tester -K testing list</div></pre></td></tr></table></figure></p>
+<h2 id="u6D4B_u8BD5_u73AF_u5883"><a href="#u6D4B_u8BD5_u73AF_u5883" class="headerlink" title="测试环境"></a>测试环境</h2><h3 id="Swift_u6D4B_u8BD5"><a href="#Swift_u6D4B_u8BD5" class="headerlink" title="Swift测试"></a>Swift测试</h3><p>有兴趣的话，还可以运行下面的单元测试、功能测试和探索性测试：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$HOME</span>/swift/.unittests</div><div class="line"><span class="variable">$HOME</span>/swift/.functests</div><div class="line"><span class="variable">$HOME</span>/swift/.probetests</div></pre></td></tr></table></figure></p>
+<h3 id="Docker_Registry_u6D4B_u8BD5"><a href="#Docker_Registry_u6D4B_u8BD5" class="headerlink" title="Docker Registry测试"></a>Docker Registry测试</h3><p>在Docker Registry的<code>config.yml</code>里使用以下配置：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="attr">storage:</span></div><div class="line"><span class="attr">  swift:</span></div><div class="line"><span class="attr">    username:</span> test:tester </div><div class="line"><span class="attr">    password:</span> testing </div><div class="line"><span class="attr">    authurl:</span> http://<span class="number">192.168</span><span class="number">.33</span><span class="number">.17</span>:<span class="number">8080</span>/auth/v1<span class="number">.0</span></div><div class="line"><span class="attr">    container:</span> swift</div></pre></td></tr></table></figure></p>
 <p>可以测试<code>docker push</code>啦。不过记得需要先登录用户哦。</p>
   
 	</div>
@@ -148,7 +148,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/openstack-swift/">openstack swift</a><a href="/tags/storage/">storage</a>
+  <span></span> <a href="/tags/storage/">storage</a><a href="/tags/openstack-swift/">openstack swift</a>
   </div>
 
 </div>
@@ -219,15 +219,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -235,7 +245,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -268,7 +278,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -276,15 +286,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -292,43 +306,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -356,8 +366,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -394,7 +404,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

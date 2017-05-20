@@ -21,10 +21,11 @@
 <meta property="og:description" content="Tesseract是一个可以将图片转换成文字的OCR（Optical Character Recognition）软件，支持包括中文简繁体的多种语言，简单易用，可以用来识别验证码。让我们来看一看吧。">
 <meta property="og:image" content="http://qinghua.github.io/img/test.png">
 <meta property="og:image" content="http://qinghua.github.io/img/testcn.png">
-<meta property="og:updated_time" content="2016-04-17T10:09:45.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="光学字符识别软件tesseract-ocr">
 <meta name="twitter:description" content="Tesseract是一个可以将图片转换成文字的OCR（Optical Character Recognition）软件，支持包括中文简繁体的多种语言，简单易用，可以用来识别验证码。让我们来看一看吧。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/test.png">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -36,7 +37,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -117,16 +118,16 @@
 		</div>
 		
 		<p><a href="https://github.com/tesseract-ocr/tesseract/wiki" target="_blank" rel="external">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB" target="_blank" rel="external">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages" target="_blank" rel="external">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br><a id="more"></a></p>
-<h2 id="u5B89_u88C5"><a href="#u5B89_u88C5" class="headerlink" title="安装"></a>安装</h2><p>Tesseract只是一个小应用程序，在mac里直接安装就好啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install tesseract</span><br></pre></td></tr></table></figure></p>
+<h2 id="u5B89_u88C5"><a href="#u5B89_u88C5" class="headerlink" title="安装"></a>安装</h2><p>Tesseract只是一个小应用程序，在mac里直接安装就好啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install tesseract</div></pre></td></tr></table></figure></p>
 <p>下面是张包含了一些英文的图片：<br><img src="/img/test.png" alt=""></p>
-<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tesseract ~/Downloads/test.png out</div><div class="line">cat out.txt</div></pre></td></tr></table></figure></p>
 <p>可以看到，对于正常字体来说，粗体、斜体、大小字号等的识别率还是很不错的。如果是手写体的字体，识别率将会严重下降。</p>
-<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>Tesseract支持多种语言，不过除了英语以外，都必须先下载语言数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/tesseract-ocr/tessdata/blob/master/chi_sim.traineddata?raw=<span class="literal">true</span></span><br><span class="line">mv chi_sim.traineddata\?raw\=<span class="literal">true</span> /usr/<span class="built_in">local</span>/Cellar/tesseract/<span class="number">3.04</span>.<span class="number">00</span>/share/tessdata/chi_sim.traineddata</span><br></pre></td></tr></table></figure></p>
+<h2 id="u4E2D_u6587"><a href="#u4E2D_u6587" class="headerlink" title="中文"></a>中文</h2><p>Tesseract支持多种语言，不过除了英语以外，都必须先下载语言数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">wget -c https://github.com/tesseract-ocr/tessdata/blob/master/chi_sim.traineddata?raw=<span class="literal">true</span></div><div class="line">mv chi_sim.traineddata\?raw\=<span class="literal">true</span> /usr/<span class="built_in">local</span>/Cellar/tesseract/3.04.00/share/tessdata/chi_sim.traineddata</div></pre></td></tr></table></figure></p>
 <p>从后缀名traineddata可以看出来，tesseract是可以通过训练来提高识别率的。网上有许多教程，有兴趣的朋友可以自行尝试。下面是张包含了一些中文的图片：<br><img src="/img/testcn.png" alt=""></p>
-<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> chi_sim</span><br><span class="line">cat out.txt</span><br><span class="line">tesseract ~/Downloads/testcn.png out <span class="operator">-l</span> eng+chi_sim</span><br><span class="line">cat out.txt</span><br></pre></td></tr></table></figure></p>
+<p>把图片保存到本地之后，使用以下命令将其转成文字：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">tesseract ~/Downloads/testcn.png out <span class="_">-l</span> chi_sim</div><div class="line">cat out.txt</div><div class="line">tesseract ~/Downloads/testcn.png out <span class="_">-l</span> eng+chi_sim</div><div class="line">cat out.txt</div></pre></td></tr></table></figure></p>
 <p>毕竟汉字内容多，这回没有英文识别率那么高了，想要更加实用可能需要更多训练和校对。</p>
-<h2 id="PDF"><a href="#PDF" class="headerlink" title="PDF"></a>PDF</h2><h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>很简单，在<code>tesseract</code>命令的最后面加上<code>pdf</code>就好了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tesseract ~/Downloads/test.png out pdf</span><br><span class="line">open out.pdf</span><br></pre></td></tr></table></figure></p>
-<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>虽然tesseract不能直接处理PDF，但是借助<a href="https://www.imagemagick.org/script/index.php" target="_blank" rel="external">ImageMagick</a>和<a href="http://www.ghostscript.com/" target="_blank" rel="external">Ghostscript</a>可以轻松地把PDF转换成图片文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install imagemagick</span><br><span class="line">brew install ghostscript</span><br><span class="line">convert -density <span class="number">100</span> -trim input.pdf output%<span class="number">04</span>d.jpg</span><br></pre></td></tr></table></figure></p>
+<h2 id="PDF"><a href="#PDF" class="headerlink" title="PDF"></a>PDF</h2><h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>很简单，在<code>tesseract</code>命令的最后面加上<code>pdf</code>就好了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tesseract ~/Downloads/test.png out pdf</div><div class="line">open out.pdf</div></pre></td></tr></table></figure></p>
+<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>虽然tesseract不能直接处理PDF，但是借助<a href="https://www.imagemagick.org/script/index.php" target="_blank" rel="external">ImageMagick</a>和<a href="http://www.ghostscript.com/" target="_blank" rel="external">Ghostscript</a>可以轻松地把PDF转换成图片文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">brew install imagemagick</div><div class="line">brew install ghostscript</div><div class="line">convert -density 100 -trim input.pdf output%04d.jpg</div></pre></td></tr></table></figure></p>
 <p>这里的100表示DPI，<code>%04d</code>表示分页储存。有了图片之后就可以用tesseract随意操作啦。</p>
   
 	</div>
@@ -212,15 +213,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -228,7 +239,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -261,7 +272,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -269,15 +280,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -285,43 +300,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -349,8 +360,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -387,7 +398,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

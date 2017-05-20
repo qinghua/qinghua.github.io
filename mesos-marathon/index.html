@@ -26,10 +26,11 @@
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-run-docker.png">
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-actions.png">
 <meta property="og:image" content="http://qinghua.github.io/img/marathon-edit-configuration.png">
-<meta property="og:updated_time" content="2016-02-22T07:03:48.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建Marathon运行环境">
 <meta name="twitter:description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Marathon是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并">
+<meta name="twitter:image" content="http://qinghua.github.io/img/mesos-master-init.png">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -41,7 +42,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -122,18 +123,18 @@
 		</div>
 		
 		<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。<a href="https://mesosphere.github.io/marathon/" target="_blank" rel="external">Marathon</a>是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure></p>
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>slave</strong>，它的IP是<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"master"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">"slave"</span> <span class="keyword">do</span> | host |</span><br><span class="line">  host.vm.hostname = <span class="string">"slave"</span></span><br><span class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh slave</span><br></pre></td></tr></table></figure>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在master的虚拟机上启动zookeeper：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    <span class="operator">-e</span> MYID=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> SERVERS=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    mesoscloud/zookeeper:<span class="number">3.4</span>.<span class="number">6</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
-<p>可以用<code>docker ps</code>看到名为zk的容器已经启动起来了。有兴趣的话，可以用下面的命令验证：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it zk zkCli.sh -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>slave</strong>，它的IP是<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"master"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"master"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"slave"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"slave"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh master</div></pre></td></tr></table></figure></p>
+<figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh slave</div></pre></td></tr></table></figure>
+<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在master的虚拟机上启动zookeeper：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --name=zk \</div><div class="line">    <span class="_">-e</span> MYID=1 \</div><div class="line">    <span class="_">-e</span> SERVERS=192.168.33.18 \</div><div class="line">    mesoscloud/zookeeper:3.4.6-ubuntu-14.04</div></pre></td></tr></table></figure></p>
+<p>可以用<code>docker ps</code>看到名为zk的容器已经启动起来了。有兴趣的话，可以用下面的命令验证：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it zk zkCli.sh -server 127.0.0.1:2181</div></pre></td></tr></table></figure></p>
 <p>这里就不详细介绍zookeeper的命令了，<code>ls /</code>可以查看根节点，<code>help</code>可以查看所有命令，<code>quit</code>退出客户端。</p>
-<p>接下来在master的虚拟机上启动mesos master：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=mm \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.18</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_ZK=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_QUORUM=<span class="number">1</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_LOG_DIR=/var/<span class="built_in">log</span>/mesos \</span><br><span class="line">    mesoscloud/mesos-master:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>接下来在master的虚拟机上启动mesos master：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --name=mm \</div><div class="line">    <span class="_">-e</span> MESOS_HOSTNAME=192.168.33.18 \</div><div class="line">    <span class="_">-e</span> MESOS_IP=192.168.33.18 \</div><div class="line">    <span class="_">-e</span> MESOS_ZK=zk://192.168.33.18:2181/mesos \</div><div class="line">    <span class="_">-e</span> MESOS_QUORUM=1 \</div><div class="line">    <span class="_">-e</span> MESOS_LOG_DIR=/var/<span class="built_in">log</span>/mesos \</div><div class="line">    mesoscloud/mesos-master:0.24.1-ubuntu-14.04</div></pre></td></tr></table></figure></p>
 <p>顺利的话，打开<code>http://192.168.33.18:5050/</code>应该能看到下图：<br><img src="/img/mesos-master-init.png" alt=""></p>
-<p>然后在slave的虚拟机上启动mesos slave：<br><figure class="highlight sh"><figcaption><span>slave</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --pid=host \</span><br><span class="line">    --privileged=<span class="literal">true</span> \</span><br><span class="line">    --name=ms1 \</span><br><span class="line">    -v /usr/bin/docker:/usr/bin/docker \</span><br><span class="line">    -v /dev:/dev \</span><br><span class="line">    -v /usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:/usr/lib/x86_64-linux-gnu/libapparmor.so.<span class="number">1</span>:ro \</span><br><span class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">    -v /var/<span class="built_in">log</span>/mesos:/var/<span class="built_in">log</span>/mesos \</span><br><span class="line">    -v /tmp/mesos:/tmp/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_HOSTNAME=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_IP=<span class="number">192.168</span>.<span class="number">33.19</span> \</span><br><span class="line">    <span class="operator">-e</span> MESOS_MASTER=zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    <span class="operator">-e</span> MESOS_CONTAINERIZERS=docker,mesos \</span><br><span class="line">    mesoscloud/mesos-slave:<span class="number">0.24</span>.<span class="number">1</span>-ubuntu-<span class="number">14.04</span></span><br></pre></td></tr></table></figure></p>
+<p>然后在slave的虚拟机上启动mesos slave：<br><figure class="highlight sh"><figcaption><span>slave</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --pid=host \</div><div class="line">    --privileged=<span class="literal">true</span> \</div><div class="line">    --name=ms1 \</div><div class="line">    -v /usr/bin/docker:/usr/bin/docker \</div><div class="line">    -v /dev:/dev \</div><div class="line">    -v /usr/lib/x86_64-linux-gnu/libapparmor.so.1:/usr/lib/x86_64-linux-gnu/libapparmor.so.1:ro \</div><div class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</div><div class="line">    -v /var/<span class="built_in">log</span>/mesos:/var/<span class="built_in">log</span>/mesos \</div><div class="line">    -v /tmp/mesos:/tmp/mesos \</div><div class="line">    <span class="_">-e</span> MESOS_HOSTNAME=192.168.33.19 \</div><div class="line">    <span class="_">-e</span> MESOS_IP=192.168.33.19 \</div><div class="line">    <span class="_">-e</span> MESOS_MASTER=zk://192.168.33.18:2181/mesos \</div><div class="line">    <span class="_">-e</span> MESOS_CONTAINERIZERS=docker,mesos \</div><div class="line">    mesoscloud/mesos-slave:0.24.1-ubuntu-14.04</div></pre></td></tr></table></figure></p>
 <p>点击mesos页面上的<strong>Slaves</strong>应该能看到下图，这说明slave节点已经关联到mesos master了：<br><img src="/img/mesos-slaves.png" alt=""></p>
-<p>最后在master的虚拟机上启动marathon：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run <span class="operator">-d</span> \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.<span class="number">15.0</span> \</span><br><span class="line">    --master zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/mesos \</span><br><span class="line">    --zk zk://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">2181</span>/marathon</span><br></pre></td></tr></table></figure></p>
+<p>最后在master的虚拟机上启动marathon：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --name=ma \</div><div class="line">    mesosphere/marathon:v0.15.0 \</div><div class="line">    --master zk://192.168.33.18:2181/mesos \</div><div class="line">    --zk zk://192.168.33.18:2181/marathon</div></pre></td></tr></table></figure></p>
 <p>点击mesos页面上的<strong>Frameworks</strong>应该能看到下图，这说明marathon已经作为一个framework关联到mesos master了：<br><img src="/img/mesos-frameworks.png" alt=""></p>
 <p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下marathon：<br><img src="/img/marathon.png" alt=""></p>
 <h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>在marathon的页面上，点击<strong>Create Application</strong>按钮，然后填入如下参数：</p>
@@ -150,11 +151,11 @@
 <h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
 <li>如果第一次运行一个比较大的镜像，可能需要比较长的下载时间。在这种情况下，需要往mesos master的启动参数里增加<code>-e MESOS_EXECUTOR_REGISTRATION_TIMEOUT=10mins</code>，否则可能会报timeout的错误，默认是1分钟。还得在marathon的启动参数里增加<code>--task_launch_timeout=600000</code>，默认为300000毫秒，即5分钟。</li>
 <li>如果一个容器老是启动不起来，可能是分配给它的资源太少。可以在marathon新建应用的窗口里指定分配给此应用的CPU和内存，默认是0.1和16MB。但是不要超过mesos slave能提供的资源哦。</li>
-<li>如果你是坚定不移的命令行狂人，可以用<code>curl</code>来发送一个http请求来运行容器。还是用上面的<strong>test</strong>来举例子，先随便在哪台机器找个路径生成一个<code>test.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">id</span>": <span class="value"><span class="string">"test"</span></span>,</span><br><span class="line">  "<span class="attribute">cmd</span>": <span class="value"><span class="string">"sleep 30"</span></span>,</span><br><span class="line">  "<span class="attribute">cpus</span>": <span class="value"><span class="number">0.1</span></span>,</span><br><span class="line">  "<span class="attribute">mem</span>": <span class="value"><span class="number">16.0</span></span>,</span><br><span class="line">  "<span class="attribute">container</span>": <span class="value">&#123;</span><br><span class="line">    "<span class="attribute">type</span>": <span class="value"><span class="string">"DOCKER"</span></span>,</span><br><span class="line">    "<span class="attribute">volumes</span>": <span class="value">[]</span>,</span><br><span class="line">    "<span class="attribute">docker</span>": <span class="value">&#123;</span><br><span class="line">      "<span class="attribute">image</span>": <span class="value"><span class="string">"busybox"</span></span>,</span><br><span class="line">      "<span class="attribute">privileged</span>": <span class="value"><span class="literal">false</span></span>,</span><br><span class="line">      "<span class="attribute">parameters</span>": <span class="value">[]</span>,</span><br><span class="line">      "<span class="attribute">forcePullImage</span>": <span class="value"><span class="literal">false</span></span><br><span class="line">    </span>&#125;</span><br><span class="line">  </span>&#125;</span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+<li>如果你是坚定不移的命令行狂人，可以用<code>curl</code>来发送一个http请求来运行容器。还是用上面的<strong>test</strong>来举例子，先随便在哪台机器找个路径生成一个<code>test.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"id"</span>: <span class="string">"test"</span>,</div><div class="line">  <span class="attr">"cmd"</span>: <span class="string">"sleep 30"</span>,</div><div class="line">  <span class="attr">"cpus"</span>: <span class="number">0.1</span>,</div><div class="line">  <span class="attr">"mem"</span>: <span class="number">16.0</span>,</div><div class="line">  <span class="attr">"container"</span>: &#123;</div><div class="line">    <span class="attr">"type"</span>: <span class="string">"DOCKER"</span>,</div><div class="line">    <span class="attr">"volumes"</span>: [],</div><div class="line">    <span class="attr">"docker"</span>: &#123;</div><div class="line">      <span class="attr">"image"</span>: <span class="string">"busybox"</span>,</div><div class="line">      <span class="attr">"privileged"</span>: <span class="literal">false</span>,</div><div class="line">      <span class="attr">"parameters"</span>: [],</div><div class="line">      <span class="attr">"forcePullImage"</span>: <span class="literal">false</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>然后运行以下命令来发送请求给marathon：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps <span class="operator">-d</span> @test.json -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
-<p>打开marathon的页面就能看见这个应用在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://<span class="number">192.168</span>.<span class="number">33.18</span>:<span class="number">8080</span>/v2/apps/<span class="built_in">test</span> -H <span class="string">"Content-type: application/json"</span></span><br></pre></td></tr></table></figure></p>
+<p>然后运行以下命令来发送请求给marathon：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X POST http://192.168.33.18:8080/v2/apps <span class="_">-d</span> @test.json -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
+<p>打开marathon的页面就能看见这个应用在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X DELETE http://192.168.33.18:8080/v2/apps/<span class="built_in">test</span> -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -168,7 +169,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/marathon/">marathon</a><a href="/tags/mesos/">mesos</a>
+  <span></span> <a href="/tags/mesos/">mesos</a><a href="/tags/marathon/">marathon</a>
   </div>
 
 </div>
@@ -239,15 +240,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -255,7 +266,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -288,7 +299,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -296,15 +307,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -312,43 +327,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -376,8 +387,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -414,7 +425,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

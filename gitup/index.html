@@ -29,10 +29,11 @@
 <meta property="og:image" content="http://qinghua.github.io/img/gitup-rebase.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/gitup-snapshot.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/gitup-stashes.jpg">
-<meta property="og:updated_time" content="2016-04-06T14:41:12.000Z">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mac上的git图形工具GitUp">
 <meta name="twitter:description" content="已经11岁的Git现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用git reset HEAD而不是git unadd/unstage？Mac的朋友们有福了，GitUp来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的ThoughtWorks技术雷达上，它处于试验阶段，也就是值得追求，建议尝试。让我">
+<meta name="twitter:image" content="http://qinghua.github.io/img/gitup-welcome.jpg">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -44,7 +45,7 @@
     <link rel="apple-touch-icon" href="/img/jacman.jpg">
     <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
     
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body>
@@ -125,20 +126,20 @@
 		</div>
 		
 		<p>已经11岁的<a href="https://git-scm.com/" target="_blank" rel="external">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/" target="_blank" rel="external">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup" target="_blank" rel="external">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>GitUp只是一个小应用程序，下载下来就能用啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir gitup</span><br><span class="line"><span class="built_in">cd</span> gitup</span><br><span class="line">wget -c https://s3-us-west-<span class="number">2</span>.amazonaws.com/gitup-builds/stable/GitUp.zip</span><br><span class="line">unzip GitUp.zip</span><br><span class="line">open GitUp.app</span><br></pre></td></tr></table></figure></p>
+<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>GitUp只是一个小应用程序，下载下来就能用啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mkdir gitup</div><div class="line"><span class="built_in">cd</span> gitup</div><div class="line">wget -c https://s3-us-west-2.amazonaws.com/gitup-builds/stable/GitUp.zip</div><div class="line">unzip GitUp.zip</div><div class="line">open GitUp.app</div></pre></td></tr></table></figure></p>
 <p>打开GitUp就能看见下面的界面：<br><img src="/img/gitup-welcome.jpg" alt=""></p>
-<p>然后我们新建一个git repo：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">git init</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> a &gt; a.txt</span><br><span class="line"><span class="built_in">echo</span> b &gt; b.txt</span><br><span class="line"><span class="built_in">echo</span> c &gt; c.txt</span><br><span class="line">git add a.txt</span><br><span class="line">git commit -m <span class="string">"a"</span></span><br><span class="line">git add b.txt</span><br><span class="line">git commit -m <span class="string">"bb"</span></span><br><span class="line">git add c.txt</span><br><span class="line">git commit -m <span class="string">"c"</span></span><br></pre></td></tr></table></figure></p>
+<p>然后我们新建一个git repo：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">git init</div><div class="line"></div><div class="line"><span class="built_in">echo</span> a &gt; a.txt</div><div class="line"><span class="built_in">echo</span> b &gt; b.txt</div><div class="line"><span class="built_in">echo</span> c &gt; c.txt</div><div class="line">git add a.txt</div><div class="line">git commit -m <span class="string">"a"</span></div><div class="line">git add b.txt</div><div class="line">git commit -m <span class="string">"bb"</span></div><div class="line">git add c.txt</div><div class="line">git commit -m <span class="string">"c"</span></div></pre></td></tr></table></figure></p>
 <h2 id="u67E5_u770B_u5386_u53F2"><a href="#u67E5_u770B_u5386_u53F2" class="headerlink" title="查看历史"></a>查看历史</h2><p>在刚才的GitUp欢迎界面上选择新建的test文件夹，就能看到简洁的版本历史图，有三个commit，其中两个是小圆点，一个是现在所处的HEAD。随便单击选择一个commit：<br><img src="/img/gitup-map.jpg" alt=""></p>
 <p>可以看到这个commit的信息，按上下键可以选择其它commit，按空格切换commit详细页面。在commit上右击，便能看到所有支持的操作。我们可以先右击中间的commit，选择<strong>Edit Message</strong>把先前的提交消息”bb”改成”b”。很简单吧！比输命令易用多了。之后在HEAD上右击并选择<strong>Create Branch</strong>来新建一个分支，分支名为temp。然后就能看到下图：<br><img src="/img/gitup-new-branch.jpg" alt=""></p>
-<p>可以在终端中运行<code>git branch</code>来确认自己在temp分支上。然后加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> d &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br></pre></td></tr></table></figure></p>
+<p>可以在终端中运行<code>git branch</code>来确认自己在temp分支上。然后加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> d &gt;&gt; c.txt</div><div class="line">cat c.txt</div></pre></td></tr></table></figure></p>
 <p>这时切回GitUp的界面，选择中间的视图，如下图所示：<br><img src="/img/gitup-commit.jpg" alt=""></p>
 <p>看起来很像<code>git gui</code>吧。双击<code>c.txt</code>就可以切换文件的状态。输入提交消息<code>cd</code>，然后点击<strong>Commit</strong>按钮来提交。于是就能看到下图：<br><img src="/img/gitup-new-branch-commit.jpg" alt=""></p>
-<p>双击master的小黄点就可以切换到master分支上了。然后也加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> e &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br><span class="line">git commit -am <span class="string">"ce"</span></span><br></pre></td></tr></table></figure></p>
+<p>双击master的小黄点就可以切换到master分支上了。然后也加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> e &gt;&gt; c.txt</div><div class="line">cat c.txt</div><div class="line">git commit -am <span class="string">"ce"</span></div></pre></td></tr></table></figure></p>
 <p>这回的图变成这样了：<br><img src="/img/gitup-master-commit.jpg" alt=""></p>
 <h2 id="u5408_u5E76_u548C_u884D_u5408"><a href="#u5408_u5E76_u548C_u884D_u5408" class="headerlink" title="合并和衍合"></a>合并和衍合</h2><p>我们来试一下合并分支。右击temp上的小圆圈，选择<strong>Merge into Current Branch</strong>，然后点击<strong>Merge</strong>按钮就能看到冲突了。可以使用<strong>Open with Default Editor</strong>来自己解决冲突，也可以使用<strong>Resolve in Merge Tool</strong>来解决。如果是前者，可以注意一个小细节：这里的冲突提示是ours和theirs，看起来人性化了不少。合并完成后，点击<strong>Mark as Resolved</strong>，然后<strong>Commit</strong>，就可以看到图变成这样了：<br><img src="/img/gitup-merge.jpg" alt=""></p>
 <p>衍合也是类似。GitUp提供了一个逆天功能Command+Z，可以快速回退到上一次操作（再次前进是Command+Shift+Z）。这样我们很轻松就能再来一次衍合。右击temp上的小圆圈，选择<strong>Rebase Current Branch onto Here</strong>，剩下的和合并分支类似。提交之后，就可以看到图变成这样了：<br><img src="/img/gitup-rebase.jpg" alt=""></p>
 <p>GitUp还提供了强大的快照功能。我们可以点击右上方的时钟按钮来选择自己想要的快照，就像Time Machine似的。如下图：<br><img src="/img/gitup-snapshot.jpg" alt=""></p>
-<h2 id="u67E5_u770Bstash"><a href="#u67E5_u770Bstash" class="headerlink" title="查看stash"></a>查看stash</h2><p>那么第三个视图是干什么的呢？我们先stash一段代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> f &gt;&gt; c.txt</span><br><span class="line">cat c.txt</span><br><span class="line">git stash</span><br><span class="line"><span class="built_in">echo</span> g &gt;&gt; c.txt</span><br></pre></td></tr></table></figure></p>
+<h2 id="u67E5_u770Bstash"><a href="#u67E5_u770Bstash" class="headerlink" title="查看stash"></a>查看stash</h2><p>那么第三个视图是干什么的呢？我们先stash一段代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> f &gt;&gt; c.txt</div><div class="line">cat c.txt</div><div class="line">git stash</div><div class="line"><span class="built_in">echo</span> g &gt;&gt; c.txt</div></pre></td></tr></table></figure></p>
 <p>打开第三个视图，原来是stash列表，这回可以很容易看清楚了。也可以在这里stash：点击左下方的加号按钮，输入一个消息然后<strong>Save Stash</strong>，就可以看到下图：<br><img src="/img/gitup-stashes.jpg" alt=""></p>
 <p>还可以在这里轻松地<strong>Apply</strong>想要的stash，这个可视化可以有。可惜还是不支持选择特定文件stash。</p>
   
@@ -154,7 +155,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/GitUp/">GitUp</a><a href="/tags/git/">git</a>
+  <span></span> <a href="/tags/git/">git</a><a href="/tags/GitUp/">GitUp</a>
   </div>
 
 </div>
@@ -225,15 +226,25 @@
 		  
 		
 		  
-			<li><a href="/categories/db/" title="db">db<sup>1</sup></a></li>
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
 		  
 		
 		  
-		
-		  
-			<li><a href="/categories/devops/" title="devops">devops<sup>33</sup></a></li>
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
 		  
 		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
 		  
 		
 		  
@@ -241,7 +252,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>3</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
 		  
 		
 		  
@@ -274,7 +285,7 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
 			
 		
 			
@@ -282,15 +293,19 @@
 			
 		
 			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -298,43 +313,39 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/portus/" title="portus">portus<sup>1</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tosca/" title="tosca">tosca<sup>1</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/thought/" title="thought">thought<sup>1</sup></a></li>
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/nfs/" title="nfs">nfs<sup>1</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>1</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/OCR/" title="OCR">OCR<sup>1</sup></a></li>
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/tesseract/" title="tesseract">tesseract<sup>1</sup></a></li>
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/chronos/" title="chronos">chronos<sup>1</sup></a></li>
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -362,8 +373,8 @@
         访客数为<span id="busuanzi_value_site_uv"></span>人次
       </span>
       <br>
-      &copy; 2016 Qinghua Gao<br>
-      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
     </div>
   </div>
 </footer>
@@ -400,7 +411,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
 		
 		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
 		

@@ -1,0 +1,629 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用OS X轻松上手.NET Core | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="微软前几天正式发布了.NET Core 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用OS X轻松上手.NET Core">
+<meta property="og:url" content="http://qinghua.github.io/dot-net-core/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="微软前几天正式发布了.NET Core 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。">
+<meta property="og:image" content="http://qinghua.github.io/img/vs-code-ide.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/vs-code-debug.jpg">
+<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用OS X轻松上手.NET Core">
+<meta name="twitter:description" content="微软前几天正式发布了.NET Core 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/vs-code-ide.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/dot-net-core/" title="用OS X轻松上手.NET Core" itemprop="url">用OS X轻松上手.NET Core</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-07-03T05:44:21.000Z" itemprop="datePublished"> 发表于 2016-07-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C_Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
+		
+		</div>
+		
+		<p>微软前几天<a href="https://blogs.msdn.microsoft.com/dotnet/2016/06/27/announcing-net-core-1-0/" target="_blank" rel="external">正式发布</a>了<a href="https://dotnet.github.io/" target="_blank" rel="external">.NET Core</a> 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。<br><a id="more"></a></p>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>请参考<a href="http://www.linuxidc.com/Linux/2016-06/132764.htm" target="_blank" rel="external">《.NET Core 1.0发布：微软开源跨平台大布局序幕》</a>和<a href="https://docs.microsoft.com/en-us/dotnet/articles/core/index" target="_blank" rel="external">《.NET Core》</a>。官方也提供了一个<a href="https://hub.docker.com/r/microsoft/dotnet/" target="_blank" rel="external">docker镜像</a>以供快速试用。</p>
+<h2 id="u5B89_u88C5_u73AF_u5883"><a href="#u5B89_u88C5_u73AF_u5883" class="headerlink" title="安装环境"></a>安装环境</h2><p>根据微软的<a href="https://www.microsoft.com/net/core#macos" target="_blank" rel="external">Getting Started</a>文档介绍，首先需要安装最新版OpenSSL：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">brew update</div><div class="line">brew install openssl</div><div class="line">brew link --force openssl</div></pre></td></tr></table></figure></p>
+<p>下载.NET Core SDK，50M左右：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget -c https://go.microsoft.com/fwlink/?LinkID=809124</div></pre></td></tr></table></figure></p>
+<p>安装完SDK后，可以很轻易地启动一个Hello World应用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mkdir hwapp</div><div class="line"><span class="built_in">cd</span> hwapp</div><div class="line">dotnet new</div><div class="line">dotnet restore</div><div class="line">dotnet run</div></pre></td></tr></table></figure></p>
+<p>其中的<code>dotnet</code>命令就是.NET Core SDK提供的。顺利的话，就能看到控制台打印出了<code>Hello World!</code>。命令<code>dotnet new</code>会生成两个文件：<code>Program.cs</code>和<code>project.json</code>。打开生成的Program.cs就能看到其实就是一个标准的<code>Main</code>函数，内容为<code>Console.WriteLine(&quot;Hello World!&quot;);</code>。文件<code>project.json</code>内容如下所示，指定了依赖和框架：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0-*"</span>,</div><div class="line">  <span class="attr">"buildOptions"</span>: &#123;</div><div class="line">    <span class="attr">"debugType"</span>: <span class="string">"portable"</span>,</div><div class="line">    <span class="attr">"emitEntryPoint"</span>: <span class="literal">true</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"dependencies"</span>: &#123;&#125;,</div><div class="line">  <span class="attr">"frameworks"</span>: &#123;</div><div class="line">    <span class="attr">"netcoreapp1.0"</span>: &#123;</div><div class="line">      <span class="attr">"dependencies"</span>: &#123;</div><div class="line">        <span class="attr">"Microsoft.NETCore.App"</span>: &#123;</div><div class="line">          <span class="attr">"type"</span>: <span class="string">"platform"</span>,</div><div class="line">          <span class="attr">"version"</span>: <span class="string">"1.0.0"</span></div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      <span class="attr">"imports"</span>: <span class="string">"dnxcore50"</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>命令<code>dotnet restore</code>会使用NuGet来导入<code>project.json</code>里指定的包并生成一个文件：<code>project.lock.json</code>。命令<code>dotnet run</code>编译并运行这个项目。如果只想编译，用<code>dotnet build</code>就可以了。现在把Hello World中的World改成<code>Qinghua</code>，再试一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sed <span class="string">'s/World/Qinghua/'</span> Program.cs &gt; Program1.cs &amp;&amp; mv Program1.cs Program.cs</div><div class="line">cat Program.cs</div><div class="line">dotnet run</div></pre></td></tr></table></figure></p>
+<p>果然就变成了<code>Hello Qinghua!</code>。</p>
+<h2 id="IDE"><a href="#IDE" class="headerlink" title="IDE"></a>IDE</h2><p>下载Visual Studio Code集成开发环境，也是50M左右，解压后100多M：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget -c https://az764295.vo.msecnd.net/stable/fe7f407b95b7f78405846188259504b34ef72761/VSCode-darwin-stable.zip</div></pre></td></tr></table></figure></p>
+<p>如果下载页面发生变化，那就参考<a href="https://code.visualstudio.com/" target="_blank" rel="external">Visual Studio Code的主页</a>下载。安装并打开Visual Studio Code之后，按下快捷键<code>⌘+P</code>并输入以下命令来安装C#的扩展：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ext install csharp</div></pre></td></tr></table></figure></p>
+<p>IDE会提示重新启动。接下来就可以试试C#开发了。按下快捷键<code>⌘+O</code>并打开刚才生成的<code>Program.cs</code>文件，然后把<code>Qinghua</code>改为<code>世界</code>。再次<code>dotnet run</code>一下，就会看到<code>Hello 世界</code>，汉字支持良好。</p>
+<p>整个IDE非常轻量，给人的印象比较简洁，不像Visual Studio那般花里胡哨。支持代码高亮、代码补全、错误提示、内置Git的支持，但是错误修复、重构等就没有了。甚至如何在里面运行代码也令人颇费一番周折。<br><img src="/img/vs-code-ide.jpg" alt=""></p>
+<p>关于调试代码，可以参考<a href="https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger.md" target="_blank" rel="external">Instructions for setting up the .NET Core debugger</a>。如果<code>⌘+O</code>打开的是包含<code>project.json</code>的文件夹，C#扩展便会自动生成两个文件：<code>.vscode/tasks.json</code>和<code>.vscode/launch.json</code>。前者告诉VS Code如何来构建项目，后者告诉VS Code如何来运行程序。我们需要修改一下<code>launch.json</code>里，<code>name</code>为<code>.NET Core Launch (console)</code>的<code>program</code>，将<code>&lt;target-framework&gt;/&lt;project-name.dll&gt;</code>替换为<code>netcoreapp1.0/hwapp.dll</code>，这样便能在VS Code的调试窗口运行程序了：<br><img src="/img/vs-code-debug.jpg" alt=""></p>
+<p>Visual Studio Code支持众多插件。除了C#以外，还有Python、C/C++、Go、PowerShell、JavaScript、Ruby等语言，除此之外，还有不少功能性插件，如Git Blame、IIS Express、ftp-sync等。完整列表请参考<a href="https://marketplace.visualstudio.com/vscode/Languages?sortBy=Downloads" target="_blank" rel="external">Marketplace</a>。</p>
+<h2 id="C_Sharp"><a href="#C_Sharp" class="headerlink" title="C Sharp"></a>C Sharp</h2><p>语法层面上，C#比起Java来最吸引我的点就是Linq+Lambda。虽然Java 8也提供了lambda表达式，但是始终在整洁性上差了那么一点。Java 8 Stream和C#在Linq上的语法区别可以参考<a href="https://blog.informatech.cr/2013/03/24/java-streams-preview-vs-net-linq/" target="_blank" rel="external">《Java Streams Preview vs .Net High-Order Programming with LINQ》</a>，里面有着非常丰富的例子。现在我们来改造一下<code>Program.cs</code>，用Linq和Lambda输出10~90之间能被10整除的数字的平方：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> System;</div><div class="line"><span class="keyword">using</span> System.Linq;</div><div class="line"></div><div class="line"><span class="keyword">namespace</span> <span class="title">ConsoleApplication</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></div><div class="line">    &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> arr = Enumerable.Range(<span class="number">1</span>, <span class="number">90</span>);</div><div class="line">            arr.Where(i =&gt; i % <span class="number">10</span> == <span class="number">0</span>).Select(i =&gt; i * i).ToList().ForEach(Console.WriteLine);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>再次<code>dotnet run</code>一下，就会看到程序按照我们的预期输出了结果。</p>
+<h2 id="ASP-NET"><a href="#ASP-NET" class="headerlink" title="ASP.NET"></a>ASP.NET</h2><p>下面让我们来试一下用.NET Core运行ASP.NET的官方教程。首先像Hello World的例子那样，创建一个新的工程：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> ..</div><div class="line">mkdir aspnetcoreapp</div><div class="line"><span class="built_in">cd</span> aspnetcoreapp</div><div class="line">dotnet new</div></pre></td></tr></table></figure></p>
+<p>然后需要把<code>project.json</code>里的<code>&quot;dependencies&quot;: {},</code>替换成下文：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">"dependencies": &#123;</div><div class="line">  "Microsoft.NETCore.App": &#123;</div><div class="line">    "type": "platform",</div><div class="line">    "version": "1.0.0"</div><div class="line">  &#125;,</div><div class="line">  "Microsoft.AspNetCore.Server.Kestrel": "1.0.0"</div><div class="line">&#125;,</div></pre></td></tr></table></figure></p>
+<p>依赖变化了，需要<code>restore</code>一下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dotnet restore</div></pre></td></tr></table></figure></p>
+<p>然后添加一个文件，处理http request：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> System;</div><div class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Builder;</div><div class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</div><div class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Http;</div><div class="line"></div><div class="line"><span class="keyword">namespace</span> <span class="title">aspnetcoreapp</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Startup</span></div><div class="line">    &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app</span>)</span></div><div class="line">        &#123;</div><div class="line">            app.Run(context =&gt;</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">return</span> context.Response.WriteAsync(<span class="string">"Hello from ASP.NET Core!"</span>);</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接下来修改<code>Program.cs</code>文件来启动web服务：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> System;</div><div class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</div><div class="line"></div><div class="line"><span class="keyword">namespace</span> <span class="title">aspnetcoreapp</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></div><div class="line">    &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> host = <span class="keyword">new</span> WebHostBuilder()</div><div class="line">                .UseKestrel()</div><div class="line">                .UseStartup&lt;Startup&gt;()</div><div class="line">                .Build();</div><div class="line"></div><div class="line">            host.Run();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>现在就可以运行啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dotnet run</div></pre></td></tr></table></figure></p>
+<p>访问<a href="http://localhost:5000/" target="_blank" rel="external">http://localhost:5000/</a>就可以看到在<code>Startup.cs</code>里写的<code>Hello from ASP.NET Core!</code>啦。确实上手比较容易。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/development/">development</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/NET/">.NET</a><a href="/tags/NET-Core/">.NET Core</a><a href="/tags/C/">C#</a><a href="/tags/ASP-NET/">ASP.NET</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/dot-net-core/" data-title="用OS X轻松上手.NET Core | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/interrupt-train-of-thought/" title="思路被打断了怎么办">
+  <strong>上一篇：</strong><br/>
+  <span>
+  思路被打断了怎么办</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/dubbo-2/"  title="使用dubbox为dubbo提供REST服务">
+ <strong>下一篇：</strong><br/> 
+ <span>使用dubbox为dubbo提供REST服务
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="dot-net-core/" data-title="用OS X轻松上手.NET Core" data-url="http://qinghua.github.io/dot-net-core/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C_Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/sed/" title="sed">sed<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/s3/" title="s3">s3<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
