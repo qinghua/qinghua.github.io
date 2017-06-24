@@ -92,6 +92,73 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/ceph-radosgw-replication/" title="使用RADOSGW联盟网关跨域同步" itemprop="url">使用RADOSGW联盟网关跨域同步</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2016-04-22T11:01:01.000Z" itemprop="datePublished"> 发表于 2016-04-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是如何<a href="http://docs.ceph.com/docs/master/radosgw/federated-config/" target="_blank" rel="external">通过RADOSGW备份一个可用区</a>。</p>
+<ul>
+<li>对如何加载使用块存储和文件存储感兴趣可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a></li>
+<li>对RADOSGW如何暴露S3和Swift接口感兴趣可以参考<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/ceph-radosgw-replication/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/devops/">devops</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ceph/">ceph</a><a href="/tags/storage/">storage</a><a href="/tags/radosgw/">radosgw</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/ceph-radosgw-replication/#comments" class="ds-thread-count comments-count-link" data-thread-key="ceph-radosgw-replication/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/tesseract/" title="光学字符识别软件tesseract-ocr" itemprop="url">光学字符识别软件tesseract-ocr</a>
   </h1>
   <p class="article-author">By
@@ -105,7 +172,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="https://github.com/tesseract-ocr/tesseract/wiki">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br>
+        <p><a href="https://github.com/tesseract-ocr/tesseract/wiki" target="_blank" rel="external">Tesseract</a>是一个可以将图片转换成文字的<a href="https://zh.wikipedia.org/wiki/%E5%85%89%E5%AD%A6%E5%AD%97%E7%AC%A6%E8%AF%86%E5%88%AB" target="_blank" rel="external">OCR</a>（Optical Character Recognition）软件，支持包括中文简繁体的<a href="https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages" target="_blank" rel="external">多种语言</a>，简单易用，可以用来识别验证码。让我们来看一看吧。<br>
         
         
         <p class="article-more-link">
@@ -169,7 +236,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="http://docs.openstack.org/developer/swift/">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="http://www.openstack.org/">OpenStack</a>。上次在<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br>
+        <p><a href="http://docs.openstack.org/developer/swift/" target="_blank" rel="external">Swift</a>（OpenStack Object Storage）是Rackspace开发的高可用分布式对象存储，贡献给了<a href="http://www.openstack.org/" target="_blank" rel="external">OpenStack</a>。上次在<a href="/ceph-radosgw">《通过RADOSGW提供ceph的S3和Swift接口》</a>一文里介绍了ceph RADOSGW的Swift接口，这次让我们直接来试试原生的swift吧！<br>
         
         
         <p class="article-more-link">
@@ -233,7 +300,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a>。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker Registry在2.4版本<a href="https://github.com/docker/distribution/commit/5967d333425a8dd5d36c5bb456098839654d38af">移除了对rados的支持</a>，所以如果使用ceph作为后端存储就需要利用RADOSGW了。<br>
+        <p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a>。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker Registry在2.4版本<a href="https://github.com/docker/distribution/commit/5967d333425a8dd5d36c5bb456098839654d38af" target="_blank" rel="external">移除了对rados的支持</a>，所以如果使用ceph作为后端存储就需要利用RADOSGW了。<br>
         
         
         <p class="article-more-link">
@@ -297,7 +364,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="http://rancher.com/">Rancher</a>是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:<br><img src="/img/rancher-feature.png" alt=""></p>
+        <p><a href="http://rancher.com/" target="_blank" rel="external">Rancher</a>是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:<br><img src="/img/rancher-feature.png" alt=""></p>
 <p>2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！<br>
         
         
@@ -362,7 +429,7 @@
 </header>
     <div class="article-content">
         
-        <p>已经11岁的<a href="https://git-scm.com/">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br>
+        <p>已经11岁的<a href="https://git-scm.com/" target="_blank" rel="external">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/" target="_blank" rel="external">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup" target="_blank" rel="external">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br>
         
         
         <p class="article-more-link">
@@ -426,7 +493,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="https://prometheus.io/">Prometheus</a>是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。<br>
+        <p><a href="https://prometheus.io/" target="_blank" rel="external">Prometheus</a>是一个开源的监控解决方案，包括数据采集、汇聚、存储、可视化、监控、告警等。除了基本的监控数据，也支持通过自定义exporter来获取自己想要的数据。本文从零开始用容器搭建一个prometheus环境，并介绍一些基本功能。<br>
         
         
         <p class="article-more-link">
@@ -490,7 +557,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="https://www.oasis-open.org/committees/tosca/">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br>
+        <p><a href="https://www.oasis-open.org/committees/tosca/" target="_blank" rel="external">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html" target="_blank" rel="external">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br>
         
         
         <p class="article-more-link">
@@ -554,7 +621,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="http://getcloudify.org/">Cloudify</a>是一个开源的云应用编排系统，它允许使用DSL来描述应用的拓扑结构，并部署到任意环境中。本文大量参考了<a href="http://docs.getcloudify.org/3.3.1/intro/what-is-cloudify/">官方教程</a>从零开始搭建并管理一个cloudify 3.3.1集群。<br>
+        <p><a href="http://getcloudify.org/" target="_blank" rel="external">Cloudify</a>是一个开源的云应用编排系统，它允许使用DSL来描述应用的拓扑结构，并部署到任意环境中。本文大量参考了<a href="http://docs.getcloudify.org/3.3.1/intro/what-is-cloudify/" target="_blank" rel="external">官方教程</a>从零开始搭建并管理一个cloudify 3.3.1集群。<br>
         
         
         <p class="article-more-link">
@@ -618,7 +685,7 @@
 </header>
     <div class="article-content">
         
-        <p><a href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。<br>
+        <p><a href="http://kubernetes.io/docs/whatisk8s/" target="_blank" rel="external">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。<br>
         
         
         <p class="article-more-link">
@@ -650,80 +717,6 @@
 	
 	  	<span></span>
 		<a href="/kubernetes-installation/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-installation/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/kubernetes-in-mesos-9/" title="如果有10000台机器，你想怎么玩？（九）安全性" itemprop="url">如果有10000台机器，你想怎么玩？（九）安全性</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
-		
-  <p class="article-time">
-    <time datetime="2016-03-21T11:24:40.000Z" itemprop="datePublished"> 发表于 2016-03-21</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这次聊聊mesos+k8s的安全性，还有多租户。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/kubernetes-in-mesos-9/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/devops/">devops</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/kubernetes/">kubernetes</a><a href="/tags/mesos/">mesos</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/kubernetes-in-mesos-9/#comments" class="ds-thread-count comments-count-link" data-thread-key="kubernetes-in-mesos-9/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -769,7 +762,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -838,15 +831,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -862,11 +851,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -878,7 +871,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

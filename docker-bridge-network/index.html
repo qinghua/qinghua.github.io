@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。">
+<meta name="keywords" content="docker,network">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker的桥接网络是怎么工作的">
 <meta property="og:url" content="http://qinghua.github.io/docker-bridge-network/index.html">
@@ -110,14 +111,14 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5"><span class="toc-number">2.</span> <span class="toc-text">主机和容器间的网络连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP_u548Cmac_u5730_u5740_u6620_u5C04"><span class="toc-number">3.</span> <span class="toc-text">IP和mac地址映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主机和容器间的网络连接"><span class="toc-number">2.</span> <span class="toc-text">主机和容器间的网络连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP和mac地址映射"><span class="toc-number">3.</span> <span class="toc-text">IP和mac地址映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
 		
 		</div>
 		
 		<p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code># config.vm.network &quot;private_network&quot;, ip: &quot;192.168.33.10&quot;</code>，删掉前面的<code>#</code>注释，相当于给它分配一个<code>192.168.33.10</code>的IP。这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh</div></pre></td></tr></table></figure></p>
-<h2 id="u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5"><a href="#u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5" class="headerlink" title="主机和容器间的网络连接"></a>主机和容器间的网络连接</h2><p>进入虚拟机后，在vagrant主机上运行<code>ifconfig</code>，就能看到有4个网络设备及它们的IPv4地址：</p>
+<h2 id="主机和容器间的网络连接"><a href="#主机和容器间的网络连接" class="headerlink" title="主机和容器间的网络连接"></a>主机和容器间的网络连接</h2><p>进入虚拟机后，在vagrant主机上运行<code>ifconfig</code>，就能看到有4个网络设备及它们的IPv4地址：</p>
 <ul>
 <li>docker0：172.17.0.1</li>
 <li>eth0：10.0.2.15</li>
@@ -192,9 +193,9 @@
 <p>那么docker0在接收数据包之后，又会送到哪里去呢？我们在vagrant主机再次运行<code>brctl show</code>，便能看到docker0这个网桥有所变化。它的<code>interfaces</code>里增加了一个<code>vethXXX</code>，在我的机器上叫<code>vethd6d3942</code>。在vagrant主机再次运行<code>ifconfig</code>，我们也能看到这一块新增的VETH虚拟网卡。实际上每启动一个容器，docker便会增加一个叫<code>vethXXX</code>的设备，并把它连接到docker0上，于是docker0就可以把收到的数据包发给这个VETH设备。VETH设备总是成对出现，一端进去的请求总会从peer也就是另一端出来，这样就能将一个namespace的数据发往另一个namespace，就像虫洞一样。那么现在这一端是<code>vethd6d3942</code>，它的另一端是哪儿呢？运行这个命令（记得把VETH设备名改成你自己主机上的设备名）：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ethtool -S vethd6d3942</div></pre></td></tr></table></figure></p>
 <p>可以看到这个VETH设备的<code>peer_ifindex</code>是某个数字，在我的机器上是<code>5</code>。这个<a href="http://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/28420-ifIndex-Persistence.html" target="_blank" rel="external">ifindex</a>是一个网络接口的唯一识别编号。通过<code>docker exec -it ubuntu bash</code>进入容器里，然后运行：<br><figure class="highlight sh"><figcaption><span>ubuntu container</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ip link</div></pre></td></tr></table></figure></p>
 <p>可以看到<code>5: eth0</code>，原来跨越namespace跑到容器里头来啦。这就是主机上的VETH设备能跟容器内部通信的原因。每当新启动一个容器，主机就会增加一对VETH设备，把一个连接到docker0上，另一个挂载到容器内部的eth0里。</p>
-<h2 id="IP_u548Cmac_u5730_u5740_u6620_u5C04"><a href="#IP_u548Cmac_u5730_u5740_u6620_u5C04" class="headerlink" title="IP和mac地址映射"></a>IP和mac地址映射</h2><p>还有一个问题：每个网络设备都有自己的mac地址，通过ip怎么能找到它呢？在容器外运行这个命令：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">arp -n</div></pre></td></tr></table></figure></p>
+<h2 id="IP和mac地址映射"><a href="#IP和mac地址映射" class="headerlink" title="IP和mac地址映射"></a>IP和mac地址映射</h2><p>还有一个问题：每个网络设备都有自己的mac地址，通过ip怎么能找到它呢？在容器外运行这个命令：<br><figure class="highlight sh"><figcaption><span>vagrant host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">arp -n</div></pre></td></tr></table></figure></p>
 <p>我们就能看到<code>Address</code>和<code>HWaddress</code>，它们分别对应着IP地址和mac地址，这样就匹配起来了。到容器里<code>ifconfig</code>一下，看看<code>172.17.0.2</code>的mac地址，是不是和主机<code>arp -n</code>运行结果中<code>172.17.0.2</code>那行的mac地址一样呢？</p>
-<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.ibm.com/developerworks/cn/linux/1310_xiawc_networkdevice/" target="_blank" rel="external">Linux上的基础网络设备详解</a>，介绍了不同的网络设备工作原理。<br><a href="http://www.oschina.net/translate/docker-network-configuration" target="_blank" rel="external">Docker网络配置</a>，从零开始配置docker的网络。<br><a href="http://vbird.dic.ksu.edu.tw/linux_server/0110network_basic.php" target="_blank" rel="external">基础网络概念</a>，来自鸟哥，深入浅出地介绍了网络的基础知识。<br><a href="http://linux.vbird.org/linux_server/0140networkcommand.php" target="_blank" rel="external">Linux常用网络命令</a>，来自鸟哥，看完了就对茫茫的网络命令有了清晰的了解。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.ibm.com/developerworks/cn/linux/1310_xiawc_networkdevice/" target="_blank" rel="external">Linux上的基础网络设备详解</a>，介绍了不同的网络设备工作原理。<br><a href="http://www.oschina.net/translate/docker-network-configuration" target="_blank" rel="external">Docker网络配置</a>，从零开始配置docker的网络。<br><a href="http://vbird.dic.ksu.edu.tw/linux_server/0110network_basic.php" target="_blank" rel="external">基础网络概念</a>，来自鸟哥，深入浅出地介绍了网络的基础知识。<br><a href="http://linux.vbird.org/linux_server/0140networkcommand.php" target="_blank" rel="external">Linux常用网络命令</a>，来自鸟哥，看完了就对茫茫的网络命令有了清晰的了解。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -217,7 +218,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/docker-bridge-network/" data-title="Docker的桥接网络是怎么工作的 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/docker-bridge-network/" data-title="Docker的桥接网络是怎么工作的 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -261,7 +262,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3B_u673A_u548C_u5BB9_u5668_u95F4_u7684_u7F51_u7EDC_u8FDE_u63A5"><span class="toc-number">2.</span> <span class="toc-text">主机和容器间的网络连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP_u548Cmac_u5730_u5740_u6620_u5C04"><span class="toc-number">3.</span> <span class="toc-text">IP和mac地址映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主机和容器间的网络连接"><span class="toc-number">2.</span> <span class="toc-text">主机和容器间的网络连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP和mac地址映射"><span class="toc-number">3.</span> <span class="toc-text">IP和mac地址映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
  
   </div>
 
@@ -289,7 +290,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -358,15 +359,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -382,11 +379,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -398,7 +399,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

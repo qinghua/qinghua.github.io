@@ -13,42 +13,19 @@
     
 
     
-    <meta name="description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有">
+    <meta name="description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有">
+<meta name="keywords" content="kubernetes,mesos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（八）网络">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-8/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有">
+<meta property="og:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有">
 <meta property="og:image" content="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png">
 <meta property="og:image" content="http://qinghua.github.io/img/pause.png">
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（八）网络">
-<meta name="twitter:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有">
+<meta name="twitter:description" content="这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png">
 
     
@@ -147,8 +124,8 @@
 <li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="Docker_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Docker_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
-<h2 id="Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/docs/admin/networking/" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
+<h2 id="Docker的网络模型"><a href="#Docker的网络模型" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
+<h2 id="Kubernetes的网络模型"><a href="#Kubernetes的网络模型" class="headerlink" title="Kubernetes的网络模型"></a><a href="http://kubernetes.io/docs/admin/networking/" target="_blank" rel="external">Kubernetes的网络模型</a></h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
 <ul>
 <li>所有的容器可以在不使用NAT的情况下相互通信</li>
 <li>所有的主机和容器可以在不使用NAT的情况下相互通信</li>
@@ -157,9 +134,9 @@
 <p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用<a href="https://github.com/coreos/flannel#flannel" target="_blank" rel="external">Flannel</a>，也有人使用<a href="http://kubernetes.io/docs/admin/ovs-networking/" target="_blank" rel="external">Open vSwitch</a>、<a href="https://github.com/zettio/weave" target="_blank" rel="external">Weave</a>、<a href="https://github.com/Metaswitch/calico" target="_blank" rel="external">Calico</a>。就flannel来说，它的网络传输如下图：<br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png" alt=""></p>
 <p>Flannel会在每个主机上运行一个叫做flanneld的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flanneld去。有兴趣的话可以参考<a href="http://dockone.io/article/618" target="_blank" rel="external">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
 <p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html" target="_blank" rel="external">这篇文章</a>。</p>
-<h2 id="Kubernetes_u7684_u670D_u52A1"><a href="#Kubernetes_u7684_u670D_u52A1" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/docs/user-guide/services/" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
+<h2 id="Kubernetes的服务"><a href="#Kubernetes的服务" class="headerlink" title="Kubernetes的服务"></a><a href="http://kubernetes.io/docs/user-guide/services/" target="_blank" rel="external">Kubernetes的服务</a></h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png" alt=""></p>
 <p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
-<h2 id="Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B"><a href="#Kubernetes-Mesos_u7684_u7F51_u7EDC_u6A21_u578B" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
+<h2 id="Kubernetes-Mesos的网络模型"><a href="#Kubernetes-Mesos的网络模型" class="headerlink" title="Kubernetes-Mesos的网络模型"></a><a href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#user-content-endpoints" target="_blank" rel="external">Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -182,7 +159,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-8/" data-title="如果有10000台机器，你想怎么玩？（八）网络 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-8/" data-title="如果有10000台机器，你想怎么玩？（八）网络 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -247,7 +224,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -316,15 +293,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -340,11 +313,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -356,7 +333,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
+<meta name="keywords" content="docker,docker registry">
 <meta property="og:type" content="article">
 <meta property="og:title" content="删除Docker Registry里的镜像怎么那么难">
 <meta property="og:url" content="http://qinghua.github.io/docker-registry-delete/index.html">
@@ -112,22 +113,22 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u95EE_u9898"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96BE_u70B9"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65B9_u6848"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1_vs_v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#难点"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1-vs-v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
 		
 		</div>
 		
 		<p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail" target="_blank" rel="external">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？<br><a id="more"></a></p>
-<h2 id="u95EE_u9898"><a href="#u95EE_u9898" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a href="https://github.com/docker/distribution/issues/1183" target="_blank" rel="external">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a href="https://github.com/docker/distribution/issues/1183" target="_blank" rel="external">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
 <p>目前docker官方提供了如下3个软删除的方法：</p>
 <ol>
 <li><code>DELETE:/v2/&lt;name&gt;/manifests/&lt;reference&gt;</code>：这个API是软删除一个<a href="https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md" target="_blank" rel="external">清单（manifest）</a>，但是真正占用存储空间的层还在。</li>
 <li><code>DELETE:/v2/&lt;name&gt;/blobs/&lt;digest&gt;</code>：这个API类似上面那个，只不过它要软删除的对象是层（layer）罢了。</li>
 <li><code>DELETE:/v2/&lt;name&gt;/blobs/uploads/&lt;uuid&gt;</code>：这个只是取消掉另一个上传的进程罢了。</li>
 </ol>
-<h2 id="u96BE_u70B9"><a href="#u96BE_u70B9" class="headerlink" title="难点"></a><a href="https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes" target="_blank" rel="external">难点</a></h2><p>为了删除不需要的数据，腾出磁盘空间，我们希望有删除功能。但是如果一个不健全的删除功能不小心把有用的数据给删了，那还不如没有这个功能呢。在这个逻辑前提下，docker团队选择了不删除数据。除此之外，还有一个考虑：删除功能是需要很大工作量的。大家知道程序员们的价格是比较高的，以相对便宜的磁盘空间为代价，在眼下先节省这笔人工费开销，并把它投入到更有价值的地方去，不是更有意义么。</p>
+<h2 id="难点"><a href="#难点" class="headerlink" title="难点"></a><a href="https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes" target="_blank" rel="external">难点</a></h2><p>为了删除不需要的数据，腾出磁盘空间，我们希望有删除功能。但是如果一个不健全的删除功能不小心把有用的数据给删了，那还不如没有这个功能呢。在这个逻辑前提下，docker团队选择了不删除数据。除此之外，还有一个考虑：删除功能是需要很大工作量的。大家知道程序员们的价格是比较高的，以相对便宜的磁盘空间为代价，在眼下先节省这笔人工费开销，并把它投入到更有价值的地方去，不是更有意义么。</p>
 <p>那为什么删除功能需要很大的工作量呢？这是因为删除有一个大坑。首先我们来看一下存储模型：所有的数据都被存放到VFS之上，它提供了最终一致性，但是可能需要较长时间才能达到一致。再看镜像的数据结构：一个docker镜像包含了3个概念：标签（tag）、清单（manifest）和层（layer）。标签被关联到清单上，而清单则被关联到层上，就像下图一样：<br><img src="/img/docker-image.jpg" alt=""></p>
 <p>其实单说删除本身其实是比较容易的事情，就像现在的垃圾收集算法一样。一个是根搜索法，从根节点开始计算，若某对象不可达，则表明不被用到，可删之。在docker镜像中并没有“根层”的概念，所以需要循环所有的清单来看是否有哪些层不被用到。还有一个是引用计数法，它为每一个对象添加一个引用计数器，为0则表明不被用到。实现起来比较简单，但是很难删除掉循环引用。在docker镜像中，因为它是一个<a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph" target="_blank" rel="external">有向无环图（DAG）</a>，所以并不会有“循环引用”，正是解决这个问题的极佳方案之一。那么这个大坑在哪里呢？问题在于并发。想象一下，如果在删除某层的过程中，有另外一个push的线程误认为此层已经存在，就会在删除之后导致第二个线程push的镜像不能正常工作。</p>
-<h2 id="u65B9_u6848"><a href="#u65B9_u6848" class="headerlink" title="方案"></a>方案</h2><p>目前docker官方有几个数据删除的方案（但是还没有实现）：</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>目前docker官方有几个数据删除的方案（但是还没有实现）：</p>
 <ol>
 <li>引用计数法：如上文所述是垃圾收集算法的一种。需要维护引用计数器，对于已经存在着的docker registry来说需要数据迁移。</li>
 <li>全局锁：引入GC线程来做删除。删除的时候不能写入。实现简单，但是影响性能。</li>
@@ -138,7 +139,7 @@
 <p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete" target="_blank" rel="external">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
 <p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
 <p>写完这篇博客后不久，一个<a href="https://github.com/docker/distribution/blob/master/docs/gc.md" target="_blank" rel="external">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。抛开解决方案，就删除功能而言，我在测试过程中也发现了一个<a href="https://github.com/docker/distribution/issues/1548" target="_blank" rel="external">缺陷</a>，需要使用docker 1.10版和registry 2.3版才能解决。</p>
-<h2 id="v1_vs_v2"><a href="#v1_vs_v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a href="https://github.com/docker/docker-registry" target="_blank" rel="external">这里</a>。新版本v2是用go写的，源码在<a href="https://github.com/docker/distribution" target="_blank" rel="external">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a href="http://www.csdn.net/article/2015-09-09/2825651" target="_blank" rel="external">这篇文章</a>。</p>
+<h2 id="v1-vs-v2"><a href="#v1-vs-v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a href="https://github.com/docker/docker-registry" target="_blank" rel="external">这里</a>。新版本v2是用go写的，源码在<a href="https://github.com/docker/distribution" target="_blank" rel="external">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a href="http://www.csdn.net/article/2015-09-09/2825651" target="_blank" rel="external">这篇文章</a>。</p>
 <p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
   
 	</div>
@@ -162,7 +163,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/docker-registry-delete/" data-title="删除Docker Registry里的镜像怎么那么难 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/docker-registry-delete/" data-title="删除Docker Registry里的镜像怎么那么难 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -206,7 +207,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u95EE_u9898"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96BE_u70B9"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u65B9_u6848"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1_vs_v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#难点"><span class="toc-number">2.</span> <span class="toc-text">难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">3.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v1-vs-v2"><span class="toc-number">4.</span> <span class="toc-text">v1 vs v2</span></a></li></ol>
  
   </div>
 
@@ -234,7 +235,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -303,15 +304,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -327,11 +324,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -343,7 +344,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

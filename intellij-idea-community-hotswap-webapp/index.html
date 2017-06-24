@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="IntelliJ IDEA在重构方面碾压eclipse。但是IDEA的免费社区版并不支持web应用开发。好在Maven有一个maven-jetty-plugin插件。如果你正在用IDEA社区版开发一个web应用，可以使用它来动态加载并调试IDE里的web应用。笔者目前使用的IDEA版本为2016.1.1。">
+<meta name="keywords" content="IntelliJ IDEA,jetty">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用IntelliJ IDEA社区版动态加载webapp">
 <meta property="og:url" content="http://qinghua.github.io/intellij-idea-community-hotswap-webapp/index.html">
@@ -114,14 +115,14 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96C6_u6210IDEA"><span class="toc-number">2.</span> <span class="toc-text">集成IDEA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">3.</span> <span class="toc-text">其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集成IDEA"><span class="toc-number">2.</span> <span class="toc-text">集成IDEA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它"><span class="toc-number">3.</span> <span class="toc-text">其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="https://dzone.com/articles/why-idea-better-eclipse" target="_blank" rel="external">IntelliJ IDEA在重构方面碾压eclipse</a>。但是IDEA的免费社区版<a href="https://www.jetbrains.com/idea/features/editions_comparison_matrix.html" target="_blank" rel="external">并不支持web应用开发</a>。好在Maven有一个<code>maven-jetty-plugin</code>插件。如果你正在用IDEA社区版开发一个web应用，可以使用它来动态加载并调试IDE里的web应用。笔者目前使用的IDEA版本为2016.1.1。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>假设我们有一个maven的web项目，已经用IDEA打开了。那么就可以在pom.xml里加上<code>maven-jetty-plugin</code>的插件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;project ...&gt;</div><div class="line">  ...</div><div class="line"></div><div class="line">  &lt;build&gt;</div><div class="line">    ...</div><div class="line"></div><div class="line">    &lt;plugins&gt;</div><div class="line">      &lt;plugin&gt;</div><div class="line">        &lt;groupId&gt;org.mortbay.jetty&lt;/groupId&gt;</div><div class="line">        &lt;artifactId&gt;maven-jetty-plugin&lt;/artifactId&gt;</div><div class="line">        &lt;version&gt;6.1.26&lt;/version&gt;</div><div class="line">        &lt;configuration&gt;</div><div class="line">          &lt;contextPath&gt;/&lt;/contextPath&gt;</div><div class="line">          &lt;scanIntervalSeconds&gt;0&lt;/scanIntervalSeconds&gt;</div><div class="line">          &lt;connectors&gt;</div><div class="line">            &lt;connector implementation=<span class="string">"org.mortbay.jetty.nio.SelectChannelConnector"</span>&gt;</div><div class="line">              &lt;port&gt;8080&lt;/port&gt;</div><div class="line">              &lt;maxIdleTime&gt;60000&lt;/maxIdleTime&gt;</div><div class="line">            &lt;/connector&gt;</div><div class="line">          &lt;/connectors&gt;</div><div class="line">        &lt;/configuration&gt;</div><div class="line">      &lt;/plugin&gt;</div><div class="line">    &lt;/plugins&gt;</div><div class="line">  &lt;/build&gt;</div><div class="line">&lt;/project&gt;</div></pre></td></tr></table></figure></p>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>假设我们有一个maven的web项目，已经用IDEA打开了。那么就可以在pom.xml里加上<code>maven-jetty-plugin</code>的插件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;project ...&gt;</div><div class="line">  ...</div><div class="line"></div><div class="line">  &lt;build&gt;</div><div class="line">    ...</div><div class="line"></div><div class="line">    &lt;plugins&gt;</div><div class="line">      &lt;plugin&gt;</div><div class="line">        &lt;groupId&gt;org.mortbay.jetty&lt;/groupId&gt;</div><div class="line">        &lt;artifactId&gt;maven-jetty-plugin&lt;/artifactId&gt;</div><div class="line">        &lt;version&gt;6.1.26&lt;/version&gt;</div><div class="line">        &lt;configuration&gt;</div><div class="line">          &lt;contextPath&gt;/&lt;/contextPath&gt;</div><div class="line">          &lt;scanIntervalSeconds&gt;0&lt;/scanIntervalSeconds&gt;</div><div class="line">          &lt;connectors&gt;</div><div class="line">            &lt;connector implementation=<span class="string">"org.mortbay.jetty.nio.SelectChannelConnector"</span>&gt;</div><div class="line">              &lt;port&gt;8080&lt;/port&gt;</div><div class="line">              &lt;maxIdleTime&gt;60000&lt;/maxIdleTime&gt;</div><div class="line">            &lt;/connector&gt;</div><div class="line">          &lt;/connectors&gt;</div><div class="line">        &lt;/configuration&gt;</div><div class="line">      &lt;/plugin&gt;</div><div class="line">    &lt;/plugins&gt;</div><div class="line">  &lt;/build&gt;</div><div class="line">&lt;/project&gt;</div></pre></td></tr></table></figure></p>
 <p>这样便可以在命令行里用以下命令直接启动jetty服务器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn jetty:run</div></pre></td></tr></table></figure></p>
-<h2 id="u96C6_u6210IDEA"><a href="#u96C6_u6210IDEA" class="headerlink" title="集成IDEA"></a>集成IDEA</h2><p>在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Maven</code>，填入下图所示的参数：<br><img src="/img/idea-jetty-parameters.jpg" alt=""></p>
+<h2 id="集成IDEA"><a href="#集成IDEA" class="headerlink" title="集成IDEA"></a>集成IDEA</h2><p>在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Maven</code>，填入下图所示的参数：<br><img src="/img/idea-jetty-parameters.jpg" alt=""></p>
 <ul>
 <li>Name：Jetty</li>
 <li>Working directory：默认就好</li>
@@ -138,13 +139,13 @@
 </ul>
 <p>和先前在<code>Runner</code>标签里填写的端口一致就行。</p>
 <p>现在就可以试试啦。首先运行Jetty，然后调试Jetty-Remote-Debug。不出意外的话，现在可以访问自己的webapp，并且可以在程序中调试了。现在修改一段程序，编译之后，新程序就能立刻生效了。刷新一下页面看看？</p>
-<h2 id="u5176_u5B83"><a href="#u5176_u5B83" class="headerlink" title="其它"></a>其它</h2><p>照例附送一些Mac OS X的keymap快捷键：</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>照例附送一些Mac OS X的keymap快捷键：</p>
 <ul>
 <li>运行Jetty：Alt+Shift+F10</li>
 <li>调试Jetty-Remote-Debug：Alt+Shift+F9</li>
 <li>编译：Command+Shift+F9</li>
 </ul>
-<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea" target="_blank" rel="external">https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea" target="_blank" rel="external">https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea</a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -167,7 +168,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/intellij-idea-community-hotswap-webapp/" data-title="使用IntelliJ IDEA社区版动态加载webapp | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/intellij-idea-community-hotswap-webapp/" data-title="使用IntelliJ IDEA社区版动态加载webapp | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -211,7 +212,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u96C6_u6210IDEA"><span class="toc-number">2.</span> <span class="toc-text">集成IDEA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">3.</span> <span class="toc-text">其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集成IDEA"><span class="toc-number">2.</span> <span class="toc-text">集成IDEA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它"><span class="toc-number">3.</span> <span class="toc-text">其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
  
   </div>
 
@@ -239,7 +240,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -308,15 +309,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -332,11 +329,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -348,7 +349,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

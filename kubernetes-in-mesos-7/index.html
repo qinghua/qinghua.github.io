@@ -13,28 +13,13 @@
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，你">
+    <meta name="description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有10000台机器，你">
+<meta name="keywords" content="kubernetes,mesos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-7/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，你">
+<meta property="og:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有10000台机器，你">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-1.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-2.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rolling-update-3.png">
@@ -45,15 +30,7 @@
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（七）生命周期">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能
-如果有10000台机器，你">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能 如果有10000台机器，你">
 <meta name="twitter:image" content="http://qinghua.github.io/img/rolling-update-1.png">
 
     
@@ -152,28 +129,28 @@
 <li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="u5065_u5EB7_u68C0_u67E5"><a href="#u5065_u5EB7_u68C0_u67E5" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/docs/user-guide/pod-states/#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
+<h2 id="健康检查"><a href="#健康检查" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a href="http://kubernetes.io/docs/user-guide/pod-states/#container-probes" target="_blank" rel="external">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
 <ul>
 <li><code>LivenessProbe</code>：如果健康检查失败，就把这个容器杀掉，然后kubelet根据预先设置的<a href="http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy" target="_blank" rel="external">重启规则</a>来决定怎么处理：啥也不干、挂了才重启或者总是重启。</li>
 <li><code>ReadinessProbe</code>：如果健康检查失败，这个pod的IP地址将会从endpoints里移除，所以相当于屏蔽这个pod提供的服务而不是将它杀掉。</li>
 </ul>
 <p>那健康检查怎么做呢？可以是一段脚本，返回非0就代表错误；可以说一个http请求，返回200~400之间代表成功；还可以是一个tcp端口，打开即算成功。可以通过设置kubelet的参数<code>--sync-frequency</code>来设置健康检查的间隔时间。还可以在设置probe的时候指定健康检查的超时时间和第一次健康检查的延时（从容器启动完毕开始）。</p>
-<h2 id="u94A9_u5B50_uFF08hook_uFF09"><a href="#u94A9_u5B50_uFF08hook_uFF09" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a href="http://kubernetes.io/docs/user-guide/container-environment/#container-hooks" target="_blank" rel="external">钩子</a>来做这样的事：</p>
+<h2 id="钩子（hook）"><a href="#钩子（hook）" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a href="http://kubernetes.io/docs/user-guide/container-environment/#container-hooks" target="_blank" rel="external">钩子</a>来做这样的事：</p>
 <ul>
 <li>postStart：当一个容器被创建成功的时候</li>
 <li>preStop：当一个容器即将被关闭的时候</li>
 </ul>
 <p>钩子的设计理念是“宁滥毋缺”，所以某些情况下它是有可能被执行多次的，设计自己的钩子时需要考虑这样的情况，尽量使操作“无状态”。</p>
-<h2 id="u4E00_u6B21_u6027_u4EFB_u52A1"><a href="#u4E00_u6B21_u6027_u4EFB_u52A1" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a href="http://kubernetes.io/docs/user-guide/jobs/" target="_blank" rel="external">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2" target="_blank" rel="external">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
+<h2 id="一次性任务"><a href="#一次性任务" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a href="http://kubernetes.io/docs/user-guide/jobs/" target="_blank" rel="external">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2" target="_blank" rel="external">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
 <ul>
 <li>非并行：就是启动一个pod，当pod成功结束了就算是job完成了</li>
 <li>固定数量并行：并行启动固定数量个pod，每个pod都成功结束了就算是job完成了</li>
 <li>工作队列并行：行启动多个pod，其中一个pod成功结束了，其他pod就开始停止运行。当全部pod都停止了就算是job完成了</li>
 </ul>
 <p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
-<h2 id="u6269_u5BB9_u7F29_u5BB9"><a href="#u6269_u5BB9_u7F29_u5BB9" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。此外，Kubernetes 1.2版正式支持<a href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaler/" target="_blank" rel="external">HPA</a>。大致来说，就是根据CPU的使用率来自动扩缩容。由于获取CPU使用率需要用到heapster，所以必须部署它。</p>
+<h2 id="扩容缩容"><a href="#扩容缩容" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。此外，Kubernetes 1.2版正式支持<a href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaler/" target="_blank" rel="external">HPA</a>。大致来说，就是根据CPU的使用率来自动扩缩容。由于获取CPU使用率需要用到heapster，所以必须部署它。</p>
 <p>值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a href="https://github.com/kubernetes/kubernetes/issues/1148" target="_blank" rel="external">考虑</a>。</p>
-<h2 id="u6EDA_u52A8_u5347_u7EA7"><a href="#u6EDA_u52A8_u5347_u7EA7" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
+<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates" target="_blank" rel="external">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png" alt=""></p>
 <p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png" alt=""></p>
 <p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png" alt=""></p>
 <p>继续增加新pod：<br><img src="/img/rolling-update-4.png" alt=""></p>
@@ -203,7 +180,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-7/" data-title="如果有10000台机器，你想怎么玩？（七）生命周期 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-7/" data-title="如果有10000台机器，你想怎么玩？（七）生命周期 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -268,7 +245,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -337,15 +314,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -361,11 +334,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -377,7 +354,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

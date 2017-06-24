@@ -13,34 +13,17 @@
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么">
+    <meta name="description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么">
+<meta name="keywords" content="kubernetes,mesos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（三）持久化">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-3/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么">
+<meta property="og:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么">
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（三）持久化">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -164,7 +147,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-3/" data-title="如果有10000台机器，你想怎么玩？（三）持久化 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-3/" data-title="如果有10000台机器，你想怎么玩？（三）持久化 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -229,7 +212,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -298,15 +281,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -322,11 +301,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -338,7 +321,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

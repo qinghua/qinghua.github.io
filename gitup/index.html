@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="已经11岁的Git现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用git reset HEAD而不是git unadd/unstage？Mac的朋友们有福了，GitUp来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的ThoughtWorks技术雷达上，它处于试验阶段，也就是值得追求，建议尝试。让我">
+<meta name="keywords" content="git,GitUp">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mac上的git图形工具GitUp">
 <meta property="og:url" content="http://qinghua.github.io/gitup/index.html">
@@ -121,25 +122,25 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770B_u5386_u53F2"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5408_u5E76_u548C_u884D_u5408"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770Bstash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看历史"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#合并和衍合"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看stash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
 		
 		</div>
 		
 		<p>已经11岁的<a href="https://git-scm.com/" target="_blank" rel="external">Git</a>现在应该算是最流行的版本管理系统了。不过它的上手过程略令人感伤：为什么要用<code>git reset HEAD</code>而不是<code>git unadd/unstage</code>？Mac的朋友们有福了，<a href="http://gitup.co/" target="_blank" rel="external">GitUp</a>来拯救懒程序员们啦。它提供了一个简约而不简单的界面，让我们可以凭直觉轻松地打出git组合拳来处理各种状况。在2016年4月的<a href="https://www.thoughtworks.com/radar/tools/gitup" target="_blank" rel="external">ThoughtWorks技术雷达</a>上，它处于试验阶段，也就是值得追求，建议尝试。让我们来看看它有什么能力吧。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>GitUp只是一个小应用程序，下载下来就能用啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mkdir gitup</div><div class="line"><span class="built_in">cd</span> gitup</div><div class="line">wget -c https://s3-us-west-2.amazonaws.com/gitup-builds/stable/GitUp.zip</div><div class="line">unzip GitUp.zip</div><div class="line">open GitUp.app</div></pre></td></tr></table></figure></p>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>GitUp只是一个小应用程序，下载下来就能用啦：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mkdir gitup</div><div class="line"><span class="built_in">cd</span> gitup</div><div class="line">wget -c https://s3-us-west-2.amazonaws.com/gitup-builds/stable/GitUp.zip</div><div class="line">unzip GitUp.zip</div><div class="line">open GitUp.app</div></pre></td></tr></table></figure></p>
 <p>打开GitUp就能看见下面的界面：<br><img src="/img/gitup-welcome.jpg" alt=""></p>
 <p>然后我们新建一个git repo：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">git init</div><div class="line"></div><div class="line"><span class="built_in">echo</span> a &gt; a.txt</div><div class="line"><span class="built_in">echo</span> b &gt; b.txt</div><div class="line"><span class="built_in">echo</span> c &gt; c.txt</div><div class="line">git add a.txt</div><div class="line">git commit -m <span class="string">"a"</span></div><div class="line">git add b.txt</div><div class="line">git commit -m <span class="string">"bb"</span></div><div class="line">git add c.txt</div><div class="line">git commit -m <span class="string">"c"</span></div></pre></td></tr></table></figure></p>
-<h2 id="u67E5_u770B_u5386_u53F2"><a href="#u67E5_u770B_u5386_u53F2" class="headerlink" title="查看历史"></a>查看历史</h2><p>在刚才的GitUp欢迎界面上选择新建的test文件夹，就能看到简洁的版本历史图，有三个commit，其中两个是小圆点，一个是现在所处的HEAD。随便单击选择一个commit：<br><img src="/img/gitup-map.jpg" alt=""></p>
+<h2 id="查看历史"><a href="#查看历史" class="headerlink" title="查看历史"></a>查看历史</h2><p>在刚才的GitUp欢迎界面上选择新建的test文件夹，就能看到简洁的版本历史图，有三个commit，其中两个是小圆点，一个是现在所处的HEAD。随便单击选择一个commit：<br><img src="/img/gitup-map.jpg" alt=""></p>
 <p>可以看到这个commit的信息，按上下键可以选择其它commit，按空格切换commit详细页面。在commit上右击，便能看到所有支持的操作。我们可以先右击中间的commit，选择<strong>Edit Message</strong>把先前的提交消息”bb”改成”b”。很简单吧！比输命令易用多了。之后在HEAD上右击并选择<strong>Create Branch</strong>来新建一个分支，分支名为temp。然后就能看到下图：<br><img src="/img/gitup-new-branch.jpg" alt=""></p>
 <p>可以在终端中运行<code>git branch</code>来确认自己在temp分支上。然后加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> d &gt;&gt; c.txt</div><div class="line">cat c.txt</div></pre></td></tr></table></figure></p>
 <p>这时切回GitUp的界面，选择中间的视图，如下图所示：<br><img src="/img/gitup-commit.jpg" alt=""></p>
 <p>看起来很像<code>git gui</code>吧。双击<code>c.txt</code>就可以切换文件的状态。输入提交消息<code>cd</code>，然后点击<strong>Commit</strong>按钮来提交。于是就能看到下图：<br><img src="/img/gitup-new-branch-commit.jpg" alt=""></p>
 <p>双击master的小黄点就可以切换到master分支上了。然后也加点代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> e &gt;&gt; c.txt</div><div class="line">cat c.txt</div><div class="line">git commit -am <span class="string">"ce"</span></div></pre></td></tr></table></figure></p>
 <p>这回的图变成这样了：<br><img src="/img/gitup-master-commit.jpg" alt=""></p>
-<h2 id="u5408_u5E76_u548C_u884D_u5408"><a href="#u5408_u5E76_u548C_u884D_u5408" class="headerlink" title="合并和衍合"></a>合并和衍合</h2><p>我们来试一下合并分支。右击temp上的小圆圈，选择<strong>Merge into Current Branch</strong>，然后点击<strong>Merge</strong>按钮就能看到冲突了。可以使用<strong>Open with Default Editor</strong>来自己解决冲突，也可以使用<strong>Resolve in Merge Tool</strong>来解决。如果是前者，可以注意一个小细节：这里的冲突提示是ours和theirs，看起来人性化了不少。合并完成后，点击<strong>Mark as Resolved</strong>，然后<strong>Commit</strong>，就可以看到图变成这样了：<br><img src="/img/gitup-merge.jpg" alt=""></p>
+<h2 id="合并和衍合"><a href="#合并和衍合" class="headerlink" title="合并和衍合"></a>合并和衍合</h2><p>我们来试一下合并分支。右击temp上的小圆圈，选择<strong>Merge into Current Branch</strong>，然后点击<strong>Merge</strong>按钮就能看到冲突了。可以使用<strong>Open with Default Editor</strong>来自己解决冲突，也可以使用<strong>Resolve in Merge Tool</strong>来解决。如果是前者，可以注意一个小细节：这里的冲突提示是ours和theirs，看起来人性化了不少。合并完成后，点击<strong>Mark as Resolved</strong>，然后<strong>Commit</strong>，就可以看到图变成这样了：<br><img src="/img/gitup-merge.jpg" alt=""></p>
 <p>衍合也是类似。GitUp提供了一个逆天功能Command+Z，可以快速回退到上一次操作（再次前进是Command+Shift+Z）。这样我们很轻松就能再来一次衍合。右击temp上的小圆圈，选择<strong>Rebase Current Branch onto Here</strong>，剩下的和合并分支类似。提交之后，就可以看到图变成这样了：<br><img src="/img/gitup-rebase.jpg" alt=""></p>
 <p>GitUp还提供了强大的快照功能。我们可以点击右上方的时钟按钮来选择自己想要的快照，就像Time Machine似的。如下图：<br><img src="/img/gitup-snapshot.jpg" alt=""></p>
-<h2 id="u67E5_u770Bstash"><a href="#u67E5_u770Bstash" class="headerlink" title="查看stash"></a>查看stash</h2><p>那么第三个视图是干什么的呢？我们先stash一段代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> f &gt;&gt; c.txt</div><div class="line">cat c.txt</div><div class="line">git stash</div><div class="line"><span class="built_in">echo</span> g &gt;&gt; c.txt</div></pre></td></tr></table></figure></p>
+<h2 id="查看stash"><a href="#查看stash" class="headerlink" title="查看stash"></a>查看stash</h2><p>那么第三个视图是干什么的呢？我们先stash一段代码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> f &gt;&gt; c.txt</div><div class="line">cat c.txt</div><div class="line">git stash</div><div class="line"><span class="built_in">echo</span> g &gt;&gt; c.txt</div></pre></td></tr></table></figure></p>
 <p>打开第三个视图，原来是stash列表，这回可以很容易看清楚了。也可以在这里stash：点击左下方的加号按钮，输入一个消息然后<strong>Save Stash</strong>，就可以看到下图：<br><img src="/img/gitup-stashes.jpg" alt=""></p>
 <p>还可以在这里轻松地<strong>Apply</strong>想要的stash，这个可视化可以有。可惜还是不支持选择特定文件stash。</p>
   
@@ -164,7 +165,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/gitup/" data-title="Mac上的git图形工具GitUp | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/gitup/" data-title="Mac上的git图形工具GitUp | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -208,7 +209,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770B_u5386_u53F2"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5408_u5E76_u548C_u884D_u5408"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u67E5_u770Bstash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">1.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看历史"><span class="toc-number">2.</span> <span class="toc-text">查看历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#合并和衍合"><span class="toc-number">3.</span> <span class="toc-text">合并和衍合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看stash"><span class="toc-number">4.</span> <span class="toc-text">查看stash</span></a></li></ol>
  
   </div>
 
@@ -236,7 +237,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -305,15 +306,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -329,11 +326,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -345,7 +346,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="NFS是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。">
+<meta name="keywords" content="storage,nfs">
 <meta property="og:type" content="article">
 <meta property="og:title" content="轻松搭建nfs存储环境">
 <meta property="og:url" content="http://qinghua.github.io/nfs-demo/index.html">
@@ -110,24 +111,24 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="https://en.wikipedia.org/wiki/Network_File_System" target="_blank" rel="external">NFS</a>是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init ubuntu/trusty64</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init ubuntu/trusty64</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>server</strong>，它的IP是<strong>192.168.33.17</strong>；另外一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.18</strong>。我们将会在<strong>server</strong>上启动nfs服务并共享一个目录，然后在client挂载并操作这个目录。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"server"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"server"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"client"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"client"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
 <p>分别在两个终端运行以下命令启动并连接两台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh server</div></pre></td></tr></table></figure></p>
 <figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh client</div></pre></td></tr></table></figure>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动nfs服务需要nfs-kernel-server这个包，让我们安装并启动：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install -y nfs-kernel-server</div><div class="line">sudo service nfs-kernel-server start</div></pre></td></tr></table></figure></p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动nfs服务需要nfs-kernel-server这个包，让我们安装并启动：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install -y nfs-kernel-server</div><div class="line">sudo service nfs-kernel-server start</div></pre></td></tr></table></figure></p>
 <p>服务启动完成后，会生成一个<code>/etc/exports</code>文件，里面就是nfs的配置。我们创建一个文件夹<code>/tmp/nfs</code>，把它配置成nfs的目录，然后重新启动nfs服务：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir /tmp/nfs</div><div class="line">sudo sh -c <span class="string">"echo '/tmp/nfs *(rw,no_subtree_check,no_root_squash)' &gt;&gt; /etc/exports"</span></div><div class="line">sudo service nfs-kernel-server start</div></pre></td></tr></table></figure></p>
 <p>往<code>/etc/exports</code>里写的那一行里，<code>*</code>代表允许所有的客户端访问。如果只想让192.168.33.18访问，把星号改为这个IP就好了。需要支持多个IP的话，用逗号分隔就行。括号里的<code>rw</code>表示允许读写。<code>no_subtree_check</code>表示在服务器端不检查此nfs文件夹的父目录权限。<code>no_root_squash</code>表示客户端root用户也被视为对此nfs文件夹有全部权限的服务端root用户，生产环境不建议使用，因为那样nfs上的文件就可能被随意篡改。想要了解更多的设置，请自行<code>man exports</code>。</p>
-<h2 id="u6D4B_u8BD5"><a href="#u6D4B_u8BD5" class="headerlink" title="测试"></a>测试</h2><p>这时候我们就可以去client挂载server的这个nfs目录了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo mount -t nfs 192.168.33.17:/tmp/nfs /mnt</div><div class="line">ls /mnt</div></pre></td></tr></table></figure></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>这时候我们就可以去client挂载server的这个nfs目录了：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo mount -t nfs 192.168.33.17:/tmp/nfs /mnt</div><div class="line">ls /mnt</div></pre></td></tr></table></figure></p>
 <p>往里面写一个文件：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">"Hello World!"</span> &gt; /mnt/hw.txt</div><div class="line">ll /mnt</div></pre></td></tr></table></figure></p>
 <p>然后去server端看一下，是不是已经被同步过来了：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ll /tmp/nfs</div></pre></td></tr></table></figure></p>
 <p>Server端也可以往nfs的文件夹里写文件：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">"Hello NFS"</span> &gt; /tmp/nfs/hn.txt</div></pre></td></tr></table></figure></p>
 <p>照样可以同步到client端：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ll /mnt</div></pre></td></tr></table></figure></p>
-<p>无论server端还是client端，都可以通过下面这个命令来查看<code>192.168.33.17</code>上公开了哪些nfs文件夹：<br><figure class="highlight sh"><figcaption><span>server or client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">showmount <span class="_">-e</span> 192.168.33.17</div></pre></td></tr></table></figure></p>
+<p>无论server端还是client端，都可以通过下面这个命令来查看<code>192.168.33.17</code>上公开了哪些nfs文件夹：<br><figure class="highlight sh"><figcaption><span>server or client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">showmount -e 192.168.33.17</div></pre></td></tr></table></figure></p>
 <p>再来一个nfs2文件夹：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir /tmp/nfs2</div><div class="line">sudo sh -c <span class="string">"echo '/tmp/nfs2 *(rw,no_subtree_check,no_root_squash)' &gt;&gt; /etc/exports"</span></div></pre></td></tr></table></figure></p>
 <p>这时候再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>并没有出现在列表中。因为nfs并不会去监视<code>/etc/exports</code>这个文件，所以这时候它还不知道我们改变了配置。虽然重新启动nfs服务可以解决这个问题，但是它会中断现存的nfs服务。建议使用以下命令：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo exportfs -ar    <span class="comment"># a代表所有的文件夹，r代表重新导出</span></div></pre></td></tr></table></figure></p>
 <p>这时候在再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>已经出来啦。加载一下：<br><figure class="highlight sh"><figcaption><span>client</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo umount /mnt</div><div class="line">sudo mount -t nfs 192.168.33.17:/tmp/nfs2 /mnt</div><div class="line">ls /mnt</div></pre></td></tr></table></figure></p>
@@ -154,7 +155,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/nfs-demo/" data-title="轻松搭建nfs存储环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/nfs-demo/" data-title="轻松搭建nfs存储环境 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -198,7 +199,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li></ol>
  
   </div>
 
@@ -226,7 +227,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -295,15 +296,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -319,11 +316,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -335,7 +336,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

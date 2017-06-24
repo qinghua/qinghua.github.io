@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="Lombok是一个比较早、小众但是功能强大的Java库，源码在github上。如果你厌恶写Java代码时不得不手写或用IDE生成大量无趣的样板代码，如getter、setter等，那就准备好拥抱lombok吧。">
+<meta name="keywords" content="lombok">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用Lombok优雅地写代码">
 <meta property="og:url" content="http://qinghua.github.io/lombok/index.html">
@@ -112,20 +113,20 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u529F_u80FD"><span class="toc-number">1.</span> <span class="toc-text">功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6570_u636E_u7C7B"><span class="toc-number">1.1.</span> <span class="toc-text">数据类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5176_u5B83_u7279_u6027"><span class="toc-number">1.2.</span> <span class="toc-text">其它特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E0EIntellij_IDEA_u96C6_u6210"><span class="toc-number">2.</span> <span class="toc-text">与Intellij IDEA集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u98CE_u9669"><span class="toc-number">3.</span> <span class="toc-text">风险</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#功能"><span class="toc-number">1.</span> <span class="toc-text">功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据类"><span class="toc-number">1.1.</span> <span class="toc-text">数据类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它特性"><span class="toc-number">1.2.</span> <span class="toc-text">其它特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#与Intellij-IDEA集成"><span class="toc-number">2.</span> <span class="toc-text">与Intellij IDEA集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#风险"><span class="toc-number">3.</span> <span class="toc-text">风险</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="https://projectlombok.org/index.html" target="_blank" rel="external">Lombok</a>是一个比较早、小众但是功能强大的Java库，源码在<a href="https://github.com/rzwitserloot/lombok" target="_blank" rel="external">github上</a>。如果你厌恶写Java代码时不得不手写或用IDE生成大量无趣的样板代码，如getter、setter等，那就准备好拥抱lombok吧。<br><a id="more"></a></p>
-<h2 id="u529F_u80FD"><a href="#u529F_u80FD" class="headerlink" title="功能"></a>功能</h2><h3 id="u6570_u636E_u7C7B"><a href="#u6570_u636E_u7C7B" class="headerlink" title="数据类"></a>数据类</h3><p>Lombok通过注解来减少样板代码的使用。对于数据类来说，自己看<a href="https://projectlombok.org/" target="_blank" rel="external">官网的视频</a>吧。三分钟太长不想看？那么也可以快速浏览一下<a href="https://projectlombok.org/features/Data.html" target="_blank" rel="external">这里的代码</a>。神奇的事情是怎么做到的呢？奥秘就是<a href="http://notatube.blogspot.com/2010/11/project-lombok-trick-explained.html" target="_blank" rel="external">在编译时插入代码</a>。你甚至还可以创建自己的注解！参考<a href="http://notatube.blogspot.com/2010/12/project-lombok-creating-custom.html" target="_blank" rel="external">这篇文章</a></p>
-<h3 id="u5176_u5B83_u7279_u6027"><a href="#u5176_u5B83_u7279_u6027" class="headerlink" title="其它特性"></a>其它特性</h3><p>除了本职的数据类以外，lombok还提供了许多<a href="https://projectlombok.org/features/index.html" target="_blank" rel="external">其它的特性</a>，以帮助我们减少样板代码的使用。官网的说明非常详细，也都附带了代码，我就不做说明书的搬运工了。这里放一个例子：<a href="https://projectlombok.org/features/Synchronized.html" target="_blank" rel="external">@Synchronized</a>。</p>
-<h2 id="u4E0EIntellij_IDEA_u96C6_u6210"><a href="#u4E0EIntellij_IDEA_u96C6_u6210" class="headerlink" title="与Intellij IDEA集成"></a>与Intellij IDEA集成</h2><p>动手时间。新建Maven工程，往pom.xml中增加dependency，最后的pom.xml看起来就像这样：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></div><div class="line">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.ggg.lombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>helloLombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.16.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><h3 id="数据类"><a href="#数据类" class="headerlink" title="数据类"></a>数据类</h3><p>Lombok通过注解来减少样板代码的使用。对于数据类来说，自己看<a href="https://projectlombok.org/" target="_blank" rel="external">官网的视频</a>吧。三分钟太长不想看？那么也可以快速浏览一下<a href="https://projectlombok.org/features/Data.html" target="_blank" rel="external">这里的代码</a>。神奇的事情是怎么做到的呢？奥秘就是<a href="http://notatube.blogspot.com/2010/11/project-lombok-trick-explained.html" target="_blank" rel="external">在编译时插入代码</a>。你甚至还可以创建自己的注解！参考<a href="http://notatube.blogspot.com/2010/12/project-lombok-creating-custom.html" target="_blank" rel="external">这篇文章</a></p>
+<h3 id="其它特性"><a href="#其它特性" class="headerlink" title="其它特性"></a>其它特性</h3><p>除了本职的数据类以外，lombok还提供了许多<a href="https://projectlombok.org/features/index.html" target="_blank" rel="external">其它的特性</a>，以帮助我们减少样板代码的使用。官网的说明非常详细，也都附带了代码，我就不做说明书的搬运工了。这里放一个例子：<a href="https://projectlombok.org/features/Synchronized.html" target="_blank" rel="external">@Synchronized</a>。</p>
+<h2 id="与Intellij-IDEA集成"><a href="#与Intellij-IDEA集成" class="headerlink" title="与Intellij IDEA集成"></a>与Intellij IDEA集成</h2><p>动手时间。新建Maven工程，往pom.xml中增加dependency，最后的pom.xml看起来就像这样：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></div><div class="line">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.ggg.lombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>helloLombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.16.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>在src/main/java中新增一个Person类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>Person类中右击，Go To，Test（或者Ctrl/Command+T）便可以在src/test/java中新增一个对应的测试：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.junit.Test;</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.junit.Assert.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonTest</span> </span>&#123;</div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">should_get_name_from_person</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> Person(<span class="string">"ggg"</span>, <span class="number">18</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>出现了一条红线，编译失败。回到Person类中，在Person类的定义上面加上<code>@AllArgsConstructor</code>并<code>import lombok.AllArgsConstructor;</code>，还是编译不过。现在到了应该加载IDEA插件的时候了。参考<a href="https://github.com/mplushnikov/lombok-intellij-plugin" target="_blank" rel="external">这里</a>来安装lombok插件，别忘了重启Intellij IDEA。这回编译成功了。在测试的调用构造函数处Command/Ctrl+B便能跳转到Person类的<code>@AllArgsConstructor</code>上。接着写测试：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Person ggg = <span class="keyword">new</span> Person(<span class="string">"ggg"</span>, <span class="number">18</span>);</div><div class="line"></div><div class="line">assertEquals(<span class="string">"ggg"</span>, ggg.getName());</div></pre></td></tr></table></figure></p>
 <p>getName又红了。切换回Person类，再加上<code>@Getter</code>，编译通过！运行测试，绿了！<br><img src="/img/lombok.jpg" alt=""></p>
 <p>还可以通过Find Usages来找到字段的get方法在哪调用，可惜不能找到构造函数在哪调用。在享用便捷的同时，也需要付出些许的代价。有兴趣的看官可以自行尝试文档中的其它注解。例如<code>@ToString(of=&quot;name&quot;)</code>，<code>@Log</code>，<code>@Getter(lazy=true)</code>等等。值得一提的是，<a href="https://projectlombok.org/features/Cleanup.html" target="_blank" rel="external">@Cleanup</a>可以轻松地关闭流、连接等对象，Java 7也提供了<a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html" target="_blank" rel="external">try-with-resources</a>来做到这一点，只不过需要缩进罢了，但是可以很明显地看出作用域。还请自行选择喜欢的那个。当然，如果你的项目还在用老旧的Java 6，那确实也没有什么选择的余地。</p>
-<h2 id="u98CE_u9669"><a href="#u98CE_u9669" class="headerlink" title="风险"></a>风险</h2><p>首先，Lombok扮演着一个注解处理器的角色，在编译时通过修改抽象语法树（Abstract Syntax Tree，AST）来修改代码。但是这是被注解处理器规范所明令禁止的，规范仅允许生成新文件或是新类。而聪明的lombok开发者通过javac未公开的API绕开了这个限制。所以有人视lombok为邪门歪道。不过嘛，不管黑猫白猫，能捉老鼠的就是好猫；不管黑糖白糖，能少写代码的就是好糖。先了解它，再决定要不要因为代价而放弃收益。如果未来的Java版本取消了后门，那么使用lombok的项目就存在升级JDK的风险。如果介意这一点，并且只有数据类的需求，可以去看看google的<a href="https://github.com/google/auto/blob/master/value/userguide/index.md" target="_blank" rel="external">AutoValue</a>。不过白魔法比黑魔法总是缺了点什么…</p>
+<h2 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h2><p>首先，Lombok扮演着一个注解处理器的角色，在编译时通过修改抽象语法树（Abstract Syntax Tree，AST）来修改代码。但是这是被注解处理器规范所明令禁止的，规范仅允许生成新文件或是新类。而聪明的lombok开发者通过javac未公开的API绕开了这个限制。所以有人视lombok为邪门歪道。不过嘛，不管黑猫白猫，能捉老鼠的就是好猫；不管黑糖白糖，能少写代码的就是好糖。先了解它，再决定要不要因为代价而放弃收益。如果未来的Java版本取消了后门，那么使用lombok的项目就存在升级JDK的风险。如果介意这一点，并且只有数据类的需求，可以去看看google的<a href="https://github.com/google/auto/blob/master/value/userguide/index.md" target="_blank" rel="external">AutoValue</a>。不过白魔法比黑魔法总是缺了点什么…</p>
 <p>第二点是IDE的支持。虽然是支持，但是你也看到了并不能像原来虽然写了代码，但大都是自动生成的代码那样随心所欲地各种重构。另外IDE偶尔抽点风也可能会让你流半天汗。</p>
 <p>最后一点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a href="http://cobertura.github.io/cobertura/" target="_blank" rel="external">Cobertura</a>的兼容性还是最好的。</p>
   
@@ -150,7 +151,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/lombok/" data-title="用Lombok优雅地写代码 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/lombok/" data-title="用Lombok优雅地写代码 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -163,6 +164,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/kotlin-syntax-suger/" title="Kotlin的语法糖们">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Kotlin的语法糖们</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/blockchain/"  title="区块链技术浅析">
@@ -186,7 +195,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u529F_u80FD"><span class="toc-number">1.</span> <span class="toc-text">功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6570_u636E_u7C7B"><span class="toc-number">1.1.</span> <span class="toc-text">数据类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5176_u5B83_u7279_u6027"><span class="toc-number">1.2.</span> <span class="toc-text">其它特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E0EIntellij_IDEA_u96C6_u6210"><span class="toc-number">2.</span> <span class="toc-text">与Intellij IDEA集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u98CE_u9669"><span class="toc-number">3.</span> <span class="toc-text">风险</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#功能"><span class="toc-number">1.</span> <span class="toc-text">功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据类"><span class="toc-number">1.1.</span> <span class="toc-text">数据类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它特性"><span class="toc-number">1.2.</span> <span class="toc-text">其它特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#与Intellij-IDEA集成"><span class="toc-number">2.</span> <span class="toc-text">与Intellij IDEA集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#风险"><span class="toc-number">3.</span> <span class="toc-text">风险</span></a></li></ol>
  
   </div>
 
@@ -214,7 +223,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -283,15 +292,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -307,11 +312,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -323,7 +332,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

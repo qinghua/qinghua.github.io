@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="区块链是2016年起突然走红起来的一门技术，连国务院印发的《“十三五”国家信息化规划》也将其纳入。上周公司举办黑客马拉松的活动，有幸浅尝了一下区块链的应用，本文旨在记录并分享区块链的一些心得。">
+<meta name="keywords" content="blockchain">
 <meta property="og:type" content="article">
 <meta property="og:title" content="区块链技术浅析">
 <meta property="og:url" content="http://qinghua.github.io/blockchain/index.html">
@@ -110,18 +111,18 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u6BD4_u7279_u5E01_uFF08Bitcoin_uFF09"><span class="toc-number">1.</span> <span class="toc-text">比特币（Bitcoin）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u533A_u5757_u94FE_uFF08blockchain_uFF09"><span class="toc-number">2.</span> <span class="toc-text">区块链（blockchain）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#比特币（Bitcoin）"><span class="toc-number">1.</span> <span class="toc-text">比特币（Bitcoin）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区块链（blockchain）"><span class="toc-number">2.</span> <span class="toc-text">区块链（blockchain）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="https://zh.wikipedia.org/wiki/%E5%8C%BA%E5%9D%97%E9%93%BE" target="_blank" rel="external">区块链</a>是2016年起突然走红起来的一门技术，连国务院印发的<a href="http://news.sohu.com/20161227/n477114271.shtml" target="_blank" rel="external">《“十三五”国家信息化规划》</a>也将其纳入。上周公司举办黑客马拉松的活动，有幸浅尝了一下区块链的应用，本文旨在记录并分享区块链的一些心得。<br><a id="more"></a></p>
-<h2 id="u6BD4_u7279_u5E01_uFF08Bitcoin_uFF09"><a href="#u6BD4_u7279_u5E01_uFF08Bitcoin_uFF09" class="headerlink" title="比特币（Bitcoin）"></a>比特币（Bitcoin）</h2><p>要说清楚区块链，首先需要了解<a href="https://zh.wikipedia.org/wiki/%E6%AF%94%E7%89%B9%E5%B8%81" target="_blank" rel="external">比特币</a>。2008年金融危机时，神秘的<a href="https://zh.wikipedia.org/wiki/%E4%B8%AD%E6%9C%AC%E8%81%AA" target="_blank" rel="external">中本聪</a>发表了一篇论文，详细描述了比特币。一年之后，他将其实现。再一年之后，他便把比特币交予社区维护，自己不再露面了。比特币其实就是一个文件，里面记载了所有人的账户及交易信息。这个文件只能往里增加数据而不能修改数据。比特币网络中的每一个人都拥有这个文件的备份。</p>
+<h2 id="比特币（Bitcoin）"><a href="#比特币（Bitcoin）" class="headerlink" title="比特币（Bitcoin）"></a>比特币（Bitcoin）</h2><p>要说清楚区块链，首先需要了解<a href="https://zh.wikipedia.org/wiki/%E6%AF%94%E7%89%B9%E5%B8%81" target="_blank" rel="external">比特币</a>。2008年金融危机时，神秘的<a href="https://zh.wikipedia.org/wiki/%E4%B8%AD%E6%9C%AC%E8%81%AA" target="_blank" rel="external">中本聪</a>发表了一篇论文，详细描述了比特币。一年之后，他将其实现。再一年之后，他便把比特币交予社区维护，自己不再露面了。比特币其实就是一个文件，里面记载了所有人的账户及交易信息。这个文件只能往里增加数据而不能修改数据。比特币网络中的每一个人都拥有这个文件的备份。</p>
 <p>我也可以写一个文件来表示所有人的帐户信息，但是它一文不值。为什么比特币就有价值呢？它存在价值是因为人们相信它有价值，就像印出来的钞票一样。而人们自发的信任是需要时间的。最初比特币也没有什么价值。第一笔交易发生在2010年，一位程序员在佛罗里达花了一万个比特币购买了价值25美元的披萨。截止本文发布，一个比特币大约是7000元人民币左右，可以在<a href="https://www.okcoin.cn/market-btc.html" target="_blank" rel="external">OKCoin</a>上查看。随着比特币的流行，出现了不少类似的货币，如以太坊（Ethereum）、莱特币（Litecoin）等等。只要有人相信它，它就有价值。想当年刚听说比特币的时候，我心底还暗自嘲笑怎么会有人相信这种一点实体都没有的东西，事实证明我还是太naive了。</p>
 <p>作为一种货币，需要能够向别人转账。假如邻居家老王要给你转10个比特币，他需要把这笔交易写入文件并告诉比特币网络的其他节点，让大家把交易添加进这个文件。所以每个人都能够得知这笔交易信息。现在问题来了，其它的节点怎么知道这笔转账是可信的，即老王提出的呢？要是每个人都发起从老王转账到自己的请求，那老王可就亏死了。其他人当然做不到。因为这笔交易需要用老王的私钥签名。公私钥的简介可以参考我写的<a href="http://qinghua.github.io/certificate/#u975E_u5BF9_u79F0_u52A0_u5BC6">《证书的那些事儿》的非对称加密一节</a>。其他人拿不到老王的私钥，当然就无从伪造请求了。在比特币中，公钥也用于表示对方的地址。消费时，你需要用数字签名证明你拥有对应的私钥。比特币没有中心节点，所以如果老王转错账了，抱歉，要不回来了。你只知道对方的公钥（或者说是比特币的帐号或地址），并不知道对方的身份。</p>
 <p>为了安全，比特币上并不会记载每个账户的余额是多少。每当要转账时，它需要提供至少一笔未消费的历史交易信息作为input，转完账后，剩余的部分称为零钱，可以转入你自己的公钥，或是你小号的公钥。至此，未消费的交易就变成了已消费，不能被再次使用了。所以多次重复的请求只有第一笔才能成功。比特币的转账并非立即生效，只有在解开一道数学题之后才行。解题的过程就叫挖矿。题目的难度由程序控制，程序会根据历史记录把解题时间控制在大约十分钟左右。</p>
 <p>还有一个问题，由于网络传输的不确定性，你并不能保证老王的转账被及时同步到了所有的节点上。所以如果在这笔交易完全传播出去之前，老王又在这笔交易之前将本来作为input的历史交易转帐给他的小号呢？其它的节点根本判断不了哪个在前，哪个在后。所以顺序在这里至关重要。比特币是这么解决这个问题的：把交易分配到区块里（多对一），然后将区块链接起来，称为区块链。每个区块都会引用上一个区块，这样便实现了有序。同一区块内的交易被认为是同时发生的。由于同一时间可能会产生多笔交易，所以可能会产生多个区块。那如何知道应该以哪一个区块为准呢？事实上，每一个区块都包含了一道特殊的数学题，只有解开这道题才能使之有效。当一个节点解开了这道题，它便会向比特币网络广播自己的结果，并把交易排在区块链的下一位。如果偶尔有多人同时解出了结果，那么区块链便会产生不同的分支。两个分支开始竞争，看谁能够更快生成下一个区块。哪个分支更长，哪个分支就有效。这样的话，由于多人同时算出答案的概率很低，所以分支会在一定时间之后消失。如果你的交易在一个消失的分支的区块里，便会重新放到未确认的交易区里，等待加入下一个区块。那如果有人能快速计算多个区块，岂不是可以随心所欲了？话虽如此，但是要以个人之力来对抗全网，实在是非常困难的事情。除非控制了整个比特币网络上50%以上的运算力，才开始有可能做到。这样的成本是非常高的，对于一般的交易来说，实在是有些不值得。你也无法提前运算，因为下一个区块需要引用当前的区块和随机数，只有在当前区块完成之后，才能开始计算。所以说参与的机器越多，比特币或者说区块链就越安全。还有一点值得注意的是，越前面的区块就越安全，因为攻击所需的资源会越大。小规模的转账，等一个区块便可以了；大规模的话，最好多等几个，以降低分支消失的概率。</p>
 <p>有意思的是，由于比特币网络上的机器是那么的多，导致个人很难能够挖到矿。所以采矿池（mining pool）应运而生，集多人的算力，挖到矿后根据贡献来分配。但是采矿池太大了也会带来安全问题，因为有可能超过了50%的运算力。有一家BTC Guild曾经能够独立解出一个链中的6个区块，所以这个采矿组织主动限制了规模和会员的数量，以减少比特币网络成员的不安。</p>
-<h2 id="u533A_u5757_u94FE_uFF08blockchain_uFF09"><a href="#u533A_u5757_u94FE_uFF08blockchain_uFF09" class="headerlink" title="区块链（blockchain）"></a>区块链（blockchain）</h2><p>上一节已经介绍了比特币的区块链了。其实区块链就是一个去中心化的存储。在这一点上，它与git是比较相似的。它们都是分布式、无中心的链式存储，但是在出现分支时的解决方式不一样。Git可以通过merge和rebase来解决冲突，而区块链则是通过链的长度来自动废弃分支，作废分支里的交易重新放到未确认的交易区里，以便下次再放入新区块里，这样的行为有些类似<code>git rebase</code>。</p>
+<h2 id="区块链（blockchain）"><a href="#区块链（blockchain）" class="headerlink" title="区块链（blockchain）"></a>区块链（blockchain）</h2><p>上一节已经介绍了比特币的区块链了。其实区块链就是一个去中心化的存储。在这一点上，它与git是比较相似的。它们都是分布式、无中心的链式存储，但是在出现分支时的解决方式不一样。Git可以通过merge和rebase来解决冲突，而区块链则是通过链的长度来自动废弃分支，作废分支里的交易重新放到未确认的交易区里，以便下次再放入新区块里，这样的行为有些类似<code>git rebase</code>。</p>
 <p>由于区块链不停地往里增加区块，势必导致文件越来越大。虽然可以控制区块的大小（最大1M）和增长速度（10分钟左右），但这么计算每年也有<code>365×24×6×1M=52G</code>左右的数据。长此以往，如何受得了？作为消费者来说，已经校验并消费过了的历史数据，可以仅保存其散列码，这样便能大大减少数据。比特币钱包用的是<a href="https://en.wikipedia.org/wiki/Merkle_tree" target="_blank" rel="external">Merkle Tree</a>来做验证。</p>
 <p>区块链按照参与者的身份，可以分为公有链（Public blockchain）、联盟链（Consortium blockchain）和私有链（Private blockchain），公有链如比特币，是通过挖矿来达成共识（consensus），但是挖矿的计算需要消耗大量的电力资源。联盟链顾名思义，仅由联盟内部可写，外部经过授权可读。而私有链只有一个成员可写，类似传统的分布式数据库。联盟链和私有链由于成员并非匿名，可受部分信任，并且消耗运算力其实也是一种浪费，所以可以相对放松一些要求，不必非得挖矿，可以通过共识协议来达成共识。</p>
 <p>使用区块链必须能够达成共识，否则就失去意义了。其实传统的分布式一致性算法也能解决达成共识的问题，只不过一般并不考虑恶意节点篡改数据的问题罢了，而且实际上使用的节点也不像区块链那么多。传统的常见算法有：ZooKeeper使用的Zab协议；etcd使用的Raft协议；当然还有大名鼎鼎的Paxos协议。限于篇幅，本文就不具体讨论它们的具体算法了。</p>
@@ -133,7 +134,7 @@
 <li><a href="http://36kr.com/p/5068610.html" target="_blank" rel="external">沃尔玛推零售“黑科技”:区块链跟踪食品溯源</a></li>
 <li><a href="http://news.163.com/16/0711/05/BRLVNTKN00014AED.html" target="_blank" rel="external">蚂蚁金服将使用区块链技术 追踪每一笔公益善款去向</a></li>
 </ul>
-<h2 id="u53C2_u8003_u8D44_u6599"><a href="#u53C2_u8003_u8D44_u6599" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://v.youku.com/v_show/id_XNjQ0NzE0Mjky.html" target="_blank" rel="external">《详解比特币的原理和运行机制》</a><br><a href="http://blockchaindev.org/article/introduce_blockchain.html" target="_blank" rel="external">《区块链(Blockchain)深入介绍》</a><br><a href="http://blockchaindev.org/article/consensus_introduction.html" target="_blank" rel="external">《浅谈区块链共识机制与分布式一致性算法》</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://v.youku.com/v_show/id_XNjQ0NzE0Mjky.html" target="_blank" rel="external">《详解比特币的原理和运行机制》</a><br><a href="http://blockchaindev.org/article/introduce_blockchain.html" target="_blank" rel="external">《区块链(Blockchain)深入介绍》</a><br><a href="http://blockchaindev.org/article/consensus_introduction.html" target="_blank" rel="external">《浅谈区块链共识机制与分布式一致性算法》</a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -156,7 +157,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/blockchain/" data-title="区块链技术浅析 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/blockchain/" data-title="区块链技术浅析 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -200,7 +201,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u6BD4_u7279_u5E01_uFF08Bitcoin_uFF09"><span class="toc-number">1.</span> <span class="toc-text">比特币（Bitcoin）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u533A_u5757_u94FE_uFF08blockchain_uFF09"><span class="toc-number">2.</span> <span class="toc-text">区块链（blockchain）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u53C2_u8003_u8D44_u6599"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#比特币（Bitcoin）"><span class="toc-number">1.</span> <span class="toc-text">比特币（Bitcoin）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区块链（blockchain）"><span class="toc-number">2.</span> <span class="toc-text">区块链（blockchain）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
  
   </div>
 
@@ -228,7 +229,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -297,15 +298,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -321,11 +318,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -337,7 +338,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

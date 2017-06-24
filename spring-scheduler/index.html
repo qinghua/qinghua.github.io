@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="Spring给程序猿们带来了许多便利。它包含了用于定时任务处理的Spring Scheduler。本文聊聊Scheduling模型和一些坑。">
+<meta name="keywords" content="spring,scheduler">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring Scheduler的使用与坑">
 <meta property="og:url" content="http://qinghua.github.io/spring-scheduler/index.html">
@@ -110,14 +111,14 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cron"><span class="toc-number">3.</span> <span class="toc-text">Cron</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6280_u5DE7"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5751"><span class="toc-number">5.</span> <span class="toc-text">坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u540C_u65F6_u8FD0_u884C"><span class="toc-number">5.1.</span> <span class="toc-text">同时运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u591A_u5B9E_u4F8B"><span class="toc-number">5.2.</span> <span class="toc-text">多实例</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cron"><span class="toc-number">3.</span> <span class="toc-text">Cron</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坑"><span class="toc-number">5.</span> <span class="toc-text">坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同时运行"><span class="toc-number">5.1.</span> <span class="toc-text">同时运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多实例"><span class="toc-number">5.2.</span> <span class="toc-text">多实例</span></a></li></ol></li></ol>
 		
 		</div>
 		
 		<p><a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/" target="_blank" rel="external">Spring</a>给程序猿们带来了许多便利。它包含了用于定时任务处理的<a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/scheduling.html" target="_blank" rel="external">Spring Scheduler</a>。本文聊聊Scheduling模型和一些坑。<br><a id="more"></a></p>
-<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>Spring Scheduler里有两个概念：任务（Task）和运行任务的框架（TaskExecutor/TaskScheduler）。TaskExecutor顾名思义，是任务的执行器，允许我们异步执行多个任务。TaskScheduler是任务调度器，来运行未来的定时任务。触发器Trigger可以决定定时任务是否该运行了，最常用的触发器是CronTrigger，具体用法会在下面章节中详细介绍。Spring内置了多种类型的TaskExecutor和TaskScheduler，方便用户根据不同业务场景选择。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Spring Scheduler里有两个概念：任务（Task）和运行任务的框架（TaskExecutor/TaskScheduler）。TaskExecutor顾名思义，是任务的执行器，允许我们异步执行多个任务。TaskScheduler是任务调度器，来运行未来的定时任务。触发器Trigger可以决定定时任务是否该运行了，最常用的触发器是CronTrigger，具体用法会在下面章节中详细介绍。Spring内置了多种类型的TaskExecutor和TaskScheduler，方便用户根据不同业务场景选择。</p>
 <p>本文聊的是Spring Scheduler，所以我们接下来主要介绍Scheduler的用法。</p>
-<h2 id="u8FD0_u884C"><a href="#u8FD0_u884C" class="headerlink" title="运行"></a>运行</h2><p>用xml配置Spring Scheduler的话，这样就行了：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></div><div class="line">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">       <span class="attr">xmlns:task</span>=<span class="string">"http://www.springframework.org/schema/task"</span></div><div class="line">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd</span></div><div class="line">                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"myScheduler"</span>/&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled-tasks</span> <span class="attr">scheduler</span>=<span class="string">"myScheduler"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doSomethingTask"</span> <span class="attr">method</span>=<span class="string">"doSomething"</span> <span class="attr">cron</span>=<span class="string">"0 * * * * *"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">task:scheduled-tasks</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>用xml配置Spring Scheduler的话，这样就行了：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></div><div class="line">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">       <span class="attr">xmlns:task</span>=<span class="string">"http://www.springframework.org/schema/task"</span></div><div class="line">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd</span></div><div class="line">                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"myScheduler"</span>/&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled-tasks</span> <span class="attr">scheduler</span>=<span class="string">"myScheduler"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doSomethingTask"</span> <span class="attr">method</span>=<span class="string">"doSomething"</span> <span class="attr">cron</span>=<span class="string">"0 * * * * *"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">task:scheduled-tasks</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>当然需要能够reference到doSomethingTask这个实例了。</p>
 <p>用注解配置Spring Scheduler的方式如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</div><div class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</div><div class="line"></div><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DoSomethingTask</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Scheduled</span>(cron=<span class="string">"0 * * * * *"</span>)</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"do something"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>参考<a href="http://www.baeldung.com/spring-scheduled-tasks" target="_blank" rel="external">这篇短文</a>可以迅速了解。</p>
@@ -126,14 +127,14 @@
 <p>下面举几个例子，看了就知道了：<br><code>0 * * * * *</code>：每分钟（当秒为0的时候）<br><code>0 0 * * * *</code>：每小时（当秒和分都为0的时候）<br><code>*/10 * * * * *</code>：每10秒<br><code>0 5/15 * * * *</code>：每小时的5分、20分、35分、50分<br><code>0 0 9,13 * * *</code>：每天的9点和13点<br><code>0 0 8-10 * * *</code>：每天的8点、9点、10点<br><code>0 0/30 8-10 * * *</code>：每天的8点、8点半、9点、9点半、10点<br><code>0 0 9-17 * * MON-FRI</code>：每周一到周五的9点、10点…直到17点（含）<br><code>0 0 0 25 12 ?</code>：每年12约25日圣诞节的0点0分0秒（午夜）<br><code>0 30 10 * * ? 2016</code>：2016年每天的10点半</p>
 <p>其中的<code>?</code>在用法上其实和<code>*</code>是相同的。但是<code>*</code>语义上表示全匹配，而<code>?</code>并不代表全匹配，而是不关心。比如对于<code>0 0 0 5 8 ? 2016</code>来说，2016年8月5日是周五，<code>?</code>表示我不关心它是周几。而<code>0 0 0 5 8 * 2016</code>中的<code>*</code>表示周一也行，周二也行……语义上和2016年8月5日冲突了，你说谁优先生效呢。</p>
 <p>不记得也没关系，记住<a href="http://www.cronmaker.com/" target="_blank" rel="external">Cron Maker</a>也可以，它可以在线生成cron表达式。</p>
-<h2 id="u6280_u5DE7"><a href="#u6280_u5DE7" class="headerlink" title="技巧"></a>技巧</h2><p>可能会想要在不同的环境配置不同的cron，比如产品环境就是真实的cron，而测试环境希望更频繁触发，可以设置每分钟都触发。</p>
+<h2 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h2><p>可能会想要在不同的环境配置不同的cron，比如产品环境就是真实的cron，而测试环境希望更频繁触发，可以设置每分钟都触发。</p>
 <p>xml配置的解决方法：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"myScheduler"</span>/&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">task:scheduled-tasks</span> <span class="attr">scheduler</span>=<span class="string">"myScheduler"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doSomethingTask"</span> <span class="attr">method</span>=<span class="string">"doSomething"</span> <span class="attr">cron</span>=<span class="string">"$&#123;cron_expression&#125;"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doOtherThingTask"</span> <span class="attr">method</span>=<span class="string">"doOtherThing"</span> <span class="attr">cron</span>=<span class="string">"$&#123;cron_expression&#125;"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">task:scheduled-tasks</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>顺便提一句，java的properties文件支持value中带空格，所以可以放心地写<code>cron_expression=0 * * * * *</code>。</p>
 <p>注解的解决方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Scheduled</span>(cron = <span class="string">"$&#123;cron_expression&#125;"</span>)</div></pre></td></tr></table></figure></p>
-<h2 id="u5751"><a href="#u5751" class="headerlink" title="坑"></a>坑</h2><h3 id="u540C_u65F6_u8FD0_u884C"><a href="#u540C_u65F6_u8FD0_u884C" class="headerlink" title="同时运行"></a>同时运行</h3><p>同一个task，如果前一个还没跑完后面一个就不会触发，这没有问题。但是不同的task也不能同时运行就不太合理了。不过其实是scheduler的默认线程数为1的缘故。</p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><h3 id="同时运行"><a href="#同时运行" class="headerlink" title="同时运行"></a>同时运行</h3><p>同一个task，如果前一个还没跑完后面一个就不会触发，这没有问题。但是不同的task也不能同时运行就不太合理了。不过其实是scheduler的默认线程数为1的缘故。</p>
 <p>解决方法1：如下配置pool-size，但这样会导致同一个task前一个还没跑完后面又被触发的问题。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"scheduler"</span> <span class="attr">pool-size</span>=<span class="string">"2"</span> /&gt;</span></div></pre></td></tr></table></figure></p>
 <p>解决方法2：让任务分别运行在不同的scheduler里就好了。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"myScheduler1"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">task:scheduler</span> <span class="attr">id</span>=<span class="string">"myScheduler2"</span>/&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">task:scheduled-tasks</span> <span class="attr">scheduler</span>=<span class="string">"myScheduler1"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doSomethingTask"</span> <span class="attr">method</span>=<span class="string">"doSomething"</span> <span class="attr">cron</span>=<span class="string">"$&#123;0 * * * * *&#125;"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">task:scheduled-tasks</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">task:scheduled-tasks</span> <span class="attr">scheduler</span>=<span class="string">"myScheduler2"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">task:scheduled</span> <span class="attr">ref</span>=<span class="string">"doOtherThingTask"</span> <span class="attr">method</span>=<span class="string">"doOtherThing"</span> <span class="attr">cron</span>=<span class="string">"$&#123;0 * * * * *&#125;"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">task:scheduled-tasks</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<h3 id="u591A_u5B9E_u4F8B"><a href="#u591A_u5B9E_u4F8B" class="headerlink" title="多实例"></a>多实例</h3><p>若是scheduler与web配置在一起，在高可用的情况下，如果有多个web容器实例，scheduler会在多个实例上同时运行。</p>
+<h3 id="多实例"><a href="#多实例" class="headerlink" title="多实例"></a>多实例</h3><p>若是scheduler与web配置在一起，在高可用的情况下，如果有多个web容器实例，scheduler会在多个实例上同时运行。</p>
 <p>解决方法1：部署的时候，针对不同实例，使用不同的配置。比如tomcat_1打开scheduler，tomcat_2关闭。带来的问题是：</p>
 <ul>
 <li>增加部署成本。</li>
@@ -172,7 +173,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/spring-scheduler/" data-title="Spring Scheduler的使用与坑 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/spring-scheduler/" data-title="Spring Scheduler的使用与坑 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -216,7 +217,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cron"><span class="toc-number">3.</span> <span class="toc-text">Cron</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6280_u5DE7"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5751"><span class="toc-number">5.</span> <span class="toc-text">坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u540C_u65F6_u8FD0_u884C"><span class="toc-number">5.1.</span> <span class="toc-text">同时运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u591A_u5B9E_u4F8B"><span class="toc-number">5.2.</span> <span class="toc-text">多实例</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cron"><span class="toc-number">3.</span> <span class="toc-text">Cron</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">4.</span> <span class="toc-text">技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坑"><span class="toc-number">5.</span> <span class="toc-text">坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同时运行"><span class="toc-number">5.1.</span> <span class="toc-text">同时运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多实例"><span class="toc-number">5.2.</span> <span class="toc-text">多实例</span></a></li></ol></li></ol>
  
   </div>
 
@@ -244,7 +245,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -313,15 +314,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -337,11 +334,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -353,7 +354,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="微软前几天正式发布了.NET Core 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。">
+<meta name="keywords" content=".NET,.NET Core,C#,ASP.NET">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用OS X轻松上手.NET Core">
 <meta property="og:url" content="http://qinghua.github.io/dot-net-core/index.html">
@@ -113,13 +114,13 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C_Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装环境"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
 		
 		</div>
 		
 		<p>微软前几天<a href="https://blogs.msdn.microsoft.com/dotnet/2016/06/27/announcing-net-core-1-0/" target="_blank" rel="external">正式发布</a>了<a href="https://dotnet.github.io/" target="_blank" rel="external">.NET Core</a> 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。<br><a id="more"></a></p>
-<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>请参考<a href="http://www.linuxidc.com/Linux/2016-06/132764.htm" target="_blank" rel="external">《.NET Core 1.0发布：微软开源跨平台大布局序幕》</a>和<a href="https://docs.microsoft.com/en-us/dotnet/articles/core/index" target="_blank" rel="external">《.NET Core》</a>。官方也提供了一个<a href="https://hub.docker.com/r/microsoft/dotnet/" target="_blank" rel="external">docker镜像</a>以供快速试用。</p>
-<h2 id="u5B89_u88C5_u73AF_u5883"><a href="#u5B89_u88C5_u73AF_u5883" class="headerlink" title="安装环境"></a>安装环境</h2><p>根据微软的<a href="https://www.microsoft.com/net/core#macos" target="_blank" rel="external">Getting Started</a>文档介绍，首先需要安装最新版OpenSSL：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">brew update</div><div class="line">brew install openssl</div><div class="line">brew link --force openssl</div></pre></td></tr></table></figure></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>请参考<a href="http://www.linuxidc.com/Linux/2016-06/132764.htm" target="_blank" rel="external">《.NET Core 1.0发布：微软开源跨平台大布局序幕》</a>和<a href="https://docs.microsoft.com/en-us/dotnet/articles/core/index" target="_blank" rel="external">《.NET Core》</a>。官方也提供了一个<a href="https://hub.docker.com/r/microsoft/dotnet/" target="_blank" rel="external">docker镜像</a>以供快速试用。</p>
+<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>根据微软的<a href="https://www.microsoft.com/net/core#macos" target="_blank" rel="external">Getting Started</a>文档介绍，首先需要安装最新版OpenSSL：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">brew update</div><div class="line">brew install openssl</div><div class="line">brew link --force openssl</div></pre></td></tr></table></figure></p>
 <p>下载.NET Core SDK，50M左右：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget -c https://go.microsoft.com/fwlink/?LinkID=809124</div></pre></td></tr></table></figure></p>
 <p>安装完SDK后，可以很轻易地启动一个Hello World应用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mkdir hwapp</div><div class="line"><span class="built_in">cd</span> hwapp</div><div class="line">dotnet new</div><div class="line">dotnet restore</div><div class="line">dotnet run</div></pre></td></tr></table></figure></p>
 <p>其中的<code>dotnet</code>命令就是.NET Core SDK提供的。顺利的话，就能看到控制台打印出了<code>Hello World!</code>。命令<code>dotnet new</code>会生成两个文件：<code>Program.cs</code>和<code>project.json</code>。打开生成的Program.cs就能看到其实就是一个标准的<code>Main</code>函数，内容为<code>Console.WriteLine(&quot;Hello World!&quot;);</code>。文件<code>project.json</code>内容如下所示，指定了依赖和框架：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0-*"</span>,</div><div class="line">  <span class="attr">"buildOptions"</span>: &#123;</div><div class="line">    <span class="attr">"debugType"</span>: <span class="string">"portable"</span>,</div><div class="line">    <span class="attr">"emitEntryPoint"</span>: <span class="literal">true</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"dependencies"</span>: &#123;&#125;,</div><div class="line">  <span class="attr">"frameworks"</span>: &#123;</div><div class="line">    <span class="attr">"netcoreapp1.0"</span>: &#123;</div><div class="line">      <span class="attr">"dependencies"</span>: &#123;</div><div class="line">        <span class="attr">"Microsoft.NETCore.App"</span>: &#123;</div><div class="line">          <span class="attr">"type"</span>: <span class="string">"platform"</span>,</div><div class="line">          <span class="attr">"version"</span>: <span class="string">"1.0.0"</span></div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      <span class="attr">"imports"</span>: <span class="string">"dnxcore50"</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
@@ -131,7 +132,7 @@
 <p>整个IDE非常轻量，给人的印象比较简洁，不像Visual Studio那般花里胡哨。支持代码高亮、代码补全、错误提示、内置Git的支持，但是错误修复、重构等就没有了。甚至如何在里面运行代码也令人颇费一番周折。<br><img src="/img/vs-code-ide.jpg" alt=""></p>
 <p>关于调试代码，可以参考<a href="https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger.md" target="_blank" rel="external">Instructions for setting up the .NET Core debugger</a>。如果<code>⌘+O</code>打开的是包含<code>project.json</code>的文件夹，C#扩展便会自动生成两个文件：<code>.vscode/tasks.json</code>和<code>.vscode/launch.json</code>。前者告诉VS Code如何来构建项目，后者告诉VS Code如何来运行程序。我们需要修改一下<code>launch.json</code>里，<code>name</code>为<code>.NET Core Launch (console)</code>的<code>program</code>，将<code>&lt;target-framework&gt;/&lt;project-name.dll&gt;</code>替换为<code>netcoreapp1.0/hwapp.dll</code>，这样便能在VS Code的调试窗口运行程序了：<br><img src="/img/vs-code-debug.jpg" alt=""></p>
 <p>Visual Studio Code支持众多插件。除了C#以外，还有Python、C/C++、Go、PowerShell、JavaScript、Ruby等语言，除此之外，还有不少功能性插件，如Git Blame、IIS Express、ftp-sync等。完整列表请参考<a href="https://marketplace.visualstudio.com/vscode/Languages?sortBy=Downloads" target="_blank" rel="external">Marketplace</a>。</p>
-<h2 id="C_Sharp"><a href="#C_Sharp" class="headerlink" title="C Sharp"></a>C Sharp</h2><p>语法层面上，C#比起Java来最吸引我的点就是Linq+Lambda。虽然Java 8也提供了lambda表达式，但是始终在整洁性上差了那么一点。Java 8 Stream和C#在Linq上的语法区别可以参考<a href="https://blog.informatech.cr/2013/03/24/java-streams-preview-vs-net-linq/" target="_blank" rel="external">《Java Streams Preview vs .Net High-Order Programming with LINQ》</a>，里面有着非常丰富的例子。现在我们来改造一下<code>Program.cs</code>，用Linq和Lambda输出10~90之间能被10整除的数字的平方：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> System;</div><div class="line"><span class="keyword">using</span> System.Linq;</div><div class="line"></div><div class="line"><span class="keyword">namespace</span> <span class="title">ConsoleApplication</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></div><div class="line">    &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> arr = Enumerable.Range(<span class="number">1</span>, <span class="number">90</span>);</div><div class="line">            arr.Where(i =&gt; i % <span class="number">10</span> == <span class="number">0</span>).Select(i =&gt; i * i).ToList().ForEach(Console.WriteLine);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="C-Sharp"><a href="#C-Sharp" class="headerlink" title="C Sharp"></a>C Sharp</h2><p>语法层面上，C#比起Java来最吸引我的点就是Linq+Lambda。虽然Java 8也提供了lambda表达式，但是始终在整洁性上差了那么一点。Java 8 Stream和C#在Linq上的语法区别可以参考<a href="https://blog.informatech.cr/2013/03/24/java-streams-preview-vs-net-linq/" target="_blank" rel="external">《Java Streams Preview vs .Net High-Order Programming with LINQ》</a>，里面有着非常丰富的例子。现在我们来改造一下<code>Program.cs</code>，用Linq和Lambda输出10~90之间能被10整除的数字的平方：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> System;</div><div class="line"><span class="keyword">using</span> System.Linq;</div><div class="line"></div><div class="line"><span class="keyword">namespace</span> <span class="title">ConsoleApplication</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></div><div class="line">    &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> arr = Enumerable.Range(<span class="number">1</span>, <span class="number">90</span>);</div><div class="line">            arr.Where(i =&gt; i % <span class="number">10</span> == <span class="number">0</span>).Select(i =&gt; i * i).ToList().ForEach(Console.WriteLine);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>再次<code>dotnet run</code>一下，就会看到程序按照我们的预期输出了结果。</p>
 <h2 id="ASP-NET"><a href="#ASP-NET" class="headerlink" title="ASP.NET"></a>ASP.NET</h2><p>下面让我们来试一下用.NET Core运行ASP.NET的官方教程。首先像Hello World的例子那样，创建一个新的工程：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> ..</div><div class="line">mkdir aspnetcoreapp</div><div class="line"><span class="built_in">cd</span> aspnetcoreapp</div><div class="line">dotnet new</div></pre></td></tr></table></figure></p>
 <p>然后需要把<code>project.json</code>里的<code>&quot;dependencies&quot;: {},</code>替换成下文：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">"dependencies": &#123;</div><div class="line">  "Microsoft.NETCore.App": &#123;</div><div class="line">    "type": "platform",</div><div class="line">    "version": "1.0.0"</div><div class="line">  &#125;,</div><div class="line">  "Microsoft.AspNetCore.Server.Kestrel": "1.0.0"</div><div class="line">&#125;,</div></pre></td></tr></table></figure></p>
@@ -162,7 +163,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/dot-net-core/" data-title="用OS X轻松上手.NET Core | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/dot-net-core/" data-title="用OS X轻松上手.NET Core | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -206,7 +207,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C_Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装环境"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDE"><span class="toc-number">3.</span> <span class="toc-text">IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-Sharp"><span class="toc-number">4.</span> <span class="toc-text">C Sharp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASP-NET"><span class="toc-number">5.</span> <span class="toc-text">ASP.NET</span></a></li></ol>
  
   </div>
 
@@ -234,7 +235,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -303,15 +304,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -327,11 +324,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -343,7 +344,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

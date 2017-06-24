@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+<meta name="keywords" content="cloudify,tosca">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TOSCA简介">
 <meta property="og:url" content="http://qinghua.github.io/tosca/index.html">
@@ -113,14 +114,14 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u793A_u4F8B"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello_World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165_u8F93_u51FA"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5B89_u88C5_u8F6F_u4EF6"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u521D_u59CB_u5316_u6570_u636E_u5E93"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E24_u5C42_u5E94_u7528"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5173_u7CFB_u5B9A_u5236_u5316"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u66FF_u6362"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u7EC4"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML_u5B8F"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4F20_u53C2"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u53D6_u52A8_u6001_u503C"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello-World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输入输出"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装软件"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化数据库"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#两层应用"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关系定制化"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限定需求资源"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点模板替换"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点模板组"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML宏"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#传参"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#取动态值"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
 		
 		</div>
 		
 		<p><a href="https://www.oasis-open.org/committees/tosca/" target="_blank" rel="external">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html" target="_blank" rel="external">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。<br><a id="more"></a></p>
-<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
 <p>目前它的开源实现有OpenStack (Heat-Translator，Tacker，Senlin)，Alien4Cloud，Cloudify等。</p>
-<h2 id="u793A_u4F8B"><a href="#u793A_u4F8B" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello_World"><a href="#Hello_World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
 <pre>
 tosca_definitions_version: tosca_simple_yaml_1_0
 
@@ -145,7 +146,7 @@ topology_template:
 </pre>
 
 <p>除了TOSCA的版本<code>tosca_definitions_version</code>和描述信息<code>description</code>以外，就是这个<code>topology_template</code>了。这里我们看到有一个名为<code>my_server</code>的节点，它的类型是<code>tosca.nodes.Compute</code>。这个类型预置了两个<code>capabilities</code>信息，一个是<code>host</code>，定义了硬件信息；另一个是<code>os</code>，定义了操作系统信息。</p>
-<h3 id="u8F93_u5165_u8F93_u51FA"><a href="#u8F93_u5165_u8F93_u51FA" class="headerlink" title="输入输出"></a>输入输出</h3><p>再看看下面这个描述文件：</p>
+<h3 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h3><p>再看看下面这个描述文件：</p>
 <pre>
 topology_template:
   <b style="color:magenta">inputs</b>:
@@ -172,7 +173,7 @@ topology_template:
 </pre>
 
 <p>这里的<code>inputs</code>和<code>outputs</code>分别定义了输入和输出。输入的<code>cpus</code>是在1，2，4和8中的一个整数，而输出的<code>server_ip</code>就是<code>my_server</code>这个节点的<code>private_address</code>也就是私有IP地址。另外一点是TOSCA提供了一些内置函数，在上面这个文件中使用了<code>get_input</code>和<code>get_attribute</code>。输入参数可以通过<code>get_input</code>被使用。</p>
-<h3 id="u5B89_u88C5_u8F6F_u4EF6"><a href="#u5B89_u88C5_u8F6F_u4EF6" class="headerlink" title="安装软件"></a>安装软件</h3><p>第三个描述文件如下：</p>
+<h3 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h3><p>第三个描述文件如下：</p>
 <pre>
 topology_template:
   inputs:
@@ -194,7 +195,7 @@ topology_template:
 </pre>
 
 <p>我们看到了一个新的节点类型：<code>tosca.nodes.DBMS.MySQL</code>。这个类型允许接收<code>root_password</code>和<code>port</code>的参数。在<code>requirements</code>里定义了<code>mysql</code>这个节点需要被安装到<code>db_server</code>这个节点上，这就是“关系”。如果只想表明依赖，比如说<code>service_a</code>依赖于<code>service_b</code>，也可以直接用<code>- dependency: service_b</code>来描述。上面文件的拓扑结构如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png" alt=""></p>
-<h3 id="u521D_u59CB_u5316_u6570_u636E_u5E93"><a href="#u521D_u59CB_u5316_u6570_u636E_u5E93" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>第四个描述文件如下：</p>
+<h3 id="初始化数据库"><a href="#初始化数据库" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>第四个描述文件如下：</p>
 <pre>
   node_templates:
     my_db:
@@ -230,7 +231,7 @@ topology_template:
 </pre>
 
 <p>这里的<code>tosca.nodes.Database.MySQL</code>表示一个MySQL数据库的实例。在<code>artifacts</code>的<code>db_content</code>里指定了一个文本文件，而这个文件将被<code>interfaces</code>里的<code>Create</code>所用，为<code>db_create.sh</code>脚本提供数据。<code>Standard</code>表示生命周期，可能会包含<code>configure</code>、<code>start</code>、<code>stop</code>等各种操作，而<code>db_create.sh</code>本身是对<code>tosca.nodes.Database.MySQL</code>提供的默认<code>create</code>操作的一个重写。如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png" alt=""></p>
-<h3 id="u4E24_u5C42_u5E94_u7528"><a href="#u4E24_u5C42_u5E94_u7528" class="headerlink" title="两层应用"></a>两层应用</h3><p>再来看看第五个描述文件：</p>
+<h3 id="两层应用"><a href="#两层应用" class="headerlink" title="两层应用"></a>两层应用</h3><p>再来看看第五个描述文件：</p>
 <pre>
   node_templates:
     wordpress:
@@ -273,7 +274,7 @@ topology_template:
 </pre>
 
 <p>这个文件描述了一个很常见的拓扑结构：<code>mysql</code>里有一个<code>wordpress_db</code>，运行在<code>db_server</code>上；<code>apache</code>部署了一个<code>wordpress</code>，运行在<code>web_server</code>上。<code>wordpress</code>需要<code>wordpress_db</code>。</p>
-<h3 id="u5173_u7CFB_u5B9A_u5236_u5316"><a href="#u5173_u7CFB_u5B9A_u5236_u5316" class="headerlink" title="关系定制化"></a>关系定制化</h3><p>第六个描述文件：</p>
+<h3 id="关系定制化"><a href="#关系定制化" class="headerlink" title="关系定制化"></a>关系定制化</h3><p>第六个描述文件：</p>
 <pre>
   node_templates:
     wordpress:
@@ -313,7 +314,7 @@ description: Definition of custom WordpressDbConnection relationship type
         pre_configure_source: scripts/wp_db_configure.sh
 </pre>
 
-<h3 id="u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><a href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90" class="headerlink" title="限定需求资源"></a>限定需求资源</h3><p>再看一个描述文件：</p>
+<h3 id="限定需求资源"><a href="#限定需求资源" class="headerlink" title="限定需求资源"></a>限定需求资源</h3><p>再看一个描述文件：</p>
 <pre>
   node_templates:
     mysql:
@@ -394,7 +395,7 @@ description: Definition of custom WordpressDbConnection relationship type
         - db_version: { greater_or_equal: 5.5 }
 </pre>
 
-<h3 id="u8282_u70B9_u6A21_u677F_u66FF_u6362"><a href="#u8282_u70B9_u6A21_u677F_u66FF_u6362" class="headerlink" title="节点模板替换"></a>节点模板替换</h3><p>再看一个描述文件：</p>
+<h3 id="节点模板替换"><a href="#节点模板替换" class="headerlink" title="节点模板替换"></a>节点模板替换</h3><p>再看一个描述文件：</p>
 <pre>
   node_templates:
     web_app:
@@ -449,7 +450,7 @@ topology_template:
 </pre>
 
 <p>这里的<code>database_endpoint</code>是由<code>database</code>节点提供的<code>database_endpoint</code>。两个文件联系起来看，表明了上面的<code>web_app</code>不需要管<code>db</code>是什么样子的，有什么拓扑结构，它关心的只是<code>database_endpoint</code>。而下面由<code>database</code>、<code>dbms</code>和<code>server</code>三个节点组成的模板正好可以提供<code>database_endpoint</code>，从而替换掉<code>db</code>这个抽象节点。另外，这样的替换也支持嵌套。</p>
-<h3 id="u8282_u70B9_u6A21_u677F_u7EC4"><a href="#u8282_u70B9_u6A21_u677F_u7EC4" class="headerlink" title="节点模板组"></a>节点模板组</h3><p>再看一个描述文件：</p>
+<h3 id="节点模板组"><a href="#节点模板组" class="headerlink" title="节点模板组"></a>节点模板组</h3><p>再看一个描述文件：</p>
 <pre>
   node_templates:
     apache:
@@ -474,7 +475,7 @@ topology_template:
 </pre>
 
 <p>这个例子表明了<code>apache</code>和<code>server</code>应该是一组的关系。这样它们就可以一起被处理，比如说伸缩。</p>
-<h3 id="YAML_u5B8F"><a href="#YAML_u5B8F" class="headerlink" title="YAML宏"></a>YAML宏</h3><p>下面这个描述文件使用了宏来避免重复：</p>
+<h3 id="YAML宏"><a href="#YAML宏" class="headerlink" title="YAML宏"></a>YAML宏</h3><p>下面这个描述文件使用了宏来避免重复：</p>
 <pre>
 <b style="color:magenta">dsl_definitions:
   my_compute_node_props: &my_compute_node_props</b>
@@ -497,7 +498,7 @@ topology_template:
             properties: <b style="color:magenta">*my_compute_node_props</b>
 </pre>
 
-<h3 id="u4F20_u53C2"><a href="#u4F20_u53C2" class="headerlink" title="传参"></a>传参</h3><p>先看一个描述文件：</p>
+<h3 id="传参"><a href="#传参" class="headerlink" title="传参"></a>传参</h3><p>先看一个描述文件：</p>
 <pre>
   node_templates: 
     wordpress:
@@ -532,7 +533,7 @@ topology_template:
 </pre>
 
 <p>在这个例子里有两个<code>get_operation_output</code>，前者指的是将<code>create</code>操作的环境变量<code>generated_url</code>设置到<code>url</code>里，后者是将<code>data_dir</code>传递给<code>configure</code>操作。</p>
-<h3 id="u53D6_u52A8_u6001_u503C"><a href="#u53D6_u52A8_u6001_u503C" class="headerlink" title="取动态值"></a>取动态值</h3><p>最后一个描述文件：</p>
+<h3 id="取动态值"><a href="#取动态值" class="headerlink" title="取动态值"></a>取动态值</h3><p>最后一个描述文件：</p>
 <pre>
 node_types:
   ServerNode:
@@ -596,7 +597,7 @@ topology_template:
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/tosca/" data-title="TOSCA简介 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/tosca/" data-title="TOSCA简介 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -640,7 +641,7 @@ topology_template:
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u793A_u4F8B"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello_World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8F93_u5165_u8F93_u51FA"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5B89_u88C5_u8F6F_u4EF6"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u521D_u59CB_u5316_u6570_u636E_u5E93"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E24_u5C42_u5E94_u7528"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5173_u7CFB_u5B9A_u5236_u5316"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9650_u5B9A_u9700_u6C42_u8D44_u6E90"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u66FF_u6362"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8282_u70B9_u6A21_u677F_u7EC4"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML_u5B8F"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4F20_u53C2"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u53D6_u52A8_u6001_u503C"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-number">2.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hello-World"><span class="toc-number">2.1.</span> <span class="toc-text">Hello World</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输入输出"><span class="toc-number">2.2.</span> <span class="toc-text">输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装软件"><span class="toc-number">2.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化数据库"><span class="toc-number">2.4.</span> <span class="toc-text">初始化数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#两层应用"><span class="toc-number">2.5.</span> <span class="toc-text">两层应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关系定制化"><span class="toc-number">2.6.</span> <span class="toc-text">关系定制化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限定需求资源"><span class="toc-number">2.7.</span> <span class="toc-text">限定需求资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点模板替换"><span class="toc-number">2.8.</span> <span class="toc-text">节点模板替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点模板组"><span class="toc-number">2.9.</span> <span class="toc-text">节点模板组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YAML宏"><span class="toc-number">2.10.</span> <span class="toc-text">YAML宏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#传参"><span class="toc-number">2.11.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#取动态值"><span class="toc-number">2.12.</span> <span class="toc-text">取动态值</span></a></li></ol></li></ol>
  
   </div>
 
@@ -668,7 +669,7 @@ topology_template:
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -737,15 +738,11 @@ topology_template:
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -761,11 +758,15 @@ topology_template:
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -777,7 +778,7 @@ topology_template:
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

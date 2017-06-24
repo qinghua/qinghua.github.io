@@ -13,39 +13,19 @@
     
 
     
-    <meta name="description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能">
+    <meta name="description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能">
+<meta name="keywords" content="kubernetes,mesos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（二）高可用">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-2/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能">
+<meta property="og:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能">
 <meta property="og:image" content="https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/design/architecture.png">
 <meta property="og:image" content="http://kubernetes.io/images/docs/ha.svg">
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（二）高可用">
-<meta name="twitter:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台机器，你想怎么玩？（六）性能">
+<meta name="twitter:description" content="这次聊聊k8s的高可用性是怎么做的。所谓高可用性，就是在一些服务或机器挂掉了之后集群仍然能正常工作的能力。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台机器，你想怎么玩？（六）性能">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/design/architecture.png">
 
     
@@ -172,7 +152,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-2/" data-title="如果有10000台机器，你想怎么玩？（二）高可用 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-2/" data-title="如果有10000台机器，你想怎么玩？（二）高可用 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -237,7 +217,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -306,15 +286,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -330,11 +306,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -346,7 +326,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

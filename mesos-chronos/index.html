@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos">
+<meta name="keywords" content="mesos,chronos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用容器轻松搭建Chronos运行环境">
 <meta property="og:url" content="http://qinghua.github.io/mesos-chronos/index.html">
@@ -114,16 +115,16 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行作业"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#管理作业"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意事项"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
 		
 		</div>
 		
 		<p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
-<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --name=ch \</div><div class="line">    mesosphere/chronos:chronos-2.4.0-0.1.20150828104228.ubuntu1404-mesos-0.27.0-0.2.190.ubuntu1404 \</div><div class="line">    usr/bin/chronos \</div><div class="line">    --master zk://192.168.33.18:2181/mesos \</div><div class="line">    --zk_hosts zk://192.168.33.18:2181/marathon \</div><div class="line">    --cluster_name ggg</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
+<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">docker run -d \</div><div class="line">    --net=host \</div><div class="line">    --name=ch \</div><div class="line">    mesosphere/chronos:chronos-2.4.0-0.1.20150828104228.ubuntu1404-mesos-0.27.0-0.2.190.ubuntu1404 \</div><div class="line">    usr/bin/chronos \</div><div class="line">    --master zk://192.168.33.18:2181/mesos \</div><div class="line">    --zk_hosts zk://192.168.33.18:2181/marathon \</div><div class="line">    --cluster_name ggg</div></pre></td></tr></table></figure></p>
 <p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg" alt=""></p>
-<h2 id="u8FD0_u884C_u4F5C_u4E1A"><a href="#u8FD0_u884C_u4F5C_u4E1A" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
+<h2 id="运行作业"><a href="#运行作业" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
 <ul>
 <li>NAME：test</li>
 <li>COMMAND：docker run -d busybox sleep 30</li>
@@ -132,7 +133,7 @@
 <p>如下图所示：<br><img src="/img/chronos-run-job.jpg" alt=""></p>
 <p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
 <p><em>T1M的意思是：1分钟之后。1M的意思是：1个月之后。1Y2M3DT4H5M6S的意思是：1年2月3天4小时5分钟6秒之后。</em></p>
-<h2 id="u7BA1_u7406_u4F5C_u4E1A"><a href="#u7BA1_u7406_u4F5C_u4E1A" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
+<h2 id="管理作业"><a href="#管理作业" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
 <p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
 <ul>
 <li>NAME：test2</li>
@@ -149,14 +150,14 @@
 <p>这次test3依赖于test和test2，那么它们之间是“或”还是“和”的关系呢？我们强制运行一次test，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到增加了一行日期和一行hello world。强制运行一次test2，却只增加了一行日期而没有增加hello world。由此推断，只有当test2和test全部被执行后，才会执行一次test3。那如果我们要“或”的关系怎么办呢？首先把test3的PARENTS修改为test，记得作业是有一个复制功能的吧？再复制一份test3把它的PARENTS设成test2就好啦。</p>
 <p>最后介绍一下那个<strong>Graph</strong>按钮，它可以显示一幅图来表示作业之间的依赖关系。对于我们的示例来说，这图应该是长这样的：<br><img src="/img/chronos-graph.png" alt=""></p>
 <p>对于一个非常复杂的作业系统来说，这样的图能让我们很容易找到并分析作业间的依赖关系，从而采取优化措施。许多持续集成系统也都能提供类似的依赖图供管理员决策。</p>
-<h2 id="u6CE8_u610F_u4E8B_u9879"><a href="#u6CE8_u610F_u4E8B_u9879" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
 <li>这个版本的chronos页面上有一些bug，会导致有时候侧面的作业详细信息栏显示有问题，刷新一下整个页面或者尝试多点击几次左边的作业表就好了。</li>
 <li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
 <li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"parents"</span>: [</div><div class="line">    <span class="string">"test"</span></div><div class="line">  ],</div><div class="line">  <span class="attr">"name"</span>: <span class="string">"test4"</span>,</div><div class="line">  <span class="attr">"command"</span>: <span class="string">"echo test4 &gt;&gt; /tmp/test.txt"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>然后运行以下命令来发送请求给chronos：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X POST http://192.168.33.18:8080/scheduler/dependency <span class="_">-d</span> @<span class="built_in">test</span>4.json -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
-<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X DELETE http://192.168.33.18:8080/scheduler/job/<span class="built_in">test</span>4 -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
+<p>然后运行以下命令来发送请求给chronos：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X POST http://192.168.33.18:8080/scheduler/dependency -d @test4.json -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
+<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -X DELETE http://192.168.33.18:8080/scheduler/job/test4 -H <span class="string">"Content-type: application/json"</span></div></pre></td></tr></table></figure></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -179,7 +180,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/mesos-chronos/" data-title="用容器轻松搭建Chronos运行环境 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -223,7 +224,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u4F5C_u4E1A"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7BA1_u7406_u4F5C_u4E1A"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6CE8_u610F_u4E8B_u9879"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行作业"><span class="toc-number">3.</span> <span class="toc-text">运行作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#管理作业"><span class="toc-number">4.</span> <span class="toc-text">管理作业</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意事项"><span class="toc-number">5.</span> <span class="toc-text">注意事项</span></a></li></ol>
  
   </div>
 
@@ -251,7 +252,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -320,15 +321,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -344,11 +341,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -360,7 +361,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

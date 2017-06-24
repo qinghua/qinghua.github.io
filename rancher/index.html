@@ -13,14 +13,13 @@
     
 
     
-    <meta name="description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:
-2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
+    <meta name="description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示: 2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
+<meta name="keywords" content="rancher">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用容器轻松搭建Rancher运行环境">
 <meta property="og:url" content="http://qinghua.github.io/rancher/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:
-2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
+<meta property="og:description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示: 2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
 <meta property="og:image" content="http://qinghua.github.io/img/rancher-feature.png">
 <meta property="og:image" content="http://qinghua.github.io/img/rancher-applications.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/rancher-infrastructure.jpg">
@@ -36,8 +35,7 @@
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用容器轻松搭建Rancher运行环境">
-<meta name="twitter:description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:
-2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
+<meta name="twitter:description" content="Rancher是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示: 2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！">
 <meta name="twitter:image" content="http://qinghua.github.io/img/rancher-feature.png">
 
     
@@ -126,24 +124,24 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5BB9_u5668"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5E94_u7528"><span class="toc-number">4.</span> <span class="toc-text">运行应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9884_u7F6E_u6A21_u677F"><span class="toc-number">5.</span> <span class="toc-text">预置模板</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行容器"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行应用"><span class="toc-number">4.</span> <span class="toc-text">运行应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#预置模板"><span class="toc-number">5.</span> <span class="toc-text">预置模板</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="http://rancher.com/" target="_blank" rel="external">Rancher</a>是开源的容器平台，功能齐全，部署简单，支持Kubernets和Docker Swarm。它把自己定位在持续交付流水线上的后半段上，如下图所示:<br><img src="/img/rancher-feature.png" alt=""></p>
 <p>2016年3月底刚刚发布了1.0正式版。借着这个契机，下面就让我们用容器来部署一套Rancher环境试试它的功能吧！<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>server</strong>，它的IP是<strong>192.168.33.17</strong>；另两台分别是<strong>agent1</strong>和<strong>agent2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">config.vm.define <span class="string">"server"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"server"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.17"</span></div><div class="line">  host.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">    v.memory = <span class="number">1024</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"agent1"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"agent1"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.18"</span></div><div class="line">  host.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">    v.memory = <span class="number">1024</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">config.vm.define <span class="string">"agent2"</span> <span class="keyword">do</span> <span class="params">| host |</span></div><div class="line">  host.vm.hostname = <span class="string">"agent2"</span></div><div class="line">  host.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.19"</span></div><div class="line">  host.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">    v.memory = <span class="number">1024</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal 1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh server</div></pre></td></tr></table></figure></p>
 <figure class="highlight sh"><figcaption><span>virtual box host terminal 2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh agent1</div></pre></td></tr></table></figure>
 <figure class="highlight sh"><figcaption><span>virtual box host terminal 3</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh agent2</div></pre></td></tr></table></figure>
 <p>如果想要在接下来的步骤中获得良好体验，建议先下载以下镜像：<br><figure class="highlight sh"><figcaption><span>server agent1 agent2</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">docker pull rancher/server:v1.0.0</div><div class="line">docker pull rancher/agent:v0.11.0</div><div class="line">docker pull rancher/agent-instance:v0.8.1</div><div class="line">docker pull tomcat:8.0.30-jre8</div><div class="line">docker pull busybox:1.24.1</div><div class="line">docker pull mysql:5.7.10</div><div class="line">docker pull wordpress:4.4.2</div><div class="line">docker pull rancher/etcd:v2.3.0</div></pre></td></tr></table></figure></p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动Rancher服务器相当简单，一条命令而已：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --name=rs \</div><div class="line">    --restart=always \</div><div class="line">    -p 8080:8080 \</div><div class="line">    rancher/server:v1.0.0</div></pre></td></tr></table></figure></p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动Rancher服务器相当简单，一条命令而已：<br><figure class="highlight sh"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">docker run -d \</div><div class="line">    --name=rs \</div><div class="line">    --restart=always \</div><div class="line">    -p 8080:8080 \</div><div class="line">    rancher/server:v1.0.0</div></pre></td></tr></table></figure></p>
 <p>稍待片刻，就可以访问Rancher主页<a href="http://192.168.33.17:8080" target="_blank" rel="external">http://192.168.33.17:8080</a>了：<br><img src="/img/rancher-applications.jpg" alt=""></p>
-<p>不像其他的web应用一开始没有数据时都是显示一片空白，Rancher展示了非常丰富的信息来帮助我们尽快上手。菜单上的<strong>ADMIN</strong>有个红色的感叹号，这是因为我们刚启动服务器，还没有配置认证信息。点击这个感叹号就可以开始配置，除了本地设置用户名密码以外，还支持与AD、GitHub和LDAP的集成。这里我们更加关注容器管理部分，对鉴权有兴趣的朋友可以自行尝试认证信息的配置。点击菜单上的<strong>INFRASTRUCTURE</strong>并点击<strong>Add Host</strong>按钮，可以增加一个agent host。由于现在我们用的是内部IP<strong>192.168.33.17</strong>，Rancher会提示我们是否真的连接到这里，不用管它直接点击<strong>Save</strong>按钮就可以了。复制下一个页面中第5步的命令，在agent上1运行即可。在我的虚拟机上是这样子的：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run <span class="_">-d</span> --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v0.11.0 http://192.168.33.17:8080/v1/scripts/B9EAC6780C8126FB739E:1460016000000:Adj9D4Qp3smSmIscdUVT0JSCPdM</div></pre></td></tr></table></figure></p>
+<p>不像其他的web应用一开始没有数据时都是显示一片空白，Rancher展示了非常丰富的信息来帮助我们尽快上手。菜单上的<strong>ADMIN</strong>有个红色的感叹号，这是因为我们刚启动服务器，还没有配置认证信息。点击这个感叹号就可以开始配置，除了本地设置用户名密码以外，还支持与AD、GitHub和LDAP的集成。这里我们更加关注容器管理部分，对鉴权有兴趣的朋友可以自行尝试认证信息的配置。点击菜单上的<strong>INFRASTRUCTURE</strong>并点击<strong>Add Host</strong>按钮，可以增加一个agent host。由于现在我们用的是内部IP<strong>192.168.33.17</strong>，Rancher会提示我们是否真的连接到这里，不用管它直接点击<strong>Save</strong>按钮就可以了。复制下一个页面中第5步的命令，在agent上1运行即可。在我的虚拟机上是这样子的：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run -d --privileged -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/rancher:/var/lib/rancher rancher/agent:v0.11.0 http://192.168.33.17:8080/v1/scripts/B9EAC6780C8126FB739E:1460016000000:Adj9D4Qp3smSmIscdUVT0JSCPdM</div></pre></td></tr></table></figure></p>
 <p>然后就可以点击<strong>Close</strong>，稍待片刻，就能看到agent1已经被加入到Hosts里了：<br><img src="/img/rancher-infrastructure.jpg" alt=""></p>
 <p>在agent2上重复执行一遍命令，把agent2也加入到Hosts里。Rancher的server和agent都是设置为<code>restart=true</code>的，所以重启虚拟机之类的行为也不会影响Rancher正常工作。现在看到的Hosts应该是这样的：<br><img src="/img/rancher-hosts.jpg" alt=""></p>
-<h2 id="u8FD0_u884C_u5BB9_u5668"><a href="#u8FD0_u884C_u5BB9_u5668" class="headerlink" title="运行容器"></a>运行容器</h2><p>接下来运行一个tomcat容器试试。点击agent1上的<strong>Add Container</strong>按钮，如下填入参数：</p>
+<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>接下来运行一个tomcat容器试试。点击agent1上的<strong>Add Container</strong>按钮，如下填入参数：</p>
 <ul>
 <li><strong>Name</strong>：tomcat</li>
 <li><strong>Select Image</strong>：tomcat:8.0.30-jre8</li>
@@ -153,11 +151,11 @@
 <p>然后点击最下方的<strong>Create</strong>按钮：<br><img src="/img/rancher-add-container.jpg" alt=""></p>
 <p>过一段时间，便能看到如下的容器已经启动完成了：<br><img src="/img/rancher-standalone-container.jpg" alt=""></p>
 <p>之所以需要等一段时间，是因为它像kubernetes一样，需要给容器配一个网络代理Network Agent，不过功能要复杂得多，拥有跨网络通信、健康检查等功能。当前版本下使用的网络代理镜像为<code>rancher/agent-instance:v0.8.1</code>。在agent1上运行<code>docker ps</code>便能看到这两个容器。还可以通过<a href="http://192.168.33.18:8080" target="_blank" rel="external">http://192.168.33.18:8080</a>来访问tomcat服务。在页面上点击某个容器比如tomcat，可以看到容器的基本信息和一些基本监控数据。如图：<br><img src="/img/rancher-tomcat-container.jpg" alt=""></p>
-<p>自行启动的容器也能被Rancher监控到。我们来启动一个小容器：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --name=bb busybox:1.24.1 sleep 3600</div></pre></td></tr></table></figure></p>
+<p>自行启动的容器也能被Rancher监控到。我们来启动一个小容器：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d --name=bb busybox:1.24.1 sleep 3600</div></pre></td></tr></table></figure></p>
 <p>在界面上便能看到这个bb容器已经启动完成了：<br><img src="/img/rancher-self-container.jpg" alt=""></p>
-<p>通过Rancher启动的容器IP是在<code>10.42.*.*</code>区间的，自行启动的bb容器的IP是在它之外的。如果想用相同IP段，可以使用以下命令：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --name=bb2 --label io.rancher.container.network=<span class="literal">true</span> busybox:1.24.1 sleep 3600</div></pre></td></tr></table></figure></p>
+<p>通过Rancher启动的容器IP是在<code>10.42.*.*</code>区间的，自行启动的bb容器的IP是在它之外的。如果想用相同IP段，可以使用以下命令：<br><figure class="highlight sh"><figcaption><span>agent1</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d --name=bb2 --label io.rancher.container.network=<span class="literal">true</span> busybox:1.24.1 sleep 3600</div></pre></td></tr></table></figure></p>
 <p>在界面上可以看到bb2容器的IP已经落入区间了：<br><img src="/img/rancher-self-container2.jpg" alt=""></p>
-<h2 id="u8FD0_u884C_u5E94_u7528"><a href="#u8FD0_u884C_u5E94_u7528" class="headerlink" title="运行应用"></a>运行应用</h2><p>上面我们在指定的虚拟机上创建容器。不过对于一个真实的网络应用，我们并不关心它运行在哪里，只关心服务地址罢了。下面我们来创建一个这样的WordPress应用。它包含一个MySQL数据库，两个WordPress实例和一套负载均衡。首先点击<strong>APPLICATIONS</strong>，然后点击Default的<strong>Add Service</strong>。填入：</p>
+<h2 id="运行应用"><a href="#运行应用" class="headerlink" title="运行应用"></a>运行应用</h2><p>上面我们在指定的虚拟机上创建容器。不过对于一个真实的网络应用，我们并不关心它运行在哪里，只关心服务地址罢了。下面我们来创建一个这样的WordPress应用。它包含一个MySQL数据库，两个WordPress实例和一套负载均衡。首先点击<strong>APPLICATIONS</strong>，然后点击Default的<strong>Add Service</strong>。填入：</p>
 <ul>
 <li><strong>Name</strong>：database</li>
 <li><strong>Select Image</strong>：mysql:5.7.10</li>
@@ -182,7 +180,7 @@
 </ul>
 <p>点击<strong>Save</strong>来创建这个负载均衡。稍待片刻，就可以看到wordpresslb变为Active状态了，然后就可以访问<a href="http://192.168.33.18" target="_blank" rel="external">http://192.168.33.18</a>或<a href="http://192.168.33.19" target="_blank" rel="external">http://192.168.33.19</a>来使用WordPress服务了：<br><img src="/img/wordpress.jpg" alt=""></p>
 <p>Rancher负载均衡使用和网络代理一样的<code>rancher/agent-instance</code>镜像。它内置了HAProxy，默认使用轮询。</p>
-<h2 id="u9884_u7F6E_u6A21_u677F"><a href="#u9884_u7F6E_u6A21_u677F" class="headerlink" title="预置模板"></a>预置模板</h2><p>点击<strong>CATALOG</strong>，便能看到Rancher为我们预置了一系列的应用模板。我们用个小镜像Etcd试试。首先找到Etcd的图标：<br><img src="/img/rancher-etcd.jpg" alt=""></p>
+<h2 id="预置模板"><a href="#预置模板" class="headerlink" title="预置模板"></a>预置模板</h2><p>点击<strong>CATALOG</strong>，便能看到Rancher为我们预置了一系列的应用模板。我们用个小镜像Etcd试试。首先找到Etcd的图标：<br><img src="/img/rancher-etcd.jpg" alt=""></p>
 <p>点击<strong>View Details</strong>进入etcd详细页面，滚动到最下方。由于我们只有两个agent，在<strong>Number of Nodes</strong>里填入1，然后点击<strong>Launch</strong>按钮。很快，一个etcd服务就启动起来了。按如下参数给这个服务增加一套负载均衡：</p>
 <ul>
 <li><strong>Scale</strong>：Always run one instance of this container on every host</li>
@@ -216,7 +214,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/rancher/" data-title="用容器轻松搭建Rancher运行环境 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/rancher/" data-title="用容器轻松搭建Rancher运行环境 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -260,7 +258,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5BB9_u5668"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C_u5E94_u7528"><span class="toc-number">4.</span> <span class="toc-text">运行应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u9884_u7F6E_u6A21_u677F"><span class="toc-number">5.</span> <span class="toc-text">预置模板</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行容器"><span class="toc-number">3.</span> <span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行应用"><span class="toc-number">4.</span> <span class="toc-text">运行应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#预置模板"><span class="toc-number">5.</span> <span class="toc-text">预置模板</span></a></li></ol>
  
   </div>
 
@@ -288,7 +286,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -357,15 +355,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -381,11 +375,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -397,7 +395,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

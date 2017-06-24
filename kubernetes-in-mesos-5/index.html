@@ -13,39 +13,19 @@
     
 
     
-    <meta name="description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台">
+    <meta name="description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台">
+<meta name="keywords" content="kubernetes,mesos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如果有10000台机器，你想怎么玩？（五）日志">
 <meta property="og:url" content="http://qinghua.github.io/kubernetes-in-mesos-5/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台">
+<meta property="og:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台">
 <meta property="og:image" content="http://qinghua.github.io/img/kibana.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/kibana-official.jpg">
 <meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如果有10000台机器，你想怎么玩？（五）日志">
-<meta name="twitter:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。
-
-如果有10000台机器，你想怎么玩？（一）概述
-如果有10000台机器，你想怎么玩？（二）高可用
-如果有10000台机器，你想怎么玩？（三）持久化
-如果有10000台机器，你想怎么玩？（四）监控
-如果有10000台机器，你想怎么玩？（五）日志
-如果有10000台">
+<meta name="twitter:description" content="这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。  如果有10000台机器，你想怎么玩？（一）概述 如果有10000台机器，你想怎么玩？（二）高可用 如果有10000台机器，你想怎么玩？（三）持久化 如果有10000台机器，你想怎么玩？（四）监控 如果有10000台机器，你想怎么玩？（五）日志 如果有10000台">
 <meta name="twitter:image" content="http://qinghua.github.io/img/kibana.jpg">
 
     
@@ -144,7 +124,7 @@
 <li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784"><a href="#u96C6_u4E2D_u5316_u65E5_u5FD7_u67B6_u6784" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
+<h2 id="集中化日志架构"><a href="#集中化日志架构" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/" target="_blank" rel="external">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
 <ul>
 <li>收集：通常以代理的形式运行在各个节点上，负责收集日志。我们希望能尽可能地实时，因为当我们重现一个bug的时候，不会愿意再等上好几分钟才能看到当时的操作日志。</li>
 <li>传输：把收集到的日志传给存储。这个阶段关注的是可靠性。万一日志丢失的话那可就麻烦了。</li>
@@ -152,10 +132,10 @@
 <li>分析：不同的分析工具适用于不同的存储。这个也包含可视化的分析及报表导出等等。</li>
 <li>告警：出现错误日志的时候通知运维人员。最好还能聚合相同的错误，因为作为运维来说，实在是不想看到同一个类型的错误不停地骚扰过来。</li>
 </ul>
-<h2 id="u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848"><a href="#u4F20_u7EDF_u65E5_u5FD7_u65B9_u6848" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a href="http://www.splunk.com/" target="_blank" rel="external">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a href="https://www.sumologic.com/" target="_blank" rel="external">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a href="https://www.elastic.co/webinars/introduction-elk-stack" target="_blank" rel="external">ELK</a>和Apache的<a href="http://flume.apache.org/" target="_blank" rel="external">Flume</a>+<a href="http://kafka.apache.org/" target="_blank" rel="external">Kafka</a>+<a href="http://storm.apache.org/" target="_blank" rel="external">Storm</a>。</p>
+<h2 id="传统日志方案"><a href="#传统日志方案" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a href="http://www.splunk.com/" target="_blank" rel="external">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a href="https://www.sumologic.com/" target="_blank" rel="external">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a href="https://www.elastic.co/webinars/introduction-elk-stack" target="_blank" rel="external">ELK</a>和Apache的<a href="http://flume.apache.org/" target="_blank" rel="external">Flume</a>+<a href="http://kafka.apache.org/" target="_blank" rel="external">Kafka</a>+<a href="http://storm.apache.org/" target="_blank" rel="external">Storm</a>。</p>
 <p>ELK是<a href="https://www.elastic.co/products/elasticsearch" target="_blank" rel="external">Elastic search</a>、<a href="https://www.elastic.co/products/logstash" target="_blank" rel="external">Logstash</a>和<a href="https://www.elastic.co/products/kibana" target="_blank" rel="external">Kibana</a>三个开源软件的组合。其中logstash可以对日志进行收集、过滤和简单处理，并将其存储到elastic search上，最终供kibana展示（和上一篇的监控很类似啊）。这套方案可以参考<a href="http://dockone.io/article/505" target="_blank" rel="external">新浪的实时日志架构</a>。这一本<a href="http://kibana.logstash.es/content/" target="_blank" rel="external">ELKstack 中文指南</a>也写得非常详细。</p>
 <p>Apache的flume扮演者类似logstash的角色来收集数据，storm可以对flume采集到的数据进行实时分析。由于数据的采集和处理速度可能不一致，因此用消息中间件kafka来作为缓冲。但是kafka不可能存储所有的日志数据，所以会用其他的存储系统来负责持久化，如同样由Apache提供的<a href="https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html" target="_blank" rel="external">HDFS</a>。这套方案可以参考<a href="http://tech.meituan.com/mt-log-system-arch.html" target="_blank" rel="external">美团的日志收集系统架构</a>。如果需要对分析后的结果持久化，还可以引入<a href="https://www.mysql.com/" target="_blank" rel="external">mysql</a>等数据库。</p>
-<h2 id="kubernetes_u65B9_u6848"><a href="#kubernetes_u65B9_u6848" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a href="http://www.fluentd.org/" target="_blank" rel="external">fluentd</a>（有<a href="http://www.tuicool.com/articles/7FzqeeI" target="_blank" rel="external">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es" target="_blank" rel="external">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg" alt=""></p>
+<h2 id="kubernetes方案"><a href="#kubernetes方案" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a href="http://www.fluentd.org/" target="_blank" rel="external">fluentd</a>（有<a href="http://www.tuicool.com/articles/7FzqeeI" target="_blank" rel="external">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es" target="_blank" rel="external">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg" alt=""></p>
 <p>还可以根据日志来配置各种图表，生成很炫的Dashboard。这个是官方的<a href="http://demo.elastic.co/packetbeat/" target="_blank" rel="external">demo</a>：<br><img src="/img/kibana-official.jpg" alt=""></p>
 <p>如果日志不是写到文件系统，而是写到stdout或者stderr，那么kubernetes直接就可以用logs命令看到，就不需要这一整套了。但是一个复杂的web应用，通常还是有复杂的日志文件配置的。</p>
   
@@ -180,7 +160,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-5/" data-title="如果有10000台机器，你想怎么玩？（五）日志 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/kubernetes-in-mesos-5/" data-title="如果有10000台机器，你想怎么玩？（五）日志 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -245,7 +225,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -314,15 +294,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -338,11 +314,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -354,7 +334,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

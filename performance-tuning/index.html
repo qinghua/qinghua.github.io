@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="程序猿和攻城狮们天天写代码，难免碰到别人反映程序慢。我自己就碰到了许多次这样的问题。现在将一些心得记录总结一下，以便大家和未来的自己参考。总体原则是：不能无的放矢。">
+<meta name="keywords" content="performance tuning">
 <meta property="og:type" content="article">
 <meta property="og:title" content="性能调优的一些技巧总结">
 <meta property="og:url" content="http://qinghua.github.io/performance-tuning/index.html">
@@ -113,13 +114,13 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u524D_u7AEF"><span class="toc-number">1.</span> <span class="toc-text">前端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u540E_u7AEF"><span class="toc-number">2.</span> <span class="toc-text">后端</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前端"><span class="toc-number">1.</span> <span class="toc-text">前端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后端"><span class="toc-number">2.</span> <span class="toc-text">后端</span></a></li></ol>
 		
 		</div>
 		
 		<p>程序猿和攻城狮们天天写代码，难免碰到别人反映程序慢。我自己就碰到了许多次这样的问题。现在将一些心得记录总结一下，以便大家和未来的自己参考。总体原则是：不能无的放矢。<br><a id="more"></a></p>
 <p>曾经面试过一个人，问对方说如果有一天客服反馈说你编写的页面加载很慢，那你应该怎么办？对方想了想：加缓存呗。可是此时连慢的原因都还不知道呢，加缓存能管用么？不管如何，首先得知道哪里慢，然后针对慢的地方对症下药，才是解决之道。没有数据的性能调优就是耍流氓！就像这几天霾绕帝都，让人想起炒菜油烟的梗。难道所有人不炒菜雾霾就能消失？首先还是要收集数据，到底慢（mái）的主要原（chéng）因（fèn）是什么？</p>
-<h2 id="u524D_u7AEF"><a href="#u524D_u7AEF" class="headerlink" title="前端"></a>前端</h2><p>十年前，那会儿还没有chrome呢。当时web页面调得没有什么问题了，然后在客户那边渲染就是很慢。看了一下数据量确实很大，于是用最原始的办法：加上alert()来人肉估计一下运行时间，然后就发现下面这段代码很慢：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123; ... &#125;</div></pre></td></tr></table></figure></p>
+<h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p>十年前，那会儿还没有chrome呢。当时web页面调得没有什么问题了，然后在客户那边渲染就是很慢。看了一下数据量确实很大，于是用最原始的办法：加上alert()来人肉估计一下运行时间，然后就发现下面这段代码很慢：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123; ... &#125;</div></pre></td></tr></table></figure></p>
 <p>可是循环体的内容很简单，怎么看都不太会影响处理速度的样子，那问题出在哪里呢？抱着试试看的想法，把代码变成这样：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">int length = arr.length;</div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; length; i++) &#123; ... &#125;</div></pre></td></tr></table></figure>
 <p>居然问题就解决了！从此后写js的习惯就变了……当然现代的浏览器都对类似的代码进行了优化，所以这么奇怪的事情已经不太常见了。我们有了强大的chrome，可以用Profiles来测试网页的性能：<br><img src="/img/chrome-profiler.jpg" alt=""></p>
@@ -127,7 +128,7 @@
 <p>如果request持续时间占的比重很大，那就需要跑到后端看看了。如果一个web页面明显慢，但是时间又在前后端分布均匀，那么恭喜你，前后端的调优都得一起做了，否则性能提升恐怕不会那么的明显。这样的机会可不是每个程序员都能得到的。前端的算法也是一个可能会出事故的点。有一次的需求就是页面的一棵树，每个枝叶都有一个checkbox，在选择枝的时候要把叶都选上。如果数据量有可能比较大的话，算法的优劣一般就直接决定了用户的体验。算法因需求而异，这里就不展开细说了，刷刷<a href="https://leetcode.com/" target="_blank" rel="external">LeetCode</a>吧。</p>
 <p>有时候，速度慢在资源加载上。例如，一个angular的库就100多k，再加上其它七七八八的类库，还有自己的js代码，一开始需要下载1M的js文件。CDN、minify这些手段之外，还有一种办法就是，让下载大文件在用户的操作期间来做。例如，企业级web应用的统一入口一般都是login页面，这时候用户需要填写自己的凭证信息，而这是需要一段时间的。如果在这段时间内把大文件下载并缓存到浏览器里，虽然还是比较慢，但是并不太会影响用户体验。还可以拆分相对来说不太会变化的代码和变化可能会较频繁的代码，这样在部署新版本之后，不太会变化的代码的缓存就可以重复利用起来了。</p>
 <p>上面的办法其实就是异步的思路。有时候代码是这样工作的：一个ajax完成之后，再发另一个ajax以请求其它信息。这时候就可以看看是否这两个ajax请求有依赖，如果没有依赖，完全可以并行运行，如果有依赖，也可以考虑是否能合并为一个更特定一些的请求。</p>
-<h2 id="u540E_u7AEF"><a href="#u540E_u7AEF" class="headerlink" title="后端"></a>后端</h2><p>后端可以发挥的空间相对来说更大一些。缓存用好了是一剂良药，用不好就是一剂毒药。毕竟<a href="http://martinfowler.com/bliki/TwoHardThings.html" target="_blank" rel="external">命名和缓存失效是计算机科学里面最难应对的两件事</a>。前一阵子某电商的模块里，从后端获取商品极慢，然后就发现了gateway在获取商品的API里，竟然向商品服务发了几百个请求，不慢才怪呢。统计了一下，这里面至少有90%都是参数相同的重复请求，使用30秒的短缓存，便可以立即减少重复请求，提高90%的性能，这样用户的感知就非常明显了。但实际上，还是需要分析代码，为什么会有这么多的重复请求？多半还是代码写的有问题。缓存是治标之道，立竿见影，但要治本，还是需要从代码上着手，优化代码本身。还有一些可以做的，是提供合并查询的API，例如除了提供getSkuById()以外，再提供一个getSkusByIds()的方法，当然还要小心不要出现<a href="http://stackoverflow.com/questions/97197/what-is-the-n1-selects-issue" target="_blank" rel="external">n+1</a>的问题。还有一个C#里经常会碰到的性能问题，那就是过早地计算linq的实际值。Java 8的流里也有类似的可能。</p>
+<h2 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h2><p>后端可以发挥的空间相对来说更大一些。缓存用好了是一剂良药，用不好就是一剂毒药。毕竟<a href="http://martinfowler.com/bliki/TwoHardThings.html" target="_blank" rel="external">命名和缓存失效是计算机科学里面最难应对的两件事</a>。前一阵子某电商的模块里，从后端获取商品极慢，然后就发现了gateway在获取商品的API里，竟然向商品服务发了几百个请求，不慢才怪呢。统计了一下，这里面至少有90%都是参数相同的重复请求，使用30秒的短缓存，便可以立即减少重复请求，提高90%的性能，这样用户的感知就非常明显了。但实际上，还是需要分析代码，为什么会有这么多的重复请求？多半还是代码写的有问题。缓存是治标之道，立竿见影，但要治本，还是需要从代码上着手，优化代码本身。还有一些可以做的，是提供合并查询的API，例如除了提供getSkuById()以外，再提供一个getSkusByIds()的方法，当然还要小心不要出现<a href="http://stackoverflow.com/questions/97197/what-is-the-n1-selects-issue" target="_blank" rel="external">n+1</a>的问题。还有一个C#里经常会碰到的性能问题，那就是过早地计算linq的实际值。Java 8的流里也有类似的可能。</p>
 <p>有时候，性能问题与需求有关系。曾经碰到过的一个需求是：用户注册的时候，要求昵称不能重复。如果重复了，推荐3个以递增数字结尾的新昵称给用户。例如，ggg被注册了，推荐ggg1、ggg2、ggg3给用户。当然还需要判断ggg1、ggg2、ggg3是否也被注册了，否则还得往后加。而验证昵称的代码因为需要访问数据库导致比较慢。有一段时间，用户很喜欢使用这个昵称：༺༻，都排到100号了。每当新用户想使用这个昵称的时候，后台都需要判断100次以上，因为༺༻1到༺༻100都被占用了。这时候就可以跟产品经理讨论讨论，是否需要推荐昵称？是否可以改变推荐昵称的方式？例如增加日期到推荐昵称里以避免重复。必要时，还可以挑战一下：有多少用户使用了我们系统推荐的昵称？如果需求实在是硬邦邦完全不能变，那只能考虑一些技术手段了，例如给数据库里用户表的昵称字段增加索引、缓存常见昵称的当前最大值、甚至动大刀子弄个昵称服务，或是备份数据库等，看看是否付出能够值回票价了。还有一次是推荐好友的功能，要求随机同城异性等级高，说不定还需要考虑年龄星座喜好呢，这些大多是不常用的字段，也滤不掉太多数据，查找起来自然很慢，这样也需要看看业务价值究竟有多大。</p>
 <p>后端不像前端那样打开浏览器就能看到性能信息，也很难通过调试的方式来看生产环境为什么慢。这个时候如果框架里有处理时间日志，就会对排除性能问题非常有帮助。如果配置了ELK或者Splunk，就可以轻松找到可疑的接口。用户模块新上线的时候，就曾经直接定位到推荐好友的API速度慢，从而找到那条缓慢的SQL。哪怕是模块正常工作期间，也能通过日志看到一些有用信息。有天晚上从日志里发现用户注册API特别慢，后来知道原来是电信/联通的问题，当天如果通过微信/微博注册的用户，由于网络不通畅，导致整个用户注册响应都有问题。如果部署在阿里云上，云抽风了也并不罕见。另外所有与外部请求有关的模块，都有潜在的性能风险。使用外部请求的模块一般都有微信/微博授权、微信/支付宝付款、SMS网关、埋点、物流/天气接口、各种云服务/CDN等等。</p>
   
@@ -152,7 +153,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/performance-tuning/" data-title="性能调优的一些技巧总结 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/performance-tuning/" data-title="性能调优的一些技巧总结 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -196,7 +197,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u524D_u7AEF"><span class="toc-number">1.</span> <span class="toc-text">前端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u540E_u7AEF"><span class="toc-number">2.</span> <span class="toc-text">后端</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前端"><span class="toc-number">1.</span> <span class="toc-text">前端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后端"><span class="toc-number">2.</span> <span class="toc-text">后端</span></a></li></ol>
  
   </div>
 
@@ -224,7 +225,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -293,15 +294,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -317,11 +314,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -333,7 +334,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

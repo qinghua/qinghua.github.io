@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="Ceph是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考《用容器轻松搭建ceph实验环境》。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker R">
+<meta name="keywords" content="ceph,storage,radosgw,s3,openstack swift">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用RADOSGW提供ceph的S3和Swift接口">
 <meta property="og:url" content="http://qinghua.github.io/ceph-radosgw/index.html">
@@ -110,23 +111,23 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u670D_u52A1"><span class="toc-number">3.</span> <span class="toc-text">测试服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#S3"><span class="toc-number">3.1.</span> <span class="toc-text">S3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift"><span class="toc-number">3.2.</span> <span class="toc-text">Swift</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试服务"><span class="toc-number">3.</span> <span class="toc-text">测试服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#S3"><span class="toc-number">3.1.</span> <span class="toc-text">S3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift"><span class="toc-number">3.2.</span> <span class="toc-text">Swift</span></a></li></ol></li></ol>
 		
 		</div>
 		
 		<p><a href="http://ceph.com/" target="_blank" rel="external">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。对如何加载使用这些存储感兴趣的话可以参考<a href="/ceph-demo">《用容器轻松搭建ceph实验环境》</a>。它还可以通过RADOSGW来实现S3和OpenStack Swift存储接口。不管RADOSGW还是块存储或文件存储都是基于对象存储来提供服务。本文的主要内容是如何通过RADOSGW来暴露S3和SWIFT接口。由于Docker Registry在2.4版本<a href="https://github.com/docker/distribution/commit/5967d333425a8dd5d36c5bb456098839654d38af" target="_blank" rel="external">移除了对rados的支持</a>，所以如果使用ceph作为后端存储就需要利用RADOSGW了。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a href="https://www.virtualbox.org/wiki/Downloads" target="_blank" rel="external">virtualBox</a>和<a href="https://www.vagrantup.com/downloads.html" target="_blank" rel="external">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：<br><figure class="highlight sh"><figcaption><span>virtual box host</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir <span class="built_in">test</span></div><div class="line"><span class="built_in">cd</span> <span class="built_in">test</span></div><div class="line">vagrant init minimum/ubuntu-trusty64-docker</div><div class="line">vi Vagrantfile</div></pre></td></tr></table></figure></p>
 <p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP为<strong>192.168.33.111</strong>，内存为1G的虚拟机。<br><figure class="highlight ruby"><figcaption><span>Vagrantfile</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">config.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"192.168.33.111"</span></div><div class="line">config.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></div><div class="line">  v.memory = <span class="number">1024</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure></p>
 <p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后终端运行以下命令启动并连接虚拟机。<br><figure class="highlight sh"><figcaption><span>virtual box host terminal</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">vagrant up</div><div class="line">vagrant ssh</div></pre></td></tr></table></figure></p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先需要安装一些ceph、radosgw的依赖包，还有python-boto、swift客户端等工具可以用于测试。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get -y --force-yes install ceph-common radosgw python-boto</div><div class="line">sudo pip install --upgrade setuptools</div><div class="line">sudo pip install --upgrade python-swiftclient</div></pre></td></tr></table></figure></p>
-<p>然后就可以启动ceph/demo这个容器来轻松提供ceph服务了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=host -v /etc/ceph:/etc/ceph <span class="_">-e</span> MON_IP=192.168.33.111 <span class="_">-e</span> CEPH_NETWORK=192.168.33.111/24 --name=ceph ceph/demo</div></pre></td></tr></table></figure></p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先需要安装一些ceph、radosgw的依赖包，还有python-boto、swift客户端等工具可以用于测试。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get -y --force-yes install ceph-common radosgw python-boto</div><div class="line">sudo pip install --upgrade setuptools</div><div class="line">sudo pip install --upgrade python-swiftclient</div></pre></td></tr></table></figure></p>
+<p>然后就可以启动ceph/demo这个容器来轻松提供ceph服务了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d --net=host -v /etc/ceph:/etc/ceph -e MON_IP=192.168.33.111 -e CEPH_NETWORK=192.168.33.111/24 --name=ceph ceph/demo</div></pre></td></tr></table></figure></p>
 <p>接下来的步骤主要参考的是有一点坑的<a href="http://docs.ceph.com/docs/master/radosgw/config/" target="_blank" rel="external">官方教程</a>。需要为radosgw生成一个名为<code>gateway</code>的用户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo ceph auth del client.radosgw.gateway</div><div class="line">sudo ceph auth get-or-create client.radosgw.gateway osd <span class="string">'allow rwx'</span> mon <span class="string">'allow rwx'</span> -o /etc/ceph/ceph.client.radosgw.keyring</div></pre></td></tr></table></figure></p>
 <p>然后需要把这个用户加到<code>ceph.conf</code>配置里，提供端口为9000的<a href="https://en.wikipedia.org/wiki/FastCGI" target="_blank" rel="external">FastCGI</a>服务：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">sudo sed -i $<span class="string">'$a \\\n'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a [client.radosgw.gateway]'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a host = vagrant-ubuntu-trusty-64'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a keyring = /etc/ceph/ceph.client.radosgw.keyring'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a rgw socket path = ""'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a log file = /var/log/radosgw/client.radosgw.gateway.log'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a rgw frontends = fastcgi socket_port=9000 socket_host=0.0.0.0'</span> /etc/ceph/ceph.conf</div><div class="line">sudo sed -i <span class="string">'$a rgw print continue = false'</span> /etc/ceph/ceph.conf</div></pre></td></tr></table></figure></p>
 <p>其中第二行的<code>vagrant-ubuntu-trusty-64</code>，必须使用<code>hostname -s</code>得出的结果。如果是按照<a href="/ceph-radosgw/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>的做法，是不需要变的。另外<a href="https://segmentfault.com/q/1010000000256516" target="_blank" rel="external">这里</a>的第一个回答非常清晰地解释了CGI和FastCGI。<br>配置完成后就可以重启ceph容器并启动radosgw：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker restart ceph</div><div class="line">sudo /etc/init.d/radosgw start</div></pre></td></tr></table></figure></p>
 <p>为了提供HTTP服务，需要安装apache2（Red Hat系是httpd）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get -y --force-yes install apache2</div></pre></td></tr></table></figure></p>
 <p>接下来创建一个apache2的配置文件，监听80端口并把请求转发到radosgw提供的FastCGI 9000端口上：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt; EOF &gt; rgw.conf</div><div class="line">&lt;VirtualHost *:80&gt;</div><div class="line">ServerName localhost</div><div class="line">DocumentRoot /var/www/html</div><div class="line"></div><div class="line">ErrorLog /var/<span class="built_in">log</span>/apache2/rgw_error.log</div><div class="line">CustomLog /var/<span class="built_in">log</span>/apache2/rgw_access.log combined</div><div class="line"></div><div class="line"><span class="comment"># LogLevel debug</span></div><div class="line"></div><div class="line">RewriteEngine On</div><div class="line"></div><div class="line">RewriteRule .* - [E=HTTP_AUTHORIZATION:%&#123;HTTP:Authorization&#125;,L]</div><div class="line"></div><div class="line">SetEnv proxy-nokeepalive 1</div><div class="line"></div><div class="line">ProxyPass / fcgi://localhost:9000/</div><div class="line"></div><div class="line">&lt;/VirtualHost&gt;</div><div class="line">EOF</div><div class="line"></div><div class="line">sudo mv rgw.conf /etc/apache2/conf-enabled/rgw.conf</div></pre></td></tr></table></figure></p>
 <p>由于上述配置需要用到一些apache2默认未加载的模块，所以需要加载并重新启动apache2：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo a2enmod rewrite</div><div class="line">sudo a2enmod proxy_http</div><div class="line">sudo a2enmod proxy_fcgi</div><div class="line">sudo service apache2 restart</div></pre></td></tr></table></figure></p>
-<h2 id="u6D4B_u8BD5_u670D_u52A1"><a href="#u6D4B_u8BD5_u670D_u52A1" class="headerlink" title="测试服务"></a>测试服务</h2><h3 id="S3"><a href="#S3" class="headerlink" title="S3"></a>S3</h3><p>RADOSGW的基本配置已经完成，现在我们测试一下s3接口。它的存储模型是这样的：用户可以创建和管理多个<a href="http://docs.aws.amazon.com/zh_cn/AmazonS3/latest/dev/UsingBucket.html" target="_blank" rel="external">存储桶（bucket）</a>，每个存储桶里可以存放无限多个对象（object），每个对象是一个键值对。存储桶的名称与区域无关，全球唯一。</p>
+<h2 id="测试服务"><a href="#测试服务" class="headerlink" title="测试服务"></a>测试服务</h2><h3 id="S3"><a href="#S3" class="headerlink" title="S3"></a>S3</h3><p>RADOSGW的基本配置已经完成，现在我们测试一下s3接口。它的存储模型是这样的：用户可以创建和管理多个<a href="http://docs.aws.amazon.com/zh_cn/AmazonS3/latest/dev/UsingBucket.html" target="_blank" rel="external">存储桶（bucket）</a>，每个存储桶里可以存放无限多个对象（object），每个对象是一个键值对。存储桶的名称与区域无关，全球唯一。</p>
 <p>接下来先创建一个s3用户：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> ceph radosgw-admin user create --uid=<span class="string">"testuser"</span> --display-name=<span class="string">"First User"</span> | tee user.txt</div><div class="line"><span class="built_in">export</span> ACCESS_KEY=`sed -n <span class="string">'s/ *"access_key": "\(.*\)",/\1/p'</span> user.txt`</div><div class="line"><span class="built_in">export</span> SECRET_KEY=`sed -n <span class="string">'s/ *"secret_key": "\(.*\)"/\1/p'</span> user.txt`</div></pre></td></tr></table></figure></p>
 <p>使用以下python代码来测试我们的s3接口是否已经可用：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt; EOF &gt; s3test.py</div><div class="line">import boto</div><div class="line">import boto.s3.connection</div><div class="line">import os</div><div class="line"></div><div class="line">access_key = os.environ[<span class="string">"ACCESS_KEY"</span>]</div><div class="line">secret_key = os.environ[<span class="string">"SECRET_KEY"</span>]</div><div class="line">conn = boto.connect_s3(</div><div class="line">aws_access_key_id = access_key,</div><div class="line">aws_secret_access_key = secret_key,</div><div class="line">host = <span class="string">'192.168.33.111'</span>,</div><div class="line">is_secure=False,</div><div class="line">calling_format = boto.s3.connection.OrdinaryCallingFormat(),</div><div class="line">)</div><div class="line">bucket = conn.create_bucket(<span class="string">'my-new-bucket'</span>)</div><div class="line"><span class="keyword">for</span> bucket <span class="keyword">in</span> conn.get_all_buckets():</div><div class="line">    <span class="built_in">print</span> <span class="string">"&#123;name&#125;\t&#123;created&#125;"</span>.format(</div><div class="line">        name = bucket.name,</div><div class="line">        created = bucket.creation_date,</div><div class="line">)</div><div class="line">EOF</div><div class="line"></div><div class="line">python s3test.py</div></pre></td></tr></table></figure></p>
 <p>如果显示了<code>my-new-bucket</code>，那就说明测试成功地通过s3接口创建了一个存储桶。可以使用以下命令来获取这个存储桶和实例的信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> ceph radosgw-admin metadata bucket list</div><div class="line">docker <span class="built_in">exec</span> ceph radosgw-admin metadata get bucket:my-new-bucket  | tee bucket.txt</div><div class="line"><span class="built_in">export</span> BUCKET_ID=`cat bucket.txt | sed -n <span class="string">'s/ *"bucket_id": "\(.*\)"/\1/p'</span>`</div><div class="line">docker <span class="built_in">exec</span> ceph radosgw-admin metadata get bucket.instance:my-new-bucket:<span class="variable">$BUCKET_ID</span></div></pre></td></tr></table></figure></p>
@@ -159,7 +160,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/ceph-radosgw/" data-title="使用RADOSGW提供ceph的S3和Swift接口 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/ceph-radosgw/" data-title="使用RADOSGW提供ceph的S3和Swift接口 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -203,7 +204,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u670D_u52A1"><span class="toc-number">3.</span> <span class="toc-text">测试服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#S3"><span class="toc-number">3.1.</span> <span class="toc-text">S3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift"><span class="toc-number">3.2.</span> <span class="toc-text">Swift</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试服务"><span class="toc-number">3.</span> <span class="toc-text">测试服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#S3"><span class="toc-number">3.1.</span> <span class="toc-text">S3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Swift"><span class="toc-number">3.2.</span> <span class="toc-text">Swift</span></a></li></ol></li></ol>
  
   </div>
 
@@ -231,7 +232,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -300,15 +301,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -324,11 +321,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -340,7 +341,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

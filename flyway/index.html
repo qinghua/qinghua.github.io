@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="Flyway是一个用Java编写的开源数据库版本管理工具，或者说是数据库结构变更工具，旨在帮助开发和运维更容易地管理数据库演进过程中的各个版本。它的源代码在github上。">
+<meta name="keywords" content="flyway,db,db migration">
 <meta property="og:type" content="article">
 <meta property="og:title" content="轻松上手数据库版本管理工具Flyway">
 <meta property="og:url" content="http://qinghua.github.io/flyway/index.html">
@@ -112,30 +113,30 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7248_u672C_u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">版本管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5386_u53F2_u6570_u636E_u5E93"><span class="toc-number">4.</span> <span class="toc-text">历史数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">5.</span> <span class="toc-text">其它</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">2.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#版本管理"><span class="toc-number">3.</span> <span class="toc-text">版本管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#历史数据库"><span class="toc-number">4.</span> <span class="toc-text">历史数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它"><span class="toc-number">5.</span> <span class="toc-text">其它</span></a></li></ol>
 		
 		</div>
 		
 		<p><a href="https://flywaydb.org/" target="_blank" rel="external">Flyway</a>是一个用Java编写的开源数据库版本管理工具，或者说是数据库结构变更工具，旨在帮助开发和运维更容易地管理数据库演进过程中的各个版本。它的源代码在<a href="https://github.com/flyway/flyway" target="_blank" rel="external">github</a>上。<br><a id="more"></a></p>
-<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>在开发过程中，数据库是不断向前演进的，可以说是拥有“版本”这个概念。通常当在生产环境部署新代码的时候，会由开发或者DBA来做数据库结构变更的操作。当数据库较小，环境数量少的时候，人工操作比较有把握，直接就人肉来做结构变更了。可要是在数据库复杂、环境数量多（开发、测试、预发布、生产……）的情况下，人工处理这样的事就开始有些令人担心了。如何保证所有环境的数据库结构是一致的？如何知道当前环境的数据库是哪个状态？如何知道生产环境的一个关于数据库的hotfix是否也在预发布环境中执行了？Flyway就是用来解决这样的问题的工具。它的原理非常简单，就是在数据库中创建一张自己用的表，例如schema_version，在里面存放数据库当前的状态，以此来管理数据库的版本。Flyway提供了<a href="https://flywaydb.org/getstarted/firststeps/commandline" target="_blank" rel="external">命令行</a>、<a href="https://flywaydb.org/getstarted/firststeps/api" target="_blank" rel="external">API</a>、<a href="https://flywaydb.org/getstarted/firststeps/maven" target="_blank" rel="external">Maven</a>、<a href="https://flywaydb.org/getstarted/firststeps/gradle" target="_blank" rel="external">Gradle</a>、<a href="https://flywaydb.org/getstarted/firststeps/ant" target="_blank" rel="external">Ant</a>、<a href="https://flywaydb.org/getstarted/firststeps/sbt" target="_blank" rel="external">SBT</a>等各种方式，来让我们更容易将其与自己的项目结合。类似的工具还有<a href="http://www.liquibase.org/" target="_blank" rel="external">Liquibase</a>、<a href="http://dbdeploy.com/" target="_blank" rel="external">dbdeploy</a>等。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在开发过程中，数据库是不断向前演进的，可以说是拥有“版本”这个概念。通常当在生产环境部署新代码的时候，会由开发或者DBA来做数据库结构变更的操作。当数据库较小，环境数量少的时候，人工操作比较有把握，直接就人肉来做结构变更了。可要是在数据库复杂、环境数量多（开发、测试、预发布、生产……）的情况下，人工处理这样的事就开始有些令人担心了。如何保证所有环境的数据库结构是一致的？如何知道当前环境的数据库是哪个状态？如何知道生产环境的一个关于数据库的hotfix是否也在预发布环境中执行了？Flyway就是用来解决这样的问题的工具。它的原理非常简单，就是在数据库中创建一张自己用的表，例如schema_version，在里面存放数据库当前的状态，以此来管理数据库的版本。Flyway提供了<a href="https://flywaydb.org/getstarted/firststeps/commandline" target="_blank" rel="external">命令行</a>、<a href="https://flywaydb.org/getstarted/firststeps/api" target="_blank" rel="external">API</a>、<a href="https://flywaydb.org/getstarted/firststeps/maven" target="_blank" rel="external">Maven</a>、<a href="https://flywaydb.org/getstarted/firststeps/gradle" target="_blank" rel="external">Gradle</a>、<a href="https://flywaydb.org/getstarted/firststeps/ant" target="_blank" rel="external">Ant</a>、<a href="https://flywaydb.org/getstarted/firststeps/sbt" target="_blank" rel="external">SBT</a>等各种方式，来让我们更容易将其与自己的项目结合。类似的工具还有<a href="http://www.liquibase.org/" target="_blank" rel="external">Liquibase</a>、<a href="http://dbdeploy.com/" target="_blank" rel="external">dbdeploy</a>等。</p>
 <p>本文将会用Docker来创建一个mysql的实例，用Maven来创建一个包含数据库的Java项目，并使用Flyway来进行版本管理。</p>
-<h2 id="u51C6_u5907_u73AF_u5883"><a href="#u51C6_u5907_u73AF_u5883" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Docker、Java、Maven和喜欢的IDE。我用的是<a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="external">Intellij IDEA社区版</a>。我用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动mysql容器来提供数据库服务并创建ggg数据库：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> --net=host --name=mysql <span class="_">-e</span> MYSQL_ROOT_PASSWORD=123456 mysql:5.7.12</div><div class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456 <span class="_">-e</span> <span class="string">'create database ggg;'</span></div></pre></td></tr></table></figure></p>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Docker、Java、Maven和喜欢的IDE。我用的是<a href="https://www.jetbrains.com/idea/download/" target="_blank" rel="external">Intellij IDEA社区版</a>。我用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动mysql容器来提供数据库服务并创建ggg数据库：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker run -d --net=host --name=mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7.12</div><div class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456 -e <span class="string">'create database ggg;'</span></div></pre></td></tr></table></figure></p>
 <p>接下来新建一个Maven工程helloFlyway：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mvn archetype:generate -B \</div><div class="line">        -DarchetypeGroupId=org.apache.maven.archetypes \</div><div class="line">        -DarchetypeArtifactId=maven-archetype-quickstart \</div><div class="line">        -DarchetypeVersion=1.1 \</div><div class="line">        -DgroupId=org.ggg.flyway \</div><div class="line">        -DartifactId=helloFlyway \</div><div class="line">        -Dversion=1.0-SNAPSHOT \</div><div class="line">        -Dpackage=org.ggg.flyway</div></pre></td></tr></table></figure></p>
 <p>在<code>helloFlyway/pom.xml</code>里加入flyway的maven插件和mysql-connector-java的依赖（别忘了根据你自己的数据库来配置jdbc）：<br><figure class="highlight xml"><figcaption><span>pom.xml</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">...</span>&gt;</span></div><div class="line">    ...</div><div class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.flywaydb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>flyway-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">url</span>&gt;</span>jdbc:mysql://192.168.33.88:3306/ggg<span class="tag">&lt;/<span class="name">url</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">user</span>&gt;</span>root<span class="tag">&lt;/<span class="name">user</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">password</span>&gt;</span>123456<span class="tag">&lt;/<span class="name">password</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.38<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>接下来创建一个数据库版本1的文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> helloFlyway</div><div class="line">mkdir -p src/main/resources/db/migration/</div><div class="line">cat &lt;&lt; EOF &gt; src/main/resources/db/migration/V1__Create_person_table.sql</div><div class="line">create table PERSON (</div><div class="line">    ID int not null,</div><div class="line">    NAME varchar(100) not null</div><div class="line">);</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
 <p>工程创建好并用intellij导入后，应该是这样的：<br><img src="/img/flyway-new-project.jpg" alt=""></p>
-<h2 id="u7248_u672C_u7BA1_u7406"><a href="#u7248_u672C_u7BA1_u7406" class="headerlink" title="版本管理"></a>版本管理</h2><p>使用以下命令来运行flyway：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn flyway:migrate</div></pre></td></tr></table></figure></p>
+<h2 id="版本管理"><a href="#版本管理" class="headerlink" title="版本管理"></a>版本管理</h2><p>使用以下命令来运行flyway：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn flyway:migrate</div></pre></td></tr></table></figure></p>
 <p>出现<strong>BUILD SUCCESS</strong>就说明数据库结构变更已经完成了。我们可以登录到数据库看一看：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456</div></pre></td></tr></table></figure></p>
 <p>运行以下sql就可以看到flyway确实已经起作用了：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">USE</span> ggg</div><div class="line"><span class="keyword">SHOW</span> <span class="keyword">TABLES</span>;</div><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> schema_version;</div></pre></td></tr></table></figure></p>
 <p>而表schema_version里面也有了一条记录。接下来再创建一个数据库版本2的文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cat &lt;&lt; EOF &gt; src/main/resources/db/migration/V2__Add_people.sql</div><div class="line">insert into PERSON (ID, NAME) values (1, <span class="string">'Axel'</span>);</div><div class="line">insert into PERSON (ID, NAME) values (2, <span class="string">'Mr. Foo'</span>);</div><div class="line">insert into PERSON (ID, NAME) values (3, <span class="string">'Ms. Bar'</span>);</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
 <p>再次用同一条命令来运行flyway：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn flyway:migrate</div></pre></td></tr></table></figure></p>
 <p>就会看到日志里显示<strong>Current version of schema `ggg`: 1</strong>和<strong>Migrating schema `ggg` to version 2 - Add people</strong>。如果我们重复运行<code>mvn flyway:migrate</code>，就会看到<strong>Schema `ggg` is up to date. No migration necessary</strong>。现在查看一下两张表：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> PERSON;</div><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> schema_version;</div></pre></td></tr></table></figure></p>
 <p>PERSON表里已经有了<code>V2__Add_people.sql</code>里的三条记录，而schema_version表里，就可以看到现在的版本为2。通过这样的方式，就可以管理数据库的版本了。</p>
-<h2 id="u5386_u53F2_u6570_u636E_u5E93"><a href="#u5386_u53F2_u6570_u636E_u5E93" class="headerlink" title="历史数据库"></a>历史数据库</h2><p>如果数据库里已经有历史数据了，那就会稍微麻烦一点儿。我们来试试看，首先改造一下ggg数据库：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">RENAME</span> <span class="keyword">TABLE</span> PERSON <span class="keyword">TO</span> STUDENT;</div><div class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> schema_version;</div></pre></td></tr></table></figure></p>
+<h2 id="历史数据库"><a href="#历史数据库" class="headerlink" title="历史数据库"></a>历史数据库</h2><p>如果数据库里已经有历史数据了，那就会稍微麻烦一点儿。我们来试试看，首先改造一下ggg数据库：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">RENAME</span> <span class="keyword">TABLE</span> PERSON <span class="keyword">TO</span> STUDENT;</div><div class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> schema_version;</div></pre></td></tr></table></figure></p>
 <p>这样一来，数据库的版本便被清空，PERSON表也变成了STUDENT表。如果直接运行<code>mvn flyway:migrate</code>会报错：<strong>org.flywaydb.core.api.FlywayException: Found non-empty schema `ggg` without metadata table</strong>。这时候需要用到另一个命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn flyway:baseline</div></pre></td></tr></table></figure></p>
 <p>上面的<code>baseline</code>命令会以现在的数据库结构为基础，创建一张schema_version表，标明现在的版本是1。接着运行<code>mvn flyway:migrate</code>还会报错：<strong>Migration of schema <code>ggg</code> to version 2 - Add people failed</strong>。这是因为数据库现在是版本1，所以会忽略<code>V1__Create_person_table.sql</code>而直接执行<code>V2__Add_people.sql</code>，而<code>V2__Add_people.sql</code>依赖于<code>V1__Create_person_table.sql</code>里创建的PERSON表，所以失败了。解决的方法也很简单，改变两个sql文件的版本即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mv src/main/resources/db/migration/V1__Create_person_table.sql src/main/resources/db/migration/V1_1__Create_person_table.sql</div><div class="line">mv src/main/resources/db/migration/V2__Add_people.sql src/main/resources/db/migration/V1_2__Add_people.sql</div><div class="line">mvn flyway:migrate</div></pre></td></tr></table></figure></p>
 <p>Flyway的命名规范如下：以<code>V</code>开头，<code>.sql</code>结尾，版本号可以使用<code>.</code>或者<code>_</code>，版本号和描述之间用两个下划线<code>__</code>分开。要是执行成功，但是却看不到PERSON表，那很可能是因为schema_version表里的版本已经是一个<strong>错误的</strong>版本2了，运行repair之后再重新migrate即可：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mvn flyway:<span class="keyword">repair</span></div><div class="line">mvn flyway:migrate</div></pre></td></tr></table></figure></p>
-<h2 id="u5176_u5B83"><a href="#u5176_u5B83" class="headerlink" title="其它"></a>其它</h2><p>Flyway认为<a href="https://flywaydb.org/documentation/faq.html#downgrade" target="_blank" rel="external">没有必要支持回滚</a>。可以通过<code>mvn flyway:info</code>命令来查看数据库的版本和和需要执行的sql脚本。通过<code>mvn flyway:clean</code>来清空数据库，这条命令对于测试很方便，但是<strong>千万要小心生产环境！！！</strong>此外，还有一个较常用的命令：<code>mvn flyway:validate</code>可以验证是否所有的sql都已经在数据库上运行完毕了。</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>Flyway认为<a href="https://flywaydb.org/documentation/faq.html#downgrade" target="_blank" rel="external">没有必要支持回滚</a>。可以通过<code>mvn flyway:info</code>命令来查看数据库的版本和和需要执行的sql脚本。通过<code>mvn flyway:clean</code>来清空数据库，这条命令对于测试很方便，但是<strong>千万要小心生产环境！！！</strong>此外，还有一个较常用的命令：<code>mvn flyway:validate</code>可以验证是否所有的sql都已经在数据库上运行完毕了。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -158,7 +159,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/flyway/" data-title="轻松上手数据库版本管理工具Flyway | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/flyway/" data-title="轻松上手数据库版本管理工具Flyway | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -202,7 +203,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7248_u672C_u7BA1_u7406"><span class="toc-number">3.</span> <span class="toc-text">版本管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5386_u53F2_u6570_u636E_u5E93"><span class="toc-number">4.</span> <span class="toc-text">历史数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u5B83"><span class="toc-number">5.</span> <span class="toc-text">其它</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备环境"><span class="toc-number">2.</span> <span class="toc-text">准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#版本管理"><span class="toc-number">3.</span> <span class="toc-text">版本管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#历史数据库"><span class="toc-number">4.</span> <span class="toc-text">历史数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它"><span class="toc-number">5.</span> <span class="toc-text">其它</span></a></li></ol>
  
   </div>
 
@@ -230,7 +231,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -299,15 +300,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -323,11 +320,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -339,7 +340,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>

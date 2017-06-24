@@ -14,6 +14,7 @@
 
     
     <meta name="description" content="如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？Bamboo提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。">
+<meta name="keywords" content="bamboo,marathon">
 <meta property="og:type" content="article">
 <meta property="og:title" content="用容器轻松搭建Bamboo来提供Marathon的对外服务">
 <meta property="og:url" content="http://qinghua.github.io/marathon-bamboo/index.html">
@@ -115,21 +116,21 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u670D_u52A1_u53D1_u73B0"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u65B9_u6CD5"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务发现"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他方法"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
 		
 		</div>
 		
 		<p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a href="https://github.com/QubitProducts/bamboo" target="_blank" rel="external">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。<br><a id="more"></a></p>
-<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="u642D_u5EFA_u73AF_u5883"><a href="#u642D_u5EFA_u73AF_u5883" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，但是用下面这个命令来启动marathon。它相比原来的命令多了一个<code>--event_subscriber http_callback</code>的参数，如果不配置，便不能实现HAproxy动态加载服务的功能。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    --net=host \</div><div class="line">    --name=ma \</div><div class="line">    mesosphere/marathon:v0.15.0 \</div><div class="line">    --master zk://192.168.33.18:2181/mesos \</div><div class="line">    --zk zk://192.168.33.18:2181/marathon \</div><div class="line">    --event_subscriber http_callback</div></pre></td></tr></table></figure></p>
-<p>现在启动Bamboo镜像，在里面指定marathon的地址：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">docker run <span class="_">-d</span> \</div><div class="line">    -p 8000:8000 \</div><div class="line">    -p 80:80 \</div><div class="line">    --name=bam \</div><div class="line">    <span class="_">-e</span> MARATHON_ENDPOINT=http://192.168.33.18:8080 \</div><div class="line">    <span class="_">-e</span> BAMBOO_ENDPOINT=http://192.168.33.18:8000 \</div><div class="line">    <span class="_">-e</span> BAMBOO_ZK_HOST=192.168.33.18:2181 \</div><div class="line">    <span class="_">-e</span> BAMBOO_ZK_PATH=/bamboo \</div><div class="line">    <span class="_">-e</span> BIND=<span class="string">":8000"</span> \</div><div class="line">    <span class="_">-e</span> CONFIG_PATH=<span class="string">"config/production.example.json"</span> \</div><div class="line">    <span class="_">-e</span> BAMBOO_DOCKER_AUTO_HOST=<span class="literal">true</span> \</div><div class="line">    gregory90/bamboo:0.2.11</div></pre></td></tr></table></figure></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，但是用下面这个命令来启动marathon。它相比原来的命令多了一个<code>--event_subscriber http_callback</code>的参数，如果不配置，便不能实现HAproxy动态加载服务的功能。<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">docker run -d \</div><div class="line">    --net=host \</div><div class="line">    --name=ma \</div><div class="line">    mesosphere/marathon:v0.15.0 \</div><div class="line">    --master zk://192.168.33.18:2181/mesos \</div><div class="line">    --zk zk://192.168.33.18:2181/marathon \</div><div class="line">    --event_subscriber http_callback</div></pre></td></tr></table></figure></p>
+<p>现在启动Bamboo镜像，在里面指定marathon的地址：<br><figure class="highlight sh"><figcaption><span>master</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">docker run -d \</div><div class="line">    -p 8000:8000 \</div><div class="line">    -p 80:80 \</div><div class="line">    --name=bam \</div><div class="line">    -e MARATHON_ENDPOINT=http://192.168.33.18:8080 \</div><div class="line">    -e BAMBOO_ENDPOINT=http://192.168.33.18:8000 \</div><div class="line">    -e BAMBOO_ZK_HOST=192.168.33.18:2181 \</div><div class="line">    -e BAMBOO_ZK_PATH=/bamboo \</div><div class="line">    -e BIND=<span class="string">":8000"</span> \</div><div class="line">    -e CONFIG_PATH=<span class="string">"config/production.example.json"</span> \</div><div class="line">    -e BAMBOO_DOCKER_AUTO_HOST=<span class="literal">true</span> \</div><div class="line">    gregory90/bamboo:0.2.11</div></pre></td></tr></table></figure></p>
 <p>在浏览器打开<code>http://192.168.33.18:8000/</code>应该能看到下图：<br><img src="/img/bamboo.png" alt=""></p>
-<h2 id="u670D_u52A1_u53D1_u73B0"><a href="#u670D_u52A1_u53D1_u73B0" class="headerlink" title="服务发现"></a>服务发现</h2><p>现在让我们用marathon来启动一个tomcat服务。在任意一台机器上运行以下命令，把创建tomcat服务的请求发送给marathon的REST api：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">curl -X POST http://192.168.33.18:8080/v2/apps \</div><div class="line">    -H <span class="string">"Content-type: application/json"</span> \</div><div class="line">    <span class="_">-d</span> <span class="string">'&#123;"cpus":0.5,"mem":200,"disk":0,"instances":1,"id":"tomcat", </span></div><div class="line">    "container":&#123;"docker":&#123;"image":"tomcat","network":"BRIDGE","portMappings": </div><div class="line">    [&#123;"containerPort":8080,"hostPort":0,"servicePort":0,"protocol":"tcp"&#125;]&#125;&#125;&#125;'</div></pre></td></tr></table></figure></p>
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>现在让我们用marathon来启动一个tomcat服务。在任意一台机器上运行以下命令，把创建tomcat服务的请求发送给marathon的REST api：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">curl -X POST http://192.168.33.18:8080/v2/apps \</div><div class="line">    -H <span class="string">"Content-type: application/json"</span> \</div><div class="line">    -d <span class="string">'&#123;"cpus":0.5,"mem":200,"disk":0,"instances":1,"id":"tomcat", </span></div><div class="line">    "container":&#123;"docker":&#123;"image":"tomcat","network":"BRIDGE","portMappings": </div><div class="line">    [&#123;"containerPort":8080,"hostPort":0,"servicePort":0,"protocol":"tcp"&#125;]&#125;&#125;&#125;'</div></pre></td></tr></table></figure></p>
 <p>分别刷新marathon和bamboo，就能看到它们各自多了个tomcat的服务。点击bamboo页面上的<strong>/tomcat</strong>记录最右边的加号按钮，在<strong>acl</strong>里输入<code>path_beg -i /</code>（表示运行在根目录上，有兴趣的话可以参考HAproxy的<a href="http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#7" target="_blank" rel="external">ACL语法</a>），然后点击<strong>Create</strong>按钮：<br><img src="/img/bamboo-tomcat.png" alt=""></p>
 <p>顺利的话，打开<code>http://192.168.33.18/</code>应该能看到tomcat出现啦：<br><img src="/img/tomcat.jpg" alt=""></p>
 <p>这个时候，在marathon的页面上点击tomcat这行记录，便会到tomcat application页面里。如下图选中当前的tomcat实例，点击<strong>Kill</strong>按钮：<br><img src="/img/marathon-application-tomcat.png" alt=""></p>
 <p>稍等几秒，就会看到tomcat的服务运行地址从<code>192.168.33.19:31071</code>变成了<code>192.168.33.19:31571</code>，端口因机而异。再回去刷新tomcat的<code>http://192.168.33.18/</code>页面，是不是仍然提供服务呢？如果你手快，应该能看到<strong>503 Service Unavailable</strong>，那就多刷新两下 ：） 到slave虚拟机上用命令删除tomcat容器，再观察一下，是不是一样的效果呢？</p>
-<h2 id="u5176_u4ED6_u65B9_u6CD5"><a href="#u5176_u4ED6_u65B9_u6CD5" class="headerlink" title="其他方法"></a>其他方法</h2><p>Marathon官方还支持其它<a href="https://mesosphere.github.io/marathon/docs/service-discovery-load-balancing" target="_blank" rel="external">三种服务发现的方法</a>：</p>
+<h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><p>Marathon官方还支持其它<a href="https://mesosphere.github.io/marathon/docs/service-discovery-load-balancing" target="_blank" rel="external">三种服务发现的方法</a>：</p>
 <ol>
 <li>Mesos-DNS：Mesosphere公司提供的DNS产品，不仅适用于marathon，而且适用于其它Mesos Framework。</li>
 <li>Marathon-lb：感觉上跟k8s的<a href="http://kubernetes.io/v1.1/docs/user-guide/services.html#type-nodeport" target="_blank" rel="external">NodePort</a>有点像，不过它像Bamboo那样包含了HAproxy。</li>
@@ -157,7 +158,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/marathon-bamboo/" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务 | 懒程序员改变世界" data-tsina="undefined" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/marathon-bamboo/" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -201,7 +202,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u642D_u5EFA_u73AF_u5883"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u670D_u52A1_u53D1_u73B0"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6_u65B9_u6CD5"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建环境"><span class="toc-number">2.</span> <span class="toc-text">搭建环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务发现"><span class="toc-number">3.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他方法"><span class="toc-number">4.</span> <span class="toc-text">其他方法</span></a></li></ol>
  
   </div>
 
@@ -229,7 +230,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>7</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
 		  
 		
 		  
@@ -298,15 +299,11 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -322,11 +319,15 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
 			
 		
 			
@@ -338,7 +339,7 @@
 			
 		
 			
-				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
 			
 		
 		</ul>
