@@ -20,7 +20,7 @@
 <meta property="og:url" content="http://qinghua.github.io/sed/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
-<meta property="og:updated_time" content="2016-12-23T15:37:43.000Z">
+<meta property="og:updated_time" content="2017-07-06T01:32:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="看例子学sed">
 <meta name="twitter:description" content="这次重温一下Linux/Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
@@ -111,7 +111,7 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#增"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在文件头-尾增加一行"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在匹配的地方增加一行"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#删除特定行"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除关联行"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行头-尾增加项目"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行修改项目"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正则替换"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全局替换"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#大小写替换"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改指定行"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除所有符号"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看特定行"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看行范围"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看奇-偶数行"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从单行中查找"><span class="toc-number">4.4.</span> <span class="toc-text">从单行中查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#增"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在文件头-尾增加一行"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在匹配的地方增加一行"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#删除特定行"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除关联行"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行头-尾增加项目"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行修改项目"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正则替换"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全局替换"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#大小写替换"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改指定行"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除所有符号"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用变量"><span class="toc-number">3.8.</span> <span class="toc-text">使用变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看特定行"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看行范围"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看奇-偶数行"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从单行中查找"><span class="toc-number">4.4.</span> <span class="toc-text">从单行中查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
 		
 		</div>
 		
@@ -134,7 +134,7 @@
 <p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sed <span class="string">'s/,[A-Z][a-z]*/&amp;-dev/'</span> staff.csv</div><div class="line">sed -r <span class="string">'s/(,.*),/\1-dev,/'</span> staff.csv</div></pre></td></tr></table></figure></p>
 <p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
 <h3 id="正则替换"><a href="#正则替换" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sed -r <span class="string">'s/[^,]+/"&amp;"/g'</span> staff.csv</div><div class="line">sed -e <span class="string">'s/^\|$/"/g'</span> -e <span class="string">'s/,/","/g'</span> staff.csv</div></pre></td></tr></table></figure></p>
-<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。</p>
+<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。如果不想用正则的方式，只想做完全匹配的字符串替换，可以用<code>perl</code>，例如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">sed -r <span class="string">'s/[name]/ggg/g'</span> &lt;&lt; EOF</div><div class="line">hello [name]</div><div class="line">EOF</div><div class="line"><span class="comment"># hgggllo [gggggggggggg]</span></div><div class="line"></div><div class="line">perl -pe <span class="string">'s/\Q[name]/ggg/g'</span> &lt;&lt; EOF</div><div class="line">hello [name]</div><div class="line">EOF</div><div class="line"><span class="comment"># hello ggg</span></div></pre></td></tr></table></figure></p>
 <h3 id="全局替换"><a href="#全局替换" class="headerlink" title="全局替换"></a>全局替换</h3><p>把所有的<code>l</code>改成<code>L</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed <span class="string">'s/l/L/g'</span> staff.csv</div></pre></td></tr></table></figure></p>
 <p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
 <p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sed <span class="string">'s/l/L/g; s/m/M/g'</span> staff.csv</div><div class="line">sed -e <span class="string">'s/l/L/g'</span> -e <span class="string">'s/m/M/g'</span> staff.csv</div></pre></td></tr></table></figure></p>
@@ -159,6 +159,7 @@
 <li>[:upper:]：[A-Z]</li>
 <li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
 </ul>
+<h3 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h3><p>如果想用变量里的值来代替，可以这么写（注意是双引号而不是单引号了）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">name=ggg</div><div class="line"><span class="built_in">echo</span> <span class="variable">$name</span></div><div class="line"></div><div class="line">sed -r <span class="string">"s/name/<span class="variable">$&#123;name&#125;</span>/g"</span> &lt;&lt; EOF</div><div class="line">hello name</div><div class="line">EOF</div><div class="line"></div><div class="line"><span class="built_in">unset</span> name</div></pre></td></tr></table></figure></p>
 <h2 id="查"><a href="#查" class="headerlink" title="查"></a>查</h2><h3 id="查看特定行"><a href="#查看特定行" class="headerlink" title="查看特定行"></a>查看特定行</h3><p>查（print）也和<a href="/sed/#u589E">増</a>很类似，区别是把<code>i</code>或<code>a</code>换成<code>p</code>即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed <span class="string">'1p'</span> staff.csv</div></pre></td></tr></table></figure></p>
 <p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">sed -n <span class="string">'1p'</span> staff.csv         <span class="comment"># 查看第一行</span></div><div class="line">sed -n <span class="string">'$p'</span> staff.csv         <span class="comment"># 查看最后一行</span></div><div class="line">sed -n <span class="string">'/Jane/p'</span> staff.csv    <span class="comment"># 查看包含Jane的一行</span></div><div class="line">sed -n <span class="string">'/21/p'</span> staff.csv      <span class="comment"># 查看包含21的一行</span></div><div class="line">sed -n <span class="string">'/J/p'</span> staff.csv       <span class="comment"># 查看包含J的两行</span></div><div class="line">sed -n <span class="string">'/21$/p'</span> staff.csv     <span class="comment"># 查看以21结尾的一行</span></div><div class="line">sed -n <span class="string">'/21/!p'</span> staff.csv     <span class="comment"># 查看包含21以外的其它行</span></div></pre></td></tr></table></figure></p>
 <p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
@@ -235,7 +236,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#增"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在文件头-尾增加一行"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在匹配的地方增加一行"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#删除特定行"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除关联行"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行头-尾增加项目"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行修改项目"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正则替换"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全局替换"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#大小写替换"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改指定行"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除所有符号"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看特定行"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看行范围"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看奇-偶数行"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从单行中查找"><span class="toc-number">4.4.</span> <span class="toc-text">从单行中查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#增"><span class="toc-number">1.</span> <span class="toc-text">增</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在文件头-尾增加一行"><span class="toc-number">1.1.</span> <span class="toc-text">在文件头/尾增加一行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在匹配的地方增加一行"><span class="toc-number">1.2.</span> <span class="toc-text">在匹配的地方增加一行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删"><span class="toc-number">2.</span> <span class="toc-text">删</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#删除特定行"><span class="toc-number">2.1.</span> <span class="toc-text">删除特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除关联行"><span class="toc-number">2.2.</span> <span class="toc-text">删除关联行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改"><span class="toc-number">3.</span> <span class="toc-text">改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行头-尾增加项目"><span class="toc-number">3.1.</span> <span class="toc-text">所有行头/尾增加项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#所有行修改项目"><span class="toc-number">3.2.</span> <span class="toc-text">所有行修改项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正则替换"><span class="toc-number">3.3.</span> <span class="toc-text">正则替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全局替换"><span class="toc-number">3.4.</span> <span class="toc-text">全局替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#大小写替换"><span class="toc-number">3.5.</span> <span class="toc-text">大小写替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改指定行"><span class="toc-number">3.6.</span> <span class="toc-text">修改指定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除所有符号"><span class="toc-number">3.7.</span> <span class="toc-text">删除所有符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用变量"><span class="toc-number">3.8.</span> <span class="toc-text">使用变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查"><span class="toc-number">4.</span> <span class="toc-text">查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看特定行"><span class="toc-number">4.1.</span> <span class="toc-text">查看特定行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看行范围"><span class="toc-number">4.2.</span> <span class="toc-text">查看行范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看奇-偶数行"><span class="toc-number">4.3.</span> <span class="toc-text">查看奇/偶数行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从单行中查找"><span class="toc-number">4.4.</span> <span class="toc-text">从单行中查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
  
   </div>
 
@@ -267,7 +268,7 @@
 		  
 		
 		  
-			<li><a href="/categories/development/" title="development">development<sup>8</sup></a></li>
+			<li><a href="/categories/development/" title="development">development<sup>9</sup></a></li>
 		  
 		
 		  
@@ -336,15 +337,7 @@
 			
 		
 			
-				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
@@ -352,11 +345,11 @@
 			
 		
 			
-				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
 			
 		
 			
@@ -364,11 +357,19 @@
 			
 		
 			
+				<li><a href="/tags/git/" title="git">git<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/AI/" title="AI">AI<sup>1</sup></a></li>
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
 			
 		
 			
@@ -376,7 +377,7 @@
 			
 		
 			
-				<li><a href="/tags/ansible/" title="ansible">ansible<sup>1</sup></a></li>
+				<li><a href="/tags/awk/" title="awk">awk<sup>1</sup></a></li>
 			
 		
 		</ul>
