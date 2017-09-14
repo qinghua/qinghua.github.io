@@ -1,0 +1,620 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用JGit生成patch文件 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="上篇博文介绍了JGit，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。">
+<meta name="keywords" content="JGit,git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用JGit生成patch文件">
+<meta property="og:url" content="http://qinghua.github.io/git-patch/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="上篇博文介绍了JGit，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。">
+<meta property="og:updated_time" content="2017-09-12T09:51:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用JGit生成patch文件">
+<meta name="twitter:description" content="上篇博文介绍了JGit，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/git-patch/" title="用JGit生成patch文件" itemprop="url">用JGit生成patch文件</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2017-09-12T11:59:02.000Z" itemprop="datePublished"> 发表于 2017-09-12</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">2.</span> <span class="toc-text">方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#api-command"><span class="toc-number">2.1.</span> <span class="toc-text">api command</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-number">2.2.</span> <span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DiffFormatter-DiffEntry"><span class="toc-number">2.3.</span> <span class="toc-text">DiffFormatter / DiffEntry</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diff"><span class="toc-number">2.4.</span> <span class="toc-text">diff</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#动手时间"><span class="toc-number">3.</span> <span class="toc-text">动手时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patch-amp-diff"><span class="toc-number">4.</span> <span class="toc-text">patch & diff</span></a></li></ol>
+		
+		</div>
+		
+		<p>上篇博文介绍了<a href="/jgit">JGit</a>，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。<br><a id="more"></a></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我希望在项目中能够实现这样的功能：用户发送一个request，服务器就帮用户生成代码并生成一个commit到用户本地的git中，但是这不太可能，因为用户的环境并不是服务器的环境。进一步的方案是直接在服务器端clone git仓库（或是维持一份最新代码），服务器本地生成commit并push，这样做会有一些安全方面需要考虑的因素。我采用的是退一步的方案，即让服务器生成一个patch文件并上传到<a href="https://aws.amazon.com/s3/" target="_blank" rel="external">S3</a>，以便用户稍后下载并apply到本地。</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><h3 id="api-command"><a href="#api-command" class="headerlink" title="api command"></a>api command</h3><p>打开JGit的<a href="https://github.com/eclipse/jgit/tree/master/org.eclipse.jgit/src/org/eclipse/jgit/api" target="_blank" rel="external">api包</a>一看，各种git命令应有尽有，如apply、cherry-pick等。但惟独没有format-patch命令。网上一搜，甚少有人有这样的需求或问题，只有<a href="http://www.codeaffine.com/2016/06/16/jgit-diff/" target="_blank" rel="external">这篇文章</a>比较靠谱，但是它介绍的侧重于diff而非生成patch。</p>
+<h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><p>还是得找找patch相关的代码。源代码搜遍也就这个<a href="https://github.com/eclipse/jgit/blob/master/org.eclipse.jgit/src/org/eclipse/jgit/patch/Patch.java" target="_blank" rel="external">Patch.java</a>应该是patch文件的JGit模型，但是读完后发现，它只能把patch文件映射成这个模型，并不能反向从模型序列化为patch文件。</p>
+<h3 id="DiffFormatter-DiffEntry"><a href="#DiffFormatter-DiffEntry" class="headerlink" title="DiffFormatter / DiffEntry"></a>DiffFormatter / DiffEntry</h3><p>DiffCommand其实上还是调用的DiffFormatter和DiffEntry，所以看看这俩是否能够支持什么样的参数，来生成patch文件呢？可惜还是无果。DiffFormatter的API也不太直观，不容易理解。但是它能够做一些diff commit这样的事情。</p>
+<h3 id="diff"><a href="#diff" class="headerlink" title="diff"></a>diff</h3><p>走投无路之际，在<a href="https://git-scm.com/docs/git-format-patch" target="_blank" rel="external">git-format-patch</a>上看到，这个命令其实是用来生成<strong>用邮件发送</strong>的patch文件。难怪patch文件的前几行看起来有From，有Subject什么的，也许它们不是必须的？那就可以试试把diff的结果当作patch直接写入文件。</p>
+<h2 id="动手时间"><a href="#动手时间" class="headerlink" title="动手时间"></a>动手时间</h2><p>首先创建一个git环境，a、b、c三个文件用来测试改删增：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">mkdir -p /tmp/ggg</div><div class="line"><span class="built_in">cd</span> /tmp/ggg</div><div class="line">git init</div><div class="line"><span class="built_in">echo</span> line a1 &gt; a.txt</div><div class="line"><span class="built_in">echo</span> line a2 &gt;&gt; a.txt</div><div class="line"><span class="built_in">echo</span> line b1 &gt; b.txt</div><div class="line">git add .</div><div class="line">git commit -m <span class="string">"first commit wiht a.txt and b.txt"</span></div><div class="line"><span class="built_in">echo</span> line a3 &gt;&gt; a.txt</div><div class="line"><span class="built_in">echo</span> line c1 &gt; c.txt</div><div class="line">rm b.txt</div><div class="line">git diff</div></pre></td></tr></table></figure></p>
+<p>运行完成后就能看到diff文件的内容了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">diff --git a/a.txt b/a.txt</div><div class="line">index 7a3d45f..c723fac 100644</div><div class="line">--- a/a.txt</div><div class="line">+++ b/a.txt</div><div class="line">@@ -1,2 +1,3 @@</div><div class="line"> line a1</div><div class="line"> line a2</div><div class="line">+line a3</div><div class="line">diff --git a/b.txt b/b.txt</div><div class="line">deleted file mode 100644</div><div class="line">index b45d9fa..0000000</div><div class="line">--- a/b.txt</div><div class="line">+++ /dev/null</div><div class="line">@@ -1 +0,0 @@</div><div class="line">-line b1</div></pre></td></tr></table></figure></p>
+<p>在程序中，如此这般运行git diff命令：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Git git = Git.init().setDirectory(<span class="keyword">new</span> File(<span class="string">"/tmp/ggg"</span>)).call();</div><div class="line">git.diff().setOutputStream(System.out).call();</div></pre></td></tr></table></figure></p>
+<p>发现JGit的diff和Git的diff还是不太一样的。JGit的diff包含了新增文件的信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">diff --git a/a.txt b/a.txt</div><div class="line">index 7a3d45f..c723fac 100644</div><div class="line">--- a/a.txt</div><div class="line">+++ b/a.txt</div><div class="line">@@ -1,2 +1,3 @@</div><div class="line"> line a1</div><div class="line"> line a2</div><div class="line">+line a3</div><div class="line">diff --git a/b.txt b/b.txt</div><div class="line">deleted file mode 100644</div><div class="line">index b45d9fa..0000000</div><div class="line">--- a/b.txt</div><div class="line">+++ /dev/null</div><div class="line">@@ -1 +0,0 @@</div><div class="line">-line b1</div><div class="line">diff --git a/c.txt b/c.txt</div><div class="line">new file mode 100644</div><div class="line">index 0000000..8e37e08</div><div class="line">--- /dev/null</div><div class="line">+++ b/c.txt</div><div class="line">@@ -0,0 +1 @@</div><div class="line">+line c1</div></pre></td></tr></table></figure></p>
+<p>这就非常合适了。只要证明它能够被作为patch导入到git中即可。首先修改代码输出到文件：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">File patch = <span class="keyword">new</span> File(<span class="string">"/tmp/jgit.patch"</span>);</div><div class="line">Git git = Git.init().setDirectory(<span class="keyword">new</span> File(<span class="string">"/tmp/ggg"</span>)).call();</div><div class="line"><span class="keyword">try</span> (OutputStream outputStream = <span class="keyword">new</span> FileOutputStream(patch)) &#123;</div><div class="line">    git.diff().setOutputStream(outputStream).call();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>然后清空修改过的文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /tmp/ggg</div><div class="line">git checkout .</div><div class="line">git clean -df</div><div class="line">git status</div></pre></td></tr></table></figure></p>
+<p>现在尝试apply patch：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git apply /tmp/jgit.patch</div><div class="line">git status</div></pre></td></tr></table></figure></p>
+<p>果然成功了。在不考虑冲突的情况下，看起来这一招还是管用的。但是由于缺失了commit的信息，所以运行<code>git am /tmp/jgit.patch</code>就会报错：<em>Patch format detection failed.</em>有没有办法解决这个问题呢？当然了。我们现在知道了patch只不过是多了一些邮件信息罢了，那我们自己就可以生成。在<code>try</code>内增加如下代码，模拟<code>git format-patch</code>：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">    outputStream.write(<span class="string">"From: GGG &lt;ggg@somewhere.com&gt;\n"</span>.getBytes());</div><div class="line">    outputStream.write(<span class="string">"Date: Tue, 12 Sep 2017 20:16:10 +0800\n"</span>.getBytes());</div><div class="line">    outputStream.write(<span class="string">"Subject: [PATCH] ggg is not here. Turn left and ask JGit\n"</span>.getBytes());</div><div class="line">    outputStream.write(<span class="string">"\n---\n\n"</span>.getBytes());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>运行一下，然后尝试使用<code>git am</code>：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git am /tmp/jgit.patch</div><div class="line">git <span class="built_in">log</span></div><div class="line">git show HEAD</div></pre></td></tr></table></figure></p>
+<p>果然可以直接生成commit。Mission Complete!</p>
+<h2 id="patch-amp-diff"><a href="#patch-amp-diff" class="headerlink" title="patch &amp; diff"></a>patch &amp; diff</h2><p>其实Linux已经提供了一个<code>patch</code>命令，无需git即可直接应用patch文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git reset HEAD^ --hard</div><div class="line">ls</div><div class="line">patch &lt; /tmp/jgit.patch</div></pre></td></tr></table></figure></p>
+<p>而且还支持回滚（git apply也支持）：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">patch -R &lt; /tmp/jgit.patch</div><div class="line">ls</div></pre></td></tr></table></figure></p>
+<p>实际上patch文件一般是使用<code>diff</code>命令来生成的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">diff -u a.txt c.txt &gt; diff.patch</div><div class="line">cat diff.patch</div></pre></td></tr></table></figure></p>
+<p>这两个命令网上的教程不少，有兴趣的话可以自行搜索阅读。最后还是把环境恢复：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rm -rf /tmp/ggg /tmp/jgit.patch</div></pre></td></tr></table></figure></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/development/">development</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JGit/">JGit</a><a href="/tags/git/">git</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/git-patch/" data-title="用JGit生成patch文件 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/jgit/"  title="用JGit通过Java来操作Git">
+ <strong>下一篇：</strong><br/> 
+ <span>用JGit通过Java来操作Git
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="git-patch/" data-title="用JGit生成patch文件" data-url="http://qinghua.github.io/git-patch/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">2.</span> <span class="toc-text">方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#api-command"><span class="toc-number">2.1.</span> <span class="toc-text">api command</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-number">2.2.</span> <span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DiffFormatter-DiffEntry"><span class="toc-number">2.3.</span> <span class="toc-text">DiffFormatter / DiffEntry</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diff"><span class="toc-number">2.4.</span> <span class="toc-text">diff</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#动手时间"><span class="toc-number">3.</span> <span class="toc-text">动手时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patch-amp-diff"><span class="toc-number">4.</span> <span class="toc-text">patch & diff</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/AI/" title="AI">AI<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/git/" title="git">git<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/druid/" title="druid">druid<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
