@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://qinghua.github.io/"/>
-  <updated>2017-09-12T09:51:42.000Z</updated>
+  <updated>2017-10-01T13:42:58.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -14,6 +14,56 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>代码还是数据</title>
+    <link href="http://qinghua.github.io/code-or-data/"/>
+    <id>http://qinghua.github.io/code-or-data/</id>
+    <published>2017-10-01T13:03:01.000Z</published>
+    <updated>2017-10-01T13:42:58.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。<br><a id="more"></a></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>一般来说，我们写程序，都是连同测试代码一起提交，至少也是一起代码审查。有一个关于收费的项目，偏偏反其道而行之。这个项目的一些背景如下：</p>
+<ol>
+<li>收费的逻辑通过DSL配置在代码库中。</li>
+<li>对于这些逻辑，没有单元测试，但是有集成测试。</li>
+<li>集成测试里面包含了request与response，在测试的时候回放request并比较response是否匹配。</li>
+<li>集成测试是json文件，放在S3上。</li>
+</ol>
+<p>如果有一个对费率的修改，那么程序员除了往代码库中提交修改后的DSL，还会往S3更新json测试文件。这就带来了几个问题：</p>
+<ul>
+<li>代码审查者只能看到代码库的变动，除非再去S3上看测试数据，不然并不知道这段DSL的测试情况。而在S3上看测试数据相对比较繁琐，这样的机制可以说是鼓励代码审查者不去看测试数据。</li>
+<li>没有版本管理（或者说由于S3与代码库的版本管理机制差别较大），导致这些测试不容易追踪，也不容易查看历史记录。</li>
+<li>持续集成通过与否依赖于S3的数据。所以集成测试失败时，不一定能在解决时复原到失败时的状态。</li>
+<li>DEV提交代码和更新测试数据这两步变成了一个原子操作，需要一起完成，至少在代码提交后、CI上运行集成测试之前更新S3。而在提交代码前更新S3又有破坏别人正在运行测试的风险。</li>
+</ul>
+<p>那么，为什么这个项目会选用这样的方案呢？原来，在设计的时候是这么考虑的：费率修改的需求来自于产品经理，希望测试数据能够由PM们提供。所以将会开发一个面向PM们的小系统，后台就是这个S3数据，这样的话到时候修改费率，就增加了一层来自需求方的保障。如果测试数据来自于代码库，那就很难通过页面来修改并提交代码库了。初衷还是不错的，但是仔细推敲下来，DEV自己的测试哪儿去了？这样运转起来后，是不是只会养成DEV把测试推给PM的习惯？</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>我觉得这里面有一个误区，就是把DEV自己的测试和PM的测试混为一谈了。实际上应该将它们分开来。为什么呢？DEV自己的测试其实本来就应该是代码的一部分，应该保存在代码库中。而PM的测试其实是对程序员测试的补充，也应该算是代码的一部分，如果能够放在代码库中固然是好，但是我们也不能对所有的PM们都抱有提交代码这样不切实际的期望，所以在这种情况下，S3算是一个权衡的方案。而CI上应该有两步，其一是DEV的测试，其二是PM的测试（在PM修改测试数据的小系统还没上线之前，可以暂不配置这个测试）。它们之间是顺序执行还是并发执行倒是无关紧要。但这样也有不尽如人意的地方：</p>
+<ul>
+<li>修改代码需要DEV和PM同时协作，最好一起修改，否则CI会红。但这正是DevOps运动所提倡的，不是么？</li>
+<li>背景一节介绍的一些缺点在PM的测试中仍然存在。PM修改测试数据的小系统需要更加完善的版本管理和审计。这部分的开销可能还不小。</li>
+</ul>
+<p>顺便提一句，传统的PM测试数据是由DEV提供一个CSV格式，让PM填完之后由DEV添加到代码库中。在忽略DEV和PM的用户体验的情况下，这也是一个可行的方案。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到底什么样的逻辑应该进代码库，什么样的逻辑应该持久化呢？其实我们应该把逻辑区分为程序、配置和数据。</p>
+<p>程序：<br>在代码库中，提供服务的主要功能。对其的修改通常都是改bug或是引入新功能。</p>
+<p>配置：<br>在配置服务器中，但是配置的默认值很可能是在代码库中。经常需要修改，修改其值可以让程序表现出不同的处理逻辑。需要易于修改。</p>
+<p>数据：<br>在持久化存储（一般是数据库）中，因用户而异，数量可能会比较大。随用户的操作而变化。需要有备份机制。</p>
+<p>反推到上文所说：“收费的逻辑通过DSL配置在代码库中”。这段逻辑，也许应该是配置而非程序，因为它会经常需要修改。收费记录毋庸置疑，一定是数据了。从逻辑分类的角度上出发，你是否会发现其实自己现在的代码库中包含了太多的配置？</p>
+<p>另外，虽然代码库似乎也可以用于配置或数据，但是最好还是别这么干，这里有一篇<a href="https://stackoverflow.com/questions/20151158/using-git-repository-as-a-database-backend" target="_blank" rel="external">stack overflow的问答</a>，解释得挺清楚的。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="idea" scheme="http://qinghua.github.io/categories/idea/"/>
+    
+    
+      <category term="soft skill" scheme="http://qinghua.github.io/tags/soft-skill/"/>
+    
+  </entry>
   
   <entry>
     <title>用JGit生成patch文件</title>
@@ -922,44 +972,6 @@
     
     
       <category term="book" scheme="http://qinghua.github.io/tags/book/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>不止于数据库连接池的Druid</title>
-    <link href="http://qinghua.github.io/alibaba_druid/"/>
-    <id>http://qinghua.github.io/alibaba_druid/</id>
-    <published>2016-09-15T09:07:22.000Z</published>
-    <updated>2016-12-23T15:37:43.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><a href="https://github.com/alibaba/druid" target="_blank" rel="external">Druid</a>传说中是Java语言中最好的数据库连接池，能够提供强大的监控和扩展功能，甚至可以基于SQL语义来<a href="https://github.com/alibaba/druid/wiki/%E7%AE%80%E4%BB%8B_WallFilter" target="_blank" rel="external">防御SQL注入攻击</a>。它与其它数据库连接池的功能对比可以参考<a href="https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%AF%B9%E6%AF%94" target="_blank" rel="external">各种数据库连接池对比</a>，性能对比可以参考<a href="https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%B1%A0%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E6%B5%8B%E8%AF%95" target="_blank" rel="external">各种连接池性能对比测试</a>。网上的一些原code.alibabatech.com的链接已经失效，文档都转移到了github上，以<a href="https://github.com/alibaba/druid/wiki/%E9%A6%96%E9%A1%B5" target="_blank" rel="external">wiki</a>+<a href="https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" target="_blank" rel="external">FAQ</a>的方式提供，查起来有些混乱。下面我们来动手了解一下druid所提供的功能。<br><a id="more"></a></p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>既然是数据库连接池，首先要启动一个数据库。用docker来弄简单轻松：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d -e MYSQL_ROOT_PASSWORD=123456 --net=host --name=mysql mysql:5.7.12</div></pre></td></tr></table></figure></p>
-<p>进入容器并连接上数据库：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456</div></pre></td></tr></table></figure></p>
-<p>创建用户表并插入一些初始数据：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">DATABASE</span> spike;</div><div class="line"><span class="keyword">USE</span> spike;</div><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">user</span> (</div><div class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">UNSIGNED</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</div><div class="line">    <span class="keyword">name</span> <span class="built_in">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    gender TINYINT <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    birthday <span class="keyword">TIMESTAMP</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</div><div class="line">);</div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">user</span>(<span class="keyword">name</span>, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">'ggg'</span>, <span class="string">'1'</span>, <span class="string">'1999-01-01'</span>);</div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">user</span>(<span class="keyword">name</span>, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">'Loic'</span>, <span class="string">'1'</span>, <span class="string">'2000-01-01'</span>);</div><div class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">user</span>(<span class="keyword">name</span>, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">'Hetty'</span>, <span class="string">'2'</span>, <span class="string">'2001-01-01'</span>);</div><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">user</span>;</div><div class="line"></div><div class="line">exit</div></pre></td></tr></table></figure></p>
-<p>我在github上创建了一个druid的maven版测试工程，下载到本地并使用自己喜欢的IDE打开：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git <span class="built_in">clone</span> https://github.com/qinghua/druid</div></pre></td></tr></table></figure></p>
-<p>然后打开<code>spring-context-dao.xml</code>文件，把数据源从<code>jdbc:mysql://192.168.33.88:3306/spike</code>替换为自己的本地数据源。</p>
-<h2 id="各种监控"><a href="#各种监控" class="headerlink" title="各种监控"></a>各种监控</h2><p>以下命令可以直接启动jetty服务器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> druid</div><div class="line">mvn jetty:run</div></pre></td></tr></table></figure></p>
-<p>打开<a href="http://localhost:8080/hello?id=1" target="_blank" rel="external">http://localhost:8080/hello?id=1</a>便能看见<strong>Hello ggg</strong>，这个是程序的正常功能。</p>
-<p>Druid的页面是通过在<code>web.xml</code>里配置<code>DruidStatView</code>的servlet来实现的。参数的具体配置可以参考<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_StatViewServlet%E9%85%8D%E7%BD%AE" target="_blank" rel="external">这里</a>。打开<a href="http://localhost:8080/druid/index.html" target="_blank" rel="external">http://localhost:8080/druid/index.html</a>便能看见druid的首页了：<br><img src="/img/druid-index.jpg" alt=""></p>
-<p>如果刚才访问过<a href="http://localhost:8080/hello?id=1" target="_blank" rel="external">hello</a>，通过点击<code>数据源</code>便能查看到程序新创建的数据源。可以在IDE里打开<code>spring-context-dao.xml</code>通过<code>dataSource</code>来查看数据源的配置，参数的具体配置可以参考<a href="https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8" target="_blank" rel="external">这里</a>。通过<code>class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;</code>来使用druid。点击<code>SQL监控</code>便能体会到druid引以为傲的强大监控功能：<br><img src="/img/druid-sql-monitor.jpg" alt=""></p>
-<p><code>SQL防火墙</code>是用来防止SQL注入的，配置可以参考<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter" target="_blank" rel="external">这里</a>。还可以通过在<code>web.xml</code>加入以下配置来启用web监控，参数的具体配置可以参考<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_%E9%85%8D%E7%BD%AEWebStatFilter" target="_blank" rel="external">这里</a>：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>DruidWebStatFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>com.alibaba.druid.support.http.WebStatFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>exclusions<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">filter</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>DruidWebStatFilter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>除了监控SQL和web，druid还能监控spring的一些调用信息。可以在IDE里打开<code>spring-context-druid.xml</code>查看程序的当前配置。参数的具体配置可以参考<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_Druid%E5%92%8CSpring%E5%85%B3%E8%81%94%E7%9B%91%E6%8E%A7%E9%85%8D%E7%BD%AE" target="_blank" rel="external">这里</a>。通过点击<code>spring监控</code>便能查看到方法的调用时间和jdbc的一些状态：<br><img src="/img/druid-spring-monitor.jpg" alt=""></p>
-<h2 id="其它功能"><a href="#其它功能" class="headerlink" title="其它功能"></a>其它功能</h2><h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><p>监控里显示的都是敏感信息，可以通过在<code>web.xml</code>里加入以下配置来启用简单的登录功能：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>DruidStatView<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>com.alibaba.druid.support.http.StatViewServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>loginUsername<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>ggg<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>loginPassword<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>123456<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>这样访问druid界面的时候就需要输入用户名密码啦：<br><img src="/img/druid-login.jpg" alt=""></p>
-<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><p>如果想在日志里看到执行的sql，可以根据<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_LogFilter" target="_blank" rel="external">这里</a>的说明来配置。Druid支持多种<a href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AEdruid%E5%86%85%E7%BD%AE%E7%9A%84log%E5%AE%9E%E7%8E%B0" target="_blank" rel="external">日志组件</a>。显示执行的sql是debug级别，如果用的是log4j，可以在<code>log4j.properties</code>里这样配：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">log4j.logger.druid.sql=debug,stdout</div></pre></td></tr></table></figure></p>
-<p>访问<a href="http://localhost:8080/hello?id=2" target="_blank" rel="external">hello页面</a>，便可以看到如下日志：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&#123;conn-10005&#125; connected</div><div class="line">&#123;conn-10005&#125; pool-connect</div><div class="line">&#123;conn-10005, pstmt-20000&#125; created. </div><div class="line">SELECT name FROM user WHERE id=?</div><div class="line">&#123;conn-10005, pstmt-20000&#125; Parameters : [2]</div><div class="line">&#123;conn-10005, pstmt-20000&#125; Types : [INTEGER]</div><div class="line">&#123;conn-10005, pstmt-20000&#125; executed. 1.351044 millis. </div><div class="line">SELECT name FROM user WHERE id=?</div><div class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; open</div><div class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; Header: [name]</div><div class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; Result: [Loic]</div><div class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; closed</div><div class="line">&#123;conn-10005, pstmt-20000&#125; clearParameters. </div><div class="line">&#123;conn-10005&#125; pool-recycle</div></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;a href=&quot;https://github.com/alibaba/druid&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Druid&lt;/a&gt;传说中是Java语言中最好的数据库连接池，能够提供强大的监控和扩展功能，甚至可以基于SQL语义来&lt;a href=&quot;https://github.com/alibaba/druid/wiki/%E7%AE%80%E4%BB%8B_WallFilter&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;防御SQL注入攻击&lt;/a&gt;。它与其它数据库连接池的功能对比可以参考&lt;a href=&quot;https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%AF%B9%E6%AF%94&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;各种数据库连接池对比&lt;/a&gt;，性能对比可以参考&lt;a href=&quot;https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%B1%A0%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E6%B5%8B%E8%AF%95&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;各种连接池性能对比测试&lt;/a&gt;。网上的一些原code.alibabatech.com的链接已经失效，文档都转移到了github上，以&lt;a href=&quot;https://github.com/alibaba/druid/wiki/%E9%A6%96%E9%A1%B5&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;wiki&lt;/a&gt;+&lt;a href=&quot;https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FAQ&lt;/a&gt;的方式提供，查起来有些混乱。下面我们来动手了解一下druid所提供的功能。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="db" scheme="http://qinghua.github.io/categories/db/"/>
-    
-    
-      <category term="druid" scheme="http://qinghua.github.io/tags/druid/"/>
     
   </entry>
   

@@ -6,24 +6,24 @@
   <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
   <meta charset="UTF-8">
   
-    <title>如何测试随机数 | 懒程序员改变世界</title>
+    <title>代码还是数据 | 懒程序员改变世界</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="Qinghua Gao">
     
 
     
-    <meta name="description" content="怎样知道它是不是随机数？如何测试一个随机数生成器？">
-<meta name="keywords" content="test">
+    <meta name="description" content="这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。">
+<meta name="keywords" content="soft skill">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何测试随机数">
-<meta property="og:url" content="http://qinghua.github.io/test-random/index.html">
+<meta property="og:title" content="代码还是数据">
+<meta property="og:url" content="http://qinghua.github.io/code-or-data/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
-<meta property="og:description" content="怎样知道它是不是随机数？如何测试一个随机数生成器？">
-<meta property="og:updated_time" content="2017-03-05T07:18:41.000Z">
+<meta property="og:description" content="这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。">
+<meta property="og:updated_time" content="2017-10-01T13:42:58.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如何测试随机数">
-<meta name="twitter:description" content="怎样知道它是不是随机数？如何测试一个随机数生成器？">
+<meta name="twitter:title" content="代码还是数据">
+<meta name="twitter:description" content="这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。">
 
     
     <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -95,24 +95,54 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/test-random/" title="如何测试随机数" itemprop="url">如何测试随机数</a>
+      <a href="/code-or-data/" title="代码还是数据" itemprop="url">代码还是数据</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
 		
   <p class="article-time">
-    <time datetime="2017-03-05T06:32:19.000Z" itemprop="datePublished"> 发表于 2017-03-05</time>
+    <time datetime="2017-10-01T13:03:01.000Z" itemprop="datePublished"> 发表于 2017-10-01</time>
     
   </p>
 </header>
 	<div class="article-content">
 		
-		<p>怎样知道它是不是<a href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0" target="_blank" rel="external">随机数</a>？如何测试一个<a href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8" target="_blank" rel="external">随机数生成器</a>？<br><a id="more"></a></p>
-<p>有些程序很容易测试，但并非所有程序都是如此。自动化测试的目的是以现在的时间成本，来换取未来的时间成本。很多程序员们经常自己写一个小玩意，就不爱写测试了，这是因为他们觉得这个小玩意也就用那么几次，不值得为它单写一个测试。从这个角度上看，这是没错的。大型项目经常会有比较完备的测试，因为这个项目可能会交付很长时间，也可能会有很长的维护时间。这时候测试的成本就可以在未来得到回报。测试随机数生成器，首先要回答的问题是：值不值得做这个测试？如果说这个随机数生成器本来就是系统提供的接口，那是否我们有必要费精力去测试它呢？如果它是不可靠的，那可能暗示着你的技术选型出了问题。如果它可靠（<a href="https://zh.wikipedia.org/wiki/%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%80%A7" target="_blank" rel="external">伪随机数</a>也算是可靠），那是否可以使用系统的随机数生成器来生成你自己特定的随机数生成器呢？在这种情况下，自己写的随机数生成器还是可能需要测试的。那应该怎么测试它呢？</p>
-<p>让我们来举个简单的例子。比如我们需要得到由两位数字组成的随机字符串（”00”~”99”），它要做的仅仅是调用系统接口生成0~99的数字并格式化为”00”~”99”的字符串。这时我们只需测试它调用系统接口的参数，以及格式化的逻辑即可。而它们都可以通过mock等技术手段很容易地测试。在系统提供的随机数生成器的支持下，应该是可以满足大部分的随机需求的。</p>
-<p>如果你非要以打硬仗的方式来测试随机数的话，除去成本因素，要想从纯技术上回答这个问题，那就要先回答另一个问题：什么是随机数？这就回到了业务的本质：在不考虑测试时，在什么情况下你会认为它是一个随机数？简单起见，我们就以0~99的伪随机数为例。取决于业务，可能你的需求是：①连续两次执行结果基本不同（“基本”是由于真随机的不可预测性，它们是可能相同的），或者是②连续执行100遍每次数字都不同，或者是③计算一万遍，要求结果呈现怎样怎样的分布。对于①来说，两次计算结果相同的概率只有百分之一（1% <em> 1% </em> 100），三次结果相同的概率只有万分之一（1% <em> 1% </em> 1% * 100）。所以测试可以这样来设计：调用两次，如果结果相同，那就再调用一次，如果还相同，那就再调用，直至不同为止。最后看调用次数<code>count</code>：如果<code>count = 2</code>，很好。如果<code>count = 3</code>，那就说明现在正好是1%的那次。如果<code>count = 4</code>，说明是0.01%的那次。理想情况下，如果每天运行100次测试，可能会有1次<code>count = 3</code>，运行100天，有1次<code>count = 4</code>，运行10000天（大约27年），会有一次<code>count = 5</code>。根据业务的容忍程度判断<code>count</code>的大小，例如当它大于5就算测试失败。虽然偶尔也会出现<code>count = 6</code>的情况，但是非常罕有，平均2700年会有一次，而且就算测试失败，也很容易排查到这个问题。所以就可以认为是符合业务需求。对于②来说，那就执行100遍看结果好了，也是技术上可实现的。对于③来说，其实与①有相似之处，只要能够描述出来，就能够测试出来。只要自己控制好测试的阈值就可以了。</p>
-<p>维基百科上提供了一些<a href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%80%A7#.E9.9A.8F.E6.9C.BA.E6.80.A7.E6.B5.8B.E8.AF.95.E6.96.B9.E6.B3.95" target="_blank" rel="external">随机性测试方法</a>。只要能描述，就可以测试。但是，值得吗？</p>
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">2.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。<br><a id="more"></a></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>一般来说，我们写程序，都是连同测试代码一起提交，至少也是一起代码审查。有一个关于收费的项目，偏偏反其道而行之。这个项目的一些背景如下：</p>
+<ol>
+<li>收费的逻辑通过DSL配置在代码库中。</li>
+<li>对于这些逻辑，没有单元测试，但是有集成测试。</li>
+<li>集成测试里面包含了request与response，在测试的时候回放request并比较response是否匹配。</li>
+<li>集成测试是json文件，放在S3上。</li>
+</ol>
+<p>如果有一个对费率的修改，那么程序员除了往代码库中提交修改后的DSL，还会往S3更新json测试文件。这就带来了几个问题：</p>
+<ul>
+<li>代码审查者只能看到代码库的变动，除非再去S3上看测试数据，不然并不知道这段DSL的测试情况。而在S3上看测试数据相对比较繁琐，这样的机制可以说是鼓励代码审查者不去看测试数据。</li>
+<li>没有版本管理（或者说由于S3与代码库的版本管理机制差别较大），导致这些测试不容易追踪，也不容易查看历史记录。</li>
+<li>持续集成通过与否依赖于S3的数据。所以集成测试失败时，不一定能在解决时复原到失败时的状态。</li>
+<li>DEV提交代码和更新测试数据这两步变成了一个原子操作，需要一起完成，至少在代码提交后、CI上运行集成测试之前更新S3。而在提交代码前更新S3又有破坏别人正在运行测试的风险。</li>
+</ul>
+<p>那么，为什么这个项目会选用这样的方案呢？原来，在设计的时候是这么考虑的：费率修改的需求来自于产品经理，希望测试数据能够由PM们提供。所以将会开发一个面向PM们的小系统，后台就是这个S3数据，这样的话到时候修改费率，就增加了一层来自需求方的保障。如果测试数据来自于代码库，那就很难通过页面来修改并提交代码库了。初衷还是不错的，但是仔细推敲下来，DEV自己的测试哪儿去了？这样运转起来后，是不是只会养成DEV把测试推给PM的习惯？</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>我觉得这里面有一个误区，就是把DEV自己的测试和PM的测试混为一谈了。实际上应该将它们分开来。为什么呢？DEV自己的测试其实本来就应该是代码的一部分，应该保存在代码库中。而PM的测试其实是对程序员测试的补充，也应该算是代码的一部分，如果能够放在代码库中固然是好，但是我们也不能对所有的PM们都抱有提交代码这样不切实际的期望，所以在这种情况下，S3算是一个权衡的方案。而CI上应该有两步，其一是DEV的测试，其二是PM的测试（在PM修改测试数据的小系统还没上线之前，可以暂不配置这个测试）。它们之间是顺序执行还是并发执行倒是无关紧要。但这样也有不尽如人意的地方：</p>
+<ul>
+<li>修改代码需要DEV和PM同时协作，最好一起修改，否则CI会红。但这正是DevOps运动所提倡的，不是么？</li>
+<li>背景一节介绍的一些缺点在PM的测试中仍然存在。PM修改测试数据的小系统需要更加完善的版本管理和审计。这部分的开销可能还不小。</li>
+</ul>
+<p>顺便提一句，传统的PM测试数据是由DEV提供一个CSV格式，让PM填完之后由DEV添加到代码库中。在忽略DEV和PM的用户体验的情况下，这也是一个可行的方案。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到底什么样的逻辑应该进代码库，什么样的逻辑应该持久化呢？其实我们应该把逻辑区分为程序、配置和数据。</p>
+<p>程序：<br>在代码库中，提供服务的主要功能。对其的修改通常都是改bug或是引入新功能。</p>
+<p>配置：<br>在配置服务器中，但是配置的默认值很可能是在代码库中。经常需要修改，修改其值可以让程序表现出不同的处理逻辑。需要易于修改。</p>
+<p>数据：<br>在持久化存储（一般是数据库）中，因用户而异，数量可能会比较大。随用户的操作而变化。需要有备份机制。</p>
+<p>反推到上文所说：“收费的逻辑通过DSL配置在代码库中”。这段逻辑，也许应该是配置而非程序，因为它会经常需要修改。收费记录毋庸置疑，一定是数据了。从逻辑分类的角度上出发，你是否会发现其实自己现在的代码库中包含了太多的配置？</p>
+<p>另外，虽然代码库似乎也可以用于配置或数据，但是最好还是别这么干，这里有一篇<a href="https://stackoverflow.com/questions/20151158/using-git-repository-as-a-database-backend" target="_blank" rel="external">stack overflow的问答</a>，解释得挺清楚的。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -120,13 +150,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/development/">development</a>
+  <a class="article-category-link" href="/categories/idea/">idea</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/test/">test</a>
+  <span></span> <a href="/tags/soft-skill/">soft skill</a>
   </div>
 
 </div>
@@ -135,7 +165,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://qinghua.github.io/test-random/" data-title="如何测试随机数 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  <div data-url="http://qinghua.github.io/code-or-data/" data-title="代码还是数据 | 懒程序员改变世界" data-tsina="" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -148,19 +178,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/devopsdays-beijing-2017/" title="DevOpsDays北京站见闻">
-  <strong>上一篇：</strong><br/>
-  <span>
-  DevOpsDays北京站见闻</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/avoid-production-accident/"  title="如何尽量避免生产事故">
+<a href="/git-patch/"  title="用JGit生成patch文件">
  <strong>下一篇：</strong><br/> 
- <span>如何尽量避免生产事故
+ <span>用JGit生成patch文件
 </span>
 </a>
 </div>
@@ -169,12 +191,19 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="test-random/" data-title="如何测试随机数" data-url="http://qinghua.github.io/test-random/"></div>
+	<div class="ds-thread" data-thread-key="code-or-data/" data-title="代码还是数据" data-url="http://qinghua.github.io/code-or-data/"></div>
 </section>
 
 
 </div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方案"><span class="toc-number">2.</span> <span class="toc-text">方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -431,6 +460,8 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
