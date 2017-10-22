@@ -3,6 +3,47 @@
   
     
     <entry>
+      <title><![CDATA[用Tampermonkey实现自动化网页操作]]></title>
+      <url>/tampermonkey/</url>
+      <content type="html"><![CDATA[<p><a href="http://tampermonkey.net/" target="_blank" rel="external">Tampermonkey</a>是一个<a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en" target="_blank" rel="external">浏览器插件</a>，可以在网页上嵌入自己编写的js脚本，支持除IE以外的大部分浏览器。还有一个更早的<a href="https://en.wikipedia.org/wiki/Greasemonkey" target="_blank" rel="external">Greasemonkey</a>（油猴）功能类似，可惜它只适用于<a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/" target="_blank" rel="external">Firefox</a>。Tampermonkey的源代码在<a href="https://github.com/Tampermonkey/tampermonkey" target="_blank" rel="external">Github</a>上。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>原理其实很简单，就是在宿主页面载入完毕后，运行自己的js脚本罢了，从而实现对浏览器渲染后的html进行改变。除了让你浏览的网页更加个性化以外，还能为你提供一键解决实际问题的需求，例如隐藏广告、自动签到薅羊毛、抢票、每天/每周在网页上填写考勤表等。</p>
+<p>Tampermonkey不仅允许使用这些脚本，并且可以编写、管理及同步。安装步骤与一般的插件无异。安装好后，下面拿一个例子练手。</p>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>我们试试在<a href="https://www.baidu.com/" target="_blank" rel="external">百度</a>上增加“Google一下”的按钮。首先单击插件图标，点击“添加新脚本”，于是便进入了Tampermonkey的编辑器。上面的几行注释就是Tampermonkey自己的语法，保存了一些元数据，包括脚本的名字、版本、在满足什么规则的网页上生效等。我们把<code>@match</code>的内容修改为<code>https://www.baidu.com/*</code>，这样便能在百度域名下的所有网页中生效啦。</p>
+<p>打开百度，可以看到“百度一下”的按钮：<code>id=&quot;su&quot;</code>，我们将“Google一下”插入到其后即可。在<code>// Your code here...</code>后面编写如下js代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'#su'</span>).after(<span class="string">'&lt;input type="button" id="google" value="Google一下" class="btn self-btn bg s_btn" style="background-color:grey;" onclick="googleIt" /&gt;'</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">googleIt</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    alert(<span class="string">'google'</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>保存并刷新百度，顺利地看到了灰色的“Google一下”。这说明我们的脚本起作用了。在插件图标的位置上页显示了一个红色的<code>1</code>，说明当前网页上的生效脚本数量为1。但是点击“Google一下”什么也没有弹出。在控制台上可以看到出错了：<strong>Uncaught ReferenceError: googleIt is not defined</strong>。这是因为所有代码都是<a href="https://stackoverflow.com/questions/16704209/onclick-added-with-tampermonkey-is-not-calling-the-function" target="_blank" rel="external">作为一个字符串被<code>eval</code></a>的，所以应该使用动态的方式：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'#su'</span>).after(<span class="string">'&lt;input type="button" id="google" value="Google一下" class="btn self-btn bg s_btn" style="background-color:grey;" /&gt;'</span>);</div><div class="line">$(<span class="string">"#google"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    googleIt();</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>这回点击按钮就能够正常工作了！我们现在要做的，就是把<code>alert</code>替换为打开Google页面即可：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">googleIt</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> searchText = <span class="built_in">document</span>.querySelector(<span class="string">'#kw'</span>).value;</div><div class="line">    location.href = getGoogleUrl(searchText);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getGoogleUrl</span>(<span class="params">searchText</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="string">'https://www.google.com/search?q='</span> + searchText;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>短短几行代码，就搞定了。Tampermonkey内置了一些对象与函数，可以让我们很方便地实现一些功能，如打开新窗口可以使用<code>GM_openInTab</code>：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">googleIt</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> searchText = <span class="built_in">document</span>.querySelector(<span class="string">'#kw'</span>).value;</div><div class="line">    GM_openInTab(getGoogleUrl(searchText), <span class="literal">false</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>第二个参数可以决定当前的焦点是老窗口还是新窗口。在使用内置函数之前，需要先<code>@grant</code>一下，如：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// @grant        GM_openInTab</span></div></pre></td></tr></table></figure></p>
+<p>否则无法生效。更多的内置函数可以在<a href="http://tampermonkey.net/documentation.php" target="_blank" rel="external">官方文档</a>中查看。</p>
+<p>我们新写的代码并不会直接出现在控制台中，如果需要调试，可以在代码中增加<code>debugger;</code>，这样运行时就能自动停在这一行了。百度主页有引用jQuery，所以我们可以直接在代码中使用<code>$</code>。如果需要的页面上没有jQuery，那么可以通过这行命令引入：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//      @include https://code.jquery.com/jquery-3.2.1.min.js</span></div></pre></td></tr></table></figure></p>
+<p>完整的代码如下：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ==UserScript==</span></div><div class="line"><span class="comment">// @name         Google on baidu</span></div><div class="line"><span class="comment">// @namespace    http://tampermonkey.net/</span></div><div class="line"><span class="comment">// @version      0.1</span></div><div class="line"><span class="comment">// @description  Google it!</span></div><div class="line"><span class="comment">// @author       ggg</span></div><div class="line"><span class="comment">// @match        https://www.baidu.com/*</span></div><div class="line"><span class="comment">// @grant        GM_openInTab</span></div><div class="line"><span class="comment">// ==/UserScript==</span></div><div class="line"></div><div class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line"><span class="meta">    'use strict'</span>;</div><div class="line"></div><div class="line">    $(<span class="string">'#su'</span>).after(<span class="string">'&lt;input type="button" id="google" value="Google一下" class="btn self-btn bg s_btn" style="background-color:grey;" /&gt;'</span>);</div><div class="line">    $(<span class="string">"#google"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        googleIt();</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">googleIt</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> searchText = $(<span class="string">'#kw'</span>).val();</div><div class="line">        GM_openInTab(getGoogleUrl(searchText), <span class="literal">false</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getGoogleUrl</span>(<span class="params">searchText</span>) </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">'https://www.google.com/search?q='</span> + searchText;</div><div class="line">    &#125;</div><div class="line">&#125;)();</div></pre></td></tr></table></figure></p>
+<p>不过这种做法存在两个问题：</p>
+<ol>
+<li>如果宿主网页变化，脚本需要随之变化。这也没办法，谁叫我们依赖它呢。好在宿主网页没事也不会经常变化。</li>
+<li>“Google一下”的按钮会比原生的“百度一下”延迟一些才出来，体验上稍微差一些。毕竟相对而言我们的脚本只是二等公民。</li>
+</ol>
+<p>但是获益的巨大几乎可以让我们完全无视这些缺陷。</p>
+<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><p>脚本也是代码，也有自己的版本，也能被多人所共享使用。只要它在因特网上的url以<code>.user.js</code>结尾，即可轻易分享给其他人。上面的这个例子我就放到了<a href="https://github.com/qinghua/tamperMonkeyScript/raw/master/googleit.user.js" target="_blank" rel="external">Github</a>中。分享出去的时候，如果对方安装了tampermonkey，就可以看到脚本的安装界面了。更多的共享脚本可以单击插件图标，点击“获取新脚本”，或是参考<a href="https://tampermonkey.net/scripts.php" target="_blank" rel="external">这里</a>来获得。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> development </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> tampermonkey </tag>
+            
+            <tag> js </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[代码还是数据]]></title>
       <url>/code-or-data/</url>
       <content type="html"><![CDATA[<p>这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。<br><a id="more"></a></p>
@@ -1347,11 +1388,11 @@
             
             <tag> dubbo </tag>
             
+            <tag> service governance </tag>
+            
             <tag> dubbox </tag>
             
             <tag> rest </tag>
-            
-            <tag> service governance </tag>
             
         </tags>
         
