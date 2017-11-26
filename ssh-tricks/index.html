@@ -1,0 +1,638 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>SSH妙用 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。">
+<meta name="keywords" content="ssh">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH妙用">
+<meta property="og:url" content="http://qinghua.github.io/ssh-tricks/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。">
+<meta property="og:image" content="http://qinghua.github.io/img/mac_proxy.jpg">
+<meta property="og:image" content="http://qinghua.github.io/img/switchy_omega.jpg">
+<meta property="og:updated_time" content="2017-11-26T03:28:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSH妙用">
+<meta name="twitter:description" content="最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/mac_proxy.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/ssh-tricks/" title="SSH妙用" itemprop="url">SSH妙用</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2017-11-25T07:29:42.000Z" itemprop="datePublished"> 发表于 2017-11-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#无密码登录"><span class="toc-number">1.</span> <span class="toc-text">无密码登录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#远程执行命令"><span class="toc-number">2.</span> <span class="toc-text">远程执行命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH隧道"><span class="toc-number">3.</span> <span class="toc-text">SSH隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置SOCKS代理"><span class="toc-number">3.1.</span> <span class="toc-text">配置SOCKS代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地端口转发"><span class="toc-number">3.2.</span> <span class="toc-text">本地端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#远程端口转发"><span class="toc-number">3.3.</span> <span class="toc-text">远程端口转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制文件"><span class="toc-number">4.</span> <span class="toc-text">复制文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件系统"><span class="toc-number">5.</span> <span class="toc-text">文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它环境"><span class="toc-number">6.</span> <span class="toc-text">其它环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Windows"><span class="toc-number">6.1.</span> <span class="toc-text">Windows</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Android"><span class="toc-number">6.2.</span> <span class="toc-text">Android</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iOS"><span class="toc-number">6.3.</span> <span class="toc-text">iOS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<p>最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。<br><a id="more"></a></p>
+<h2 id="无密码登录"><a href="#无密码登录" class="headerlink" title="无密码登录"></a>无密码登录</h2><p>只要把自己的公钥保存在远程主机上就可以了，如果本机尚未生成公私钥对（可以通过<code>ls ~/.ssh</code>查看是否存在以<code>pub</code>为扩展名的文件），可以通过<code>ssh-keygen</code>生成一个。之后把这个<code>pub</code>文件的内容全部复制到远程主机上的<code>~/.ssh/authorized_keys</code>中就能够实现无密码登录了。复制的过程也可以用以下命令实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-copy-id user@remote.host.name</div></pre></td></tr></table></figure></p>
+<p>Mac上默认没有<code>ssh-copy-id</code>，可以通过以下命令安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install ssh-copy-id</div></pre></td></tr></table></figure></p>
+<h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><p>配置完无密码登录后，在远程主机上执行命令很简单，只要在最后面加一个字符串即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh remote.host.name <span class="string">"hostname"</span></div></pre></td></tr></table></figure></p>
+<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div></pre></td></tr></table></figure></p>
+<p>下面分享一段调试时查看远程日志的实用代码。如果你不知道自己的请求会被负载均衡到哪台服务器上去，可以试试下面这个ssh到所有服务器上执行<code>tail -F</code>的小脚本（当然也能用<code>cat</code>了）：<br><figure class="highlight sh"><figcaption><span>tail_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">set</span> -e</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"usage: <span class="variable">$(basename $0)</span> [log path] [optional grep message]"</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"sample: <span class="variable">$(basename $0)</span> /abc/def/application.log* Execption"</span></div><div class="line">  <span class="built_in">exit</span> 1</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">log_path=<span class="variable">$1</span></div><div class="line">grep_message=<span class="variable">$&#123;2-"''"&#125;</span></div><div class="line"></div><div class="line">hosts=(</div><div class="line">  <span class="string">"remote1.host.name"</span></div><div class="line">  <span class="string">"remote2.host.name"</span></div><div class="line">  <span class="string">"remote3.host.name"</span></div><div class="line">)</div><div class="line"></div><div class="line">remote_command=<span class="string">"tail -F <span class="variable">$&#123;log_path&#125;</span> | grep --line-buffered <span class="variable">$&#123;grep_message&#125;</span>"</span></div><div class="line"><span class="keyword">for</span> host <span class="keyword">in</span> <span class="string">"<span class="variable">$&#123;hosts[@]&#125;</span>"</span></div><div class="line"><span class="keyword">do</span></div><div class="line">  <span class="built_in">exec</span> <span class="string">"ssh -fo StrictHostKeyChecking=no <span class="variable">$&#123;host&#125;</span> \"<span class="variable">$&#123;remote_command&#125;</span>\" &amp;"</span></div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure></p>
+<p>当然看完日志以后，别忘了把ssh的进程杀掉：<br><figure class="highlight sh"><figcaption><span>kill_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">kill</span> -9 $(ps -ef | grep <span class="string">"[s]sh -fo StrictHostKeyChecking=no"</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</div></pre></td></tr></table></figure></p>
+<p>稍微解释一下以上的两个参数：</p>
+<ul>
+<li><code>ssh -f</code>: 让SSH在后台执行，之所以在后面再加一个<code>&amp;</code>，是因为想让所有机器并行来tail日志。</li>
+<li><code>ssh -o StrictHostKeyChecking=no</code>: 这样就看不到由于第一次连接或是机器指纹变更而出现的<strong>Are you sure you want to continue connecting (yes/no)?</strong></li>
+</ul>
+<h2 id="SSH隧道"><a href="#SSH隧道" class="headerlink" title="SSH隧道"></a>SSH隧道</h2><h3 id="配置SOCKS代理"><a href="#配置SOCKS代理" class="headerlink" title="配置SOCKS代理"></a>配置SOCKS代理</h3><p>超级简单：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -D 9999 remote.host.name</div></pre></td></tr></table></figure></p>
+<p>这样便可以通过如下系统设置通过远程主机上网了（以mac为例）：<br><img src="/img/mac_proxy.jpg" alt=""></p>
+<p>浏览器代理也是一样（以chrome插件SwitchyOmega为例）：<br><img src="/img/switchy_omega.jpg" alt=""></p>
+<h3 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h3><p>如果你想让本地经由remote1访问remote2，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -L 9999:remote2.host.name:80 remote1.host.name</div></pre></td></tr></table></figure></p>
+<p><code>-L</code>后面的参数，表示<strong>本地端口:目标主机：目标主机端口</strong>，也就是说，往本地9999端口发出去的请求，会经由remote1传给remote2的80端口。为什么我们会需要这样的东东呢？原因可能有几种：</p>
+<ul>
+<li>本地访问不了remote2（或remote2的指定端口），但是本地可以访问remote1，并且remote1可以访问remote2。如果公司的网络分为几块，互相之间操作有限制，可能就需要一些remote1作为跳板／堡垒机（bastion）来做这样的脏活儿。</li>
+<li>被邪恶的防火墙挡住了去路的时候。</li>
+<li>希望能够比较安全的时候。</li>
+<li>有时候目标机器由于安全原因或其它原因，某个端口只能开放给自己。这时候就可以将remote1和remote2合而为一。例如，当Java调试所用的5050端口不对外开放时，就可以用以下命令让IDE在localhost的5050端口进行调试：<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -L 5050:localhost:5050 remote.host.name</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>中间的localhost是相对remote.host.name而言的，也就是它自己。</p>
+<h3 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h3><p>在你的本地可以连通远程主机remote1和另一台远程主机remote2，而它们俩不能相互访问的情况下，如果你想让remote1能够访问remote2，就可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -R 9999:remote2.host.name:80 remote1.host.name</div></pre></td></tr></table></figure></p>
+<p>这样的话，remote1的本地用户便可以便可以通过你的9999端口，访问remote2的80端口了。相当于你把自己变成了一台堡垒机！如果你有权限在其它机器上运行远程端口转发的命令，那你也可以把它变成堡垒机，把你自己的客户机变成remote1了。</p>
+<h2 id="复制文件"><a href="#复制文件" class="headerlink" title="复制文件"></a>复制文件</h2><p>SSH当然是可以用来复制文件的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat file | ssh -e none remote-host <span class="string">"cat &gt; file"</span></div></pre></td></tr></table></figure></p>
+<p>其中的参数<code>-e none</code>，表示不转义任何字符。SSH默认会通过<code>~</code>来转义一些控制语句。</p>
+<p>但是既然我们有<code>scp</code>，还用<code>ssh</code>图个什么，用专业工具吧。</p>
+<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>可以用<a href="https://github.com/libfuse/sshfs" target="_blank" rel="external">sshfs</a>来将远程的文件系统通过SFTP加载到本地。对于mac而言，可以用<a href="https://osxfuse.github.io/" target="_blank" rel="external">FUSE for macOS</a>来实现。我还没有那样的需求，没试过，据说比较简单。有兴趣的读者可以自行尝试。</p>
+<h2 id="其它环境"><a href="#其它环境" class="headerlink" title="其它环境"></a>其它环境</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows的话，你可以就得试试<a href="http://www.putty.org/" target="_blank" rel="external">Putty</a>了。</p>
+<h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><p>用手机和平板来运维？你值得拥有！<br><a href="https://juicessh.com/" target="_blank" rel="external">JuiceSSH</a>的基本功能时免费的，但是要想端口转发什么的就得收费了。用户体验很不错。<br><a href="https://play.google.com/store/apps/details?id=org.connectbot" target="_blank" rel="external">ConnectBot</a>是完全免费的。</p>
+<h3 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h3><p><a href="https://itunes.apple.com/us/app/prompt-2/id917437289?mt=8" target="_blank" rel="external">Prompt</a>都说好，收费。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://matt.might.net/articles/ssh-hacks/" target="_blank" rel="external">SSH: More than secure shell</a><br><a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="external">SSH原理与运用（二）：远程操作与端口转发</a><br><a href="https://blog.urfix.com/25-ssh-commands-tricks/" target="_blank" rel="external">25 Best SSH Commands / Tricks</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/tool/">tool</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/ssh-tricks/" data-title="SSH妙用 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/tampermonkey/"  title="用Tampermonkey实现自动化网页操作">
+ <strong>下一篇：</strong><br/> 
+ <span>用Tampermonkey实现自动化网页操作
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="ssh-tricks/" data-title="SSH妙用" data-url="http://qinghua.github.io/ssh-tricks/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#无密码登录"><span class="toc-number">1.</span> <span class="toc-text">无密码登录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#远程执行命令"><span class="toc-number">2.</span> <span class="toc-text">远程执行命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH隧道"><span class="toc-number">3.</span> <span class="toc-text">SSH隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置SOCKS代理"><span class="toc-number">3.1.</span> <span class="toc-text">配置SOCKS代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地端口转发"><span class="toc-number">3.2.</span> <span class="toc-text">本地端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#远程端口转发"><span class="toc-number">3.3.</span> <span class="toc-text">远程端口转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制文件"><span class="toc-number">4.</span> <span class="toc-text">复制文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件系统"><span class="toc-number">5.</span> <span class="toc-text">文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它环境"><span class="toc-number">6.</span> <span class="toc-text">其它环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Windows"><span class="toc-number">6.1.</span> <span class="toc-text">Windows</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Android"><span class="toc-number">6.2.</span> <span class="toc-text">Android</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iOS"><span class="toc-number">6.3.</span> <span class="toc-text">iOS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/AI/" title="AI">AI<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>11</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/git/" title="git">git<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/test/" title="test">test<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2017 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

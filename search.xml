@@ -3,6 +3,61 @@
   
     
     <entry>
+      <title><![CDATA[SSH妙用]]></title>
+      <url>/ssh-tricks/</url>
+      <content type="html"><![CDATA[<p>最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。<br><a id="more"></a></p>
+<h2 id="无密码登录"><a href="#无密码登录" class="headerlink" title="无密码登录"></a>无密码登录</h2><p>只要把自己的公钥保存在远程主机上就可以了，如果本机尚未生成公私钥对（可以通过<code>ls ~/.ssh</code>查看是否存在以<code>pub</code>为扩展名的文件），可以通过<code>ssh-keygen</code>生成一个。之后把这个<code>pub</code>文件的内容全部复制到远程主机上的<code>~/.ssh/authorized_keys</code>中就能够实现无密码登录了。复制的过程也可以用以下命令实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-copy-id user@remote.host.name</div></pre></td></tr></table></figure></p>
+<p>Mac上默认没有<code>ssh-copy-id</code>，可以通过以下命令安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install ssh-copy-id</div></pre></td></tr></table></figure></p>
+<h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><p>配置完无密码登录后，在远程主机上执行命令很简单，只要在最后面加一个字符串即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh remote.host.name <span class="string">"hostname"</span></div></pre></td></tr></table></figure></p>
+<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div></pre></td></tr></table></figure></p>
+<p>下面分享一段调试时查看远程日志的实用代码。如果你不知道自己的请求会被负载均衡到哪台服务器上去，可以试试下面这个ssh到所有服务器上执行<code>tail -F</code>的小脚本（当然也能用<code>cat</code>了）：<br><figure class="highlight sh"><figcaption><span>tail_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">set</span> -e</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"usage: <span class="variable">$(basename $0)</span> [log path] [optional grep message]"</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"sample: <span class="variable">$(basename $0)</span> /abc/def/application.log* Execption"</span></div><div class="line">  <span class="built_in">exit</span> 1</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">log_path=<span class="variable">$1</span></div><div class="line">grep_message=<span class="variable">$&#123;2-"''"&#125;</span></div><div class="line"></div><div class="line">hosts=(</div><div class="line">  <span class="string">"remote1.host.name"</span></div><div class="line">  <span class="string">"remote2.host.name"</span></div><div class="line">  <span class="string">"remote3.host.name"</span></div><div class="line">)</div><div class="line"></div><div class="line">remote_command=<span class="string">"tail -F <span class="variable">$&#123;log_path&#125;</span> | grep --line-buffered <span class="variable">$&#123;grep_message&#125;</span>"</span></div><div class="line"><span class="keyword">for</span> host <span class="keyword">in</span> <span class="string">"<span class="variable">$&#123;hosts[@]&#125;</span>"</span></div><div class="line"><span class="keyword">do</span></div><div class="line">  <span class="built_in">exec</span> <span class="string">"ssh -fo StrictHostKeyChecking=no <span class="variable">$&#123;host&#125;</span> \"<span class="variable">$&#123;remote_command&#125;</span>\" &amp;"</span></div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure></p>
+<p>当然看完日志以后，别忘了把ssh的进程杀掉：<br><figure class="highlight sh"><figcaption><span>kill_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">kill</span> -9 $(ps -ef | grep <span class="string">"[s]sh -fo StrictHostKeyChecking=no"</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</div></pre></td></tr></table></figure></p>
+<p>稍微解释一下以上的两个参数：</p>
+<ul>
+<li><code>ssh -f</code>: 让SSH在后台执行，之所以在后面再加一个<code>&amp;</code>，是因为想让所有机器并行来tail日志。</li>
+<li><code>ssh -o StrictHostKeyChecking=no</code>: 这样就看不到由于第一次连接或是机器指纹变更而出现的<strong>Are you sure you want to continue connecting (yes/no)?</strong></li>
+</ul>
+<h2 id="SSH隧道"><a href="#SSH隧道" class="headerlink" title="SSH隧道"></a>SSH隧道</h2><h3 id="配置SOCKS代理"><a href="#配置SOCKS代理" class="headerlink" title="配置SOCKS代理"></a>配置SOCKS代理</h3><p>超级简单：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -D 9999 remote.host.name</div></pre></td></tr></table></figure></p>
+<p>这样便可以通过如下系统设置通过远程主机上网了（以mac为例）：<br><img src="/img/mac_proxy.jpg" alt=""></p>
+<p>浏览器代理也是一样（以chrome插件SwitchyOmega为例）：<br><img src="/img/switchy_omega.jpg" alt=""></p>
+<h3 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h3><p>如果你想让本地经由remote1访问remote2，可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -L 9999:remote2.host.name:80 remote1.host.name</div></pre></td></tr></table></figure></p>
+<p><code>-L</code>后面的参数，表示<strong>本地端口:目标主机：目标主机端口</strong>，也就是说，往本地9999端口发出去的请求，会经由remote1传给remote2的80端口。为什么我们会需要这样的东东呢？原因可能有几种：</p>
+<ul>
+<li>本地访问不了remote2（或remote2的指定端口），但是本地可以访问remote1，并且remote1可以访问remote2。如果公司的网络分为几块，互相之间操作有限制，可能就需要一些remote1作为跳板／堡垒机（bastion）来做这样的脏活儿。</li>
+<li>被邪恶的防火墙挡住了去路的时候。</li>
+<li>希望能够比较安全的时候。</li>
+<li>有时候目标机器由于安全原因或其它原因，某个端口只能开放给自己。这时候就可以将remote1和remote2合而为一。例如，当Java调试所用的5050端口不对外开放时，就可以用以下命令让IDE在localhost的5050端口进行调试：<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -L 5050:localhost:5050 remote.host.name</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>中间的localhost是相对remote.host.name而言的，也就是它自己。</p>
+<h3 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h3><p>在你的本地可以连通远程主机remote1和另一台远程主机remote2，而它们俩不能相互访问的情况下，如果你想让remote1能够访问remote2，就可以这么做：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -R 9999:remote2.host.name:80 remote1.host.name</div></pre></td></tr></table></figure></p>
+<p>这样的话，remote1的本地用户便可以便可以通过你的9999端口，访问remote2的80端口了。相当于你把自己变成了一台堡垒机！如果你有权限在其它机器上运行远程端口转发的命令，那你也可以把它变成堡垒机，把你自己的客户机变成remote1了。</p>
+<h2 id="复制文件"><a href="#复制文件" class="headerlink" title="复制文件"></a>复制文件</h2><p>SSH当然是可以用来复制文件的：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat file | ssh -e none remote-host <span class="string">"cat &gt; file"</span></div></pre></td></tr></table></figure></p>
+<p>其中的参数<code>-e none</code>，表示不转义任何字符。SSH默认会通过<code>~</code>来转义一些控制语句。</p>
+<p>但是既然我们有<code>scp</code>，还用<code>ssh</code>图个什么，用专业工具吧。</p>
+<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>可以用<a href="https://github.com/libfuse/sshfs" target="_blank" rel="external">sshfs</a>来将远程的文件系统通过SFTP加载到本地。对于mac而言，可以用<a href="https://osxfuse.github.io/" target="_blank" rel="external">FUSE for macOS</a>来实现。我还没有那样的需求，没试过，据说比较简单。有兴趣的读者可以自行尝试。</p>
+<h2 id="其它环境"><a href="#其它环境" class="headerlink" title="其它环境"></a>其它环境</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows的话，你可以就得试试<a href="http://www.putty.org/" target="_blank" rel="external">Putty</a>了。</p>
+<h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><p>用手机和平板来运维？你值得拥有！<br><a href="https://juicessh.com/" target="_blank" rel="external">JuiceSSH</a>的基本功能时免费的，但是要想端口转发什么的就得收费了。用户体验很不错。<br><a href="https://play.google.com/store/apps/details?id=org.connectbot" target="_blank" rel="external">ConnectBot</a>是完全免费的。</p>
+<h3 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h3><p><a href="https://itunes.apple.com/us/app/prompt-2/id917437289?mt=8" target="_blank" rel="external">Prompt</a>都说好，收费。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://matt.might.net/articles/ssh-hacks/" target="_blank" rel="external">SSH: More than secure shell</a><br><a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="external">SSH原理与运用（二）：远程操作与端口转发</a><br><a href="https://blog.urfix.com/25-ssh-commands-tricks/" target="_blank" rel="external">25 Best SSH Commands / Tricks</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> tool </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> ssh </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[用Tampermonkey实现自动化网页操作]]></title>
       <url>/tampermonkey/</url>
       <content type="html"><![CDATA[<p><a href="http://tampermonkey.net/" target="_blank" rel="external">Tampermonkey</a>是一个<a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en" target="_blank" rel="external">浏览器插件</a>，可以在网页上嵌入自己编写的js脚本，支持除IE以外的大部分浏览器。还有一个更早的<a href="https://en.wikipedia.org/wiki/Greasemonkey" target="_blank" rel="external">Greasemonkey</a>（油猴）功能类似，可惜它只适用于<a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/" target="_blank" rel="external">Firefox</a>。Tampermonkey的源代码在<a href="https://github.com/Tampermonkey/tampermonkey" target="_blank" rel="external">Github</a>上。<br><a id="more"></a></p>
