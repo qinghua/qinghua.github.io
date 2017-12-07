@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://qinghua.github.io/"/>
-  <updated>2017-11-26T03:28:06.000Z</updated>
+  <updated>2017-12-07T00:49:56.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -14,6 +14,40 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>懒程序员笔记</title>
+    <link href="http://qinghua.github.io/lazy-programmer/"/>
+    <id>http://qinghua.github.io/lazy-programmer/</id>
+    <published>2017-12-06T13:09:58.000Z</published>
+    <updated>2017-12-07T00:49:56.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>坚持更新“懒程序员改变世界”的博客已经两年了，近期准备和老友办一个“懒程序员笔记”的订阅号，既然都是“懒程序员”的主题，那就围绕着它写点儿什么吧。<br><a id="more"></a></p>
+<p>有一篇文章叫<a href="http://www.jiemian.com/article/427711.html" target="_blank" rel="external">《世界是由懒人创造的》</a>（真的是马云分享的吗？），大致意思就是懒人推动了世界的发展。因为懒，才能创造出一堆的发明，来让我们的生活更方便。当然了，文章弥漫着浓浓的调侃氛围。赞赏、批判这篇文章的人都有不少，至于我的观点嘛，想必从本文的标题中也能看出一二。但是请别忘记，原文最后也写了：“要懒出风格，懒出境界”。</p>
+<p>在程序员的世界中，偷懒尤其重要。懒得造轮子？网上大把大把的开源库等着你试用。不想稍微改点代码就从头到位测一遍？那就用自动化测试吧。不想每次部署的时候手忙脚乱？那就上持续交付。不想每次总跟客户扯皮？那就搞敏捷，把客户变成团队的一员。不想让开发和运维互斗？那就拥抱DevOps，大家都在一条船上。可以说，“偷懒”是技术进步的原动力。有些人喜欢说“痛点驱动”，其实它们是一回事，因为没法儿偷懒，所以很“痛”啊。程序员们也非常厌恶重复性的劳动，例如填写工时、定期发送邮件、给别人权限、教新人如何配置环境等等等等。</p>
+<p>可是光靠偷懒能够解决问题吗？要是你不想做那么无聊的事情，但是又没有解决的办法，如何才能推动世界进步呢？有道是“创新靠懒，实现靠勤”。唯有学习和思考不能偷懒。你有一个工具箱，你懒，那就用工具箱里的工具来让你懒得其所。可如果你的工具箱是空的，你怎么偷懒啊？有些人看上去非常的勤奋，整天忙个不停，似乎非常充实。但是，偶尔夜深失眠的时候，可能内心也会感觉到一阵恐慌吧。因为忙碌占据了他全部的时间，而真正需要的沉淀、思考、总结的时间基本没有。这样的人只是用勤奋来自欺欺人，掩盖自己懒得思考的本质。有个词叫“低品质勤奋者”很好地涵盖了这一类人。我也曾是其中一员，现在还不时会偷懒，但我已经知道了，不要“用身体的勤奋掩盖思想的懒惰”。</p>
+<p>偷懒节省出来的时间都上哪儿去了？学习、思考、与家人相伴。偶尔的放纵没什么关系，但是主旋律还是要保持清醒的大脑，经常使其运转，如果大脑平时不怎么动，可能在关键时刻也就转不动了。如何开始恢复大脑的正常运转？从每天给自己留点独处的时间，深度思考一下今天做了什么有意义的事情，怎样还能做得更好开始吧。一定要坚持，无论刮风下雨，生病加班，因为以我自己的经验来看，一旦破例，很容易便会再次破例，从而使曾经的坚持迅速土崩瓦解。但是可以根据当天的状况灵活控制时间。写文章也是一种有效的思考总结的方法，在此也推荐给大家。试试看，只要走出第一步，总能找到一条适合自己的路。</p>
+<p>最后让我们来膜拜一下著名的懒程序员们吧。</p>
+<ul>
+<li>Nihad Abbasov在<a href="https://github.com/NARKOZ/hacker-scripts" target="_blank" rel="external">github</a>上分享了一个项目，里面包含了一堆的脚本，包括加班时给太太发短信、宿醉时给自己请假、根据自己从工位走到咖啡机的用时来煮咖啡……</li>
+<li>Etherable在<a href="https://workplace.stackexchange.com/questions/93696/is-it-unethical-for-me-to-not-tell-my-employer-i-ve-automated-my-job" target="_blank" rel="external">StackExchange</a>上表示，他偷偷写了一段程序，使它十分钟就能完成过去一个人月才能完成的工作。而自己每周改改规范、发发邮件什么的只需一两个小时就够了。于是在程序员中掀起了一场道德辩论，究竟应不应该告诉老板？</li>
+<li><a href="http://money.163.com/13/0117/08/8LDJ5PPO00252V0H.html" target="_blank" rel="external">美最懒程序员不干活 支付1/5薪水工作全外包中国</a>。这样的懒程序员，虽然不是本文提倡的类型，但也懒出了风格，堪称跨界人才。</li>
+<li>阿里的4位程序员，懒得跟大家抢购月饼，写了段js脚本，<a href="https://www.zhihu.com/question/50600301" target="_blank" rel="external">结果</a>大家都知道了……</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;坚持更新“懒程序员改变世界”的博客已经两年了，近期准备和老友办一个“懒程序员笔记”的订阅号，既然都是“懒程序员”的主题，那就围绕着它写点儿什么吧。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="idea" scheme="http://qinghua.github.io/categories/idea/"/>
+    
+    
+      <category term="idea" scheme="http://qinghua.github.io/tags/idea/"/>
+    
+  </entry>
   
   <entry>
     <title>SSH妙用</title>
@@ -203,9 +237,9 @@
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
-    
       <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
+    
+      <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
     
   </entry>
   
@@ -268,9 +302,9 @@
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
-    
       <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
+    
+      <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
     
   </entry>
   
@@ -895,89 +929,6 @@
     
     
       <category term="encoding" scheme="http://qinghua.github.io/tags/encoding/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>人际风格与有效沟通实战</title>
-    <link href="http://qinghua.github.io/effective-communication/"/>
-    <id>http://qinghua.github.io/effective-communication/</id>
-    <published>2016-10-16T05:17:58.000Z</published>
-    <updated>2016-12-23T15:37:43.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>程序猿和工程狮们（还有形形色色的其他角色）的日常工作中，一定会有需要跟别人沟通的时候。因为沟通的问题认为别人sb或者被人当成sb的惨剧应该不少吧？如果有共鸣，可以读一读本文。不少企业都会请有资质的专家，为员工做类似的培训。<br><a id="more"></a></p>
-<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>一般来说，一开始都需要给有效沟通下一个定义。干巴巴地说，就是这样：双方或几方针对共同的话题，发出和收集有意义的信息，从而达成一致的行动或共同的认识。我的观点是：沟通就是为了达成共识而采取的行动。官方定义以文为主，行动关注于信息；而我的定义能文能武（当然并不是推荐直接上暴力哈），只要达成共识即可。</p>
-<p>沟通是有一个模型的：<br><img src="/img/communication-model.png" alt="沟通模型"></p>
-<p>信息的发送者，根据自己的理解，将信息编码成介质（文字、语音、动作等），通过传播媒介（面对面、邮件、微信）发送出去，经过对介质的解码，到了接收者的大脑里。为什么提倡面对面的沟通呢？因为沟通模型里还有一个非常重要的一环：反馈。通过面对面的沟通，可以很容易感知对方的动作、表情、情绪，从而判断对方是否正确地理解了自己想要表达的信息。而这样的反馈，是电子邮件、电话等所难以做到的。</p>
-<h2 id="行为风格"><a href="#行为风格" class="headerlink" title="行为风格"></a>行为风格</h2><p>人与人之间是很不一样的。有些话可能某些人就很受用，还有一些人无动于衷，说不定还会令其他人反感。如果能将人类行为模式分类，见人说人话，见鬼说鬼话，想必对有效沟通来说是很有用的。古希腊的希波克拉底最早以火、风、水、土为基础，分别映射到易怒、乐观、冷静和忧郁的情感上，定义了人类具有的四种基本性情。之后的许多行为理论皆以此为基础，但是主要用于专业的精神层面研究。1928年，美国心理学家<a href="https://en.wikipedia.org/wiki/William_Moulton_Marston" target="_blank" rel="external">马斯顿（William Moulton Marston）</a>出版了《常人的情绪》（Emotions of Normal People），为普通人引入了名为<a href="https://en.wikipedia.org/wiki/DISC_assessment" target="_blank" rel="external">DISC</a>的性格测验方法，DISC分别表示支配（Dominance）、影响（Influence）、稳健（Steadiness）与服从（Compliance），由这4种基本因子，可以构成每个人的不同性格。DISC现在是全球广泛采用的性格测评工具之一，许多企业会用之来选择、激励与管理人才。</p>
-<p>用控制力的强弱与以人或事为主，便可以画出四个象限：<br><img src="/img/disc.png" alt="DISC"></p>
-<p>用动物来表示不同的性格，有趣并且容易记忆。它们是老虎（D）、孔雀（I）、考拉（S）、猫头鹰（C）和变色龙（啥性格都能变）。老虎是产生故事的人，孔雀是讲故事的人，考拉是听故事的人，猫头鹰是分析故事的人。需要注意的是：</p>
-<ol>
-<li>每个人都有DISC，只是占比不同</li>
-<li>没有理想的沟通风格，随心所欲级别的变色龙除外</li>
-<li>这些性格都没有好坏、对错、是非之分，不要给人贴标签</li>
-<li>不要对考拉太狠了，物极必反</li>
-</ol>
-<p>性格上面的互补很有用。一只猫头鹰完不成的事，可能另一只猫头鹰也完不成，但是孔雀可能可以轻易完成。团队、婚姻都是如此。西游记里的主角们，其实就代表了这不同的四种性格。猜猜看，谁是那种性格？对了：</p>
-<ul>
-<li>悟空：老虎，主动，果敢（妖精！吃俺老孙一棒）</li>
-<li>唐僧：猫头鹰，以理服人，尽量客观（贫僧乃东土大唐而来）</li>
-<li>八戒：孔雀，总是他去化缘，自来熟（女菩萨，也携带我和尚洗洗）</li>
-<li>沙僧：考拉，任劳任怨，没有主见（大师兄，师傅被妖怪抓走了）</li>
-</ul>
-<p>对别人的性格有所了解，沟通起来才能更加有效，事半功倍。</p>
-<h2 id="测测自己"><a href="#测测自己" class="headerlink" title="测测自己"></a>测测自己</h2><p>评完别人，可以用下面的方法来简单测评一下自己。在A表和B表的每一组句子中，圈选出一句最像自己的叙述，然后在下面记录选择的数量：</p>
-<p>A表</p>
-<ol>
-<li>我做决定通常很迅速 vs 我喜欢从容做决定</li>
-<li>我倾向于说话快速，带着感情丰富的辞藻 vs 我倾向慢条斯理说话，较少用动人心旋话语</li>
-<li>坐着没事干，会令我感到难受 vs 我很享受安静、无所事事的时光</li>
-<li>我认为自己生活型态很活跃 vs 我认为自己生活型态很低调</li>
-<li>同时身兼数职，让我感到精神焕发 vs 我比较喜欢按部就班，一次做一件事</li>
-<li>我很容易对步调慢的人失去耐心 vs 我不喜欢被催赶</li>
-<li>我会很快地告诉别人自己的想法和感受 vs 我比较保留自己的想法与感受</li>
-<li>我喜欢碰运气，尝试新鲜、不同的事物 vs 我不喜欢碰运气，喜欢用熟悉地方法做事</li>
-<li>在社交场合，我倾向于向别人自我介绍 vs 在社交场合，我会等别人来介绍我</li>
-<li>别人说话的时候，我很难去倾听 vs 别人说话的时候，我很很仔细的听</li>
-<li>我喜欢掌控 vs 我比较喜欢遵从指示，尽力支持</li>
-<li>我的反应倾向于迅速而随性 vs 我的反应比较趋向缓慢而特意安排</li>
-</ol>
-<p>A左（F - 快） <strong><strong>__</strong></strong> vs A右（S - 慢） <strong><strong>__</strong></strong></p>
-<p>B表</p>
-<ol>
-<li>我对生活持严肃态度 vs 我对生活持玩乐态度</li>
-<li>我倾向于保守自己的感觉 vs 我倾向于对别人分享自己的感觉</li>
-<li>我喜欢谈论、听取事实与数据 vs 我喜欢述说与聆听有关人物的故事</li>
-<li>我倾向于根据事实、目标与证据做决定 vs 我倾向于根据感觉、经验或人际关系做决定</li>
-<li>我对闲聊比较不感兴趣 vs 我比较有兴趣闲聊</li>
-<li>我对交往的对象有所节制 vs 我愿意发展新的人际关系，并深入了解他们</li>
-<li>一般人可能会认为我很难被了解 vs 一般人可能会认为我很容易被了解</li>
-<li>我比较喜欢独自工作 vs 我比较喜欢与别人并透过别人工作</li>
-<li>我会讨论当今时事及手中进行的工作 vs 我喜欢谈人物、故事及奇文轶事</li>
-<li>我自认是一个比较拘谨的人 vs 我自认是一个比较轻松自在的人</li>
-<li>别人把我看成一个重思考的人 vs 别人把我看成一个重感觉的人</li>
-<li>完成一件事，是我感觉最棒的时候 vs 当别人接纳我时，我感觉最好</li>
-</ol>
-<p>B左（T - 任务） <strong><strong>__</strong></strong> vs B右（P - 人际） <strong><strong>__</strong></strong></p>
-<p>做完题后，就会得到4个数，例如F8、S4、T7、P5，将FS中的较小值（S4）丢弃，TP中的较小值（P5）丢弃，就变成了F8、T7。然后就可以根据这个坐标在下图中找到自己的象限了。对于F8、T7来说，是老虎：<br><img src="/img/disc-self-accessment.png" alt="DISC自我评测"></p>
-<p>需要注意的是：</p>
-<ol>
-<li>据说它只有70%的准确性（再减20%可就是随机了）</li>
-<li>身为一只猫头鹰，真想吐个槽：题目设计还不够科学，如果两张表都是奇数，就不至于出现两个6纠结于最大值了</li>
-<li>4个6的话，除了变色龙，还真没法解释了</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;程序猿和工程狮们（还有形形色色的其他角色）的日常工作中，一定会有需要跟别人沟通的时候。因为沟通的问题认为别人sb或者被人当成sb的惨剧应该不少吧？如果有共鸣，可以读一读本文。不少企业都会请有资质的专家，为员工做类似的培训。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="idea" scheme="http://qinghua.github.io/categories/idea/"/>
-    
-    
-      <category term="soft skill" scheme="http://qinghua.github.io/tags/soft-skill/"/>
     
   </entry>
   
