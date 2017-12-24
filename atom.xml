@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://qinghua.github.io/"/>
-  <updated>2017-12-07T00:49:56.000Z</updated>
+  <updated>2017-12-24T02:48:27.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -14,6 +14,37 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>《Java函数式编程》出版啦</title>
+    <link href="http://qinghua.github.io/functional-programming-in-java/"/>
+    <id>http://qinghua.github.io/functional-programming-in-java/</id>
+    <published>2017-12-24T02:04:22.000Z</published>
+    <updated>2017-12-24T02:48:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>从2017年年初到年底，我的新译作<a href="https://book.douban.com/subject/27594722/" target="_blank" rel="external">《Java函数式编程》</a>终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。<br><a id="more"></a></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>《Java函数式编程》并不是一本关于Java的书，而是一本关于函数式编程的书。作者由浅入深地介绍了函数式编程的思维方式，并引导读者通过易于掌握的例子、练习和图表来学习和巩固函数式编程的基本原则和最佳实践。读者甚至可以在阅读的同时编写出自己的函数式类库！</p>
+<p>与<a href="https://book.douban.com/subject/26346017/" target="_blank" rel="external">《Java 8函数式编程》</a>相比（这是一本Java 8的函数式用法的入门佳作），本书侧重的是函数式的思维与实践，而非是Java 8的语法。如果你是一位看完基础语法书后喜欢接着看“Effective”系列的程序员，那么本书就有几分类似于“Effective”版，只不过它讲的是函数式而非是Java 8的“Effective”。语言容易过时或被淘汰，但是思想永存。</p>
+<p><img src="/img/functional_programming_in_java_en.jpg" alt=""><br><img src="/img/functional_programming_in_java_cn.jpg" alt=""></p>
+<h2 id="译者序"><a href="#译者序" class="headerlink" title="译者序"></a>译者序</h2><p>有幸受邀翻译本书。初见书名，心中不免有几分疑虑，难道又是一本教你怎么使用Java 8 lambda来函数式编程的书吗？翻了几页，方觉自己大误。本书其实意在如何从零开始，逐步理清函数式编程的思维方式并编写基础类库，不仅授之以鱼，而且授之以渔。只不过由于Java的受众实在太广，所以才使用这门语言罢了。</p>
+<p>函数式编程有一个至关重要的前提，那就是函数的输出只能取决于函数的参数（我们会在书中看到生成随机数的例子）。初看上去似乎与Java这门面向对象的语言不搭。但语言只是工具而已，正如你也可以在Haskell中编写命令式风格的代码。在一个不太复杂、甚至非并发的常规Java系统中，由于程序内部状态的改变，多次调用同一个方法的返回值很可能是不一样的，更不用说所带来的副作用了。函数式编程中，确定的输入决定了确定的输出，就意味着只要参数对了，结果一定在预期中。也就是说，函数式编程没有无法重现的bug。在这样的前提下，单元测试相对容易实现，而且能极大地增强你的信心。（想想你对目前所在项目的单元测试有多大的信心？）许多个这样的函数复合起来，在不改变信心的同时能够提供更多更强大的功能，进而带来更大的收益，如无状态的线程安全、必要时才计算的惰性求值、加快多次执行速度的记忆化等等。</p>
+<p>传统的命令式编程是计算机硬件的抽象，源自图灵机，其实就是外部输入、内部状态、对外部的输出以及对内部状态的改变。函数式编程源自λ演算，即将变量和函数替换为或值表达式并根据运算符计算。函数式编程相比命令式编程代码更简洁、可读性更强，这是因为它的思维方式更倾向于描述要什么，而不是怎么做。所以学习过程反而更加自然，并且不需要多么高深的数学基础。可是我们也知道，软件开发没有银弹。新的方法论也会带来新的问题，需要运用新知识来解决。幸运的是，新知识的坑已经有人帮你踩过了，高阶函数、偏应用函数、复合函数、柯里化、闭包……软件开发从来不缺术语。幸好它们并非高不可攀，作者将会在第二章中扫清你的疑虑，并在后续章节中挑战惰性求值、记忆化、状态处理、应用作用还有actor等更高级的技术。你说Monad？作者才不告诉你它究竟是什么，但是看完本书你自然就领悟了。</p>
+<p>函数式编程不是万能药。它有自己擅长的领域，也有自己的弱项。函数式编程是级别更高的抽象。高级别抽象带来的收益就是易读、好写，可是有些低级别的事情（如果你真的需要的话）可能就不容易完成。函数式编程没有副作用，导致无法完成输入/输出操作。尽管如此，你也会在本书中看到一些解决办法。函数式编程没有变量，因此无法改变循环的终止条件，故而没有循环，严重依赖于用递归来抽象循环。在某些情况下可能会影响性能，所以你还会在本书中看到一些性能与情怀之间的权衡。绝大部分的编程最佳实践都是针对某个特定的场景而言的。因此脱离业务场景直接讨论技术并不可取。拥有函数式编程的思维，你就拥有了解决问题的另一种选择，但是条条大路通罗马，千万别钻牛角尖。程序是对现实世界的建模，“不要让世界适应你的模型。让你的模型适应世界。”</p>
+<h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><p>感谢作者Pierre-Yves Saumont，不仅写了这样一本令程序员们受益匪浅的书，而且耗费精力维护本书的后续重构，还耐心地回答我对书中的疑问，使我有机会提高中文版的翻译质量。<br>感谢永恒的侠少和刘舫，让我可以集中精力专注于翻译之上，并让本书得以出版。<br>感谢瑞民，虽然世事变幻莫测，但是你始终扮演了非常重要的角色。<br>感谢家人和朋友们，我永远离不开你们的鼓励和支持。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;从2017年年初到年底，我的新译作&lt;a href=&quot;https://book.douban.com/subject/27594722/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《Java函数式编程》&lt;/a&gt;终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
+    
+    
+      <category term="book" scheme="http://qinghua.github.io/tags/book/"/>
+    
+  </entry>
   
   <entry>
     <title>懒程序员笔记</title>
@@ -237,9 +268,9 @@
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
-    
       <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
+    
+      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
     
   </entry>
   
@@ -302,9 +333,9 @@
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
-    
       <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
+    
+      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
     
   </entry>
   
@@ -849,86 +880,6 @@
       <category term="db" scheme="http://qinghua.github.io/tags/db/"/>
     
       <category term="db migration" scheme="http://qinghua.github.io/tags/db-migration/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>程序员常见的编码和转义</title>
-    <link href="http://qinghua.github.io/encoding-and-escaping/"/>
-    <id>http://qinghua.github.io/encoding-and-escaping/</id>
-    <published>2016-11-06T01:53:09.000Z</published>
-    <updated>2016-12-23T15:37:43.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>作为一名天朝程序员，除了看惯了乱码之外，在日常的工作中经常会碰到编码和转义。如果能掌握这块领域的一些常识，就可以在开发和支持时游刃有余。<br><a id="more"></a></p>
-<h2 id="编码（encoding）"><a href="#编码（encoding）" class="headerlink" title="编码（encoding）"></a>编码（encoding）</h2><h3 id="ASCII-amp-EASCII-amp-ISO-8859-1"><a href="#ASCII-amp-EASCII-amp-ISO-8859-1" class="headerlink" title="ASCII &amp; EASCII &amp; ISO-8859-1"></a>ASCII &amp; EASCII &amp; ISO-8859-1</h3><p>要聊编码，就需要从ASCII开始。众所周知，计算机的世界里，数据都是0和1这样的二进制。用它们的组合来表示字母、数字和常用符号的最通用编码标准就是<a href="https://zh.wikipedia.org/wiki/ASCII" target="_blank" rel="external">ASCII</a>（American Standard Code for Information Interchange，美国信息交换标准代码）。完整的ASCII编码可以从<a href="http://www.ascii-code.com/" target="_blank" rel="external">这里</a>找到。Mac或Linux可以用以下命令来查看所有的ASCII字符：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">man ascii</div></pre></td></tr></table></figure></p>
-<p>其中，<code>00000000</code>到<code>00011111</code>的前32位字符和<code>01111111</code>是控制字符，<code>00100000</code>到<code>01111110</code>之间的都是可显示字符，一个字符占8位（bit），第1位总是<code>0</code>，这样能够支持2的7次方即128个符号编码。虽然ASCII编码能搞定美国大多数的应用场景，但是对于其它发达国家的语言来说就无能为力了。于是在其上发展出了<a href="https://zh.wikipedia.org/wiki/EASCII" target="_blank" rel="external">EASCII</a>（extended ASCII），通过扩展最前面的一位为<code>1</code>来提供多达256个符号编码的支持。可是这样又带来了两个问题：一来即使是256个编码，对于世界范围尤其是像中日这样的汉字国家来说还是远远不够；二来各个国家规定的EASCII编码都不一样，比如对于希腊来说EASCII表示的就是希腊字母，而对于法国来说可能就是某个带有注音符号的字母。这样的背景下，ISO（International Standard Organization，国际标准化组织）设计了<a href="https://zh.wikipedia.org/wiki/ISO/IEC_8859" target="_blank" rel="external">ISO/IEC 8859</a>字符集（不包含ASCII），力图一统拉丁语系。其实现的编码表<a href="https://zh.wikipedia.org/wiki/ISO_8859-1" target="_blank" rel="external">ISO-8859-1</a>（包含ASCII）应用得非常广泛。</p>
-<h3 id="GB2312-amp-GBK-amp-GB18030-amp-ANSI"><a href="#GB2312-amp-GBK-amp-GB18030-amp-ANSI" class="headerlink" title="GB2312 &amp; GBK &amp; GB18030 &amp; ANSI"></a>GB2312 &amp; GBK &amp; GB18030 &amp; ANSI</h3><p>本节介绍的是解决EASCII带来的第一个问题的方法。对于中文来说，8位的编码远远不够，于是就会想到用两个8位来表示一个汉字。为了与ASCII码兼容，如果碰到0~127的字符，需要认定为ASCII编码字符。只有当两个大于127的字符连在一起时，才表示一个汉字。前一个字符称为高字节，后一个称为低字节，这样就诞生了<a href="https://zh.wikipedia.org/wiki/GB_2312" target="_blank" rel="external">GB2312</a>编码。每一个双字节字符就称为一个全角字符，而单字节字符就称为半角字符。再后来，发现编码还是不够用，干脆就允许低字节也使用0~127的字符，反正用高字节就能判断是否是汉字，这样就诞生了<a href="https://zh.wikipedia.org/wiki/GBK" target="_blank" rel="external">GBK</a>（K表示“扩展”）编码。GBK里甚至还包含了日语的假名和俄语字母。GB2312和GBK这两种编码都是单字节（表示ASCII）和双字节（表示汉字）混合使用的编码。我国最新的汉字编码国标是<a href="https://zh.wikipedia.org/wiki/GB_18030" target="_blank" rel="external">GB18030</a>，这是一种类似下文UTF-8那样的变长编码。</p>
-<p>虽然中国解决了中文问题，但是世界各国都搞出了一套自己的编码系统，还是不能轻易相互转化。例如台湾用BIG5，日本用Shift-JIS。要想解决EASCII的第二个问题，还需要另寻他途。Window系统的记事本里，默认编码为ANSI，即根据系统语言的不同，而选用不同的编码。</p>
-<h3 id="Unicode-amp-UTF-8"><a href="#Unicode-amp-UTF-8" class="headerlink" title="Unicode &amp; UTF-8"></a>Unicode &amp; UTF-8</h3><p>本节说的是解决EASCII带来的第二个问题的方法。ISO带来了一个囊括全球所有文字的编码：Unicode。它最初规定了所有的字符（包括ASCII）都使用两个字节来表示，这个版本称为<a href="https://zh.wikipedia.org/wiki/UCS-2" target="_blank" rel="external">UCS-2</a>（Universal Multiple-Octet Coded Character Set）或UTF-16。对于ASCII码来说，在它的前面加上<code>00000000</code>作为高字节即可。这样的好处是，由于高低字节可以同时包含0~256，能表示的字符数量就更多了，理论上可以达到256×256=65536个。即使如此，也只能说是基本上够用，要囊括所有文明的文字，还需要更多的字节。目前最多支持4个字节代表一个字符，称为<a href="https://zh.wikipedia.org/wiki/UCS-4" target="_blank" rel="external">UCS-4</a>或UTF-32，它的最高位规定必须为0，可以表示65536×65536÷2=2147483648个字符（这样是不是统一银河系也够用了）。与此同时，它包含的字符集也在不断的增加，甚至收录了<a href="https://zh.wikipedia.org/wiki/%E7%B9%AA%E6%96%87%E5%AD%97" target="_blank" rel="external">emoji</a>（绘文字），大大增加了文字符号的表现力，看看😂🐔📸🎸🎁🌀🌤🕘，是不是增加了很多乐趣呢。</p>
-<p>Unicode就像是“书同文、车同轨”，极大地方便了各国的交流。可是它也有自身的缺点。一个问题是它与各国自身的标准不兼容（例如GB18030），但是这个问题貌似无解，因为各国的标准本来就是排斥的。另一个问题是随着Unicode标准的发展，出现了4个字节的字符。但是当设计Java的时候，是<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html#unicode" target="_blank" rel="external">将unicode当做2个字节的定长字符来看待</a>的。这样就导致Java里需要用两个char来表示一个4字节的字符，如emoji（😂=\uD83D\uDE02）。<a href="http://www.oracle.com/technetwork/articles/javase/index-zh-cn-138452.html" target="_blank" rel="external">Java平台中的增补字符</a>就是Oracle官方写来专门解决长字节Unicode的。打开链接就会看到一堆的乱码，说明编码问题还真是普遍存在并难以解决的啊。好在还有<a href="http://www.oracle.com/technetwork/articles/javase/index-142761.html" target="_blank" rel="external">英文版</a>可供阅读。还有一个问题就是对于英文来说，用高字节为固定值的两个字节来保存数据，就会使原来一个字节的数据量翻倍，对于传输和存储来说都是较大负担。</p>
-<p>解决上面这个问题的办法就是UTF-8。它是一种变长的编码方式。如果是ASCII码的字符，就用一个字节表示。否则就在前面增加一个高位字节（但是在8个bit之内）。这回英文符号是满意了，但是中文字符可能就会因为增加的高位字节从Unicode的占用两个字节变成UTF-8的占用三个字节。没有两全其美的事啊！这也是为什么GB2312和GBK今天仍被广泛使用的原因之一，我们也不想增加传输和存储的负担呀。</p>
-<p>如果要打开一个文本文件，首先需要知道它的编码。位于文件头的<a href="https://zh.wikipedia.org/wiki/%E4%BD%8D%E5%85%83%E7%B5%84%E9%A0%86%E5%BA%8F%E8%A8%98%E8%99%9F" target="_blank" rel="external">BOM</a>（Byte order mark，字节顺序标记）可以用来标记文件的编码类型。它分为<a href="https://en.wikipedia.org/wiki/Endianness#Big-endian" target="_blank" rel="external">BE</a>（big-endian，大端序）和<a href="https://en.wikipedia.org/wiki/Endianness#Little-endian" target="_blank" rel="external">LE</a>（little-endian，小端序），指的是高字节的位置在前还是在后。但是在类Unix系统中，它很可能因为无法被程序识别而带来一系列问题。所以一般的纯文本文件还是建议保存为不带BOM形式的编码。Window系统的记事本里，如果输入<code>联通</code>保存，便会将其保存为无BOM的GB格式，再次用记事本打开此文件时，因为没有BOM信息，记事本就需要自己推断这个文件的编码是什么。显然window是上这个推断很有问题，误认为是UTF-8格式（可以从文件菜单里的“另存为”看出来）。而mac上默认的文本编辑表现还是不错的。如果用word来打开它，便可以在一系列的编码中，自行寻找合适的编码来打开。如果用记事本另存为UTF-8格式，便不会有问题。Sublime Text可以支持用许多不同的编码来打开或是保存，光是UTF系列的就不少，如下图：<br><img src="/img/sublime-text-encoding.png" alt="sublime-text-encoding"></p>
-<p>对于Java来说，内部的String编码默认为UTF-16，但如果由于用不着而觉得浪费内存的话，可以在JVM打开<code>-XX:+UseCompressedStrings</code>，就会变成ISO-8859-1了。Intellij IDEA的Preference里，有两个关于encoding的选项：<br><img src="/img/intellij-idea-encoding.jpg" alt="Intellij-IDEA-encoding"></p>
-<p>可以通过Project Encoding来指定项目的JVM里String的内部编码，默认为UTF-8。可以通过下面这两个表达式来看到，它们的编码是完全一致的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="string">"懒"</span>.getBytes()</div><div class="line"><span class="string">"懒"</span>.getBytes(<span class="string">"UTF-8"</span>)</div></pre></td></tr></table></figure></p>
-<p>Java里可以用Integer.toHexString来看到汉字的unicode编码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">System.out.println(<span class="string">"\\u"</span> + Integer.toHexString(<span class="string">'懒'</span>));</div><div class="line">System.out.println(<span class="string">"\u61d2"</span>);</div></pre></td></tr></table></figure></p>
-<p>通过下面的语句，可以将字节数组byte[]还原为原先的字符串。如果指定错了编码，就会看到乱码产生啦：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">System.out.println(<span class="keyword">new</span> String(<span class="string">"懒"</span>.getBytes(<span class="string">"UTF-8"</span>), <span class="string">"UTF-8"</span>));  <span class="comment">// 正常</span></div><div class="line">System.out.println(<span class="keyword">new</span> String(<span class="string">"懒"</span>.getBytes(<span class="string">"UTF-8"</span>), <span class="string">"UTF-16"</span>)); <span class="comment">// 乱码:�</span></div><div class="line">System.out.println(<span class="keyword">new</span> String(<span class="string">"懒"</span>.getBytes(<span class="string">"UTF-16"</span>), <span class="string">"UTF-8"</span>)); <span class="comment">// 乱码:��a�</span></div></pre></td></tr></table></figure></p>
-<p>读文件、流也是一样的道理，知道了它们的编码才能正确地读取，否则只好像微软的记事本那样去猜啦。Java还提供了一个小工具<code>native2ascii</code>，可以把本地编码的文件转换为各种格式：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> 懒程序员 &gt; ggg.txt</div><div class="line">native2ascii -encoding UTF-8 ggg.txt out.txt</div><div class="line">cat out.txt</div><div class="line">native2ascii -reverse -encoding UTF-8 out.txt</div></pre></td></tr></table></figure></p>
-<h3 id="base64-amp-UTF-7"><a href="#base64-amp-UTF-7" class="headerlink" title="base64 &amp; UTF-7"></a>base64 &amp; UTF-7</h3><p><a href="https://zh.wikipedia.org/zh-hans/Base64" target="_blank" rel="external">Base64</a>是一种在网络上传递信息时常见的编码。它相当于是一张64条记录的映射表，键从<code>000000</code>到<code>111111</code>，值就是64个不同的字符。编码时，如果原字符的bit数正好能被6整除，那就查表得到每6个bit所对应的值，合起来就是base64编码的结果。如果不能被6整除，那就在末尾用0补足。每补两个0，就在最终结果的后面加一个<code>=</code>号。所以如果一段数据以等号结尾，那十有八九就是base64编码。Mac或Linux可以用以下命令来进行base64编码及解码：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -n A | base64</div><div class="line"><span class="built_in">echo</span> -n AB | base64</div><div class="line"><span class="built_in">echo</span> -n ABC | base64</div><div class="line"><span class="built_in">echo</span> -n QQ== | base64 --decode</div><div class="line"><span class="built_in">echo</span> -n QUI= | base64 --decode</div><div class="line"><span class="built_in">echo</span> -n QUJD | base64 --decode</div></pre></td></tr></table></figure></p>
-<p>JavaScript可以用以下命令来进行base64编码及解码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.btoa(<span class="string">"A"</span>)</div><div class="line"><span class="built_in">window</span>.atob(<span class="string">"QQ=="</span>)</div></pre></td></tr></table></figure></p>
-<p><a href="https://zh.wikipedia.org/wiki/UTF-7" target="_blank" rel="external">UTF-7</a>理论上也属于一种base64编码，只不过它的64行映射表不一样罢了。过去的SMTP协议仅能接受7个bit（ASCII）的字符，Unicode无法直接传输。所以通过UTF-7编码的方式，将Unicode字符转换为7个bit以内的字符。UTF-7本身并不是Unicode的标准，现在也已经由于邮件和传输都支持UTF-8而退出历史舞台了。</p>
-<p>写到这里感觉得收一下了，不然MD5、SHA什么的都要出来了。对散列、加密有兴趣的童鞋们可以参考我以前写的另一篇文章<a href="http://qinghua.github.io/certificate/">《证书的那些事儿》</a>。</p>
-<h2 id="转义（escaping）"><a href="#转义（escaping）" class="headerlink" title="转义（escaping）"></a>转义（escaping）</h2><h3 id="html-amp-url"><a href="#html-amp-url" class="headerlink" title="html &amp; url"></a>html &amp; url</h3><p>下面说说转义，不少人都把它与编码混而一谈，以至于它也算作编码的一部分了。从最简单的html聊起吧。在html里，如果只写上一些文本，那当我们用浏览器打开这个html时，就会完完整整地显示这些文本的内容。我们也知道，html里无论输入多少个空格，只会显示一个空格。因为在html里，把空格当成了特殊字符。在这种情况下，如果想要在html里放上空格，就需要对空格编码，也就是大家熟知的<code>&amp;nbsp;</code>。其中nbsp大名唤作Non-Breaking Space（<a href="https://zh.wikipedia.org/wiki/%E4%B8%8D%E6%8D%A2%E8%A1%8C%E7%A9%BA%E6%A0%BC" target="_blank" rel="external">不换行空格</a>），除了名字以外，它也有自己的编码：<code>&amp;#160;</code>。除了空格，常见的还有代表标签的<code>&lt;</code>和<code>&gt;</code>。完整的html转义可以从<a href="http://www.ascii.cl/htmlcodes.htm" target="_blank" rel="external">这里</a>找到。奇怪的是这么常用的转义，js居然没有原生的函数支持。如果要转义<code>&lt;div&gt;</code>，可以使用下面这条语句来得到<code>&amp;lt;div&amp;gt;</code>：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlEncode</span>(<span class="params">html</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="built_in">document</span>.createElement(<span class="string">'a'</span>).appendChild(<span class="built_in">document</span>.createTextNode(html)).parentNode.innerHTML;</div><div class="line">&#125;;</div><div class="line">htmlEncode(<span class="string">'&lt;div&gt;'</span>);</div></pre></td></tr></table></figure></p>
-<p>解码的话，这样做：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlDecode</span>(<span class="params">html</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> a = <span class="built_in">document</span>.createElement(<span class="string">'a'</span>);</div><div class="line">    a.innerHTML = html;</div><div class="line">    <span class="keyword">return</span> a.textContent;</div><div class="line">&#125;;</div><div class="line">htmlDecode(<span class="string">'&amp;lt;div&amp;gt;'</span>);</div></pre></td></tr></table></figure></p>
-<p>如果使用jQuery，思路一致，但是代码可以稍微短一点：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlEncode</span>(<span class="params">value</span>)</span>&#123;</div><div class="line">  <span class="keyword">return</span> $(<span class="string">'&lt;div/&gt;'</span>).text(value).html();</div><div class="line">&#125;</div><div class="line">htmlEncode(<span class="string">'&lt;div&gt;'</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">htmlDecode</span>(<span class="params">value</span>)</span>&#123;</div><div class="line">  <span class="keyword">return</span> $(<span class="string">'&lt;div/&gt;'</span>).html(value).text();</div><div class="line">&#125;</div><div class="line">htmlDecode(<span class="string">'&amp;lt;div&amp;gt;'</span>);</div></pre></td></tr></table></figure></p>
-<p>可惜的是上面的函数并不能解决空格和<code>&amp;nbsp;</code>之间的转换。想要个万能的？也许只好使用replace一个个地慢慢替换了。</p>
-<p>想要请求一个html，需要先输入一个url。这里就涉及到了url转义。因为url里可能会有类似<code>?name=ggg</code>这样的参数，所以起码就需要对<code>?</code>和<code>=</code>进行转义。转义之后分别为<code>%3F</code>和<code>%3D</code>，这与ASCII码是相对应的。完整的url编码可以从<a href="http://www.w3school.com.cn/tags/html_ref_urlencode.html" target="_blank" rel="external">这里</a>找到。这回js终于有原生的函数支持了：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">encodeURI</span>(<span class="string">'http://qinghua.github.io?name=g gg'</span>);</div><div class="line"><span class="built_in">encodeURIComponent</span>(<span class="string">'http://qinghua.github.io?name=g gg'</span>);</div></pre></td></tr></table></figure></p>
-<p>用<code>encodeURI</code>函数的网址，不会去碰<code>http://</code>，所以编码后还是一个合法的网址。而<code>encodeURIComponent</code>会将一切都进行编码，网址也就不是网址了。不过它很适合将网址作为参数来使用。解码的话，这样做：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">decodeURI</span>(<span class="string">'http://qinghua.github.io?name=g%20gg'</span>);</div><div class="line"><span class="built_in">decodeURIComponent</span>(<span class="string">'http%3A%2F%2Fqinghua.github.io%3Fname%3Dg%20gg'</span>);</div></pre></td></tr></table></figure></p>
-<p>在Java里可以用以下语句来完成url的转义：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">URLEncoder.encode(<span class="string">"懒"</span>, <span class="string">"UTF-8"</span>);</div><div class="line">URLDecoder.decode(<span class="string">"%E6%87%92"</span>, <span class="string">"UTF-8"</span>);</div></pre></td></tr></table></figure></p>
-<h3 id="XML-amp-YAML-amp-JSON-amp-CSV"><a href="#XML-amp-YAML-amp-JSON-amp-CSV" class="headerlink" title="XML &amp; YAML &amp; JSON &amp; CSV"></a>XML &amp; YAML &amp; JSON &amp; CSV</h3><p>在这些数据格式中，对xml的转义基本上跟html差不多，这里就不再赘述了。对于yaml来说，规则如下：</p>
-<ol>
-<li>在一个单引号标注的字符串中，一个单引号需要转义成两个单引号</li>
-<li>在一个双引号标注的字符串中，大部分符号都需要用反斜杠来转义</li>
-<li>如果字符串中有控制字符（如<code>\0</code>、<code>\n</code>等），需要用双引号来标注</li>
-<li>如果字符串看起来像下面的样子，需要用引号（无所谓哪种）来标注：<ul>
-<li><code>true</code>或<code>false</code></li>
-<li><code>null</code>或<code>~</code></li>
-<li>看起来像数字，如<code>2</code>，<code>14.9</code>，<code>12e7</code>等</li>
-<li>看起来像日期，如<code>2014-12-31</code></li>
-</ul>
-</li>
-</ol>
-<p>完整的规则可以参考<a href="http://www.yaml.org/spec/1.2/spec.html#id2776092" target="_blank" rel="external">yaml规范</a>。</p>
-<p>对与json来说，需要转义的字符如下图：<br><img src="http://www.json.org/string.gif" alt="json string escape"></p>
-<p>对于csv来说，转义的规则只有两条：</p>
-<ol>
-<li>如果值里有逗号、换行或是双引号，需要用双引号来标注</li>
-<li>如果值里有双引号，需要把它转义成两个双引号<code>&quot;&quot;</code></li>
-</ol>
-<h3 id="Java-amp-NET-amp-JS-amp-SQL"><a href="#Java-amp-NET-amp-JS-amp-SQL" class="headerlink" title="Java &amp; .NET &amp; JS &amp; SQL"></a>Java &amp; .NET &amp; JS &amp; SQL</h3><p>对于大部分的编程语言，例如Java、.NET还有JavaScript，甚至C、GO、Ruby等等来说，通常的转义都是通过反斜杠<code>\</code>来实现的。一般都包括如下几项：</p>
-<ul>
-<li>退格: <code>\b</code></li>
-<li>换行: <code>\n</code></li>
-<li>制表符: <code>\t</code></li>
-<li>回车: <code>\r</code></li>
-<li>换页: <code>\f</code></li>
-<li>双引号: <code>\&quot;</code></li>
-<li>反斜杠: <code>\\</code></li>
-</ul>
-<p>不过C和C++支持的16进制<code>\x</code>，在java里不被支持。所以<code>\x61\xd2</code>的这个“懒”字，在java中可以通以下这两个表达式来得到真实的字符：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="string">"\u61d2"</span></div><div class="line"><span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">byte</span>[] &#123;(<span class="keyword">byte</span>) <span class="number">0x61</span>, (<span class="keyword">byte</span>) <span class="number">0xd2</span>&#125;, <span class="string">"unicode"</span>)</div></pre></td></tr></table></figure></p>
-<p>SQL有些不一样。它从语法层面支持模糊查询，所以即使在完全匹配中使用了<code>%</code>也不需要转义。但是代表字符串的单引号<code>&#39;</code>还是不得不转义成两个单引号<code>&#39;&#39;</code>。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>以上是关于编码和转义的一些常识，<a href="https://www.zhihu.com/question/23374078/answer/69732605#" target="_blank" rel="external">知乎上转的这篇回答</a>，系统地介绍了从ASCII到UTF-8，写得非常赞。平时需要编码和转义的时候，可以使用<a href="http://www.freeformatter.com/" target="_blank" rel="external">这个网站</a>在线转换，也挺方便的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;作为一名天朝程序员，除了看惯了乱码之外，在日常的工作中经常会碰到编码和转义。如果能掌握这块领域的一些常识，就可以在开发和支持时游刃有余。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
-    
-    
-      <category term="encoding" scheme="http://qinghua.github.io/tags/encoding/"/>
     
   </entry>
   
