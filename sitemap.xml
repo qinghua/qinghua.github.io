@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://qinghua.github.io/type-less-code-more/</loc>
+    
+    <lastmod>2018-02-05T00:53:46.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/personal-tech-debt/</loc>
     
     <lastmod>2018-01-01T07:01:26.000Z</lastmod>
@@ -177,20 +184,6 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/encoding-and-escaping/</loc>
-    
-    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://qinghua.github.io/elastic-search/</loc>
-    
-    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://qinghua.github.io/flyway/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
@@ -205,13 +198,6 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/ceph-radosgw/</loc>
-    
-    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://qinghua.github.io/gitup/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
@@ -219,7 +205,7 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/ceph-radosgw-replication/</loc>
+    <loc>http://qinghua.github.io/ceph-radosgw/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -240,6 +226,13 @@
   </url>
   
   <url>
+    <loc>http://qinghua.github.io/ceph-radosgw-replication/</loc>
+    
+    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://qinghua.github.io/interrupt-train-of-thought/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
@@ -247,14 +240,14 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/certificate/</loc>
+    <loc>http://qinghua.github.io/docker-storage/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/cloudify/</loc>
+    <loc>http://qinghua.github.io/certificate/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -269,6 +262,13 @@
   
   <url>
     <loc>http://qinghua.github.io/kubernetes-in-mesos-1/</loc>
+    
+    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/cloudify/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -345,7 +345,7 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/alibaba_druid/</loc>
+    <loc>http://qinghua.github.io/awk/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -359,14 +359,14 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/marathon-bamboo/</loc>
+    <loc>http://qinghua.github.io/mesos-chronos/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/mesos-chronos/</loc>
+    <loc>http://qinghua.github.io/marathon-bamboo/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -401,7 +401,7 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/awk/</loc>
+    <loc>http://qinghua.github.io/alibaba_druid/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -464,14 +464,14 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/spring-scheduler/</loc>
+    <loc>http://qinghua.github.io/solr/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/solr/</loc>
+    <loc>http://qinghua.github.io/spring-scheduler/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -485,13 +485,6 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/docker-registry/</loc>
-    
-    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://qinghua.github.io/terminal-recorder/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
@@ -499,14 +492,14 @@
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/tesseract/</loc>
+    <loc>http://qinghua.github.io/docker-registry/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://qinghua.github.io/docker-storage/</loc>
+    <loc>http://qinghua.github.io/tesseract/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     
@@ -549,6 +542,20 @@
   
   <url>
     <loc>http://qinghua.github.io/effective-communication/</loc>
+    
+    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/elastic-search/</loc>
+    
+    <lastmod>2016-12-23T15:37:43.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://qinghua.github.io/encoding-and-escaping/</loc>
     
     <lastmod>2016-12-23T15:37:43.000Z</lastmod>
     

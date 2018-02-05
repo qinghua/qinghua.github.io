@@ -3,6 +3,73 @@
   
     
     <entry>
+      <title><![CDATA[敲最少的键，编最多的码]]></title>
+      <url>/type-less-code-more/</url>
+      <content type="html"><![CDATA[<p>我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的<a href="https://www.jetbrains.com/products.html" target="_blank" rel="external">JET BRAINS全家桶</a>已经是如此齐备时。<br><a id="more"></a></p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p>废话不多说，在环境准备好的情况下，假设我们来测试驱动开发一个计算一天有多少个小时的API。参见以下的两分半小视频：</p>
+<iframe frameborder="0" width="640" height="498" src="https://v.qq.com/iframe/player.html?vid=s0545lt9r2e&tiny=0&auto=0" allowfullscreen></iframe>
+
+<p>要是视频不清晰或看不到，就直接到<a href="https://v.qq.com/x/page/s0545lt9r2e.html" target="_blank" rel="external">腾讯视频</a>中看720P吧。</p>
+<p>如何才能做到”敲最少的键，编最多的码“呢？除了掌握技巧之外，就是多练习实践了。以下就是技巧的内容。</p>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先把环境准备一下。只要有<code>src</code>和<code>test</code>即可。我自己是一个默认的Maven新项目，在<code>pom</code>中引用了<code>junit</code>。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"> &lt;?xml version="1.0" encoding="UTF-8"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></div><div class="line">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.ggg<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ggg<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>专业版的IDEA支持项目模板，如果你对默认的模板不满意，项目模板能够节省你的一部分操作。</p>
+<h2 id="步骤分解"><a href="#步骤分解" class="headerlink" title="步骤分解"></a>步骤分解</h2><ol>
+<li>快捷键：在<code>test/java</code>中用快捷键<strong>Ctrl+N</strong>生成文件。</li>
+<li>文件模版：选择的<code>JUnit</code>正是我事先创建好的文件模板，内容见下文的“功能简介”。这里的一个小诀窍是先按下<strong>u</strong>，可以过滤掉不需要的模板。</li>
+<li>输入：输入<code>HoursCalculatorTest</code>并回车，测试文件就此生成。</li>
+<li>代码自动生成：移动光标到合适位置，用快捷键<strong>Ctrl+N</strong>自动生成<strong>Test Method</strong>。</li>
+<li>输入：将测试方法命名为<code>should_get_24_hours_for_1_day</code>。</li>
+<li>输入：这里需要新建一个测试目标，即<code>new HoursCalculator()</code>。</li>
+<li>快捷键：因为<code>HoursCalculator</code>类还不存在，所以会报错，用快捷键<strong>F2</strong>移动到下一个错误处，再用快捷键<strong>Alt+Enter</strong>自动修复错误，选择<strong>Create class ‘HoursCalculator’</strong>。</li>
+<li>代码自动生成：输入<code>org.ggg</code>自动生成<code>HoursCalculator</code>类。</li>
+<li>快捷键：<strong>Ctrl+Tab</strong>回到上一个文件即我们的测试类。<strong>Command+Alt+V</strong>将<code>new HoursCalculator()</code>抽取为一个变量<code>hoursCalculator</code>，<strong>Command+Shift+Enter</strong>结束本行，将光标跳至下一行开头。</li>
+<li>输入：输入<code>int hoursByDay = hoursCalculator.getHoursByDay(1)</code>来获取计算结果。小诀窍是只要输入<code>hc</code>，IDEA就会提示<code>hoursCalculator</code>。</li>
+<li>代码自动生成：还是<strong>Alt+Enter</strong>自动修复错误，选择<strong>Create method ‘getHoursByDay’</strong>，便能在<code>HoursCalculator</code>类中自动生成<code>getHoursByDay</code>方法。</li>
+<li>输入：一路回车，可以把参数名改为<code>days</code>。</li>
+<li>快捷键：还是<strong>Ctrl+Tab</strong>回到测试类，然后<strong>Command+Shift+Enter</strong>结束本行（分号会自动补齐）。</li>
+<li>输入：输入<code>assertEquals(24,hoursByDay)</code>，还是<strong>Command+Shift+Enter</strong>结束本行（还会调整格式）。</li>
+<li>快捷键：<strong>Ctrl+Shift+F10</strong>运行测试，红了。用<strong>Ctrl+Tab</strong>回到<code>HoursCalculator</code>类准备修改实现。</li>
+<li>输入：把返回值从<code>0</code>改为<code>24</code>。</li>
+<li>快捷键：<strong>Shift+F10</strong>运行上个测试，这回绿了。用<strong>Ctrl+Tab</strong>回到我们的测试类，准备编写下一个测试。</li>
+<li>活动模板：将光标移动到合适的位置，输入<strong>test</strong>和<strong>TAB</strong>键。可以看到生成了另一个测试方法。当然我们在此也可以用上面的“代码自动生成”，这里不过是用了另一种方法而已。<code>test</code>是我事先创建好的活动模板，内容见下文的“功能简介”。</li>
+<li>输入：将方法命名为<code>should_get_48_hours_for_2_days</code>。之后按照类似上文的方式，实现并执行测试，红了。令方法返回<code>24 * day</code>并再次执行测试，绿了。移动光标到测试方法之外，执行全部测试，都绿了，保证后一个实现不会破坏前一个实现。</li>
+<li>快捷键：现在是tdd的重构阶段。<code>24</code>是一个magic number，所以我们要用<strong>Command+Alt+C</strong>将其变成一个常量，如<code>hoursInDay</code>。不过常量应该还是大写的蛇式比较符合惯例，于是可以<strong>Shift+F6</strong>改名。</li>
+<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些。</li>
+<li>快捷键：用<strong>Shift+F10</strong>运行上次运行的全部测试，依然是绿的。</li>
+<li>快捷键：测试文件还不在包中，用<strong>F6</strong>将其移入<code>org.ggg</code>中。还可以用<strong>Command+Alt+O</strong>来优化import部分。</li>
+<li>快捷键：再次用<strong>Shift+F10</strong>运行测试，依然是绿的，重构完成。</li>
+</ol>
+<h2 id="用到的IDE功能简介"><a href="#用到的IDE功能简介" class="headerlink" title="用到的IDE功能简介"></a>用到的IDE功能简介</h2><h3 id="快捷键（Shortcuts）"><a href="#快捷键（Shortcuts）" class="headerlink" title="快捷键（Shortcuts）"></a>快捷键（<a href="https://resources.jetbrains.com/storage/products/intellij-idea/docs/IntelliJIDEA_ReferenceCard.pdf" target="_blank" rel="external">Shortcuts</a>）</h3><p>我用的是<strong>Mac OS X</strong>的Keymap。常用的快捷键要牢记，很多时候它决定了程序员的效率如何。JET BRAINS的各种语言的IDE快捷键都比较类似，花点精力记住它决不会吃亏。</p>
+<h3 id="文件模板（File-Templates）"><a href="#文件模板（File-Templates）" class="headerlink" title="文件模板（File Templates）"></a>文件模板（<a href="https://www.jetbrains.com/help/idea/file-and-code-templates.html" target="_blank" rel="external">File Templates</a>）</h3><p>顾名思义，文件模板即是新建文件时使用到的模板。我们在上面的步骤中使用的<code>JUnit</code>活动模板如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">#if ($&#123;PACKAGE_NAME&#125; &amp;&amp; $&#123;PACKAGE_NAME&#125; != "")package $&#123;PACKAGE_NAME&#125;;#end</div><div class="line"></div><div class="line">import org.junit.Test;</div><div class="line"></div><div class="line">import static org.junit.Assert.*;</div><div class="line">#parse("File Header.java")</div><div class="line">public class $&#123;NAME&#125; &#123;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>它的语法基于<a href="http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction" target="_blank" rel="external">Apache Velocity</a>，支持变量，如<code>${PACKAGE_NAME}</code>表示包名，<code>${NAME}</code>表示用户输入的名称，等等。</p>
+<p>可以通过在<strong>Preferences</strong>中搜索<strong>File and Code Templates</strong>，来创建或修改文件模板。也可以在一开始<strong>Ctrl+N</strong>时选择<strong>Edit File Templates…</strong>。</p>
+<h3 id="活动模板（Live-Templates）"><a href="#活动模板（Live-Templates）" class="headerlink" title="活动模板（Live Templates）"></a>活动模板（<a href="https://www.jetbrains.com/help/idea/live-templates.html" target="_blank" rel="external">Live Templates</a>）</h3><p>活动模板与文件模板类似，但它不需要新建文件，可以在文件的任何地方激活，只需要输入名字后加一个<strong>TAB</strong>即可。我们在上面的步骤中使用的<code>test</code>活动模板如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">void</span> $NAME$() &#123;</div><div class="line">    $END$</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其中的<code>$END$</code>表示最后光标会出现在哪里。在此，表示光标最后会出现在方法体内，以便于继续编写实现。</p>
+<p>可以通过在<strong>Preferences</strong>中搜索<strong>Live Templates</strong>，来创建或修改活动模板。</p>
+<h3 id="代码自动生成（Generating-Code）"><a href="#代码自动生成（Generating-Code）" class="headerlink" title="代码自动生成（Generating Code）"></a>代码自动生成（<a href="https://www.jetbrains.com/help/idea/generating-code.html" target="_blank" rel="external">Generating Code</a>）</h3><p>有许多常用的代码，例如getter、setter、constructor、equals&amp;hashCode等等，IDEA都能够通过这个功能帮助自动生成。</p>
+<p>我们在上面的步骤中使用了<strong>Ctrl+N</strong>生成了junit的测试方法，用<strong>Alt+Enter</strong>通过修复错误的方式来生成类和方法。</p>
+<h3 id="插件（Plugins）"><a href="#插件（Plugins）" class="headerlink" title="插件（Plugins）"></a>插件（<a href="https://www.jetbrains.com/help/idea/managing-plugins.html" target="_blank" rel="external">Plugins</a>）</h3><p>IDEA支持<a href="https://plugins.jetbrains.com/idea_ce" target="_blank" rel="external">许多插件</a>。插件的功能强大，能够做到从修改字符串到语言级别的支持。比如我们用的版本控制系统VCS就是用插件的方式开发的。</p>
+<p>我们在上面的步骤中使用了<a href="https://plugins.jetbrains.com/plugin/2162-string-manipulation" target="_blank" rel="external"><strong>string-manipulation</strong>插件</a>。安装完插件，别忘了重启IntelliJ IDEA。你也可以<a href="https://www.jetbrains.com/help/idea/creating-a-project-for-plugin-development.html" target="_blank" rel="external">编写自己的插件</a>。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> tool </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> IntelliJ IDEA </tag>
+            
+            <tag> TDD </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[个人的技术债]]></title>
       <url>/personal-tech-debt/</url>
       <content type="html"><![CDATA[<p><a href="https://zh.wikipedia.org/wiki/%E6%8A%80%E6%9C%AF%E8%B4%9F%E5%80%BA" target="_blank" rel="external">技术债</a>是一个借用了财务债的绝妙隐喻（<a href="http://www.extremeprogramming.org/rules/metaphor.html" target="_blank" rel="external">极限编程XP的实践</a>之一），表示当我们为了短期利益（如按时完成开发），而在技术上对软件的长期质量进行的妥协。它一般用于项目管理，但其实也广泛地存在于各个地方，比如每个人的身上。<br><a id="more"></a></p>
@@ -275,9 +342,9 @@
         
         <tags>
             
-            <tag> JGit </tag>
-            
             <tag> git </tag>
+            
+            <tag> JGit </tag>
             
         </tags>
         
@@ -338,9 +405,9 @@
         
         <tags>
             
-            <tag> JGit </tag>
-            
             <tag> git </tag>
+            
+            <tag> JGit </tag>
             
         </tags>
         
