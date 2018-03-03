@@ -3,6 +3,54 @@
   
     
     <entry>
+      <title><![CDATA[挖掘IntelliJ IDEA的实用功能]]></title>
+      <url>/intellij-idea-utilities/</url>
+      <content type="html"><![CDATA[<p>本文介绍了<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>的一些相对不那么广为人知的实用功能。希望能让你的IDE发挥出最大的功效！下文使用的IDEA版本是<code>2017.2.6</code>社区版，快捷键是<code>Mac OS X</code>。<br><a id="more"></a></p>
+<h2 id="多重选择"><a href="#多重选择" class="headerlink" title="多重选择"></a>多重选择</h2><p>Sublime Text有一个非常好用的功能，就是可以选择多个光标，允许一起编辑。IDEA也向其学习，提供了类似的功能。只要按住<strong>Alt+Shift</strong>时，用鼠标点击其它位置即可。还可以通过<strong>Ctrl+G</strong>选择下一个相同的字符串，或是<strong>Ctrl+Command+G</strong>选择所有相同的字符串。如下图：<br><img src="/img/idea-multiple-selections.png" alt=""></p>
+<p>还有一个功能是纵向选择，可以通过<strong>Command+Shift+8</strong>来开关。之后的效果如下：<br><img src="/img/idea-column-selection.png" alt=""></p>
+<p>有一个注意事项就是，多重选择的时候不要用IDE自带的重构功能。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/editor-basics.html#editor_lines_code_blocks" target="_blank" rel="external">https://www.jetbrains.com/help/idea/editor-basics.html#editor_lines_code_blocks</a></p>
+<h2 id="文件比较器"><a href="#文件比较器" class="headerlink" title="文件比较器"></a>文件比较器</h2><p>比较两个项目中的文件很简单，选中这两个文件，然后<strong>Command+D</strong>就可以了。JAR文件、文件夹也能够进行比较：<br><img src="/img/idea-compare-folders.png" alt=""></p>
+<p>如果只有一个文件在项目中，那就选中它，然后<strong>Command+D</strong>，再从对话框中打开项目外的文件即可。如果另一个文件在剪贴板，那就打开项目中的文件，然后右击编辑器选择<strong>Compare with Clipboard</strong>即可。</p>
+<p>如果两个文件都不在项目中……那好歹复制一个进去呗。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/comparing-files.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/comparing-files.html</a></p>
+<h2 id="正则校验器"><a href="#正则校验器" class="headerlink" title="正则校验器"></a>正则校验器</h2><p>如果你写了个（或搜了个）炫酷的正则表达式，除了单元测试，IDEA也提供了简便的测试方式。比如对于如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Pattern EMAIL_PATTERN = Pattern.compile(<span class="string">"^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]&#123;2,5&#125;)$"</span>);</div></pre></td></tr></table></figure></p>
+<p>在正则的字符串中按下<strong>Alt+Enter</strong>，选择<strong>Check RegExp</strong>，然后填入想校验的字符串即可：<br><img src="/img/idea-check-regexp.png" alt=""></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/regular-expression-syntax-reference.html#tips-tricks" target="_blank" rel="external">https://www.jetbrains.com/help/idea/regular-expression-syntax-reference.html#tips-tricks</a></p>
+<h2 id="Emmet"><a href="#Emmet" class="headerlink" title="Emmet"></a>Emmet</h2><p>还在写这样的html吗？早就out了……<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">id</span>=<span class="string">"users"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"user"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>只要输入<code>table#users&gt;tr.user&gt;td*3</code>然后按下<strong>TAB</strong>就行了。能自动生成的，我们就不自己写。不过这个功能只在后缀名为<code>html</code>或<code>xml</code>的文件编辑器中生效，所以创建一个html文件然后再试试吧。</p>
+<p>这里有一张Emmet的语法表：<a href="https://docs.emmet.io/cheat-sheet/" target="_blank" rel="external">https://docs.emmet.io/cheat-sheet/</a></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/emmet.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/emmet.html</a></p>
+<h2 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h2><p>如果你看到这样的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> name + <span class="string">" is "</span> + age + <span class="string">" years old."</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>就会忍不住想把它变成这样的话：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> <span class="keyword">new</span> StringBuilder().append(name)</div><div class="line">                          .append(<span class="string">" is "</span>)</div><div class="line">                          .append(age)</div><div class="line">                          .append(<span class="string">" years old."</span>)</div><div class="line">                          .toString();</div></pre></td></tr></table></figure></p>
+<p>只要在等号后面的语句中按下<strong>Alt+Enter</strong>，选择<strong>Replace ‘+’ with ‘StringBuilder.append()’</strong>即可。也可以选择<strong>Replace ‘+’ with ‘String.format()’</strong>，来把它变成这样：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> String.format(<span class="string">"%s is %d years old."</span>, name, age);</div></pre></td></tr></table></figure></p>
+<p>所以当你准备拼接字符串了，考虑这个功能吧，比自己慢慢写要顺手多了。其实<strong>Alt+Enter</strong>这个万能快捷键在不同的代码下支持许多不同的功能，没事在代码上随便敲一敲，你会发现惊喜的。</p>
+<h2 id="本地历史"><a href="#本地历史" class="headerlink" title="本地历史"></a>本地历史</h2><p>通过<strong>VCS</strong>菜单中，<strong>Local History</strong>的<strong>Show History</strong>，可以打开当前文件的本地修改历史。如果某个版本你并没有提交过，只是在本地曾经改过，但是又改掉了，就可以利用这个功能将其找回。甚至还可以针对字段、方法、文件夹、乃至整个项目来查看。所以保存量是比较大的，IDEA默认就保留五个工作日的本地历史，有一周一般来说也就够了吧。这个值也能通过传给JVM的参数<code>localHistory.daysToKeep</code>来修改。如果因为磁盘不够等原因不想要，也可以把它设置为0。<br><img src="/img/idea-local-history.png" alt=""></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/local-history.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/local-history.html</a></p>
+<h2 id="测试覆盖率"><a href="#测试覆盖率" class="headerlink" title="测试覆盖率"></a>测试覆盖率</h2><p>通过<strong>Run</strong>菜单里的<strong>Run ‘xxxTest’ with Coverage</strong>，可以在运行测试时顺便跑出测试覆盖率。通过<strong>Analyze</strong>菜单里的<strong>Show Coverage Data</strong>，可以查看覆盖率的大致情况。而通过<strong>Generate Coverage Report</strong>，可以生成测试报告，在报告里可以看到具体的每一行是否运行过。这是覆盖率数据：<br><img src="/img/idea-coverage-data.png" alt=""></p>
+<p>这是测试报告：<br><img src="/img/idea-coverage-report.png" alt=""></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html</a></p>
+<h2 id="生产力指南"><a href="#生产力指南" class="headerlink" title="生产力指南"></a>生产力指南</h2><p>点击<strong>Help</strong>菜单里的<strong>Productivity Guide</strong>，就能看到一张大表，记录着各功能的使用情况。注意一下使用频率低的，了解一下从未使用过的，很快就能成为Intellij IDEA的砖家了。<br><img src="/img/idea-productivity-guide.png" alt=""></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/productivity-guide.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/productivity-guide.html</a></p>
+<p>IntelliJ IDEA还有许多的插件、调试技巧等，这里先挖个坑，等以后的文章再填吧～</p>
+]]></content>
+      
+        <categories>
+            
+            <category> tool </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> IntelliJ IDEA </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[敲最少的键，编最多的码]]></title>
       <url>/type-less-code-more/</url>
       <content type="html"><![CDATA[<p>我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的<a href="https://www.jetbrains.com/products.html" target="_blank" rel="external">JET BRAINS全家桶</a>已经是如此齐备时。<br><a id="more"></a></p>
@@ -34,7 +82,7 @@
 <li>活动模板：将光标移动到合适的位置，输入<strong>test</strong>和<strong>TAB</strong>键。可以看到生成了另一个测试方法。当然我们在此也可以用上面的“代码自动生成”，这里不过是用了另一种方法而已。<code>test</code>是我事先创建好的活动模板，内容见下文的“功能简介”。</li>
 <li>输入：将方法命名为<code>should_get_48_hours_for_2_days</code>。之后按照类似上文的方式，实现并执行测试，红了。令方法返回<code>24 * day</code>并再次执行测试，绿了。移动光标到测试方法之外，执行全部测试，都绿了，保证后一个实现不会破坏前一个实现。</li>
 <li>快捷键：现在是tdd的重构阶段。<code>24</code>是一个magic number，所以我们要用<strong>Command+Alt+C</strong>将其变成一个常量，如<code>hoursInDay</code>。不过常量应该还是大写的蛇式比较符合惯例，于是可以<strong>Shift+F6</strong>改名。</li>
-<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些。</li>
+<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些，并且也能在编辑非java文件时使用。</li>
 <li>快捷键：用<strong>Shift+F10</strong>运行上次运行的全部测试，依然是绿的。</li>
 <li>快捷键：测试文件还不在包中，用<strong>F6</strong>将其移入<code>org.ggg</code>中。还可以用<strong>Command+Alt+O</strong>来优化import部分。</li>
 <li>快捷键：再次用<strong>Shift+F10</strong>运行测试，依然是绿的，重构完成。</li>
@@ -1605,11 +1653,11 @@
             
             <tag> dubbo </tag>
             
-            <tag> service governance </tag>
-            
             <tag> dubbox </tag>
             
             <tag> rest </tag>
+            
+            <tag> service governance </tag>
             
         </tags>
         

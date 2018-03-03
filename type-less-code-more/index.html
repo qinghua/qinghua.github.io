@@ -20,7 +20,7 @@
 <meta property="og:url" content="http://qinghua.github.io/type-less-code-more/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好IntelliJ IDEA这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的JET BRAINS全家桶已经是如此齐备时。">
-<meta property="og:updated_time" content="2018-02-05T00:53:46.000Z">
+<meta property="og:updated_time" content="2018-03-03T06:28:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="敲最少的键，编最多的码">
 <meta name="twitter:description" content="我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好IntelliJ IDEA这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的JET BRAINS全家桶已经是如此齐备时。">
@@ -144,7 +144,7 @@
 <li>活动模板：将光标移动到合适的位置，输入<strong>test</strong>和<strong>TAB</strong>键。可以看到生成了另一个测试方法。当然我们在此也可以用上面的“代码自动生成”，这里不过是用了另一种方法而已。<code>test</code>是我事先创建好的活动模板，内容见下文的“功能简介”。</li>
 <li>输入：将方法命名为<code>should_get_48_hours_for_2_days</code>。之后按照类似上文的方式，实现并执行测试，红了。令方法返回<code>24 * day</code>并再次执行测试，绿了。移动光标到测试方法之外，执行全部测试，都绿了，保证后一个实现不会破坏前一个实现。</li>
 <li>快捷键：现在是tdd的重构阶段。<code>24</code>是一个magic number，所以我们要用<strong>Command+Alt+C</strong>将其变成一个常量，如<code>hoursInDay</code>。不过常量应该还是大写的蛇式比较符合惯例，于是可以<strong>Shift+F6</strong>改名。</li>
-<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些。</li>
+<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些，并且也能在编辑非java文件时使用。</li>
 <li>快捷键：用<strong>Shift+F10</strong>运行上次运行的全部测试，依然是绿的。</li>
 <li>快捷键：测试文件还不在包中，用<strong>F6</strong>将其移入<code>org.ggg</code>中。还可以用<strong>Command+Alt+O</strong>来优化import部分。</li>
 <li>快捷键：再次用<strong>Shift+F10</strong>运行测试，依然是绿的，重构完成。</li>
@@ -195,6 +195,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/intellij-idea-utilities/" title="挖掘IntelliJ IDEA的实用功能">
+  <strong>上一篇：</strong><br/>
+  <span>
+  挖掘IntelliJ IDEA的实用功能</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/personal-tech-debt/"  title="个人的技术债">
@@ -266,7 +274,7 @@
 		  
 		
 		  
-			<li><a href="/categories/tool/" title="tool">tool<sup>7</sup></a></li>
+			<li><a href="/categories/tool/" title="tool">tool<sup>8</sup></a></li>
 		  
 		
 		  
@@ -303,11 +311,11 @@
 			
 		
 			
-				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>3</sup></a></li>
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
 			
 		
 			
@@ -327,7 +335,15 @@
 			
 		
 			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/idea/" title="idea">idea<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
 			
 		
 			
@@ -339,7 +355,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 			
@@ -347,19 +363,11 @@
 			
 		
 			
-				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/idea/" title="idea">idea<sup>2</sup></a></li>
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 		</ul>
