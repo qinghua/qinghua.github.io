@@ -3,6 +3,81 @@
   
     
     <entry>
+      <title><![CDATA[挖掘IntelliJ IDEA的调试功能]]></title>
+      <url>/intellij-idea-debug/</url>
+      <content type="html"><![CDATA[<p>本文介绍了<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>的一些相对不那么广为人知，但是又很实用的调试功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是<code>2018.1</code>社区版，快捷键是<code>Mac OS X</code>。本文的兄弟篇是<a href="/intellij-idea-utilities">挖掘IntelliJ IDEA的实用功能</a>。<br><a id="more"></a></p>
+<h2 id="断点"><a href="#断点" class="headerlink" title="断点"></a>断点</h2><h3 id="断点类型"><a href="#断点类型" class="headerlink" title="断点类型"></a>断点类型</h3><p>一般来说调试时，我们都是在代码行上鼠标一点，然后运行测试，遇断点所在的行即停，这就是所谓的行断点。IDEA支持以下几种断点类型：</p>
+<ol>
+<li>行断点（Line Breakpoints）：就是我们最经常用的方式。</li>
+<li>方法断点（Method Breakpoints）：如果你看到代码调用了一个接口，但不知道具体会跑在哪个实现上，便可以在接口上设置断点，这样不管哪个子类运行到这个方法都会停下来。</li>
+<li>异常断点（Exception Breakpoints）：可以在<strong>Run</strong> -&gt; <strong>View Breakpoints</strong>中的<strong>Java Exception Breakpoints</strong>里添加异常的具体类型。这样的话，程序中一旦发生了这种异常马上就会停下来。</li>
+<li>字段断点（Field Watchpoints）：可以设置在字段上，这样读写字段都可以触发。需要注意的是，默认只有写才会停下，想要让读取时也停下，需要右击断点，在<strong>Watch</strong>的<strong>Field access</strong>上打勾才行。</li>
+</ol>
+<h3 id="条件断点"><a href="#条件断点" class="headerlink" title="条件断点"></a>条件断点</h3><p>断点是可以设置条件的，这样便可以只在关心的时候停下来。比如说循环里处理一堆字符串，但是只关心特定的字符串，那条件断点便可以派上用场。按住Shift键设置断点，或是右击断点之后选择<strong>More</strong>来打开以下界面：<br><img src="/img/idea-debug-conditional-breakpoint.jpg" alt=""></p>
+<p>上图就是设置条件断点的界面，直接在<strong>Condition</strong>里输入条件即可，如<code>&quot;ggg&quot;.equals(name)</code>。需要注意的是，<strong>Suspend</strong>默认是没有打勾的，必须勾选上才能让程序暂停。另外，辛辛苦苦设置的特定断点，是可以拖拽到别的地方去的，这样就省的到处敲来敲去的了。还有一个小技巧是按住Alt的同时设置断点，可以让断点仅停一次便自动消失。在设置临时断点时有点用。</p>
+<h3 id="无断点暂停"><a href="#无断点暂停" class="headerlink" title="无断点暂停"></a>无断点暂停</h3><p>如果在很长的循环时不知道程序运行到哪里了，可以在调试时点击调试窗口上的<strong>Pause Program</strong>，这样程序便能在当前执行的地方暂停。另外，运行到光标（Run to cursor）也可以在没有设置断点的时候让程序运行到光标所在行时暂停。</p>
+<h2 id="调试技巧"><a href="#调试技巧" class="headerlink" title="调试技巧"></a>调试技巧</h2><p>下面介绍一些调试的小技巧。</p>
+<h3 id="智能进入（Smart-step-into）"><a href="#智能进入（Smart-step-into）" class="headerlink" title="智能进入（Smart step into）"></a>智能进入（Smart step into）</h3><p>当调试程序运行到类似这样的句子时，如果你想看的是<code>actor.action</code>方法，那么进入这个方法就相对麻烦一些。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">actor.action(actionProvider.provide(action.getName()));</div></pre></td></tr></table></figure></p>
+<p>这时可以使用调试窗口上的智能进入，程序会弹出一个对话框，我们选择需要的调用处即可。算是一个提升调试效率的小技巧。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e286" target="_blank" rel="external">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e286</a></p>
+<h3 id="表达式评估（Evaluate-expression）"><a href="#表达式评估（Evaluate-expression）" class="headerlink" title="表达式评估（Evaluate expression）"></a>表达式评估（Evaluate expression）</h3><p>这应该是大部分人都知道的技巧了，可以通过表达式评估来重新赋值当前的变量，以便让程序运行到其它的分支去。当然也可以在<strong>Variables</strong>窗口中，右击想要改变的变量，选择<strong>Set Value</strong>。不过表达式评估里可以轻松增加新变量、动态import新类库等，功能更加强大。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/evaluating-expressions.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/evaluating-expressions.html</a></p>
+<h3 id="远程调试（Remote-debug）"><a href="#远程调试（Remote-debug）" class="headerlink" title="远程调试（Remote debug）"></a>远程调试（Remote debug）</h3><p>如果运行的实例在其它机器（或者虚拟机、docker）上，只要实例设置了以下参数，就可以通过远程调试连接到<code>8000</code>端口进行调试。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,<span class="built_in">suspend</span>=y</div></pre></td></tr></table></figure></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e408" target="_blank" rel="external">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e408</a></p>
+<p>对于IDEA来说，只需要在<strong>Run</strong> -&gt; <strong>Edit Configuration</strong>里，增加一个<strong>Remote</strong>，设置主机<strong>Host</strong>和端口<strong>Port</strong>，然后调试它即可。</p>
+<h3 id="弃栈帧（Drop-frame）"><a href="#弃栈帧（Drop-frame）" class="headerlink" title="弃栈帧（Drop frame）"></a>弃栈帧（Drop frame）</h3><p>Visual Studio好的一点是调试时可以拖拽当前执行的位置，方便反复查看。虽然IDEA没有这样的功能，但是它可以使用弃栈帧来把当前调用栈的第一栈帧丢弃掉，相当于重新开始当前调试的方法。使用方法也算简单，在要丢弃的栈帧上右击，选择<strong>Drop Frame</strong>即可。或者直接单击调试窗口的<strong>Drop Frame</strong>按钮。不过需要注意的是，如果对象在子方法运行时发生了变化，是不会再变回去的。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e308" target="_blank" rel="external">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e308</a></p>
+<h3 id="强制抛异常（Throw-an-exception）："><a href="#强制抛异常（Throw-an-exception）：" class="headerlink" title="强制抛异常（Throw an exception）："></a>强制抛异常（Throw an exception）：</h3><p>这是IDEA 2018年加入的新功能，可以直接在调试中抛出指定的异常。使用方法跟上面的弃栈帧类似，右击栈帧并选择<strong>Throw Exception</strong>，然后输入如下代码即可：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException()</div></pre></td></tr></table></figure></p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#throw_exception" target="_blank" rel="external">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#throw_exception</a></p>
+<h3 id="强制返回（Force-return）："><a href="#强制返回（Force-return）：" class="headerlink" title="强制返回（Force return）："></a>强制返回（Force return）：</h3><p>这是IDEA2015版时增加的功能，类似上面的手动抛异常，只不过是返回一个指定值罢了。使用方法跟上面也都类似，右击栈帧并选择<strong>Force Return</strong>，然后输入要返回的值即可。如果是<code>void</code>的方法那就更简单了，连返回值都不用输。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html</a></p>
+<h3 id="自动载入变化代码（Reload-changes）"><a href="#自动载入变化代码（Reload-changes）" class="headerlink" title="自动载入变化代码（Reload changes）"></a>自动载入变化代码（Reload changes）</h3><p>利用Java虚拟机提供的HotSwap功能，我们可以做到一边调试一边改代码。只要在修改完代码之后，点击<strong>Run</strong> -&gt; <strong>Reload Changed Classes</strong>即可。不过HotSwap有一些限制，例如不支持static的字段和方法等。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes" target="_blank" rel="external">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes</a></p>
+<h3 id="显示方法返回值（Show-method-return-values）"><a href="#显示方法返回值（Show-method-return-values）" class="headerlink" title="显示方法返回值（Show method return values）"></a>显示方法返回值（Show method return values）</h3><p>调试窗口里的<strong>Settings</strong> -&gt; <strong>Show Method Return Values</strong>开关可以显示方法的返回值。例如以下方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">double</span> <span class="title">random</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Math.random();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>只要在<code>return</code>上设断点然后<strong>Step Over</strong>，或者在方法内部的任何地方设断点然后<strong>Step Out</strong>一下，便可以在调用处的变量窗口看到一个类似于这样的值：<code>Test.random() = 0.28735657504865864</code>。在这个方法调用没有赋值给变量时（如<code>if (random() &lt; 10)</code>）还挺有用的。</p>
+<h3 id="调试流（Trace-Current-Stream-Chain）"><a href="#调试流（Trace-Current-Stream-Chain）" class="headerlink" title="调试流（Trace Current Stream Chain）"></a>调试流（Trace Current Stream Chain）</h3><p>前面说了Visual Studio的好，但是它调试时不能看lambda的值也真是挺恶心的，据说2015版以后开始支持有限的lambda了。IDEA在这方面就做的非常到位。Java 8带来的Stream里面到底是什么，有时候很难知道。通过IDEA提供的这个功能，我们可以很轻松地看到流在各个步骤之间的变化。如下图：<br><img src="/img/idea-debug-lambda.jpg" alt=""></p>
+<p>展平模式（Flat Mode）更是提供了全局的视角：<br><img src="/img/idea-debug-lambda-flat-mode.jpg" alt=""></p>
+<p>使用这个功能也非常简单，当程序在lambda表达式的任意处停下时，单击调试窗口的<strong>Trace Current Stream Chain</strong>按钮即可。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html</a></p>
+<h3 id="调试内存泄漏（Memory-View）"><a href="#调试内存泄漏（Memory-View）" class="headerlink" title="调试内存泄漏（Memory View）"></a>调试内存泄漏（Memory View）</h3><p>内存泄漏是一个比较头疼的问题，好在IDEA提供了内存分析工具，只要单击调试窗口右上角的<strong>Restore ‘Memory’ View</strong>就能看到内存窗口，然后点击其中的<strong>Click to load the classes list</strong>就能看到当前内存的对象分布情况。然后可以据此分析到底是哪个类的对象数量看起来有问题。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html</a></p>
+<h3 id="调试lombok"><a href="#调试lombok" class="headerlink" title="调试lombok"></a>调试lombok</h3><p>如果只是想暂停一下set或get方法，可以使用字段断点，只不过可能会在调试中报错：<strong>Source code does not match the bytecode</strong>，但它能够工作。</p>
+<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>调试异步、线程、死锁、活锁等高级功能，官网上面有详细的教程，可以在用到时参考。</p>
+<p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html</a></p>
+<h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><p>功能熟悉了以后，熟练使用快捷键能够大幅提高效率。以下是笔者调试时经常使用的快捷键：</p>
+<ul>
+<li>F7：进入调用的方法</li>
+<li>F8：单步运行</li>
+<li>F9：继续运行</li>
+<li>Shift+F7：智能进入调用的方法</li>
+<li>Shift+F8：跳出当前方法</li>
+<li>Alt+F8：表达式评估</li>
+<li>Alt+F9：运行到光标</li>
+<li>Ctrl+Shift+F9：调试当前光标所在方法或类</li>
+<li>Ctrl+Shift+F10：运行当前光标所在方法或类</li>
+<li>Shift+F9：调试上次运行的测试</li>
+<li>Shift+F10：运行上次运行的测试</li>
+<li>Command+Shift+T：切换测试和实现</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> tool </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> IntelliJ IDEA </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[软件开发有没有高下]]></title>
       <url>/it-depends/</url>
       <content type="html"><![CDATA[<p>俗话说“文无第一，武无第二”，软件开发归类于“文”，还是“武”？这个问题本身就有争议。想痛快地吵上一吵吗？进来看看吧。<br><a id="more"></a></p>
@@ -69,7 +144,7 @@ String result = otherService.getResult(name);
     <entry>
       <title><![CDATA[挖掘IntelliJ IDEA的实用功能]]></title>
       <url>/intellij-idea-utilities/</url>
-      <content type="html"><![CDATA[<p>本文介绍了<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>的一些相对不那么广为人知的实用功能。希望能让你的IDE发挥出最大的功效！下文使用的IDEA版本是<code>2017.2.6</code>社区版，快捷键是<code>Mac OS X</code>。<br><a id="more"></a></p>
+      <content type="html"><![CDATA[<p>本文介绍了<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>的一些相对不那么广为人知的实用功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是<code>2017.2.6</code>社区版，快捷键是<code>Mac OS X</code>。本文的兄弟篇是<a href="/intellij-idea-debug">挖掘IntelliJ IDEA的调试功能</a>。<br><a id="more"></a></p>
 <h2 id="多重选择"><a href="#多重选择" class="headerlink" title="多重选择"></a>多重选择</h2><p>Sublime Text有一个非常好用的功能，就是可以选择多个光标，允许一起编辑。IDEA也向其学习，提供了类似的功能。只要按住<strong>Alt+Shift</strong>时，用鼠标点击其它位置即可。还可以通过<strong>Ctrl+G</strong>选择下一个相同的字符串，或是<strong>Ctrl+Command+G</strong>选择所有相同的字符串。如下图：<br><img src="/img/idea-multiple-selections.png" alt=""></p>
 <p>还有一个功能是纵向选择，可以通过<strong>Command+Shift+8</strong>来开关。之后的效果如下：<br><img src="/img/idea-column-selection.png" alt=""></p>
 <p>有一个注意事项就是，多重选择的时候不要用IDE自带的重构功能。</p>
@@ -96,7 +171,6 @@ String result = otherService.getResult(name);
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html</a></p>
 <h2 id="生产力指南"><a href="#生产力指南" class="headerlink" title="生产力指南"></a>生产力指南</h2><p>点击<strong>Help</strong>菜单里的<strong>Productivity Guide</strong>，就能看到一张大表，记录着各功能的使用情况。注意一下使用频率低的，了解一下从未使用过的，很快就能成为Intellij IDEA的砖家了。<br><img src="/img/idea-productivity-guide.png" alt=""></p>
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/productivity-guide.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/productivity-guide.html</a></p>
-<p>IntelliJ IDEA还有许多的插件、调试技巧等，这里先挖个坑，等以后的文章再填吧～</p>
 ]]></content>
       
         <categories>
@@ -454,9 +528,9 @@ String result = otherService.getResult(name);
         
         <tags>
             
-            <tag> JGit </tag>
-            
             <tag> git </tag>
+            
+            <tag> JGit </tag>
             
         </tags>
         
@@ -517,9 +591,9 @@ String result = otherService.getResult(name);
         
         <tags>
             
-            <tag> JGit </tag>
-            
             <tag> git </tag>
+            
+            <tag> JGit </tag>
             
         </tags>
         
@@ -1717,11 +1791,11 @@ String result = otherService.getResult(name);
             
             <tag> dubbo </tag>
             
-            <tag> service governance </tag>
-            
             <tag> dubbox </tag>
             
             <tag> rest </tag>
+            
+            <tag> service governance </tag>
             
         </tags>
         
