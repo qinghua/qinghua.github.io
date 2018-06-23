@@ -22,7 +22,7 @@
 <meta property="og:description" content="最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。">
 <meta property="og:image" content="http://qinghua.github.io/img/mac_proxy.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/switchy_omega.jpg">
-<meta property="og:updated_time" content="2017-11-26T03:28:06.000Z">
+<meta property="og:updated_time" content="2018-05-24T06:27:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSH妙用">
 <meta name="twitter:description" content="最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。">
@@ -122,7 +122,7 @@
 <h2 id="无密码登录"><a href="#无密码登录" class="headerlink" title="无密码登录"></a>无密码登录</h2><p>只要把自己的公钥保存在远程主机上就可以了，如果本机尚未生成公私钥对（可以通过<code>ls ~/.ssh</code>查看是否存在以<code>pub</code>为扩展名的文件），可以通过<code>ssh-keygen</code>生成一个。之后把这个<code>pub</code>文件的内容全部复制到远程主机上的<code>~/.ssh/authorized_keys</code>中就能够实现无密码登录了。复制的过程也可以用以下命令实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-copy-id user@remote.host.name</div></pre></td></tr></table></figure></p>
 <p>Mac上默认没有<code>ssh-copy-id</code>，可以通过以下命令安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install ssh-copy-id</div></pre></td></tr></table></figure></p>
 <h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><p>配置完无密码登录后，在远程主机上执行命令很简单，只要在最后面加一个字符串即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh remote.host.name <span class="string">"hostname"</span></div></pre></td></tr></table></figure></p>
-<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div></pre></td></tr></table></figure></p>
+<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line"></div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div><div class="line">ssh remote.host.name &lt; cmd.txt</div><div class="line">cat cmd.txt | ssh remote.host.name</div></pre></td></tr></table></figure></p>
 <p>下面分享一段调试时查看远程日志的实用代码。如果你不知道自己的请求会被负载均衡到哪台服务器上去，可以试试下面这个ssh到所有服务器上执行<code>tail -F</code>的小脚本（当然也能用<code>cat</code>了）：<br><figure class="highlight sh"><figcaption><span>tail_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">set</span> -e</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"usage: <span class="variable">$(basename $0)</span> [log path] [optional grep message]"</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"sample: <span class="variable">$(basename $0)</span> /abc/def/application.log* Execption"</span></div><div class="line">  <span class="built_in">exit</span> 1</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">log_path=<span class="variable">$1</span></div><div class="line">grep_message=<span class="variable">$&#123;2-"''"&#125;</span></div><div class="line"></div><div class="line">hosts=(</div><div class="line">  <span class="string">"remote1.host.name"</span></div><div class="line">  <span class="string">"remote2.host.name"</span></div><div class="line">  <span class="string">"remote3.host.name"</span></div><div class="line">)</div><div class="line"></div><div class="line">remote_command=<span class="string">"tail -F <span class="variable">$&#123;log_path&#125;</span> | grep --line-buffered <span class="variable">$&#123;grep_message&#125;</span>"</span></div><div class="line"><span class="keyword">for</span> host <span class="keyword">in</span> <span class="string">"<span class="variable">$&#123;hosts[@]&#125;</span>"</span></div><div class="line"><span class="keyword">do</span></div><div class="line">  <span class="built_in">exec</span> <span class="string">"ssh -fo StrictHostKeyChecking=no <span class="variable">$&#123;host&#125;</span> \"<span class="variable">$&#123;remote_command&#125;</span>\" &amp;"</span></div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure></p>
 <p>当然看完日志以后，别忘了把ssh的进程杀掉：<br><figure class="highlight sh"><figcaption><span>kill_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">kill</span> -9 $(ps -ef | grep <span class="string">"[s]sh -fo StrictHostKeyChecking=no"</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</div></pre></td></tr></table></figure></p>
 <p>稍微解释一下以上的两个参数：</p>
@@ -259,7 +259,7 @@
 		  
 		
 		  
-			<li><a href="/categories/idea/" title="idea">idea<sup>9</sup></a></li>
+			<li><a href="/categories/idea/" title="idea">idea<sup>10</sup></a></li>
 		  
 		
 		  
@@ -308,7 +308,7 @@
 			
 		
 			
-				<li><a href="/tags/idea/" title="idea">idea<sup>3</sup></a></li>
+				<li><a href="/tags/idea/" title="idea">idea<sup>4</sup></a></li>
 			
 		
 			
@@ -332,19 +332,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -352,7 +340,19 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
@@ -360,7 +360,7 @@
 			
 		
 			
-				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 		</ul>

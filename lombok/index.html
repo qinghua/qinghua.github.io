@@ -21,7 +21,7 @@
 <meta property="og:site_name" content="懒程序员改变世界">
 <meta property="og:description" content="Lombok是一个比较早、小众但是功能强大的Java库，源码在github上。如果你厌恶写Java代码时不得不手写或用IDE生成大量无趣的样板代码，如getter、setter等，那就准备好拥抱lombok吧。">
 <meta property="og:image" content="http://qinghua.github.io/img/lombok.jpg">
-<meta property="og:updated_time" content="2017-05-20T07:56:46.000Z">
+<meta property="og:updated_time" content="2018-06-11T08:49:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用Lombok优雅地写代码">
 <meta name="twitter:description" content="Lombok是一个比较早、小众但是功能强大的Java库，源码在github上。如果你厌恶写Java代码时不得不手写或用IDE生成大量无趣的样板代码，如getter、setter等，那就准备好拥抱lombok吧。">
@@ -128,7 +128,8 @@
 <p>还可以通过Find Usages来找到字段的get方法在哪调用，可惜不能找到构造函数在哪调用。在享用便捷的同时，也需要付出些许的代价。有兴趣的看官可以自行尝试文档中的其它注解。例如<code>@ToString(of=&quot;name&quot;)</code>，<code>@Log</code>，<code>@Getter(lazy=true)</code>等等。值得一提的是，<a href="https://projectlombok.org/features/Cleanup.html" target="_blank" rel="external">@Cleanup</a>可以轻松地关闭流、连接等对象，Java 7也提供了<a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html" target="_blank" rel="external">try-with-resources</a>来做到这一点，只不过需要缩进罢了，但是可以很明显地看出作用域。还请自行选择喜欢的那个。当然，如果你的项目还在用老旧的Java 6，那确实也没有什么选择的余地。</p>
 <h2 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h2><p>首先，Lombok扮演着一个注解处理器的角色，在编译时通过修改抽象语法树（Abstract Syntax Tree，AST）来修改代码。但是这是被注解处理器规范所明令禁止的，规范仅允许生成新文件或是新类。而聪明的lombok开发者通过javac未公开的API绕开了这个限制。所以有人视lombok为邪门歪道。不过嘛，不管黑猫白猫，能捉老鼠的就是好猫；不管黑糖白糖，能少写代码的就是好糖。先了解它，再决定要不要因为代价而放弃收益。如果未来的Java版本取消了后门，那么使用lombok的项目就存在升级JDK的风险。如果介意这一点，并且只有数据类的需求，可以去看看google的<a href="https://github.com/google/auto/blob/master/value/userguide/index.md" target="_blank" rel="external">AutoValue</a>。不过白魔法比黑魔法总是缺了点什么…</p>
 <p>第二点是IDE的支持。虽然是支持，但是你也看到了并不能像原来虽然写了代码，但大都是自动生成的代码那样随心所欲地各种重构。另外IDE偶尔抽点风也可能会让你流半天汗。</p>
-<p>最后一点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a href="http://cobertura.github.io/cobertura/" target="_blank" rel="external">Cobertura</a>的兼容性还是最好的。</p>
+<p>第三点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a href="http://cobertura.github.io/cobertura/" target="_blank" rel="external">Cobertura</a>的兼容性还是最好的。</p>
+<p>最后一点是代码行为可能会与你的预期不一样，比如enum的<code>@ToString</code>。<a href="https://medium.com/@vgonzalo/dont-use-lombok-672418daa819" target="_blank" rel="external">这篇文章</a>中详细地介绍了非预期的代码行为、去lombok的痛苦以及替代方案，值得看官们参考。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -235,7 +236,7 @@
 		  
 		
 		  
-			<li><a href="/categories/idea/" title="idea">idea<sup>9</sup></a></li>
+			<li><a href="/categories/idea/" title="idea">idea<sup>10</sup></a></li>
 		  
 		
 		  
@@ -284,7 +285,7 @@
 			
 		
 			
-				<li><a href="/tags/idea/" title="idea">idea<sup>3</sup></a></li>
+				<li><a href="/tags/idea/" title="idea">idea<sup>4</sup></a></li>
 			
 		
 			
@@ -308,19 +309,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -328,7 +317,19 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
@@ -336,7 +337,7 @@
 			
 		
 			
-				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 		</ul>

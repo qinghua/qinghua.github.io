@@ -23,7 +23,7 @@
 <meta property="og:image" content="http://qinghua.github.io/img/idea-debug-conditional-breakpoint.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/idea-debug-lambda.jpg">
 <meta property="og:image" content="http://qinghua.github.io/img/idea-debug-lambda-flat-mode.jpg">
-<meta property="og:updated_time" content="2018-05-05T08:11:20.000Z">
+<meta property="og:updated_time" content="2018-05-15T02:23:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="挖掘IntelliJ IDEA的调试功能">
 <meta name="twitter:description" content="本文介绍了IntelliJ IDEA的一些相对不那么广为人知，但是又很实用的调试功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是2018.1社区版，快捷键是Mac OS X。本文的兄弟篇是挖掘IntelliJ IDEA的实用功能。">
@@ -156,7 +156,7 @@
 <h3 id="调试内存泄漏（Memory-View）"><a href="#调试内存泄漏（Memory-View）" class="headerlink" title="调试内存泄漏（Memory View）"></a>调试内存泄漏（Memory View）</h3><p>内存泄漏是一个比较头疼的问题，好在IDEA提供了内存分析工具，只要单击调试窗口右上角的<strong>Restore ‘Memory’ View</strong>就能看到内存窗口，然后点击其中的<strong>Click to load the classes list</strong>就能看到当前内存的对象分布情况。然后可以据此分析到底是哪个类的对象数量看起来有问题。</p>
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html</a></p>
 <h3 id="调试lombok"><a href="#调试lombok" class="headerlink" title="调试lombok"></a>调试lombok</h3><p>如果只是想暂停一下set或get方法，可以使用字段断点，只不过可能会在调试中报错：<strong>Source code does not match the bytecode</strong>，但它能够工作。</p>
-<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
+<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在注解上设置断点，也可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
 <h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>调试异步、线程、死锁、活锁等高级功能，官网上面有详细的教程，可以在用到时参考。</p>
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html</a></p>
 <h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><p>功能熟悉了以后，熟练使用快捷键能够大幅提高效率。以下是笔者调试时经常使用的快捷键：</p>
@@ -209,6 +209,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/working-backwards/" title="逆向工作法">
+  <strong>上一篇：</strong><br/>
+  <span>
+  逆向工作法</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/it-depends/"  title="软件开发有没有高下">
@@ -272,7 +280,7 @@
 		  
 		
 		  
-			<li><a href="/categories/idea/" title="idea">idea<sup>9</sup></a></li>
+			<li><a href="/categories/idea/" title="idea">idea<sup>10</sup></a></li>
 		  
 		
 		  
@@ -321,7 +329,7 @@
 			
 		
 			
-				<li><a href="/tags/idea/" title="idea">idea<sup>3</sup></a></li>
+				<li><a href="/tags/idea/" title="idea">idea<sup>4</sup></a></li>
 			
 		
 			
@@ -345,19 +353,7 @@
 			
 		
 			
-				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/marathon/" title="marathon">marathon<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
 			
 		
 			
@@ -365,7 +361,19 @@
 			
 		
 			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
 			
 		
 			
@@ -373,7 +381,7 @@
 			
 		
 			
-				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
 			
 		
 		</ul>

@@ -3,6 +3,71 @@
   
     
     <entry>
+      <title><![CDATA[逆向工作法]]></title>
+      <url>/working-backwards/</url>
+      <content type="html"><![CDATA[<p>我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？<br><a id="more"></a></p>
+<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>Working backwards原本的意思是，从最终要解决的事情开始，每次回退一步，直到最初。</p>
+<blockquote>
+<p><a href="https://mathgeekmama.com/problem-solving-by-working-backwards/" target="_blank" rel="external">Working backwards is to start with the final solution and work back one step at a time to get to the beginning.</a></p>
+</blockquote>
+<p>在亚马逊，这个概念变得更加具体，成为了如何实现“以客户为中心”的一系列过程。它的产出是三份材料：</p>
+<ol>
+<li>新闻稿（Press Release，PR）：通过用户的语言描述一个想法，如产品、服务或功能</li>
+<li>常见问题解答（Frequently Asked Questions，FAQs）：用户和参与方可能会问的问题</li>
+<li>视觉资料（Visuals）：形式多样，有助于大家沟通想法</li>
+</ol>
+<p>这三份材料在产品的生命周期中，随着一次次的迭代而不断地演进。在<a href="/working-backwards/#准备文档">准备文档</a>一节中，我们会更详细地介绍它们。</p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>为什么要使用逆向工作法？简单来说，因为要“以客户为中心”。逆向工作法是一种行之有效的方法，能够把重点放在客户真正关心的问题上，进而交付用户体验极佳的产品。它是亚马逊成功的关键。</p>
+<p>逆向工作法的最终目标就是取悦用户。没错，取悦用户能够带来巨大的价值。对亚马逊来说，它力争成为地球上最以客户为中心的公司，与逆向工作法天然契合。如果你的愿景并非如此，那也不妨看看人家是怎么做的。不过你也需要知道，逆向工作法需要很大的工作量，但是它号称可以节省更多的未来工作量。</p>
+<h2 id="怎么做"><a href="#怎么做" class="headerlink" title="怎么做"></a>怎么做</h2><h3 id="了解用户"><a href="#了解用户" class="headerlink" title="了解用户"></a>了解用户</h3><p>一开始其实跟<a href="https://zh.wikipedia.org/wiki/%E8%85%A6%E5%8A%9B%E6%BF%80%E7%9B%AA%E6%B3%95" target="_blank" rel="external">头脑风暴法（Brainstorming）</a>很像，在打破时间、预算、资源（含技术）等限制的情况下，尽可能发散地提出各种想法。比如Kindle的首要设计理念，就是让用户感觉不到它的存在，从而能够专心读书。它连音乐播放器都没有！之后，亚马逊花了三年时间打造无线和电子屏技术，才推出了这一革命性产品。</p>
+<p>你知道你的用户究竟是什么人吗？有一个很典型的答案：所有人都是我的潜在用户。这话倒是没错，但是这个答案对深入了解用户并没有太大的帮助。考虑一些特定用户的情况，如上班族、网络不好的用户、残疾人等等。思考其面对的问题，他们想要的是什么？问问自己，时间、地点和用户的现状会怎样影响其需求？让最终用户受益，是让参与方各个团队通力合作的基础。以后的团队合作开发中，如果大家有分歧，这正是一个大家达成一致的关键。</p>
+<p>如果不知道用户要的究竟是什么，那你很可能就是在浪费时间。用户想要的可能是需求，也可能是方案，一定要搞清楚。这两者之间的区别可能非常小。如果你不知道这到底是需求还是方案，那就问问自己：为什么用户需要它？这个问题的答案有可能就是需求。汽车大王福特有一句名言：“如果我当年去问顾客他们想要什么，他们肯定会告诉我：一匹更快的马。这就是典型的方案，而不是需求。如果不考虑用户的需求而直接转向方案，那很可能就会痛失一个改善用户体验的机会。</p>
+<blockquote>
+<p>“If I had asked people what they wanted, they would have said faster horses.” ― Henry Ford</p>
+</blockquote>
+<p>需求有时会表现为痛点。例如，用户说他总是不知道中午应该上哪儿吃饭去。那么用户的需求是什么？一个帮他做决定的人？点评网站？外卖app？还是一个骰子？这些都是方案，用户的需求其实只是希望让决定中午上哪儿吃饭这件事变得非常简单自然。</p>
+<p>如果你能回答关于用户的这五个问题，那这一步就差不多了：</p>
+<ol>
+<li>谁是你的用户？</li>
+<li>他遇到了什么问题？</li>
+<li>他的核心诉求是什么？可能有许多的诉求，但我们只挑一个最核心的需求。</li>
+<li>你怎么知道他想要的是什么？搜集数据，让数据说话。</li>
+<li>用户体验应该是怎么样的？这个主要是通过视觉资料来展示，我们将在下面的<a href="/working-backwards/#视觉资料">视觉资料</a>一节中再详细探讨。</li>
+</ol>
+<h3 id="准备文档"><a href="#准备文档" class="headerlink" title="准备文档"></a>准备文档</h3><h4 id="新闻稿"><a href="#新闻稿" class="headerlink" title="新闻稿"></a>新闻稿</h4><p>虽然这里说的新闻稿是内部人员写的内部文档，但是看起来应该跟即将公开发布的新闻稿差不多。市场人员几乎无需修改便可以直接使用。想象用户正在看这篇新闻稿的心理活动，避免使用行业术语，因为用户很可能并不了解这些术语。</p>
+<p>写好新闻稿需要花时间，也需要重复地练习。多向别人要反馈吧！今天的一点点改进可能会节省未来花在上面的大量时间。一份好的新闻稿描述了你的想法是什么，以及为什么要这样做。一般一页纸就够了，不要长篇大论。避免模棱两可的词（weasel words），如一些，许多，经常，可能，显然，一般，等等等等。用数据来代替它们吧。</p>
+<p>这里有一些关键内容：</p>
+<ul>
+<li>用户心声（Customer Testimonial）：先写这个部分。虽然它是虚构的，但是要设身处地地为用户着想，以增加可信度。</li>
+<li>问题/机会（Problem/Opportunity）：描述一个问题或机会，别夸大。可以这样开头：“用户们以前只能…”</li>
+<li>方案（Solution）：描述能够使用户受益的观点。可以这样开头：“现在，用户们可以…”</li>
+<li>标题（Headline）：最后写的部分，要求简短有力。</li>
+</ul>
+<p>请注意，所有的文档都不是固定不变的，它们是一直演进的。把最重要的内容放在第一段。保证其他人哪怕只看了第一段也能对你的想法有所了解。想一想<a href="https://en.wikipedia.org/wiki/Elevator_pitch" target="_blank" rel="external">电梯游说（Elevator pitch）</a>，怎样在很短的时间内表达出你的想法？写文档像写代码一样，要尽量简单。</p>
+<h4 id="常见问题解答"><a href="#常见问题解答" class="headerlink" title="常见问题解答"></a>常见问题解答</h4><p>新闻稿描写了愿景，而FAQ提供更详细的说明。FAQ包含了两个部分：客户会问的问题以及内部参与方会问的问题。关于前者，你需要站在客户的角度上，思考其究竟会问出什么样的问题。例如，我怎么参与进去呢？有了问题我应该找谁呢？我要花钱吗？要像回答真正的客户一样来回答这些问题。关于后者，那就是你的老大、兄弟团队或是投资人应该会问的问题。例如，为什么能够提高用户体验呢？如何验证项目是否成功呢？为什么现在是推行的最佳时期？执行计划是什么？越是常见的问题，放在越上面。</p>
+<p>别害怕尖锐的问题，都写上吧。比如说什么问题你最不希望被人问到？有没有你还没找到答案的问题？为什么要这样做，而不是那样做？别藏着掖着，都亮出来吧。这样别人才能更容易地看到这个想法的亮点和痛点。对于暂时还是无解的问题，那就诚实地写下：“我不知道。我还在通过XXX来寻找答案”。在寻求反馈的时候，其他人说不定就能够解决这个问题。但是如果不写，我们不但失去了解决它的机会，而且增加了未来的风险。</p>
+<h4 id="视觉资料"><a href="#视觉资料" class="headerlink" title="视觉资料"></a>视觉资料</h4><p>视觉资料包括但不限于：白板、<a href="https://en.wikipedia.org/wiki/Storyboard" target="_blank" rel="external">分镜（Storyboard）</a>、<a href="https://zhuanlan.zhihu.com/p/24536517" target="_blank" rel="external">用户体验历程图（Customer Journey Map）</a>、<a href="https://en.wikipedia.org/wiki/Website_wireframe" target="_blank" rel="external">线框图（Wireframe）</a>、<a href="https://www.zhihu.com/question/31609683" target="_blank" rel="external">高保真UI（High-Fidelity UI）</a>、技术架构图（Technical Architecture Diagram）等等。分镜是一系列草图的组合，能够呈现端到端的用户体验。到了后期，还可以引入技术架构图等来描述一个复杂的系统。不用拘泥于形式，任何有助于表达的东西都是我们的工具。</p>
+<p>视觉资料可以让我们对用户体验有一个直观的认识。可以的话，让设计师尽早参与吧。一开始手绘即可，不需要那么高保真。不然大家的讨论容易集中在页面风格上，而不是客户体验上。高保真图是随着迭代的更替和讨论的深入而慢慢成型的。选择保真度有一个小窍门：保真度应该跟你的想法成熟度相匹配。越不成型的想法应该采用的视觉资料就应该越低保真。草图是最简单有效的开始。别怕画得难看，它能帮你加深对自己想法的认识。记住，画得好看与否并不是关键，清晰地表达你的想法才是。</p>
+<h3 id="提供反馈"><a href="#提供反馈" class="headerlink" title="提供反馈"></a>提供反馈</h3><p>许多会议一开始都是先花个两三盏茶左右的时间来阅读新闻稿和FAQ。与更多取决于演讲者个人魅力的PPT不同，阅读可以让所有人都处在同一起跑线上。提供反馈时，最好直来直往，别拐弯抹角。如果你有些地方看不明白，尽管说出来。别因为自己跟对方的关系而束手束脚，我们对事不对人。另外在这个时候，我们更多地关注在想法本身，而较少对语法错误、错别字挑刺，这一点与代码审查略有不同。代码审查啥都挑，但要是低级错误太多是要打回去重写的。</p>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>我们先前说过，做好这些事情需要时间练习。如果你一时想不出什么点子，上文提过的中午上哪儿吃饭的问题应该怎么解决？亲爱的读者，你有什么想法吗？</p>
+]]></content>
+      
+        <categories>
+            
+            <category> idea </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> idea </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[挖掘IntelliJ IDEA的调试功能]]></title>
       <url>/intellij-idea-debug/</url>
       <content type="html"><![CDATA[<p>本文介绍了<a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">IntelliJ IDEA</a>的一些相对不那么广为人知，但是又很实用的调试功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是<code>2018.1</code>社区版，快捷键是<code>Mac OS X</code>。本文的兄弟篇是<a href="/intellij-idea-utilities">挖掘IntelliJ IDEA的实用功能</a>。<br><a id="more"></a></p>
@@ -42,7 +107,7 @@
 <h3 id="调试内存泄漏（Memory-View）"><a href="#调试内存泄漏（Memory-View）" class="headerlink" title="调试内存泄漏（Memory View）"></a>调试内存泄漏（Memory View）</h3><p>内存泄漏是一个比较头疼的问题，好在IDEA提供了内存分析工具，只要单击调试窗口右上角的<strong>Restore ‘Memory’ View</strong>就能看到内存窗口，然后点击其中的<strong>Click to load the classes list</strong>就能看到当前内存的对象分布情况。然后可以据此分析到底是哪个类的对象数量看起来有问题。</p>
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html</a></p>
 <h3 id="调试lombok"><a href="#调试lombok" class="headerlink" title="调试lombok"></a>调试lombok</h3><p>如果只是想暂停一下set或get方法，可以使用字段断点，只不过可能会在调试中报错：<strong>Source code does not match the bytecode</strong>，但它能够工作。</p>
-<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
+<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在注解上设置断点，也可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
 <h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>调试异步、线程、死锁、活锁等高级功能，官网上面有详细的教程，可以在用到时参考。</p>
 <p>官方文档传送门：<a href="https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html" target="_blank" rel="external">https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html</a></p>
 <h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><p>功能熟悉了以后，熟练使用快捷键能够大幅提高效率。以下是笔者调试时经常使用的快捷键：</p>
@@ -357,7 +422,7 @@ String result = otherService.getResult(name);
 <h2 id="无密码登录"><a href="#无密码登录" class="headerlink" title="无密码登录"></a>无密码登录</h2><p>只要把自己的公钥保存在远程主机上就可以了，如果本机尚未生成公私钥对（可以通过<code>ls ~/.ssh</code>查看是否存在以<code>pub</code>为扩展名的文件），可以通过<code>ssh-keygen</code>生成一个。之后把这个<code>pub</code>文件的内容全部复制到远程主机上的<code>~/.ssh/authorized_keys</code>中就能够实现无密码登录了。复制的过程也可以用以下命令实现：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-copy-id user@remote.host.name</div></pre></td></tr></table></figure></p>
 <p>Mac上默认没有<code>ssh-copy-id</code>，可以通过以下命令安装：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install ssh-copy-id</div></pre></td></tr></table></figure></p>
 <h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><p>配置完无密码登录后，在远程主机上执行命令很简单，只要在最后面加一个字符串即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh remote.host.name <span class="string">"hostname"</span></div></pre></td></tr></table></figure></p>
-<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div></pre></td></tr></table></figure></p>
+<p>如果命令很长，是个脚本，那就这么搞：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> -e <span class="string">"ls\necho ggg"</span> &gt; cmd.txt</div><div class="line"></div><div class="line">ssh remote.host.name <span class="string">"`cat cmd.txt`"</span></div><div class="line">ssh remote.host.name &lt; cmd.txt</div><div class="line">cat cmd.txt | ssh remote.host.name</div></pre></td></tr></table></figure></p>
 <p>下面分享一段调试时查看远程日志的实用代码。如果你不知道自己的请求会被负载均衡到哪台服务器上去，可以试试下面这个ssh到所有服务器上执行<code>tail -F</code>的小脚本（当然也能用<code>cat</code>了）：<br><figure class="highlight sh"><figcaption><span>tail_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">set</span> -e</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ]; <span class="keyword">then</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"usage: <span class="variable">$(basename $0)</span> [log path] [optional grep message]"</span></div><div class="line">  <span class="built_in">echo</span> <span class="string">"sample: <span class="variable">$(basename $0)</span> /abc/def/application.log* Execption"</span></div><div class="line">  <span class="built_in">exit</span> 1</div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line">log_path=<span class="variable">$1</span></div><div class="line">grep_message=<span class="variable">$&#123;2-"''"&#125;</span></div><div class="line"></div><div class="line">hosts=(</div><div class="line">  <span class="string">"remote1.host.name"</span></div><div class="line">  <span class="string">"remote2.host.name"</span></div><div class="line">  <span class="string">"remote3.host.name"</span></div><div class="line">)</div><div class="line"></div><div class="line">remote_command=<span class="string">"tail -F <span class="variable">$&#123;log_path&#125;</span> | grep --line-buffered <span class="variable">$&#123;grep_message&#125;</span>"</span></div><div class="line"><span class="keyword">for</span> host <span class="keyword">in</span> <span class="string">"<span class="variable">$&#123;hosts[@]&#125;</span>"</span></div><div class="line"><span class="keyword">do</span></div><div class="line">  <span class="built_in">exec</span> <span class="string">"ssh -fo StrictHostKeyChecking=no <span class="variable">$&#123;host&#125;</span> \"<span class="variable">$&#123;remote_command&#125;</span>\" &amp;"</span></div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure></p>
 <p>当然看完日志以后，别忘了把ssh的进程杀掉：<br><figure class="highlight sh"><figcaption><span>kill_log</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">kill</span> -9 $(ps -ef | grep <span class="string">"[s]sh -fo StrictHostKeyChecking=no"</span> | awk <span class="string">'&#123;print $2&#125;'</span>)</div></pre></td></tr></table></figure></p>
 <p>稍微解释一下以上的两个参数：</p>
@@ -725,7 +790,8 @@ String result = otherService.getResult(name);
 <p>还可以通过Find Usages来找到字段的get方法在哪调用，可惜不能找到构造函数在哪调用。在享用便捷的同时，也需要付出些许的代价。有兴趣的看官可以自行尝试文档中的其它注解。例如<code>@ToString(of=&quot;name&quot;)</code>，<code>@Log</code>，<code>@Getter(lazy=true)</code>等等。值得一提的是，<a href="https://projectlombok.org/features/Cleanup.html" target="_blank" rel="external">@Cleanup</a>可以轻松地关闭流、连接等对象，Java 7也提供了<a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html" target="_blank" rel="external">try-with-resources</a>来做到这一点，只不过需要缩进罢了，但是可以很明显地看出作用域。还请自行选择喜欢的那个。当然，如果你的项目还在用老旧的Java 6，那确实也没有什么选择的余地。</p>
 <h2 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h2><p>首先，Lombok扮演着一个注解处理器的角色，在编译时通过修改抽象语法树（Abstract Syntax Tree，AST）来修改代码。但是这是被注解处理器规范所明令禁止的，规范仅允许生成新文件或是新类。而聪明的lombok开发者通过javac未公开的API绕开了这个限制。所以有人视lombok为邪门歪道。不过嘛，不管黑猫白猫，能捉老鼠的就是好猫；不管黑糖白糖，能少写代码的就是好糖。先了解它，再决定要不要因为代价而放弃收益。如果未来的Java版本取消了后门，那么使用lombok的项目就存在升级JDK的风险。如果介意这一点，并且只有数据类的需求，可以去看看google的<a href="https://github.com/google/auto/blob/master/value/userguide/index.md" target="_blank" rel="external">AutoValue</a>。不过白魔法比黑魔法总是缺了点什么…</p>
 <p>第二点是IDE的支持。虽然是支持，但是你也看到了并不能像原来虽然写了代码，但大都是自动生成的代码那样随心所欲地各种重构。另外IDE偶尔抽点风也可能会让你流半天汗。</p>
-<p>最后一点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a href="http://cobertura.github.io/cobertura/" target="_blank" rel="external">Cobertura</a>的兼容性还是最好的。</p>
+<p>第三点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a href="http://cobertura.github.io/cobertura/" target="_blank" rel="external">Cobertura</a>的兼容性还是最好的。</p>
+<p>最后一点是代码行为可能会与你的预期不一样，比如enum的<code>@ToString</code>。<a href="https://medium.com/@vgonzalo/dont-use-lombok-672418daa819" target="_blank" rel="external">这篇文章</a>中详细地介绍了非预期的代码行为、去lombok的痛苦以及替代方案，值得看官们参考。</p>
 ]]></content>
       
         <categories>

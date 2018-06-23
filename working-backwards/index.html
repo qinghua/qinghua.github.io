@@ -1,0 +1,645 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>逆向工作法 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？">
+<meta name="keywords" content="idea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逆向工作法">
+<meta property="og:url" content="http://qinghua.github.io/working-backwards/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？">
+<meta property="og:updated_time" content="2018-06-23T02:17:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="逆向工作法">
+<meta name="twitter:description" content="我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/working-backwards/" title="逆向工作法" itemprop="url">逆向工作法</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2018-06-22T12:09:58.000Z" itemprop="datePublished"> 发表于 2018-06-22</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#是什么"><span class="toc-number">1.</span> <span class="toc-text">是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么"><span class="toc-number">2.</span> <span class="toc-text">为什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#怎么做"><span class="toc-number">3.</span> <span class="toc-text">怎么做</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#了解用户"><span class="toc-number">3.1.</span> <span class="toc-text">了解用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#准备文档"><span class="toc-number">3.2.</span> <span class="toc-text">准备文档</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#新闻稿"><span class="toc-number">3.2.1.</span> <span class="toc-text">新闻稿</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题解答"><span class="toc-number">3.2.2.</span> <span class="toc-text">常见问题解答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#视觉资料"><span class="toc-number">3.2.3.</span> <span class="toc-text">视觉资料</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提供反馈"><span class="toc-number">3.3.</span> <span class="toc-text">提供反馈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习"><span class="toc-number">4.</span> <span class="toc-text">练习</span></a></li></ol>
+		
+		</div>
+		
+		<p>我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？<br><a id="more"></a></p>
+<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>Working backwards原本的意思是，从最终要解决的事情开始，每次回退一步，直到最初。</p>
+<blockquote>
+<p><a href="https://mathgeekmama.com/problem-solving-by-working-backwards/" target="_blank" rel="external">Working backwards is to start with the final solution and work back one step at a time to get to the beginning.</a></p>
+</blockquote>
+<p>在亚马逊，这个概念变得更加具体，成为了如何实现“以客户为中心”的一系列过程。它的产出是三份材料：</p>
+<ol>
+<li>新闻稿（Press Release，PR）：通过用户的语言描述一个想法，如产品、服务或功能</li>
+<li>常见问题解答（Frequently Asked Questions，FAQs）：用户和参与方可能会问的问题</li>
+<li>视觉资料（Visuals）：形式多样，有助于大家沟通想法</li>
+</ol>
+<p>这三份材料在产品的生命周期中，随着一次次的迭代而不断地演进。在<a href="/working-backwards/#准备文档">准备文档</a>一节中，我们会更详细地介绍它们。</p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>为什么要使用逆向工作法？简单来说，因为要“以客户为中心”。逆向工作法是一种行之有效的方法，能够把重点放在客户真正关心的问题上，进而交付用户体验极佳的产品。它是亚马逊成功的关键。</p>
+<p>逆向工作法的最终目标就是取悦用户。没错，取悦用户能够带来巨大的价值。对亚马逊来说，它力争成为地球上最以客户为中心的公司，与逆向工作法天然契合。如果你的愿景并非如此，那也不妨看看人家是怎么做的。不过你也需要知道，逆向工作法需要很大的工作量，但是它号称可以节省更多的未来工作量。</p>
+<h2 id="怎么做"><a href="#怎么做" class="headerlink" title="怎么做"></a>怎么做</h2><h3 id="了解用户"><a href="#了解用户" class="headerlink" title="了解用户"></a>了解用户</h3><p>一开始其实跟<a href="https://zh.wikipedia.org/wiki/%E8%85%A6%E5%8A%9B%E6%BF%80%E7%9B%AA%E6%B3%95" target="_blank" rel="external">头脑风暴法（Brainstorming）</a>很像，在打破时间、预算、资源（含技术）等限制的情况下，尽可能发散地提出各种想法。比如Kindle的首要设计理念，就是让用户感觉不到它的存在，从而能够专心读书。它连音乐播放器都没有！之后，亚马逊花了三年时间打造无线和电子屏技术，才推出了这一革命性产品。</p>
+<p>你知道你的用户究竟是什么人吗？有一个很典型的答案：所有人都是我的潜在用户。这话倒是没错，但是这个答案对深入了解用户并没有太大的帮助。考虑一些特定用户的情况，如上班族、网络不好的用户、残疾人等等。思考其面对的问题，他们想要的是什么？问问自己，时间、地点和用户的现状会怎样影响其需求？让最终用户受益，是让参与方各个团队通力合作的基础。以后的团队合作开发中，如果大家有分歧，这正是一个大家达成一致的关键。</p>
+<p>如果不知道用户要的究竟是什么，那你很可能就是在浪费时间。用户想要的可能是需求，也可能是方案，一定要搞清楚。这两者之间的区别可能非常小。如果你不知道这到底是需求还是方案，那就问问自己：为什么用户需要它？这个问题的答案有可能就是需求。汽车大王福特有一句名言：“如果我当年去问顾客他们想要什么，他们肯定会告诉我：一匹更快的马。这就是典型的方案，而不是需求。如果不考虑用户的需求而直接转向方案，那很可能就会痛失一个改善用户体验的机会。</p>
+<blockquote>
+<p>“If I had asked people what they wanted, they would have said faster horses.” ― Henry Ford</p>
+</blockquote>
+<p>需求有时会表现为痛点。例如，用户说他总是不知道中午应该上哪儿吃饭去。那么用户的需求是什么？一个帮他做决定的人？点评网站？外卖app？还是一个骰子？这些都是方案，用户的需求其实只是希望让决定中午上哪儿吃饭这件事变得非常简单自然。</p>
+<p>如果你能回答关于用户的这五个问题，那这一步就差不多了：</p>
+<ol>
+<li>谁是你的用户？</li>
+<li>他遇到了什么问题？</li>
+<li>他的核心诉求是什么？可能有许多的诉求，但我们只挑一个最核心的需求。</li>
+<li>你怎么知道他想要的是什么？搜集数据，让数据说话。</li>
+<li>用户体验应该是怎么样的？这个主要是通过视觉资料来展示，我们将在下面的<a href="/working-backwards/#视觉资料">视觉资料</a>一节中再详细探讨。</li>
+</ol>
+<h3 id="准备文档"><a href="#准备文档" class="headerlink" title="准备文档"></a>准备文档</h3><h4 id="新闻稿"><a href="#新闻稿" class="headerlink" title="新闻稿"></a>新闻稿</h4><p>虽然这里说的新闻稿是内部人员写的内部文档，但是看起来应该跟即将公开发布的新闻稿差不多。市场人员几乎无需修改便可以直接使用。想象用户正在看这篇新闻稿的心理活动，避免使用行业术语，因为用户很可能并不了解这些术语。</p>
+<p>写好新闻稿需要花时间，也需要重复地练习。多向别人要反馈吧！今天的一点点改进可能会节省未来花在上面的大量时间。一份好的新闻稿描述了你的想法是什么，以及为什么要这样做。一般一页纸就够了，不要长篇大论。避免模棱两可的词（weasel words），如一些，许多，经常，可能，显然，一般，等等等等。用数据来代替它们吧。</p>
+<p>这里有一些关键内容：</p>
+<ul>
+<li>用户心声（Customer Testimonial）：先写这个部分。虽然它是虚构的，但是要设身处地地为用户着想，以增加可信度。</li>
+<li>问题/机会（Problem/Opportunity）：描述一个问题或机会，别夸大。可以这样开头：“用户们以前只能…”</li>
+<li>方案（Solution）：描述能够使用户受益的观点。可以这样开头：“现在，用户们可以…”</li>
+<li>标题（Headline）：最后写的部分，要求简短有力。</li>
+</ul>
+<p>请注意，所有的文档都不是固定不变的，它们是一直演进的。把最重要的内容放在第一段。保证其他人哪怕只看了第一段也能对你的想法有所了解。想一想<a href="https://en.wikipedia.org/wiki/Elevator_pitch" target="_blank" rel="external">电梯游说（Elevator pitch）</a>，怎样在很短的时间内表达出你的想法？写文档像写代码一样，要尽量简单。</p>
+<h4 id="常见问题解答"><a href="#常见问题解答" class="headerlink" title="常见问题解答"></a>常见问题解答</h4><p>新闻稿描写了愿景，而FAQ提供更详细的说明。FAQ包含了两个部分：客户会问的问题以及内部参与方会问的问题。关于前者，你需要站在客户的角度上，思考其究竟会问出什么样的问题。例如，我怎么参与进去呢？有了问题我应该找谁呢？我要花钱吗？要像回答真正的客户一样来回答这些问题。关于后者，那就是你的老大、兄弟团队或是投资人应该会问的问题。例如，为什么能够提高用户体验呢？如何验证项目是否成功呢？为什么现在是推行的最佳时期？执行计划是什么？越是常见的问题，放在越上面。</p>
+<p>别害怕尖锐的问题，都写上吧。比如说什么问题你最不希望被人问到？有没有你还没找到答案的问题？为什么要这样做，而不是那样做？别藏着掖着，都亮出来吧。这样别人才能更容易地看到这个想法的亮点和痛点。对于暂时还是无解的问题，那就诚实地写下：“我不知道。我还在通过XXX来寻找答案”。在寻求反馈的时候，其他人说不定就能够解决这个问题。但是如果不写，我们不但失去了解决它的机会，而且增加了未来的风险。</p>
+<h4 id="视觉资料"><a href="#视觉资料" class="headerlink" title="视觉资料"></a>视觉资料</h4><p>视觉资料包括但不限于：白板、<a href="https://en.wikipedia.org/wiki/Storyboard" target="_blank" rel="external">分镜（Storyboard）</a>、<a href="https://zhuanlan.zhihu.com/p/24536517" target="_blank" rel="external">用户体验历程图（Customer Journey Map）</a>、<a href="https://en.wikipedia.org/wiki/Website_wireframe" target="_blank" rel="external">线框图（Wireframe）</a>、<a href="https://www.zhihu.com/question/31609683" target="_blank" rel="external">高保真UI（High-Fidelity UI）</a>、技术架构图（Technical Architecture Diagram）等等。分镜是一系列草图的组合，能够呈现端到端的用户体验。到了后期，还可以引入技术架构图等来描述一个复杂的系统。不用拘泥于形式，任何有助于表达的东西都是我们的工具。</p>
+<p>视觉资料可以让我们对用户体验有一个直观的认识。可以的话，让设计师尽早参与吧。一开始手绘即可，不需要那么高保真。不然大家的讨论容易集中在页面风格上，而不是客户体验上。高保真图是随着迭代的更替和讨论的深入而慢慢成型的。选择保真度有一个小窍门：保真度应该跟你的想法成熟度相匹配。越不成型的想法应该采用的视觉资料就应该越低保真。草图是最简单有效的开始。别怕画得难看，它能帮你加深对自己想法的认识。记住，画得好看与否并不是关键，清晰地表达你的想法才是。</p>
+<h3 id="提供反馈"><a href="#提供反馈" class="headerlink" title="提供反馈"></a>提供反馈</h3><p>许多会议一开始都是先花个两三盏茶左右的时间来阅读新闻稿和FAQ。与更多取决于演讲者个人魅力的PPT不同，阅读可以让所有人都处在同一起跑线上。提供反馈时，最好直来直往，别拐弯抹角。如果你有些地方看不明白，尽管说出来。别因为自己跟对方的关系而束手束脚，我们对事不对人。另外在这个时候，我们更多地关注在想法本身，而较少对语法错误、错别字挑刺，这一点与代码审查略有不同。代码审查啥都挑，但要是低级错误太多是要打回去重写的。</p>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>我们先前说过，做好这些事情需要时间练习。如果你一时想不出什么点子，上文提过的中午上哪儿吃饭的问题应该怎么解决？亲爱的读者，你有什么想法吗？</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/idea/">idea</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/idea/">idea</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/working-backwards/" data-title="逆向工作法 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/intellij-idea-debug/"  title="挖掘IntelliJ IDEA的调试功能">
+ <strong>下一篇：</strong><br/> 
+ <span>挖掘IntelliJ IDEA的调试功能
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="working-backwards/" data-title="逆向工作法" data-url="http://qinghua.github.io/working-backwards/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#是什么"><span class="toc-number">1.</span> <span class="toc-text">是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么"><span class="toc-number">2.</span> <span class="toc-text">为什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#怎么做"><span class="toc-number">3.</span> <span class="toc-text">怎么做</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#了解用户"><span class="toc-number">3.1.</span> <span class="toc-text">了解用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#准备文档"><span class="toc-number">3.2.</span> <span class="toc-text">准备文档</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#新闻稿"><span class="toc-number">3.2.1.</span> <span class="toc-text">新闻稿</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题解答"><span class="toc-number">3.2.2.</span> <span class="toc-text">常见问题解答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#视觉资料"><span class="toc-number">3.2.3.</span> <span class="toc-text">视觉资料</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提供反馈"><span class="toc-number">3.3.</span> <span class="toc-text">提供反馈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习"><span class="toc-number">4.</span> <span class="toc-text">练习</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/AI/" title="AI">AI<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>12</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>9</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/idea/" title="idea">idea<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/git/" title="git">git<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2018 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
