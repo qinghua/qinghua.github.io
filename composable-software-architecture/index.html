@@ -1,0 +1,603 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>组合型软件架构 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。">
+<meta name="keywords" content="idea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="组合型软件架构">
+<meta property="og:url" content="http://qinghua.github.io/composable-software-architecture/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。">
+<meta property="og:updated_time" content="2018-08-14T01:20:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="组合型软件架构">
+<meta name="twitter:description" content="以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/composable-software-architecture/" title="组合型软件架构" itemprop="url">组合型软件架构</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-12T02:56:40.000Z" itemprop="datePublished"> 发表于 2018-08-12</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<p>以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。<br><a id="more"></a></p>
+<h2 id="单体系统→微服务→平台"><a href="#单体系统→微服务→平台" class="headerlink" title="单体系统→微服务→平台"></a>单体系统→微服务→平台</h2><p>随着IT的不断发展，软件能解决的问题越来越多也越来越大。在大型软件开发中，人们发现要与一大坨代码共舞变得越来越困难，于是微服务架构兴起并持续火热，许多单体系统也纷纷挤上风口随之演进，不管是新服务单提出去还是老服务逐步拆分，总之他们都渐渐走到分布式系统的大道上了。服务的数量上去了，便带来了一个问题：你的服务跟别人的服务应该如何集成呢？最简单粗暴直截了当的做法就是直接调用。但是这样缺少定制化支持。对方有什么，你可能就只能凑合着用什么。要不，就得等对方把你的需求排上档期。</p>
+<p>总这样不行呀，缺胳膊少腿的服务和只能傻傻等待着跟不上节奏的服务没法儿工作呀。为了满足不同客户的多方面需求，服务的平台化就成了一个自然而然的选择。作为平台方，不止提供服务，而且提供客户在平台上的定制化功能，客户成为了平台的租户。一般来说，租户需要在平台那边写点儿为自己的需求而定制的代码或是DSL，以便支持自己的业务场景。</p>
+<p>如果你是一个平台的所有者，如何才能让别人在你的平台上顺利安营扎寨，而你无需提供太多的支持工作呢？</p>
+<h2 id="构建组合型平台"><a href="#构建组合型平台" class="headerlink" title="构建组合型平台"></a>构建组合型平台</h2><p>首先要问自己一下，你的平台，也就是你拥有的服务，面向的客户是什么人呢？从技术维度上来说，无非是这几类：</p>
+<ul>
+<li>非技术人员：你的服务只对非技术人员开放，对方想要的是一个大而全的系统，而不希望在不同的服务间来回奔波。以操作系统为例的话，那就是需要一个Windows。</li>
+<li>技术人员：你的服务只对技术人员开放，对方想要的是更加灵活，别人的烂代码不要影响到自己的代码。Unix/Linux就是一个典型的例子。</li>
+<li>混合型人员：你的服务对技术人员及非技术人员开放，大家各取所需，当然对你的要求也比较高了。举个例子就是OSX。</li>
+</ul>
+<p>出于简单起见，我们先考虑前两种类型。实际情况是，第一类其实就是许多第二类的聚合。你可能有许多微服务，但是作为网关的微服务其实数量不多。这样，我们便把要解决的大部分平台问题归类于对技术人员开放的服务了。第三类的混合型也很类似。其实对于微服务来说，我根本不在乎对方的实现方式、架构方式，能提供稳定的服务就可以了。但是，一旦它是个平台，并且我需要在其上定制代码，那我也就不得不关心一下了。还是先分两个类：</p>
+<ul>
+<li>非组合型软件架构：平台代码和租户代码的耦合比较紧，类比的话，就是EJB。平台升级很可能需要租户代码一起改。于是，能不升级就不升级，因为租户很多，升级可能会很繁琐。</li>
+<li>组合型软件架构：可能由多种服务组成，对于每种服务而言，SRP是最重要的事，把一件简单的事情做好。其实“简单”是相对而言的，不管内部有多复杂，但是开放出去的接口，或者是允许租户在其中实现的能力，都应该只专注于一件事情。举个例子，亚马逊AWS的S3。作为使用者而言，还是非常简单的。虽然程序员们都知道要维护这样一个服务其实是相当复杂的。这些服务之间是松耦合的，像Linux的管道一样，灵活组合，对外提供平台的能力。</li>
+</ul>
+<p>如果一个租户的代码挂掉了，从而影响到其他的租户甚至是你的平台，那这个平台就是很有问题的。这句话看起来理所当然，但确实有不少所谓的平台并不是这样设计的。在这种情况下，租户要往这个平台提交代码，就需要接受平台的代码审查，以免待提交的代码影响到其他人。而平台方就不得不耗费人力审查代码、部署代码，当租户的数量多起来时，平台根本就无法提供足够的可伸缩性，势必需要排优先级。于是各种抱怨就纷至沓来，自己的技术人员也苦不堪言。所以，我们希望租户拥有对自己代码的审查和部署的所有权，不希望当租户代码变化时需要平台人员人力审核。</p>
+<p>如果你需要开发一个平台，如何能够做到让租户之间不相互影响呢？最佳的租户隔离方式是向租户提供服务级别的隔离。一个租户服务的倒掉不至于影响到其他租户的服务，只是影响已损坏服务的分支业务自己而已（自己的代码挂掉，当然自己承担喽）。如果由于某些原因无法为所有租户都提供服务级别的隔离，那么也可以尝试进程级别的隔离，例如Docker。一个损坏的进程在许多情况下都不太至于影响到平台为其他租户进程提供的服务。如果很不幸的是不得不与租户在同一个进程里，那么起码还可以用DSL来限制租户的能力，让租户的代码不能有太大的破坏性。要是租户也能用平台的语言，还在同一个进程中，那么搞砸平台的服务只是时间问题罢了。</p>
+<p>在DevOps的光茫照耀下，我们当然要提倡自动化，这是平台和租户双方的责任。平台提供的是从代码提交到部署测试环境乃至生产环境的自动化能力，而租户需要实现的是自动化测试。一个典型的应用场景就是：平台上的租户代码提交，触发了该租户的持续交付流水线，于是在测试环境上自动部署平台的租户代码，接下来运行租户自己实现的自动化测试，一旦通过，租户便可以决定是否要在平台的生产环境上自动部署这次提交的代码。</p>
+<p>最后，作为平台，提供的是能力。不要强迫租户使用你的能力，而要提供稳定的服务，让租户心甘情愿地使用你的能力。向Unix那样，把一个个稳定的服务组合起来，以提供整体的服务；同时，允许租户自由替换其中的某些服务以实现灵活性。能做到这一点的平台就相当成熟了。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/idea/">idea</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/idea/">idea</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/composable-software-architecture/" data-title="组合型软件架构 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/javers/"  title="用JaVers比较对象">
+ <strong>下一篇：</strong><br/> 
+ <span>用JaVers比较对象
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="composable-software-architecture/" data-title="组合型软件架构" data-url="http://qinghua.github.io/composable-software-architecture/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/AI/" title="AI">AI<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>13</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>11</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>9</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/idea/" title="idea">idea<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/git/" title="git">git<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2018 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
