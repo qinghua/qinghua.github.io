@@ -3,6 +3,45 @@
   
     
     <entry>
+      <title><![CDATA[手稿秒变html的Sketch 2 Code]]></title>
+      <url>/sketch2code/</url>
+      <content type="html"><![CDATA[<p>可以把手稿变成html的<a href="https://sketch2code.azurewebsites.net/" target="_blank" rel="external">Sketch 2 Code</a>出世了，这是微软在<a href="https://github.com/Microsoft/ailab" target="_blank" rel="external">GitHub上的C#开源代码</a>。听说它能够把前端都凉掉？我很兴奋地尝了尝鲜，写下了这篇小文。咱们来看看它有没有传说中的那么高大上。<br><a id="more"></a></p>
+<p>官网上放出来的示例当然是最佳了：<br><img src="/img/sketch-2-code-official.png" alt=""></p>
+<p>能有这样的效果那是相当的不错呀，布局、文字、图像都识别得很不错，但也并非完美：</p>
+<ol>
+<li>布局：PRODUCT CATALOG变成了竖排，搜索按钮也没有对齐</li>
+<li>文字：三幅画下面的第一个PRODUCT识别成了RODUCT，最后一个3变成了S。$19.5左边多了一个8</li>
+<li>图像：原图上明明有三个段落嘛，html变成了两个</li>
+</ol>
+<p>那我自己画一幅，用网站提供的TAKE A PICTURE功能上传试试：<br><img src="/img/sketch-2-code-1st-try.png" alt=""></p>
+<p>这是什么鬼？敢情什么都没识别出来？是我的画风太清奇了吗？不死心，同一幅图再拍一次：<br><img src="/img/sketch-2-code-2nd-try.png" alt=""></p>
+<p>这次有限地成功了，看来位置、方向、大小、光影上的一点点细微差别，也会很大地影响最终的结果。后来又试了几次，最完美的识别也就是上面这幅图了，要我是草图设计师，用这玩意儿还是挺跟它较劲的。倒是处理速度还挺快，几秒之内就能搞定。</p>
+<p>接下来试一试中文：<br><img src="/img/sketch-2-code-chinese-try.png" alt=""></p>
+<p>果然是不支持中文呀。从下图中我们能看到，尽管中文都能够识别成Lable，但确实对中文的OCR无能为力。<br><img src="/img/sketch-2-code-chinese-analysis.png" alt=""></p>
+<p>再试试横线本，看来背景的横线是可以被过滤掉的：<br><img src="/img/sketch-2-code-lines-try.png" alt=""></p>
+<p>最后试着参考GitHub的注册首页画一幅手稿：<br><img src="/img/sketch-2-code-github-try.png" alt=""></p>
+<p>上面的html是试过几遍之后最好的解析了。生成的html代码中引用了bootstrap的css，所以网页看上去还比较顺眼。但是格式有点乱，有一些连续空行、缩进等问题。不过这些问题相信都很容易解决。最大的问题是目前的实用程度还不太高。想要让前端变凉，数据量应该还不太够（大家多多上传草图吧），而且还应该有不少工作能做。希望它能早日实用化，让前端们投入到更有意义的工作中去。</p>
+<p>最终结论：未来很美好，但是现在的实用性还有待提高。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> tool </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> AI </tag>
+            
+            <tag> OCR </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[组合型软件架构]]></title>
       <url>/composable-software-architecture/</url>
       <content type="html"><![CDATA[<p>以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。<br><a id="more"></a></p>
@@ -1941,11 +1980,11 @@ String result = otherService.getResult(name);
             
             <tag> dubbo </tag>
             
-            <tag> service governance </tag>
-            
             <tag> dubbox </tag>
             
             <tag> rest </tag>
+            
+            <tag> service governance </tag>
             
         </tags>
         
@@ -4326,9 +4365,9 @@ topology_template:
         
         <tags>
             
-            <tag> docker </tag>
-            
             <tag> storage </tag>
+            
+            <tag> docker </tag>
             
         </tags>
         

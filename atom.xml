@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://qinghua.github.io/"/>
-  <updated>2018-08-14T01:20:25.000Z</updated>
+  <updated>2018-09-13T00:37:13.000Z</updated>
   <id>http://qinghua.github.io/</id>
   
   <author>
@@ -14,6 +14,47 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>手稿秒变html的Sketch 2 Code</title>
+    <link href="http://qinghua.github.io/sketch2code/"/>
+    <id>http://qinghua.github.io/sketch2code/</id>
+    <published>2018-09-12T13:10:58.000Z</published>
+    <updated>2018-09-13T00:37:13.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>可以把手稿变成html的<a href="https://sketch2code.azurewebsites.net/" target="_blank" rel="external">Sketch 2 Code</a>出世了，这是微软在<a href="https://github.com/Microsoft/ailab" target="_blank" rel="external">GitHub上的C#开源代码</a>。听说它能够把前端都凉掉？我很兴奋地尝了尝鲜，写下了这篇小文。咱们来看看它有没有传说中的那么高大上。<br><a id="more"></a></p>
+<p>官网上放出来的示例当然是最佳了：<br><img src="/img/sketch-2-code-official.png" alt=""></p>
+<p>能有这样的效果那是相当的不错呀，布局、文字、图像都识别得很不错，但也并非完美：</p>
+<ol>
+<li>布局：PRODUCT CATALOG变成了竖排，搜索按钮也没有对齐</li>
+<li>文字：三幅画下面的第一个PRODUCT识别成了RODUCT，最后一个3变成了S。$19.5左边多了一个8</li>
+<li>图像：原图上明明有三个段落嘛，html变成了两个</li>
+</ol>
+<p>那我自己画一幅，用网站提供的TAKE A PICTURE功能上传试试：<br><img src="/img/sketch-2-code-1st-try.png" alt=""></p>
+<p>这是什么鬼？敢情什么都没识别出来？是我的画风太清奇了吗？不死心，同一幅图再拍一次：<br><img src="/img/sketch-2-code-2nd-try.png" alt=""></p>
+<p>这次有限地成功了，看来位置、方向、大小、光影上的一点点细微差别，也会很大地影响最终的结果。后来又试了几次，最完美的识别也就是上面这幅图了，要我是草图设计师，用这玩意儿还是挺跟它较劲的。倒是处理速度还挺快，几秒之内就能搞定。</p>
+<p>接下来试一试中文：<br><img src="/img/sketch-2-code-chinese-try.png" alt=""></p>
+<p>果然是不支持中文呀。从下图中我们能看到，尽管中文都能够识别成Lable，但确实对中文的OCR无能为力。<br><img src="/img/sketch-2-code-chinese-analysis.png" alt=""></p>
+<p>再试试横线本，看来背景的横线是可以被过滤掉的：<br><img src="/img/sketch-2-code-lines-try.png" alt=""></p>
+<p>最后试着参考GitHub的注册首页画一幅手稿：<br><img src="/img/sketch-2-code-github-try.png" alt=""></p>
+<p>上面的html是试过几遍之后最好的解析了。生成的html代码中引用了bootstrap的css，所以网页看上去还比较顺眼。但是格式有点乱，有一些连续空行、缩进等问题。不过这些问题相信都很容易解决。最大的问题是目前的实用程度还不太高。想要让前端变凉，数据量应该还不太够（大家多多上传草图吧），而且还应该有不少工作能做。希望它能早日实用化，让前端们投入到更有意义的工作中去。</p>
+<p>最终结论：未来很美好，但是现在的实用性还有待提高。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;可以把手稿变成html的&lt;a href=&quot;https://sketch2code.azurewebsites.net/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Sketch 2 Code&lt;/a&gt;出世了，这是微软在&lt;a href=&quot;https://github.com/Microsoft/ailab&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub上的C#开源代码&lt;/a&gt;。听说它能够把前端都凉掉？我很兴奋地尝了尝鲜，写下了这篇小文。咱们来看看它有没有传说中的那么高大上。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="tool" scheme="http://qinghua.github.io/categories/tool/"/>
+    
+    
+      <category term="AI" scheme="http://qinghua.github.io/tags/AI/"/>
+    
+      <category term="OCR" scheme="http://qinghua.github.io/tags/OCR/"/>
+    
+  </entry>
   
   <entry>
     <title>组合型软件架构</title>
@@ -981,34 +1022,6 @@ String result = otherService.getResult(name);
     
     
       <category term="blockchain" scheme="http://qinghua.github.io/tags/blockchain/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>DevOpsDays北京站见闻</title>
-    <link href="http://qinghua.github.io/devopsdays-beijing-2017/"/>
-    <id>http://qinghua.github.io/devopsdays-beijing-2017/</id>
-    <published>2017-03-19T12:00:00.000Z</published>
-    <updated>2017-03-19T13:57:56.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>首度来到中国的DevOpsDays北京站昨天顺利举行了。有幸得到赠票，在大会上见到了DevOps之父Patrick Debois还有诸多业内专家。当天的盛况及ppt下载请移步<a href="http://mp.weixin.qq.com/s/A6QDB4Z-O5cm4KCnDOmKAw" target="_blank" rel="external">此处</a>。<br><a id="more"></a></p>
-<p>传统的DevOps主要涵盖了CAMS（Culture文化、Automation自动化、Measure度量、Sharing分享）四大方面。而要落地DevOps，需要两条腿：一条是组织方面的转型，另一条是技术方面的自动化工具。组织转型是要涉及到利益的，不容易下手。所以大部分的分享还是以技术方面为主。只有Patrick的好基友<a href="http://www.krisbuytaert.be/blog/" target="_blank" rel="external">Kris Buytaert</a>的ppt讲的是reorg。乔梁讲的是他在百度和腾讯的经历，但可能是受时间所限并没有太多的实际内容。如果没有自上而下的变革，很难推动起组织转型。对于许多人来说，也许能够做到的，也就是自动化工具罢了。下午的Open Space深度交流专场里，不乏对组织转型方面的问题，但是嘉宾们其实也没有什么非常好的办法。有些技巧（比如说拿数据说话）可以让你把DevOps推销给老板，但终究一场战斗的胜利很难能够左右战略上的部署。没有自上而下的决心和后盾，在触及利益的时候肯定是各种痛啊。两条慢腿可能凑活着还能走走，一条腿快一条腿慢必然会驱使着变革的前进或倒退。DevOps讲究痛点驱动，相信以后的DevOpsDays会有更多组织转型方面的分享。</p>
-<p>在技术上，专家们一直强调，没有DevOps团队，别叫他们DevOps工程师。DevOps需要融入到跨功能团队中的每一个人，不是某一类人，不是某一个团队。这里我感觉有一个词很重要：<strong>同理心</strong>。有了同理心，你会理解其它角色的痛点，反之亦然。由此，便可以催生出<strong>分享</strong>。有了分享，理解痛点，便能从“像部署一样痛苦的事要多做”出发，提取出最佳实践，催生<strong>自动化</strong>。要衡量效果如何？数据说话。于是催生<strong>度量</strong>。这几方面相辅相成，在整体的良性循环之下，团队<strong>文化</strong>的成型便是顺理成章。怎样让大家拥有同理心？除了依靠人的素质进步，百度的刘俊还提到了一个做法，据说甚是有效，那就是开发运维轮岗。想想也对，把你推到别人的位置上，自然就有同理心了。</p>
-<p>我在《DevOps实践》的译者序上也说过，DevOps是要很高成本的。在应用它之前，先问自己这样的问题：为什么要上DevOps？它能解决我的什么问题？不要说我想提高工作效率，提高程序质量，要从更高层次的业务上说。换句话说，从战略层面上想清楚应用DevOps的目的，然后在战术层面上依照战略来有根据有优先级地安排资源打硬仗。跟性能调优一样，搞清楚哪里才是瓶颈，针对性地动手解决。而不是直接拍胸脯就上DevOps，把最宝贵的资源浪费在可能对这个组织最没用的地方上。</p>
-<p>对于中小企业来说，不要开发自己的自动化工具，不要重复发明轮子，直接拿现成的开源工具来用吧。不是BAT这样的量级，玩不起自研版的工具，它们其实是很重量级的。针对开源工具有些功能不符合自己的需求这方面，ThoughtWorks的黄博文说道：可以从另一个角度来看待这个问题，为什么你要的功能没有？这是一个正常的功能吗？究竟是功能的缺失，还是说只是你走错了路？此言深得我心。据说业界运维做得最好的应该就是谷歌和Netfilx。它们都有不少开源的运维工具，值得业内人士仔细研究。</p>
-<p>最后放一张乔梁对DevOps和持续交付的看法，四个角色分别是产品、开发、测试和运维。先剧透一下并不是所有人都同意这个观点，少年，你怎么看？<br><img src="/img/agile-devops-and-cicd.jpg" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;首度来到中国的DevOpsDays北京站昨天顺利举行了。有幸得到赠票，在大会上见到了DevOps之父Patrick Debois还有诸多业内专家。当天的盛况及ppt下载请移步&lt;a href=&quot;http://mp.weixin.qq.com/s/A6QDB4Z-O5cm4KCnDOmKAw&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;此处&lt;/a&gt;。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="devops" scheme="http://qinghua.github.io/categories/devops/"/>
-    
-    
-      <category term="activity" scheme="http://qinghua.github.io/tags/activity/"/>
     
   </entry>
   
