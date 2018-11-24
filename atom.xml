@@ -842,9 +842,9 @@ String result = otherService.getResult(name);
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
-    
       <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
+    
+      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
     
   </entry>
   
@@ -907,9 +907,9 @@ String result = otherService.getResult(name);
       <category term="development" scheme="http://qinghua.github.io/categories/development/"/>
     
     
-      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
-    
       <category term="JGit" scheme="http://qinghua.github.io/tags/JGit/"/>
+    
+      <category term="git" scheme="http://qinghua.github.io/tags/git/"/>
     
   </entry>
   

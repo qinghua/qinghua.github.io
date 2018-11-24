@@ -793,9 +793,9 @@ String result = otherService.getResult(name);
         
         <tags>
             
-            <tag> git </tag>
-            
             <tag> JGit </tag>
+            
+            <tag> git </tag>
             
         </tags>
         
@@ -856,9 +856,9 @@ String result = otherService.getResult(name);
         
         <tags>
             
-            <tag> git </tag>
-            
             <tag> JGit </tag>
+            
+            <tag> git </tag>
             
         </tags>
         
