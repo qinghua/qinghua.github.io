@@ -1,0 +1,635 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta name="baidu-site-verification" content="EXHJyZtvnK" />
+  <meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+  <meta charset="UTF-8">
+  
+    <title>用AWS创建工作流 | 懒程序员改变世界</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Qinghua Gao">
+    
+
+    
+    <meta name="description" content="AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问AWS来试用。">
+<meta name="keywords" content="aws">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用AWS创建工作流">
+<meta property="og:url" content="http://qinghua.github.io/aws-step-functions/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问AWS来试用。">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v1.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-lambda-CrawAmazonPrice.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-sns-PriceDown.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-cw-DailyLookUpPrice.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-sf-CrawAmazonPrice-execution.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v2.png">
+<meta property="og:image" content="http://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v3.png">
+<meta property="og:updated_time" content="2018-12-16T12:25:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用AWS创建工作流">
+<meta name="twitter:description" content="AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问AWS来试用。">
+<meta name="twitter:image" content="http://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v1.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="懒程序员改变世界" title="懒程序员改变世界"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="懒程序员改变世界">懒程序员改变世界</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<!--form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form-->
+<script>
+  (function() {
+    var cx = "002339689071915007017:ri31kjwxfkg";
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/aws-step-functions/" title="用AWS创建工作流" itemprop="url">用AWS创建工作流</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="Qinghua Gao" target="_blank" itemprop="author">Qinghua Gao</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-15T01:52:29.000Z" itemprop="datePublished"> 发表于 2018-12-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么"><span class="toc-number">1.</span> <span class="toc-text">为什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#怎么用"><span class="toc-number">2.</span> <span class="toc-text">怎么用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务介绍"><span class="toc-number">2.1.</span> <span class="toc-text">服务介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-Functions"><span class="toc-number">2.2.</span> <span class="toc-text">Step Functions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lambda"><span class="toc-number">2.3.</span> <span class="toc-text">Lambda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SNS"><span class="toc-number">2.4.</span> <span class="toc-text">SNS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CloudWatch"><span class="toc-number">2.5.</span> <span class="toc-text">CloudWatch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#执行"><span class="toc-number">2.6.</span> <span class="toc-text">执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需求变更"><span class="toc-number">3.</span> <span class="toc-text">需求变更</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶功能"><span class="toc-number">4.</span> <span class="toc-text">进阶功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#超时"><span class="toc-number">4.1.</span> <span class="toc-text">超时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#心跳"><span class="toc-number">4.2.</span> <span class="toc-text">心跳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重试"><span class="toc-number">4.3.</span> <span class="toc-text">重试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异常处理"><span class="toc-number">4.4.</span> <span class="toc-text">异常处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误状态"><span class="toc-number">4.5.</span> <span class="toc-text">错误状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最终工作流"><span class="toc-number">4.6.</span> <span class="toc-text">最终工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它"><span class="toc-number">4.7.</span> <span class="toc-text">其它</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问<a href="https://aws.amazon.com/cn/free/" target="_blank" rel="external">AWS</a>来试用。<br><a id="more"></a></p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>首先假定一个场景：我需要定期抓取亚马逊某商品的价格，并通知自己。传统的实现方式就是写一个爬虫，然后在服务器上cron一下就好了。虽然能使，但是一旦考虑到灵活性（商品应该可定制，通知手段应该灵活）、高可用（服务器挂了也不应该影响到业务）、可视化（提供易于使用的界面，以看当前和历史的执行情况）、可监控（看当前的执行情况、出错了需要通知开发者）等，那就费时费力了。好在AWS给我们提供了一系列的服务，允许我们像Linux的管道那样把服务简单、灵活地拼接起来，从而实现需求。</p>
+<h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><h3 id="服务介绍"><a href="#服务介绍" class="headerlink" title="服务介绍"></a>服务介绍</h3><p>首先简单介绍一下在这个工作流中我们会涉及到的AWS服务：<br><strong>Step Functions</strong>：用于可视化管理工作流。是本文的核心。<br><strong>SNS</strong>：通知服务，只要给主题（Topic）发消息，主题的订阅者（Subscription）就会通过订阅的渠道（如邮件、短信等）收到消息。<br><strong>Lambda</strong>：无需服务器即可运行代码的计算服务，免去了管理服务器的烦恼。只有在程序运行的时候才收费。<br><strong>CloudWatch</strong>：监控或触发AWS资源的服务。在本文中我们姑且把它当做一个cron服务。</p>
+<h3 id="Step-Functions"><a href="#Step-Functions" class="headerlink" title="Step Functions"></a>Step Functions</h3><p>对于本文的需求来说，最简单明了的工作流即是下图：<br><img src="/img/aws-sf-CrawAmazonPrice-v1.png" alt=""></p>
+<p>非常直观，一眼就能看出来它会先抓取亚马逊的价格，然后通知自己。对于Step Functions来说，这张流程图的代码很简洁：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"StartAt"</span>: <span class="string">"CrawAmazonPrice"</span>,</div><div class="line">  <span class="attr">"States"</span>: &#123;</div><div class="line">    <span class="attr">"CrawAmazonPrice"</span>: &#123;</div><div class="line">      <span class="attr">"Type"</span>: <span class="string">"Task"</span>,</div><div class="line">      <span class="attr">"Resource"</span>: <span class="string">"arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice"</span>,</div><div class="line">      <span class="attr">"Next"</span>: <span class="string">"NotifyMe"</span></div><div class="line">    &#125;,</div><div class="line">    <span class="attr">"NotifyMe"</span>: &#123;</div><div class="line">      <span class="attr">"Type"</span>: <span class="string">"Task"</span>,</div><div class="line">      <span class="attr">"Resource"</span>: <span class="string">"arn:aws:states:::sns:publish"</span>,</div><div class="line">      <span class="attr">"Parameters"</span>: &#123;</div><div class="line">        <span class="attr">"Message.$"</span>: <span class="string">"$.body"</span>,</div><div class="line">        <span class="attr">"TopicArn"</span>: <span class="string">"arn:aws:sns:us-east-1:XXX_ACCOUNT_ID_XXX:PriceDown"</span></div><div class="line">      &#125;,</div><div class="line">      <span class="attr">"End"</span>: <span class="literal">true</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="Lambda"><a href="#Lambda" class="headerlink" title="Lambda"></a>Lambda</h3><p>上面的<code>CrawAmazonPrice</code>指定了<code>Resource</code>是一个名为<code>CrawAmazonPrice</code>的AWS Lambda函数，而<code>NotifyMe</code>则指定了一个名为<code>PriceDown</code>的SNS主题。对这个主题感兴趣的用户（比如说，我）可以用期待的方式（邮件、短信等）订阅它。所以这个流程就是：开始-&gt;CrawAmazonPrice（Lambda）-&gt;NotifyMe（SNS）-&gt;结束。</p>
+<p>为了简便起见，我们可以直接通过AWS界面实现<code>CrawAmazonPrice</code>的Lambda函数。直接新建一个Python 3.7的脚本即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> json</div><div class="line"><span class="keyword">import</span> re</div><div class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">lambda_handler</span><span class="params">(event, context)</span>:</span></div><div class="line">    req = request.Request(<span class="string">'http://www.amazon.cn/dp/B07FNP8DX4'</span>)</div><div class="line">    req.add_header(<span class="string">'User-Agent'</span>, <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102'</span>)</div><div class="line">    response = request.urlopen(req)</div><div class="line">    html = response.read().decode(<span class="string">'utf-8'</span>)</div><div class="line">    price = re.search(<span class="string">'data-asin-price=\"(.+?)\"'</span>, html).group(<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        <span class="string">'statusCode'</span>: <span class="number">200</span>,</div><div class="line">        <span class="string">'body'</span>: json.dumps(price)</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p><img src="/img/aws-lambda-CrawAmazonPrice.png" alt=""></p>
+<h3 id="SNS"><a href="#SNS" class="headerlink" title="SNS"></a>SNS</h3><p>SNS就更简单了，创建一个名为<code>PriceDown</code>的新主题，然后为它创建一个协议为<code>Email</code>的订阅，填入自己的邮箱地址，便会收到AWS给这个邮箱发送的确认订阅邮件。点击邮件中的链接，即可完成订阅。要是日后有其他人对这个主题也感兴趣，增加一个订阅即可。<br><img src="/img/aws-sns-PriceDown.png" alt=""></p>
+<h3 id="CloudWatch"><a href="#CloudWatch" class="headerlink" title="CloudWatch"></a>CloudWatch</h3><p>剩下的事情就是创建一个CloudWatch，来定期触发这个Step Functions。直接通过AWS界面创建一个规则（Rule），固定频率为每天，将目标设置为上面的Step Function工作流，取个名字如<code>DailyLookUpPrice</code>就可以啦！<br><img src="/img/aws-cw-DailyLookUpPrice.png" alt=""></p>
+<h3 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h3><p>每次当CloudWatch被触发时，都会在Step Functions中留下自己的足迹。<br><img src="/img/aws-sf-CrawAmazonPrice-execution.png" alt=""></p>
+<p>由上图可以看到，每个状态的进入和退出都清晰可见，非常方便。</p>
+<h2 id="需求变更"><a href="#需求变更" class="headerlink" title="需求变更"></a>需求变更</h2><p>假如我们只想在价格低的时候通知自己，除了修改Lambda中定义的代码以外，还可以增加一个Task，以便增强灵活性。例如，公司内部有一个最低价格的服务，但是无法被公司外部（如AWS）调用到。即便如此，Step Functions也可以支持这种应用场景。在任何可以调用公司服务的地方写一段代码，这段代码作为一个活动（Activity）来轮询Step Functions，当执行到该Task时，该代码就被运行，调用公司内部的服务。AWS的实现也很简单，首先新增一个名为<code>EnsureLowestPrice</code>的活动，然后在Step Function的JSON中增加一个Task，并修改<code>CrawAmazonPrice</code>，使其<code>Next</code>指向<code>EnsureLowestPrice</code>：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">"EnsureLowestPrice": &#123;</div><div class="line">  "Type": "Task",</div><div class="line">  "Resource": "arn:aws:states:us-east-1:XXX_ACCOUNT_ID_XXX:activity:EnsureLowestPrice",</div><div class="line">  "Next": "NotifyMe"</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这回的Task就不是Lambda啦，而是自己运行在随意机器上的代码。以Java为例，可以参考<a href="https://docs.aws.amazon.com/zh_cn/step-functions/latest/dg/tutorial-creating-activity-state-machine.html" target="_blank" rel="external">AWS官方文档</a>来实现。</p>
+<p>“价格低于最低价”的服务，在这里只是一个表示内部服务的示例罢了。当然，如果真要实现一个类似的服务，用AWS的DynamoDB甚至S3可以很方便地实现。</p>
+<p>假如需要并行查询多种商品价格，Step Functions也能轻易支持：<br><img src="/img/aws-sf-CrawAmazonPrice-v2.png" alt=""></p>
+<p>并行的代码如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">"CrawAmazonPrice": &#123;</div><div class="line">  "Type": "Parallel",</div><div class="line">  "Next": "EnsureLowestPrice",</div><div class="line">  "Branches": [</div><div class="line">    &#123;</div><div class="line">      "StartAt": "CrawPrice1",</div><div class="line">      "States": &#123;</div><div class="line">        "CrawPrice1": &#123;</div><div class="line">          "Type": "Task",</div><div class="line">          "Resource": "arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice",</div><div class="line">          "End": true</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      "StartAt": "CrawPrice2",</div><div class="line">      "States": &#123;</div><div class="line">        "CrawPrice2": &#123;</div><div class="line">          "Type": "Task",</div><div class="line">          "Resource": "arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice",</div><div class="line">          "End": true</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由于<code>Branches</code>及<code>States</code>的灵活性，再复杂的工作流也不在话下。</p>
+<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>如果代码出现死循环之类的问题，可能会导致工作流无法继续流动下去。这时可以通过给该状态设置超时<code>TimeoutSeconds</code>以使之到时退出。合理地设置这个值需要考虑某个状态可能需要运行的时间、是否有人工步骤等。默认的<code>TimeoutSeconds</code>为99999999。</p>
+<h3 id="心跳"><a href="#心跳" class="headerlink" title="心跳"></a>心跳</h3><p>如果程序可能运行数个小时，也许你难以知道现在的状态是运行中，还是程序挂掉了。这时可以通过设置心跳<code>HeartbeatSeconds</code>来使Step Functions知道当前的运行状况，以便及时把挂掉了（没有心跳了）的任务分发给其它节点。当然为了这个功能，程序中需要增加相对应的逻辑（定期发送心跳）。</p>
+<h3 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h3><p>有时候程序出错，可能只需要重试一下就好了。这时我们可以使用Step Functions提供的重试<code>Retry</code>机制。如以下程序所示：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">"Retry" : [</div><div class="line">  &#123;</div><div class="line">    "ErrorEquals": [ "States.TaskFailed", "States.Timeout" ],</div><div class="line">    "IntervalSeconds": 600,</div><div class="line">    "MaxAttempts": 3</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p><code>Retry</code>是一个集合，所以可以为不同的错误定义不同的重试机制。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>如果重试还是不行，那还有一个招式就是异常处理机制<code>Catch</code>。它与重试类似，可以为不同的错误定义不同的状态流向:<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">"Catch": [</div><div class="line">  &#123;</div><div class="line">    "ErrorEquals": [ "States.ALL" ],</div><div class="line">    "Next": "NotifyError"</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>在上面的代码里，只要出错了（并且重试也没有成功），就跳转到<code>NotifyError</code>的状态，可以通过SNS通知订阅者了。</p>
+<h3 id="错误状态"><a href="#错误状态" class="headerlink" title="错误状态"></a>错误状态</h3><p>在异常处理中由于跳转到了<code>NotifyError</code>，并且通知成功，反而倒让这个工作流从异常变成正常了。想让工作流失败，只需在<code>NotifyError</code>的后面接一步简单的<code>FailExecution</code>状态就可以了。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">"FailExecution": &#123;</div><div class="line">  "Type": "Fail"</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="最终工作流"><a href="#最终工作流" class="headerlink" title="最终工作流"></a>最终工作流</h3><p><img src="/img/aws-sf-CrawAmazonPrice-v3.png" alt=""></p>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>最求完美，永无止境。例如，这些服务我们现在都是在AWS界面上点来点去的，其实这些人工操作可以通过<code>CloudFormation</code>来变成自动化的脚本。如此，便可以实现我们的基础设施即代码，做到一键部署了。另外，随着需求的演化，如果要更新Step Functions的工作流，还可能需要考虑到对其进行版本管理。还有，当处理活动的节点数较多时，如果能够把某次执行的机器名输出到工作流中，也有助于错误排查。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/development/">development</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/aws/">aws</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://qinghua.github.io/aws-step-functions/" data-title="用AWS创建工作流 | 懒程序员改变世界" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/future-software-development/"  title="未来的软件开发什么样">
+ <strong>下一篇：</strong><br/> 
+ <span>未来的软件开发什么样
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="aws-step-functions/" data-title="用AWS创建工作流" data-url="http://qinghua.github.io/aws-step-functions/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么"><span class="toc-number">1.</span> <span class="toc-text">为什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#怎么用"><span class="toc-number">2.</span> <span class="toc-text">怎么用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务介绍"><span class="toc-number">2.1.</span> <span class="toc-text">服务介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-Functions"><span class="toc-number">2.2.</span> <span class="toc-text">Step Functions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lambda"><span class="toc-number">2.3.</span> <span class="toc-text">Lambda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SNS"><span class="toc-number">2.4.</span> <span class="toc-text">SNS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CloudWatch"><span class="toc-number">2.5.</span> <span class="toc-text">CloudWatch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#执行"><span class="toc-number">2.6.</span> <span class="toc-text">执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需求变更"><span class="toc-number">3.</span> <span class="toc-text">需求变更</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶功能"><span class="toc-number">4.</span> <span class="toc-text">进阶功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#超时"><span class="toc-number">4.1.</span> <span class="toc-text">超时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#心跳"><span class="toc-number">4.2.</span> <span class="toc-text">心跳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重试"><span class="toc-number">4.3.</span> <span class="toc-text">重试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异常处理"><span class="toc-number">4.4.</span> <span class="toc-text">异常处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误状态"><span class="toc-number">4.5.</span> <span class="toc-text">错误状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最终工作流"><span class="toc-number">4.6.</span> <span class="toc-text">最终工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其它"><span class="toc-number">4.7.</span> <span class="toc-text">其它</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/AI/" title="AI">AI<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/agile/" title="agile">agile<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/architecture/" title="architecture">architecture<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/db/" title="db">db<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/development/" title="development">development<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/devops/" title="devops">devops<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/idea/" title="idea">idea<sup>12</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/linux-unix/" title="linux/unix">linux/unix<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/tool/" title="tool">tool<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/vr/" title="vr">vr<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/kubernetes/" title="kubernetes">kubernetes<sup>12</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mesos/" title="mesos">mesos<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/storage/" title="storage">storage<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/soft-skill/" title="soft skill">soft skill<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/idea/" title="idea">idea<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IntelliJ-IDEA/" title="IntelliJ IDEA">IntelliJ IDEA<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ceph/" title="ceph">ceph<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker-registry/" title="docker registry">docker registry<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/dubbo/" title="dubbo">dubbo<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/service-governance/" title="service governance">service governance<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/git/" title="git">git<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/cloudify/" title="cloudify">cloudify<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/radosgw/" title="radosgw">radosgw<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/start-up/" title="start up">start up<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/openstack-swift/" title="openstack swift">openstack swift<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/book/" title="book">book<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JGit/" title="JGit">JGit<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/agile/" title="agile">agile<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/network/" title="network">network<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      原创作品，转载请注明出处。
+      <span id="busuanzi_container_site_pv">
+        目前本站总访问量为<span id="busuanzi_value_site_pv"></span>次，
+      </span>
+      <span id="busuanzi_container_site_uv">
+        访客数为<span id="busuanzi_value_site_uv"></span>人次
+      </span>
+      <br>
+      &copy; 2018 Qinghua Gao<br>
+      Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+    </div>
+  </div>
+</footer>
+<!--<div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Qinghua Gao in ThoughtWorks. <br/>
+			Talk is cheap, show me the example.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/qinghua" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<a href="mailto:ggggqh666@163.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="Qinghua Gao">Qinghua Gao</a>
+		
+		
+		</p>
+</div>
+--></footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"ggggqh666"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?4abf71e9841843a04e32d4ca5a41b0b7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -3,6 +3,53 @@
   
     
     <entry>
+      <title><![CDATA[用AWS创建工作流]]></title>
+      <url>/aws-step-functions/</url>
+      <content type="html"><![CDATA[<p>AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问<a href="https://aws.amazon.com/cn/free/" target="_blank" rel="external">AWS</a>来试用。<br><a id="more"></a></p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>首先假定一个场景：我需要定期抓取亚马逊某商品的价格，并通知自己。传统的实现方式就是写一个爬虫，然后在服务器上cron一下就好了。虽然能使，但是一旦考虑到灵活性（商品应该可定制，通知手段应该灵活）、高可用（服务器挂了也不应该影响到业务）、可视化（提供易于使用的界面，以看当前和历史的执行情况）、可监控（看当前的执行情况、出错了需要通知开发者）等，那就费时费力了。好在AWS给我们提供了一系列的服务，允许我们像Linux的管道那样把服务简单、灵活地拼接起来，从而实现需求。</p>
+<h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><h3 id="服务介绍"><a href="#服务介绍" class="headerlink" title="服务介绍"></a>服务介绍</h3><p>首先简单介绍一下在这个工作流中我们会涉及到的AWS服务：<br><strong>Step Functions</strong>：用于可视化管理工作流。是本文的核心。<br><strong>SNS</strong>：通知服务，只要给主题（Topic）发消息，主题的订阅者（Subscription）就会通过订阅的渠道（如邮件、短信等）收到消息。<br><strong>Lambda</strong>：无需服务器即可运行代码的计算服务，免去了管理服务器的烦恼。只有在程序运行的时候才收费。<br><strong>CloudWatch</strong>：监控或触发AWS资源的服务。在本文中我们姑且把它当做一个cron服务。</p>
+<h3 id="Step-Functions"><a href="#Step-Functions" class="headerlink" title="Step Functions"></a>Step Functions</h3><p>对于本文的需求来说，最简单明了的工作流即是下图：<br><img src="/img/aws-sf-CrawAmazonPrice-v1.png" alt=""></p>
+<p>非常直观，一眼就能看出来它会先抓取亚马逊的价格，然后通知自己。对于Step Functions来说，这张流程图的代码很简洁：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"StartAt"</span>: <span class="string">"CrawAmazonPrice"</span>,</div><div class="line">  <span class="attr">"States"</span>: &#123;</div><div class="line">    <span class="attr">"CrawAmazonPrice"</span>: &#123;</div><div class="line">      <span class="attr">"Type"</span>: <span class="string">"Task"</span>,</div><div class="line">      <span class="attr">"Resource"</span>: <span class="string">"arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice"</span>,</div><div class="line">      <span class="attr">"Next"</span>: <span class="string">"NotifyMe"</span></div><div class="line">    &#125;,</div><div class="line">    <span class="attr">"NotifyMe"</span>: &#123;</div><div class="line">      <span class="attr">"Type"</span>: <span class="string">"Task"</span>,</div><div class="line">      <span class="attr">"Resource"</span>: <span class="string">"arn:aws:states:::sns:publish"</span>,</div><div class="line">      <span class="attr">"Parameters"</span>: &#123;</div><div class="line">        <span class="attr">"Message.$"</span>: <span class="string">"$.body"</span>,</div><div class="line">        <span class="attr">"TopicArn"</span>: <span class="string">"arn:aws:sns:us-east-1:XXX_ACCOUNT_ID_XXX:PriceDown"</span></div><div class="line">      &#125;,</div><div class="line">      <span class="attr">"End"</span>: <span class="literal">true</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="Lambda"><a href="#Lambda" class="headerlink" title="Lambda"></a>Lambda</h3><p>上面的<code>CrawAmazonPrice</code>指定了<code>Resource</code>是一个名为<code>CrawAmazonPrice</code>的AWS Lambda函数，而<code>NotifyMe</code>则指定了一个名为<code>PriceDown</code>的SNS主题。对这个主题感兴趣的用户（比如说，我）可以用期待的方式（邮件、短信等）订阅它。所以这个流程就是：开始-&gt;CrawAmazonPrice（Lambda）-&gt;NotifyMe（SNS）-&gt;结束。</p>
+<p>为了简便起见，我们可以直接通过AWS界面实现<code>CrawAmazonPrice</code>的Lambda函数。直接新建一个Python 3.7的脚本即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> json</div><div class="line"><span class="keyword">import</span> re</div><div class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">lambda_handler</span><span class="params">(event, context)</span>:</span></div><div class="line">    req = request.Request(<span class="string">'http://www.amazon.cn/dp/B07FNP8DX4'</span>)</div><div class="line">    req.add_header(<span class="string">'User-Agent'</span>, <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102'</span>)</div><div class="line">    response = request.urlopen(req)</div><div class="line">    html = response.read().decode(<span class="string">'utf-8'</span>)</div><div class="line">    price = re.search(<span class="string">'data-asin-price=\"(.+?)\"'</span>, html).group(<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        <span class="string">'statusCode'</span>: <span class="number">200</span>,</div><div class="line">        <span class="string">'body'</span>: json.dumps(price)</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p><img src="/img/aws-lambda-CrawAmazonPrice.png" alt=""></p>
+<h3 id="SNS"><a href="#SNS" class="headerlink" title="SNS"></a>SNS</h3><p>SNS就更简单了，创建一个名为<code>PriceDown</code>的新主题，然后为它创建一个协议为<code>Email</code>的订阅，填入自己的邮箱地址，便会收到AWS给这个邮箱发送的确认订阅邮件。点击邮件中的链接，即可完成订阅。要是日后有其他人对这个主题也感兴趣，增加一个订阅即可。<br><img src="/img/aws-sns-PriceDown.png" alt=""></p>
+<h3 id="CloudWatch"><a href="#CloudWatch" class="headerlink" title="CloudWatch"></a>CloudWatch</h3><p>剩下的事情就是创建一个CloudWatch，来定期触发这个Step Functions。直接通过AWS界面创建一个规则（Rule），固定频率为每天，将目标设置为上面的Step Function工作流，取个名字如<code>DailyLookUpPrice</code>就可以啦！<br><img src="/img/aws-cw-DailyLookUpPrice.png" alt=""></p>
+<h3 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h3><p>每次当CloudWatch被触发时，都会在Step Functions中留下自己的足迹。<br><img src="/img/aws-sf-CrawAmazonPrice-execution.png" alt=""></p>
+<p>由上图可以看到，每个状态的进入和退出都清晰可见，非常方便。</p>
+<h2 id="需求变更"><a href="#需求变更" class="headerlink" title="需求变更"></a>需求变更</h2><p>假如我们只想在价格低的时候通知自己，除了修改Lambda中定义的代码以外，还可以增加一个Task，以便增强灵活性。例如，公司内部有一个最低价格的服务，但是无法被公司外部（如AWS）调用到。即便如此，Step Functions也可以支持这种应用场景。在任何可以调用公司服务的地方写一段代码，这段代码作为一个活动（Activity）来轮询Step Functions，当执行到该Task时，该代码就被运行，调用公司内部的服务。AWS的实现也很简单，首先新增一个名为<code>EnsureLowestPrice</code>的活动，然后在Step Function的JSON中增加一个Task，并修改<code>CrawAmazonPrice</code>，使其<code>Next</code>指向<code>EnsureLowestPrice</code>：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">"EnsureLowestPrice": &#123;</div><div class="line">  "Type": "Task",</div><div class="line">  "Resource": "arn:aws:states:us-east-1:XXX_ACCOUNT_ID_XXX:activity:EnsureLowestPrice",</div><div class="line">  "Next": "NotifyMe"</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这回的Task就不是Lambda啦，而是自己运行在随意机器上的代码。以Java为例，可以参考<a href="https://docs.aws.amazon.com/zh_cn/step-functions/latest/dg/tutorial-creating-activity-state-machine.html" target="_blank" rel="external">AWS官方文档</a>来实现。</p>
+<p>“价格低于最低价”的服务，在这里只是一个表示内部服务的示例罢了。当然，如果真要实现一个类似的服务，用AWS的DynamoDB甚至S3可以很方便地实现。</p>
+<p>假如需要并行查询多种商品价格，Step Functions也能轻易支持：<br><img src="/img/aws-sf-CrawAmazonPrice-v2.png" alt=""></p>
+<p>并行的代码如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">"CrawAmazonPrice": &#123;</div><div class="line">  "Type": "Parallel",</div><div class="line">  "Next": "EnsureLowestPrice",</div><div class="line">  "Branches": [</div><div class="line">    &#123;</div><div class="line">      "StartAt": "CrawPrice1",</div><div class="line">      "States": &#123;</div><div class="line">        "CrawPrice1": &#123;</div><div class="line">          "Type": "Task",</div><div class="line">          "Resource": "arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice",</div><div class="line">          "End": true</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      "StartAt": "CrawPrice2",</div><div class="line">      "States": &#123;</div><div class="line">        "CrawPrice2": &#123;</div><div class="line">          "Type": "Task",</div><div class="line">          "Resource": "arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice",</div><div class="line">          "End": true</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由于<code>Branches</code>及<code>States</code>的灵活性，再复杂的工作流也不在话下。</p>
+<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>如果代码出现死循环之类的问题，可能会导致工作流无法继续流动下去。这时可以通过给该状态设置超时<code>TimeoutSeconds</code>以使之到时退出。合理地设置这个值需要考虑某个状态可能需要运行的时间、是否有人工步骤等。默认的<code>TimeoutSeconds</code>为99999999。</p>
+<h3 id="心跳"><a href="#心跳" class="headerlink" title="心跳"></a>心跳</h3><p>如果程序可能运行数个小时，也许你难以知道现在的状态是运行中，还是程序挂掉了。这时可以通过设置心跳<code>HeartbeatSeconds</code>来使Step Functions知道当前的运行状况，以便及时把挂掉了（没有心跳了）的任务分发给其它节点。当然为了这个功能，程序中需要增加相对应的逻辑（定期发送心跳）。</p>
+<h3 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h3><p>有时候程序出错，可能只需要重试一下就好了。这时我们可以使用Step Functions提供的重试<code>Retry</code>机制。如以下程序所示：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">"Retry" : [</div><div class="line">  &#123;</div><div class="line">    "ErrorEquals": [ "States.TaskFailed", "States.Timeout" ],</div><div class="line">    "IntervalSeconds": 600,</div><div class="line">    "MaxAttempts": 3</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p><code>Retry</code>是一个集合，所以可以为不同的错误定义不同的重试机制。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>如果重试还是不行，那还有一个招式就是异常处理机制<code>Catch</code>。它与重试类似，可以为不同的错误定义不同的状态流向:<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">"Catch": [</div><div class="line">  &#123;</div><div class="line">    "ErrorEquals": [ "States.ALL" ],</div><div class="line">    "Next": "NotifyError"</div><div class="line">  &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>在上面的代码里，只要出错了（并且重试也没有成功），就跳转到<code>NotifyError</code>的状态，可以通过SNS通知订阅者了。</p>
+<h3 id="错误状态"><a href="#错误状态" class="headerlink" title="错误状态"></a>错误状态</h3><p>在异常处理中由于跳转到了<code>NotifyError</code>，并且通知成功，反而倒让这个工作流从异常变成正常了。想让工作流失败，只需在<code>NotifyError</code>的后面接一步简单的<code>FailExecution</code>状态就可以了。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">"FailExecution": &#123;</div><div class="line">  "Type": "Fail"</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="最终工作流"><a href="#最终工作流" class="headerlink" title="最终工作流"></a>最终工作流</h3><p><img src="/img/aws-sf-CrawAmazonPrice-v3.png" alt=""></p>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>最求完美，永无止境。例如，这些服务我们现在都是在AWS界面上点来点去的，其实这些人工操作可以通过<code>CloudFormation</code>来变成自动化的脚本。如此，便可以实现我们的基础设施即代码，做到一键部署了。另外，随着需求的演化，如果要更新Step Functions的工作流，还可能需要考虑到对其进行版本管理。还有，当处理活动的节点数较多时，如果能够把某次执行的机器名输出到工作流中，也有助于错误排查。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> development </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> aws </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[未来的软件开发什么样]]></title>
       <url>/future-software-development/</url>
       <content type="html"><![CDATA[<p>前一阵子经常看到各种文章说以后人工智能如何如何强大，人类各种失业，要么凄惨，要么极乐，软件开发也无法幸免。那么开挂后未来的软件开发究竟会如何演进？其实我们可以借助传统制造业来推演一下。<br><a id="more"></a></p>
@@ -2382,9 +2429,9 @@ String result = otherService.getResult(name);
             
             <tag> ceph </tag>
             
-            <tag> storage </tag>
-            
             <tag> radosgw </tag>
+            
+            <tag> storage </tag>
             
         </tags>
         
@@ -2506,9 +2553,9 @@ String result = otherService.getResult(name);
             
             <tag> ceph </tag>
             
-            <tag> storage </tag>
-            
             <tag> radosgw </tag>
+            
+            <tag> storage </tag>
             
             <tag> s3 </tag>
             
