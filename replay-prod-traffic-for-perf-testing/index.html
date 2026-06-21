@@ -7,14 +7,21 @@
   <meta charset="utf-8">
   
   
-  <title>归档: 2018/5 | 懒程序员改变世界</title>
+  <title>真实流量，本地回放：一种轻量的性能测试思路 | 懒程序员改变世界</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="懒程序员改变世界">
-<meta property="og:url" content="https://qinghua.github.io/archives/2018/05/index.html">
+  <meta name="description" content="我们设计了一个4步解耦的性能测试框架，直接回放生产流量到测试环境，无需部署、无需构造假数据、每一步都可以独立观察和调试。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="真实流量，本地回放：一种轻量的性能测试思路">
+<meta property="og:url" content="https://qinghua.github.io/replay-prod-traffic-for-perf-testing/index.html">
 <meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="我们设计了一个4步解耦的性能测试框架，直接回放生产流量到测试环境，无需部署、无需构造假数据、每一步都可以独立观察和调试。">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-15T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T05:27:15.848Z">
 <meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="performance-tuning">
+<meta property="article:tag" content="test">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
@@ -72,39 +79,238 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/intellij-idea-debug/" class="archive-article-date">
-  <time class="dt-published" datetime="2018-05-05T07:00:00.000Z" itemprop="datePublished">5月 5</time>
+        <section id="main"><article id="post-replay-prod-traffic-for-perf-testing" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/replay-prod-traffic-for-perf-testing/" class="article-date">
+  <time class="dt-published" datetime="2026-06-15T07:00:00.000Z" itemprop="datePublished">2026-06-15</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/intellij-idea-debug/">挖掘IntelliJ IDEA的调试功能</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      真实流量，本地回放：一种轻量的性能测试思路
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>性能测试最大的谎言是：你的模拟数据能代表生产环境。</p>
+<p>我们正在做一个数据库查询中间件的版本迁移。新版本用了完全不同的查询协议，需要验证性能不会退化。</p>
+<p>之前同事做了第一个版本的性能测试方案：在生产环境里开一个 shadow 线程池，用独立线程回放查询。这个方案能跑，但有几个问题。第一，任何改动（修 bug、加功能、调参数）都需要部署生产环境才能生效，迭代速度很慢。第二，虽然是在独立线程池里跑，但多少会对生产流量产生影响——CPU、内存、数据库连接都是共享的。第三，指定 TPS 进行压测时，需要人工构造请求之间的时间间隔来模拟真实的流量波动，这既不准确也增加了复杂度。</p>
+<p>我想要的是：<strong>直接用生产流量来测，但完全不需要部署任何东西到生产环境。</strong></p>
+<span id="more"></span>
+
+<h2 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h2><p>核心思路是把性能测试拆成4个完全解耦的步骤，每一步都有独立的输入和输出，像管道一样串起来。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Step 1 (Extract)  →  Step 2 (Prepare)  →  Step 3 (Execute)  →  Step 4 (Analyze)</span><br><span class="line">   生产日志            转换为查询语句         按真实速率回放          聚合分析结果</span><br><span class="line">   输出: JSONL         输出: JSONL+SQL       输出: 延迟数据          输出: P50/P90/P99</span><br></pre></td></tr></table></figure>
+
+<p>每一步的中间结果都存在对象存储上。你可以在任何一步停下来看看数据长什么样，发现问题了也只需要从那一步开始重跑，而不是从头来过。</p>
+<h2 id="Step-1-从生产日志提取真实流量"><a href="#Step-1-从生产日志提取真实流量" class="headerlink" title="Step 1: 从生产日志提取真实流量"></a>Step 1: 从生产日志提取真实流量</h2><p>从生产环境的日志里抽取真实的查询请求。不是抽样，是完整还原一段时间（比如1小时）内的所有查询，保留原始的时间戳排序。</p>
+<p>输出是一个按秒粒度排列的 JSONL 文件——每一行是一个查询请求，带着它原始发生的时间。这意味着后续回放时，自然就能还原生产的流量模式（高峰、低谷、突发），<strong>完全不需要人工构造流量模型或模拟请求间隔的随机性。</strong></p>
+<h2 id="Step-2-转换为目标查询语句"><a href="#Step-2-转换为目标查询语句" class="headerlink" title="Step 2: 转换为目标查询语句"></a>Step 2: 转换为目标查询语句</h2><p>这一步把提取的原始请求转换为具体的查询语句。支持多种模式——我们的场景里是旧版查询语言和新版 SQL。</p>
+<p>由于 Step 2 和 Step 3 是解耦的，在做版本迁移时只需要改这两步（生成不同语法的查询，用不同的客户端执行），而 Step 1 和 Step 4 完全不变。这就是解耦的好处。</p>
+<h2 id="Step-3-按真实速率回放"><a href="#Step-3-按真实速率回放" class="headerlink" title="Step 3: 按真实速率回放"></a>Step 3: 按真实速率回放</h2><p>这是核心。三种执行策略：</p>
+<ul>
+<li><strong>原速回放（replay）</strong>：按照 Step 1 中记录的时间戳，以1:1的速率回放。10点15分23秒有3个查询，就在那一秒发3个。这是最接近生产的模式。</li>
+<li><strong>固定 TPS（fixed-tps）</strong>：以指定的每秒查询数匀速发送。用于测试特定负载下的表现。</li>
+<li><strong>压力模式（beast）</strong>：尽可能快地发送所有查询，不限速。用于找到系统的极限。</li>
+</ul>
+<p>关键设计：<strong>回放完全不需要人工模拟流量的时间波动。</strong> 因为 Step 1 保留了生产的时间分布——这本身就是最真实的流量模式。你用假数据永远模拟不出凌晨3点和下午3点流量模式的真实差异。</p>
+<p>多任务并行也有考虑：每个任务分到确定性的查询子集（无重复、无随机），不同任务之间有不同的时间偏移，避免所有任务同时发包。每个任务独立输出自己的性能结果子集，供 Step 4 聚合。</p>
+<h2 id="Step-4-聚合分析"><a href="#Step-4-聚合分析" class="headerlink" title="Step 4: 聚合分析"></a>Step 4: 聚合分析</h2><p>收集所有任务的延迟数据（Step 3 的多个任务各自输出性能结果子集），跨任务聚合后输出：</p>
+<ul>
+<li>整体 P50、P90、P99、Max</li>
+<li>错误率</li>
+<li>实际 TPS</li>
+<li>按 API 拆分的各项指标</li>
+</ul>
+<p>有了这些，新旧版本的性能对比一目了然。</p>
+<h2 id="无需部署到生产环境"><a href="#无需部署到生产环境" class="headerlink" title="无需部署到生产环境"></a>无需部署到生产环境</h2><p>整个框架通过 SSH 隧道连接测试环境的数据库中间件。本地开发机或者容器化的执行环境都能跑——不需要碰生产环境的任何东西。</p>
+<ul>
+<li><strong>本地开发机</strong>：一条命令启动，适合快速验证和调试（比如先跑5秒看看有没有错误）</li>
+<li><strong>容器化执行（Fargate）</strong>：并行多个任务做大规模压测，结果自动上传到 S3</li>
+</ul>
+<p>这意味着你可以随时跑性能测试，不需要预约环境、不需要等队列、不需要申请权限部署到测试集群。</p>
+<h2 id="调试友好"><a href="#调试友好" class="headerlink" title="调试友好"></a>调试友好</h2><p>由于每一步解耦：</p>
+<ul>
+<li>Step 1 提取出来的流量文件，你可以直接查看有没有异常请求</li>
+<li>Step 2 的输出是人类可读的查询语句，可以手动验证语法是否正确</li>
+<li>Step 3 执行过程中会记录每个失败查询到错误日志（JSONL格式），包含完整的请求内容和错误信息。你可以直接把失败的查询单独重放一次来定位问题</li>
+<li>Step 4 的报告直接告诉你哪个 API 有问题</li>
+</ul>
+<p>传统的性能测试工具（JMeter、Gatling 等）通常是个黑盒——你看到”P99 &#x3D; 3秒”但很难追溯到是哪个查询、什么参数导致的。我们的做法让每一层都是透明的。</p>
+<h2 id="版本迁移中的实际应用"><a href="#版本迁移中的实际应用" class="headerlink" title="版本迁移中的实际应用"></a>版本迁移中的实际应用</h2><p>我们在做数据库查询中间件从 V1 到 V2 的迁移。V1 用的是一种定制查询语言，V2 用标准 SQL。整个框架里：</p>
+<ul>
+<li>Step 1 完全不变（流量是同一份）</li>
+<li>Step 2 新增了 SQL 生成模式（一个参数切换）</li>
+<li>Step 3 新增了 V2 客户端（通过 PrivateLink + 认证）</li>
+<li>Step 4 完全不变</li>
+</ul>
+<p>迁移的性能验证用的就是同一份生产流量，一份走 V1 路径，一份走 V2 路径，Step 4 直接对比。公平、真实、可复现。</p>
+<h2 id="实际测试结果"><a href="#实际测试结果" class="headerlink" title="实际测试结果"></a>实际测试结果</h2><p>以下是我们对新版中间件（V2）的一次实测，目标 30 TPS，持续 5 分钟，9000 个查询全部来自生产流量：</p>
+<p><strong>单任务执行：</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>总查询数</td>
+<td>9000</td>
+</tr>
+<tr>
+<td>成功</td>
+<td>9000</td>
+</tr>
+<tr>
+<td>错误率</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>实际 TPS</td>
+<td>16.8（因背压限制，未达到目标30）</td>
+</tr>
+<tr>
+<td>P50</td>
+<td>2398ms</td>
+</tr>
+<tr>
+<td>P90</td>
+<td>4427ms</td>
+</tr>
+<tr>
+<td>P99</td>
+<td>13401ms</td>
+</tr>
+</tbody></table>
+<p>Per-API 拆分立刻暴露了问题：</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>调用量</th>
+<th>P50</th>
+<th>P90</th>
+<th>P99</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GetDomainData</td>
+<td>7782</td>
+<td>2.3s</td>
+<td>4.0s</td>
+<td>7.7s</td>
+</tr>
+<tr>
+<td>GetAccountLevelSummary</td>
+<td>981</td>
+<td>3.0s</td>
+<td>9.3s</td>
+<td>26.8s</td>
+</tr>
+<tr>
+<td>GetAccountProductList</td>
+<td>143</td>
+<td>3.2s</td>
+<td>12.6s</td>
+<td>73.3s</td>
+</tr>
+<tr>
+<td>GetAccountLevelTrend</td>
+<td>94</td>
+<td>3.6s</td>
+<td>12.3s</td>
+<td>73.0s</td>
+</tr>
+</tbody></table>
+<p>主力 API（占 86% 流量的 GetDomainData）表现尚可，但长尾 API 的 P99 高达 70+ 秒——这在传统的”平均 TPS”报告里是看不到的。</p>
+<p><strong>双任务并行对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>1 task</th>
+<th>2 tasks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实际 TPS</td>
+<td>16.8</td>
+<td>19.1</td>
+</tr>
+<tr>
+<td>P50</td>
+<td>2398ms</td>
+<td>4788ms</td>
+</tr>
+<tr>
+<td>P90</td>
+<td>4427ms</td>
+<td>7041ms</td>
+</tr>
+<tr>
+<td>错误率</td>
+<td>0%</td>
+<td>0%</td>
+</tr>
+</tbody></table>
+<p>有意思的发现：两个任务并发时，延迟几乎翻倍（P50 从 2.4s 到 4.8s），但吞吐量只从 16.8 涨到 19.1。这说明测试环境的 V2 实例在 15-20 TPS 就已经饱和了——增加客户端并发只是把延迟推高，并不能线性提升吞吐。</p>
+<p><strong>这正是用真实流量测试的价值：</strong> 如果我们用均匀的模拟请求来测，可能会得出”V2 轻松支持 30 TPS”的结论。但真实流量里有大量长尾查询（跨账户汇总、趋势计算），它们占据数据库连接时间远超简单查询，导致整体饱和点比预期低得多。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>这个框架的核心思想很简单：<strong>把性能测试当成一个数据管道来设计，而不是一个单体工具。</strong> 每一步解耦、中间结果持久化、执行环境灵活。你获得的好处是：</p>
+<ul>
+<li>用真实流量而非模拟数据——结果可信</li>
+<li>无需部署到生产——安全且灵活</li>
+<li>每一步独立观察——debug 不再是猜谜</li>
+<li>支持版本对比——同一份数据两条路径</li>
+</ul>
+<p>如果你也在做类似的中间件迁移或性能基线建立，可以参考这个思路。整个框架的 MVP 版本半小时就开发完了，后续的多任务并行、V2支持、分析报告等功能是在几天内逐步迭代出来的——全部代码都是 AI 写的（这恰好是<a href="/ai-programming-maturity-model/">L3 反馈循环</a>的应用场景），人类负责设计和验证。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/replay-prod-traffic-for-perf-testing/" data-id="cuid89LzC_nhtqFasl5x12L8P" data-title="真实流量，本地回放：一种轻量的性能测试思路" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance-tuning/" rel="tag">performance-tuning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/test/" rel="tag">test</a></li></ul>
+
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/async-standup-in-ai-era/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          AI时代的站会：从同步到异步
+        
+      </div>
+    </a>
+  
+  
+    <a href="/ai-programming-maturity-model/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">AI编程成熟度模型：从3倍到10倍的路径</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-  
-    </div></section>
-  
 
 
 </section>
