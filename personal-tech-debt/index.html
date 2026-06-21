@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>个人的技术债 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="技术债是一个借用了财务债的绝妙隐喻（极限编程XP的实践之一），表示当我们为了短期利益（如按时完成开发），而在技术上对软件的长期质量进行的妥协。它一般用于项目管理，但其实也广泛地存在于各个地方，比如每个人的身上。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="个人的技术债">
+<meta property="og:url" content="https://qinghua.github.io/personal-tech-debt/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="技术债是一个借用了财务债的绝妙隐喻（极限编程XP的实践之一），表示当我们为了短期利益（如按时完成开发），而在技术上对软件的长期质量进行的妥协。它一般用于项目管理，但其实也广泛地存在于各个地方，比如每个人的身上。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/tech-debt-quadrant.png">
+<meta property="og:image" content="https://qinghua.github.io/img/personal-tech-debt-quadrant.png">
+<meta property="article:published_time" content="2018-01-01T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.067Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="idea">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/tech-debt-quadrant.png">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-personal-tech-debt" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/personal-tech-debt/" class="article-date">
+  <time class="dt-published" datetime="2018-01-01T08:00:00.000Z" itemprop="datePublished">2018-01-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/idea/">idea</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      个人的技术债
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8A%80%E6%9C%AF%E8%B4%9F%E5%80%BA">技术债</a>是一个借用了财务债的绝妙隐喻（<a target="_blank" rel="noopener" href="http://www.extremeprogramming.org/rules/metaphor.html">极限编程XP的实践</a>之一），表示当我们为了短期利益（如按时完成开发），而在技术上对软件的长期质量进行的妥协。它一般用于项目管理，但其实也广泛地存在于各个地方，比如每个人的身上。</p>
+<h2 id="项目的技术债"><a href="#项目的技术债" class="headerlink" title="项目的技术债"></a>项目的技术债</h2><p>技术债的起源和后果、解决方式等，网上一搜一大把，我这里就不再赘述了。这里总结一点常见的误区：</p>
+<ul>
+<li>技术债是邪恶的：这里借用维基百科的一小段话：“第一次发布代码，就好比借了一笔钱。只要通过不断重写来偿还债务，小额负债可以加速开发。但久未偿还债务会引发危险。复用马马虎虎的代码，类似于负债的利息”。健康的债务是好事，谁买房子不贷款（土豪请随意）？</li>
+<li>技术债必须偿还：有时候你写一段小程序，只希望尽快跑起来看看，然后将之抛弃。程序由于没有重构，而充斥着各种反模式（它们都是技术债！）。我自己就写了不少，用毕即弃。这里面的债……反正我自己是没有兴趣也没有时间偿还。有些项目的代码，你知道永远也不会有人会动（当然这个很主观，并且取决于你的经验），或者是很快就要完蛋的，我也倾向于先不还这个债，真的到了出现万一的时候，那就再还吧。还债是有成本的，如果感觉还债成本将要上升，也许就应该还这个债了。有没有一种lazy的感觉？</li>
+<li>开发新功能优先于偿还技术债：这是一个it depends的问题，谁高谁低取决于对债和利息的判断及不同角色间的博弈。如果利息趋近于零，当然可以先不考虑还债；如果新功能的投资预期带来大把的收益，当然可以先开发新功能。</li>
+<li>技术债可以避免：如果这样的话，只要没有新功能，就永远不必发新版本了。没有完美的人，没有完美的程序。别想躲开它，想想怎么处理它。</li>
+</ul>
+<h2 id="个人的技术债"><a href="#个人的技术债" class="headerlink" title="个人的技术债"></a>个人的技术债</h2><p>Martin Fowler把<a target="_blank" rel="noopener" href="https://martinfowler.com/bliki/TechnicalDebt.html">技术债</a>分为<a target="_blank" rel="noopener" href="https://martinfowler.com/bliki/TechnicalDebtQuadrant.html">四个象限</a>，如下图所示：<br><img src="/img/tech-debt-quadrant.png"></p>
+<p>项目在不断前进，做项目的人也是不断前进的。项目需要还债来让自己运转良好，人不也一样需要还债让自己进步吗？参考上图，我也画了张个人的技术债四象限，如下图所示：<br><img src="/img/personal-tech-debt-quadrant.png"></p>
+<p>这四个象限不都是技术债的源头吗？下面我们来具体分析一下每一个象限：</p>
+<p><strong>有意的－慎重的：清理</strong>。例如，我知道项目上需要用到drools，它对未来的项目可能会很有用，可惜当时没条件深入学习。又或者项目上用到了JJTree，它有些过时了，以后也基本用不上，不需要浪费时间在这上面。这是两个不同的例子，因为你是有意地做出了选择，所以凭你的经验来决定吧，是否应该把它放到你的个人技术债上。<br><strong>有意的－草率的：思考</strong>。例如，当时工作太忙，虽然知道docker能够解决这个问题，但没时间去学，至于项目嘛，凑合能用就好了。现在回头想想，还能凑合吗？因为草率，所以需要思考；因为有意，所以还要选择。是否放入你的个人技术债，你自己决定吧。<br><strong>无心的－慎重的：复盘</strong>。例如，当时不知道其实AWS可以满足项目的需求，但是现在知道了，很可能用AWS可以节省一大部分的开发和运维成本，但也可能有坑。在这种情况下，我们可以做一次复盘，如果项目再来一遍应该怎样？把收获到的经验用到下一个项目中吧。<br><strong>无心的－草率的：求知</strong>。例如，我并不知道前端技术大爆炸有那么多的框架可选，现在我也不太了解，反正有活儿我就上JQuery。用一句绕口的话总结就是：不知道自己不知道什么。如果是这样，那么就应该先高层次地了解一下背景知识，起码让自己不至于抓瞎吧。之后再慢慢将自己的知识体系建立起来。</p>
+<p>接下来就该给你的债排优先级，用<a target="_blank" rel="noopener" href="http://wiki.mbalib.com/wiki/%E6%97%B6%E9%97%B4%E2%80%9C%E5%9B%9B%E8%B1%A1%E9%99%90%E2%80%9D%E6%B3%95">时间“四象限”法</a>，XY轴分别是重要性和紧急性。重要又紧急的债先还；重要不紧急的债可以制定计划；紧急但不重要的，不值得投入大把的时间，够用就好；不重要不紧急的就尽量放弃吧，除非这个债是你的兴趣爱好之所在。</p>
+<p>2017年已经远离，是不是在收获了许多成果的同时，也留下了一些遗憾？2018年的余额也已充值完毕，去年（说不定去了好几年呢）欠下的债，该考虑怎么还一还了吧？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/personal-tech-debt/" data-id="cuidzOzkjh87aFXQ8MkyXJGRJ" data-title="个人的技术债" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/idea/" rel="tag">idea</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/type-less-code-more/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          敲最少的键，编最多的码
+        
+      </div>
+    </a>
+  
+  
+    <a href="/functional-programming-in-java/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">《Java函数式编程》出版啦</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

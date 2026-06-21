@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>监控与管理dubbo服务 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Dubbo是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。本文介绍了一些如何监控与管理dubbo服务。使用的工具与《dubbox 的各种管理和监管》大致相同，本文更侧重于命令细节与实践。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="监控与管理dubbo服务">
+<meta property="og:url" content="https://qinghua.github.io/dubbo-3/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Dubbo是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。本文介绍了一些如何监控与管理dubbo服务。使用的工具与《dubbox 的各种管理和监管》大致相同，本文更侧重于命令细节与实践。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-monitor-simple-home.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-monitor-simple-service-charts.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-admin-home.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-admin-service-governance.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-monitor-home.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-keeper-home.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-keeper-admin.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-keeper-monitor.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/dubbo-keeper-zoopeeper.jpg">
+<meta property="article:published_time" content="2016-10-02T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:09.972Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="dubbo">
+<meta property="article:tag" content="monitor">
+<meta property="article:tag" content="service governance">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/dubbo-monitor-simple-home.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-dubbo-3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/dubbo-3/" class="article-date">
+  <time class="dt-published" datetime="2016-10-02T07:00:00.000Z" itemprop="datePublished">2016-10-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/architecture/">architecture</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      监控与管理dubbo服务
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。本文介绍了一些如何监控与管理dubbo服务。使用的工具与<a target="_blank" rel="noopener" href="http://www.cnblogs.com/yjmyzz/p/dubbo-admin-monitor-deploy.html">《dubbox 的各种管理和监管》</a>大致相同，本文更侧重于命令细节与实践。</p>
+<p>首先参考<a href="/dubbo-1">《服务治理框架dubbo上手指南》</a>，实现自己的<code>HelloService</code>服务。在此基础上运行<code>Provider.java</code>启动服务，接下来就可以开始管理工作啦。让我们来下载dubbo的源码并安装：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/alibaba/dubbo.git dubbocd ~/dubbomvn clean install -Dmaven.test.skip</span><br></pre></td></tr></table></figure>
+
+<h2 id="telnet"><a href="#telnet" class="headerlink" title="telnet"></a>telnet</h2><p>Dubbo支持使用telnet来查看服务状态。下面让我们来试一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet localhost 19880</span><br></pre></td></tr></table></figure>
+
+<p>敲下回车便能看到<code>dubbo&gt;</code>的提示符了。以下命令可以看到服务列表、服务的方法详细信息列表和服务地址列表：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsls -l org.ggg.hello.service.HelloServiceps -l</span><br></pre></td></tr></table></figure>
+
+<p>以下命令可以跟踪服务方法的调用情况：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace org.ggg.hello.service.HelloService</span><br></pre></td></tr></table></figure>
+
+<p>这时会看见光标停止住了。运行<code>Consumer.java</code>来消费服务，就可以看到跟踪结果啦。详细的命令可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo/wiki/user-guide-telnet-cmd-ref">Telnet命令参考手册</a>。若是服务端没有开启监控，使用telnet命令对查看甚至配置服务来说，是依赖最少最简便的方式。</p>
+<h2 id="简易监控中心"><a href="#简易监控中心" class="headerlink" title="简易监控中心"></a>简易监控中心</h2><p>先前安装过的dubbo项目里包含了<code>dubbo-monitor-simple</code>的包，解压之：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar zxvf dubbo-simple/dubbo-monitor-simple/target/dubbo-monitor-simple-2.5.4-SNAPSHOT-assembly.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>配置<code>dubbo.properties</code>为自己的zk服务地址：<code>192.168.33.88:2181</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 操作系统是Linux的话sed -i &quot;s/multicast:\/\/224.5.6.7:1234/zookeeper:\/\/192.168.33.88:2181/&quot; dubbo-monitor-simple-2.5.4-SNAPSHOT/conf/dubbo.properties# 操作系统是OS X的话（接下来的sed命令以OS X为例）sed -i &quot;&quot; &quot;s/multicast:\/\/224.5.6.7:1234/zookeeper:\/\/192.168.33.88:2181/&quot; dubbo-monitor-simple-2.5.4-SNAPSHOT/conf/dubbo.properties</span></span><br></pre></td></tr></table></figure>
+
+<p>简易监控中心以文件的方式记录监控数据。创建基本文件夹并运行<code>start.sh</code>启动简易监控中心：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/monitordubbo-monitor-simple-2.5.4-SNAPSHOT/bin/start.sh</span><br></pre></td></tr></table></figure>
+
+<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080/</a>便能看到简易监控中心的首页了：<br><img src="/img/dubbo-monitor-simple-home.jpg"></p>
+<p>在<code>Applications</code>里可以看到我们先前启动的<code>hello-world-app</code>和<code>simple-monitor</code>自己。可见<code>simple-monitor</code>也是一个dubbo服务，把自己注册到<code>dubbo.properties</code>里指定的配置中心里去。为了接收到监控数据，需要在dubbo服务端打开监控。在<code>provider.xml</code>文件里加入下面这行配置，然后重新启动dubbo服务：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>过一会儿就能看到监控的统计信息和图标了：<br><img src="/img/dubbo-monitor-simple-service-charts.jpg"></p>
+<p>而运行<code>ls ~/monitor/</code>也能看到简易监控中心所生成的文件夹<code>charts</code>和<code>statistics</code>。如果迟迟没有生成这些信息，有一种可能是在多（虚拟）网卡的情况下，simple-monitor绑定到了错误的IP地址去了。万一真是如此，在<code>dubbo.properties</code>里增加一行<code>dubbo.protocol.host</code>的配置即可。</p>
+<p>运行<code>stop.sh</code>停止简易监控中心服务：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo-monitor-simple-2.5.4-SNAPSHOT/bin/stop.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="管理控制台"><a href="#管理控制台" class="headerlink" title="管理控制台"></a>管理控制台</h2><p>Dubbo为服务治理提供了管理控制台。这是一个webapp，可以很轻松地运行在web容器中。经由源代码安装后便会生成<code>dubbo-admin-2.5.4-SNAPSHOT.war</code>文件，将其部署在tomcat容器中即可。这里用docker启动一个tomcat 7：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 --name=tomcat tomcat:7docker <span class="built_in">cp</span> dubbo-admin/target/dubbo-admin-2.5.4-SNAPSHOT.war tomcat:/usr/local/tomcat/webapps/docker <span class="built_in">exec</span> tomcat sed -i <span class="string">&quot;s/127.0.0.1/192.168.33.88/&quot;</span> /usr/local/tomcat/webapps/dubbo-admin-2.5.4-SNAPSHOT/WEB-INF/dubbo.propertiesdocker restart tomcat</span><br></pre></td></tr></table></figure>
+
+<p>文件<code>dubbo.properties</code>里配置了zookeep的地址，所以用sed将其替换为自己的zk服务地址：<code>192.168.33.88</code>。里面还配置了root账户和guest账户的密码。默认即为<code>root</code>和<code>guest</code>。访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbo-admin-2.5.4-SNAPSHOT/">http://localhost:8080/dubbo-admin-2.5.4-SNAPSHOT/</a>并输入<code>root</code>和<code>root</code>，就能看到管理控制台的首页了：<br><img src="/img/dubbo-admin-home.jpg"></p>
+<p>输入<code>hello</code>进行查询，便能看到我们的服务了：<br><img src="/img/dubbo-admin-service-governance.jpg"></p>
+<p>可以在此页面进行各种服务治理操作。更详细的资料，请参考<a target="_blank" rel="noopener" href="http://dubbo.io/Administrator+Guide-zh.htm#AdministratorGuide-zh-%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C">运维手册</a>。</p>
+<p>运行以下命令删除tomcat容器：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f tomcat</span><br></pre></td></tr></table></figure>
+
+<h2 id="dubbo-monitor"><a href="#dubbo-monitor" class="headerlink" title="dubbo-monitor"></a>dubbo-monitor</h2><p>简易监控中心和管理控制台的页面风格看起来还停留在上个世纪。韩都衣舍提供了一个<a target="_blank" rel="noopener" href="https://github.com/handuyishe/dubbo-monitor">dubbo-monitor</a>，除了更加现代化的页面，还用数据库代替了简易监控中心写文件的方式。除了mysql，还支持<a target="_blank" rel="noopener" href="https://github.com/handuyishe/dubbo-monitor/tree/mongo">mongo</a>。那我们先来下载代码：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..git <span class="built_in">clone</span> https://github.com/handuyishe/dubbo-monitorcd dubbo-monitor</span><br></pre></td></tr></table></figure>
+
+<p>然后启动一个mysql数据库实例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=mysql -e MYSQL_ROOT_PASSWORD=raycool -v `<span class="built_in">pwd</span>`/sql/create.sql:/create.sql mysql:5.7.12docker <span class="built_in">exec</span> -it mysql mysql -uroot -praycool</span><br></pre></td></tr></table></figure>
+
+<p>创建数据库和表（可能需要等数据库启动一小会儿之后才能连上去）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE dubbokeeper <span class="keyword">DEFAULT</span> <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">DEFAULT</span> <span class="keyword">COLLATE</span> utf8_general_ci;USE dubbokeeper;SOURCE <span class="operator">/</span>create.sql;<span class="keyword">SHOW</span> TABLES;exit</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件<code>application.properties</code>并打包（目前版本中spring的引用有问题，所以也需要修改<code>pom.xml</code>）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MYSQL_IP=`docker <span class="built_in">exec</span> -it mysql hostname -i | sed <span class="string">&#x27;s/.$//&#x27;</span>`sed -i <span class="string">&quot;&quot;</span> -e <span class="string">&quot;s/dubbo.registry.address.*/dubbo.registry.address=zookeeper:\/\/192.168.33.88:2181/&quot;</span> -e <span class="string">&quot;s/default/<span class="variable">$&#123;MYSQL_IP&#125;</span>/&quot;</span> src/main/resources/application.propertiessed -i <span class="string">&quot;&quot;</span> s/4.1.6.RELEASE/3.2.9.RELEASE/<span class="string">&quot; pom.xmlmvn clean package</span></span><br></pre></td></tr></table></figure>
+
+<p>启动dubbo-monitor：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 -v `<span class="built_in">pwd</span>`/target/dubbo-monitor-x.war:/usr/local/tomcat/webapps/dubbo-monitor-x.war --name=tomcat tomcat:7</span><br></pre></td></tr></table></figure>
+
+<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbo-monitor-x/">http://localhost:8080/dubbo-monitor-x/</a>并输入<code>admin</code>和<code>admin</code>，就能看到dubbo-monitor的首页了：<br><img src="/img/dubbo-monitor-home.jpg"></p>
+<p>可以在dubbo-monitor提供的页面上监控各种数据，但由于笔者是mac配docker版tomcat的方式，监控的dubbo服务只能绑定在docker内部IP上，导致监控数据过不去（com.alibaba.dubbo.remoting.RemotingException: message can not send, because channel is closed）。真正运行的时候还是使用linux+docker（配合net&#x3D;host）或是mac+原生tomcat的方式吧。运行以下命令删除mysql和tomcat容器：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f mysql tomcat</span><br></pre></td></tr></table></figure>
+
+<h2 id="DubboKeeper"><a href="#DubboKeeper" class="headerlink" title="DubboKeeper"></a>DubboKeeper</h2><p>除了dubbo-monitor以外，github里还有一个社区版的<a target="_blank" rel="noopener" href="https://github.com/dubboclub/dubbokeeper">DubboKeeper</a>，功能最为强大。既提供监控功能，又提供服务治理功能。监控数据的持久化除了支持mysql和mongo，还支持lucene。现在下载代码并打包。Dubbokeeper的打包方式略有些不同，需要执行根目录里的<code>install-xxx.sh</code>脚本。这里还是以mysql为例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..git <span class="built_in">clone</span> https://github.com/dubboclub/dubbokeepercd dubbokeeper./install-mysql.sh</span><br></pre></td></tr></table></figure>
+
+<p>首先启动DubboKeeper的UI：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 -v `<span class="built_in">pwd</span>`/target/mysql-dubbokeeper-ui/dubbokeeper-ui-1.0.1.war:/usr/local/tomcat/webapps/dubbokeeper-ui-1.0.1.war --name=tomcat tomcat:7docker <span class="built_in">exec</span> tomcat sed -i <span class="string">&quot;s/localhost/192.168.33.88/&quot;</span> /usr/local/tomcat/webapps/dubbokeeper-ui-1.0.1/WEB-INF/classes/dubbo.propertiesdocker restart tomcat</span><br></pre></td></tr></table></figure>
+
+<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbokeeper-ui-1.0.1/index.htm#/statistics">http://localhost:8080/dubbokeeper-ui-1.0.1/index.htm#/statistics</a>，就能看到DubboKeeper的首页了：<br><img src="/img/dubbo-keeper-home.jpg"></p>
+<p>很显然在这些UI里，DubboKeeper的逼格是最高的。第二个tab就是<code>Admin</code>（管理）：<br><img src="/img/dubbo-keeper-admin.jpg"></p>
+<p>接下来就是<code>Monitor</code>（监控），不过只有启动过监控数据存储端才能使用，现在点击会报<strong>后端系统出现异常，请稍后再试</strong>的错。接下来启动数据库：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=19890314 -v `<span class="built_in">pwd</span>`/doc/storage/mysql/sql/application.sql:/create.sql mysql:5.7.12docker <span class="built_in">exec</span> -it mysql mysql -uroot -p19890314</span><br></pre></td></tr></table></figure>
+
+<p>初始化数据库：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE dubbokeeper;USE dubbokeeper;SOURCE <span class="operator">/</span>create.sql;<span class="keyword">SHOW</span> TABLES;exit</span><br></pre></td></tr></table></figure>
+
+<p>修改监控数据存储端的配置并启动之：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&quot;&quot;</span> -e <span class="string">&quot;s/localhost:2181/192.168.33.88:2181/&quot;</span> -e <span class="string">&quot;s/dubbo-monitor/dubbokeeper/&quot;</span> target/mysql-dubbokeeper-server/conf/dubbo-mysql.propertieschmod +x target/mysql-dubbokeeper-server/bin/start-mysql.shtarget/mysql-dubbokeeper-server/bin/start-mysql.sh</span><br></pre></td></tr></table></figure>
+
+<p>现在就可以顺利打开监控页面了：<br><img src="/img/dubbo-keeper-monitor.jpg"></p>
+<p>DubboKeeper甚至还提供了ZooKeeper的窥视版<code>ZooPeeper</code>：<br><img src="/img/dubbo-keeper-zoopeeper.jpg"></p>
+<p>最后收尾，Ctrl+C掉监控数据存储端，并删除各个容器：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f mysql tomcat</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/dubbo-3/" data-id="cuidb46PwwbeIjnV6EXU_heG0" data-title="监控与管理dubbo服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/effective-communication/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          人际风格与有效沟通实战
+        
+      </div>
+    </a>
+  
+  
+    <a href="/practical-devops/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">《DevOps实践》出版啦</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

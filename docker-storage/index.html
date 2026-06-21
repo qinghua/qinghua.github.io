@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>Docker的存储是怎么工作的 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="我们都知道docker支持多种存储驱动，默认在ubuntu上使用AUFS，其他Linux系统上使用devicemapper。这篇文章从零开始，用一些Linux的命令来使用这些不同的存储，包括AUFS、Device Mapper、Btrfs和Overlay。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker的存储是怎么工作的">
+<meta property="og:url" content="https://qinghua.github.io/docker-storage/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="我们都知道docker支持多种存储驱动，默认在ubuntu上使用AUFS，其他Linux系统上使用devicemapper。这篇文章从零开始，用一些Linux的命令来使用这些不同的存储，包括AUFS、Device Mapper、Btrfs和Overlay。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_delete.jpg">
+<meta property="og:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_layers.jpg">
+<meta property="og:image" content="http://farm1.staticflickr.com/703/22116692899_0471e5e160_b.jpg">
+<meta property="og:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/btfs_container_layer.jpg">
+<meta property="og:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs.jpg">
+<meta property="og:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs2.jpg">
+<meta property="article:published_time" content="2016-01-29T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:09.964Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="storage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_delete.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-docker-storage" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/docker-storage/" class="article-date">
+  <time class="dt-published" datetime="2016-01-29T08:00:00.000Z" itemprop="datePublished">2016-01-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Docker的存储是怎么工作的
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>我们都知道docker支持多种存储驱动，默认在ubuntu上使用AUFS，其他Linux系统上使用devicemapper。这篇文章从零开始，用一些Linux的命令来使用这些不同的存储，包括AUFS、Device Mapper、Btrfs和Overlay。</p>
+<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p>Docker最早只是运行在Ubuntu和Debian上，使用的存储驱动是AUFS。随着Docker越来越流行，很多人都希望能把它运行在RHEL系列上。可是Linux内核和RHEL并不支持AUFS，最后红帽公司和Docker公司一起合作开发了基于Device Mapper技术的devicemapper存储驱动，这也成为Docker支持的第二款存储。由于Linux内核2.6.9就已经包含Device Mapper技术了，所以它也非常的稳定，代价是比较慢。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ZFS">ZFS</a>是被Oracle收购的Sun公司为Solaris 10开发的新一代文件系统，支持快照，克隆，<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#the-copy-on-write-strategy">写时复制</a>（CoW）等。ZFS的“Z”是最后一个字母，表示终极文件系统，不需要开发其它的文件系统了。虽然ZFS各种好，但是毕竟它的Linux版本是移植过来的，Docker官方并不推荐在生产环境上使用，除非你对ZFS相当熟悉。而且由于软件许可证不同的关系，它也无法被合并进Linux内核里。这么NB的文件系统出来后，Linux社区也有所回应。<a target="_blank" rel="noopener" href="https://btrfs.wiki.kernel.org/index.php/Main_Page">Btrfs</a>就是和ZFS比较类似的Linux原生存储系统，在Linux内核2.6.29里就包含它了。虽然Btrfs未来是要替换devicemapper的，但是目前devicemapper更安全，更稳定，更适合生产环境。所以如果不是有很经验的话，也不那么推荐在生产环境使用。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/OverlayFS">OverlayFS</a>是类似AUFS的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/UnionFS">联合文件系统</a>，但是轻量级一些，而且还能快一点儿。更重要的是，它已经被合并到Linux内核3.18版了。虽然OverlayFS发展得很快，但是它还非常年轻，如果要上生产系统，还是要记得小心为上。Docker还支持一个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Virtual_file_system">VFS</a>驱动，它是一个中间层的抽象，底层支持ext系列，ntfs，nfs等等，对上层提供一个标准的文件操作接口，很早就被包含到Linux内核里了。但是由于它不支持写时复制，所以比较占磁盘空间，速度也慢，同样并不推荐上生产环境。</p>
+<p>说到这里，好几个存储驱动都上Linux内核了，怎么AUFS一直被拒于门外呢？AUFS是一个日本人岡島順治郎开发的，他也曾希望能把这个存储驱动提交到内核中。但是据说<a target="_blank" rel="noopener" href="http://www.programering.com/a/MTM0YDNwATQ.html">Linus Torvalds有点儿嫌弃AUFS的代码写得烂</a>……</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令启动并连接虚拟机：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> testcd testvagrant init minimum/ubuntu-trusty64-dockervagrant upvagrant ssh</span><br></pre></td></tr></table></figure>
+
+<h2 id="AUFS"><a href="#AUFS" class="headerlink" title="AUFS"></a>AUFS</h2><p>AUFS是一个联合文件系统，也就是说，它是一层层垒上去的文件系统。最上层能看到的就是下层的所有系统合并后的结果。我们创建几个文件夹，layer1是最底层，result用来挂载，再搞几个文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/aufscd ~/aufsmkdir layer1 layer2 resultecho <span class="string">&quot;file1 in layer1&quot;</span> &gt; layer1/file1echo <span class="string">&quot;file2 in layer1&quot;</span> &gt; layer1/file2echo <span class="string">&quot;file1 in layer2&quot;</span> &gt; layer2/file1</span><br></pre></td></tr></table></figure>
+
+<p>现在文件夹的层级结构看起来是酱紫的：</p>
+<p>└── aufs<br>    ├── layer1<br>    │   ├── file1    # file1 in layer1<br>    │   └── file2    # file2 in layer1<br>    ├── layer2<br>    │   └── file1    # file1 in layer2<br>    └── result</p>
+<p>然后一层层地挂载到result文件夹去（none的意思是挂载的不是设备文件），就能看到result现在有两个文件，以及它们的内容：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t aufs -o br=layer2=rw:layer1=ro none resultls resultcat result/file1    <span class="comment"># file1 in layer2cat result/file2    # file2 in layer1</span></span><br></pre></td></tr></table></figure>
+
+<p>file1是由layer2提供的，file2是由layer1提供的，因为layer2里没有file2。如果我们在挂载后的目录写入file1~3：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file1 in result&quot;</span> &gt; result/file1echo <span class="string">&quot;file2 in result&quot;</span> &gt; result/file2echo <span class="string">&quot;file3 in result&quot;</span> &gt; result/file3cat layer1/file1    <span class="comment"># file1 in layer1cat layer1/file2    # file2 in layer1cat layer2/file1    # file1 in resultcat layer2/file2    # file2 in resultcat layer2/file3    # file3 in result</span></span><br></pre></td></tr></table></figure>
+
+<p>就会看到这些文件都是写入到layer2的。测试完成，清场~</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount resultcd ..<span class="built_in">rm</span> -rf aufs</span><br></pre></td></tr></table></figure>
+
+<p>想要了解更细致点的话可以参考<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/17061.html">Docker基础技术：AUFS</a>这篇文章。</p>
+<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_delete.jpg"></p>
+<p>虽然是删除文件的示例，但是也能清楚看到AUFS是怎么工作的。然后再结合docker一起看：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_layers.jpg"></p>
+<p>一切就都很清楚明了：一层层地累加所有的文件，最终加载到镜像里。</p>
+<h2 id="Device-Mapper"><a href="#Device-Mapper" class="headerlink" title="Device Mapper"></a>Device Mapper</h2><p>Device Mapper是块设备的驱动，它的写时复制是基于块而非文件的。它包含3个概念：原设备，快照和映射表，它们的关系是：原设备通过映射表映射到快照去。一个快照只能有一个原设备，而一个原设备可以映射成多个快照。快照还能作为原设备映射到其他快照中，理论上可以无限迭代。</p>
+<p>Device Mapper还提供了一种<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/device-mapper/thin-provisioning.txt">Thin-Provisioning</a>技术。它实际上就是允许存储的超卖，用以提升空间利用率。当它和快照结合起来的时候，就可以做到许多快照挂载在一个原设备上，除非某个快照发生写操作，不然不会真正给快照们分配空间。这样的原设备叫做<a target="_blank" rel="noopener" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">Thin Volume</a>，它和快照都会由thin-pool来分配，超卖就发生在thin-pool之上。它需要两个设备用来存放实际数据和元数据。下面我们来创建两个文件，用来充当实际数据文件和元数据文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/devicemappercd ~/devicemappermkdir thinmkdir snap1mkdir snap11mkdir snap12dd <span class="keyword">if</span>=/dev/zero of=metadata.img bs=1024K count=1dd <span class="keyword">if</span>=/dev/zero of=data.img bs=1024K count=10</span><br></pre></td></tr></table></figure>
+
+<p>文件建好了之后，用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Loop_device">Loop device</a>把它们模拟成块设备：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> losetup /dev/loop0 metadata.imgsudo losetup /dev/loop1 data.imgsudo losetup -a</span><br></pre></td></tr></table></figure>
+
+<p>然后创建thin-pool（参数的含义可以参考<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/17200.html">这篇文章</a>）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup create pool --table <span class="string">&quot;0 20480 thin-pool /dev/loop0 /dev/loop1 128 32768 1 skip_block_zeroing&quot;</span><span class="built_in">ls</span> /dev/mapper/    <span class="comment"># 这里就会多一个pool</span></span><br></pre></td></tr></table></figure>
+
+<p>之后创建Thin Volume并格式化：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_thin 0&quot;</span><span class="built_in">sudo</span> dmsetup create thin --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 0&quot;</span><span class="built_in">sudo</span> mkfs.ext4 /dev/mapper/thinls /dev/mapper/    <span class="comment"># 这里又会多一个thin</span></span><br></pre></td></tr></table></figure>
+
+<p>加载这个Thin Volume并往里写个文件。我的测试机器上需80秒左右才能把这个文件同步回thin-pool去。如果不等待，可能接下来的快照里就不会有这个文件；如果等待时间不足（小于30秒），可能快照里会有这个文件，但是内容为空。这个时间跟thin-pool的参数，尤其是先前创建的实际数据和元数据文件有关。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/thin thinsudo sh -c <span class="string">&quot;echo file1 in thin &gt; thin/file1&quot;</span><span class="built_in">sleep</span> 80s</span><br></pre></td></tr></table></figure>
+
+<p>睡饱后，给thin这个原设备添加一份快照snap1：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 1 0&quot;</span><span class="built_in">sudo</span> dmsetup create snap1 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 1&quot;</span><span class="built_in">ls</span> /dev/mapper/    <span class="comment"># 这里又会多一个snap1</span></span><br></pre></td></tr></table></figure>
+
+<p>加载这个快照，能看见先前写的file1文件被同步过来了。再往里写个新文件。还是要保证睡眠充足：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/snap1 snap1sudo <span class="built_in">ls</span> -l snap1sudo <span class="built_in">cat</span> snap1/file1    <span class="comment"># file1 in thinsudo sh -c &quot;echo file2 in snap1 &gt; snap1/file2&quot;sleep 80s</span></span><br></pre></td></tr></table></figure>
+
+<p>快照是能作为原设备映射成其他快照的，下面从snap1映射一份snap11：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 2 1&quot;</span><span class="built_in">sudo</span> dmsetup create snap11 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 2&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>加载完后就能看到file1和file2都被同步过来了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/snap11 snap11sudo <span class="built_in">ls</span> -l snap11sudo <span class="built_in">cat</span> snap11/file1    <span class="comment"># file1 in thinsudo cat snap11/file2    # file2 in snap1</span></span><br></pre></td></tr></table></figure>
+
+<p>一份原设备是可以映射成多个快照的，下面从snap1再映射一份snap12：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 3 1&quot;</span><span class="built_in">sudo</span> dmsetup create snap12 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 3&quot;</span><span class="built_in">sudo</span> mount /dev/mapper/snap12 snap12sudo <span class="built_in">ls</span> -l snap12sudo <span class="built_in">cat</span> snap11/file1    <span class="comment"># file1 in thinsudo cat snap11/file2    # file2 in snap1</span></span><br></pre></td></tr></table></figure>
+
+<p>测试完成，清场~</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount snap1sudo umount snap11sudo umount snap12sudo umount thinsudo dmsetup remove snap11sudo dmsetup remove snap12sudo dmsetup remove snap1sudo dmsetup remove thinsudo dmsetup remove poolsudo losetup -d /dev/loop0sudo losetup -d /dev/loop1cd ..<span class="built_in">rm</span> -rf devicemapper</span><br></pre></td></tr></table></figure>
+
+<p>在RHEL，CentOS系列上，Docker默认使用loop-lvm，类似上文的机制（配的是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Sparse_file">稀疏文件</a>），虽然性能比本文要好，但也是堪忧。官方推荐使用<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/#other-device-mapper-performance-considerations">direct-lvm</a>，也就是直接使用raw分区。<a target="_blank" rel="noopener" href="http://blog.opskumu.com/docker-storage-setup.html">这篇文章</a>介绍了如何在CentOS 7上使用direct-lvm。另外，<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/analysis-of-docker-file-system-aufs-and-devicemapper/">剖析Docker文件系统</a>对AUFS和Device Mapper有很详细的讲解。</p>
+<p>回头来看Docker官方的这幅图：<br><img src="http://farm1.staticflickr.com/703/22116692899_0471e5e160_b.jpg"></p>
+<p>一切就都很清楚明了：最底层是两个文件：数据和元数据文件。这两个文件上面是一个pool，再上面是一个原设备，然后就是一层层的快照叠加上去，直至镜像，充分共享了存储空间。</p>
+<h2 id="Btrfs"><a href="#Btrfs" class="headerlink" title="Btrfs"></a>Btrfs</h2><p>Btrfs的Btr是B-tree的意思，元数据用B树管理，比较高效。它也支持块级别的写时复制，性能也不错，对SSD有优化，但是不支持SELinux。它支持把文件系统的一部分配置为<a target="_blank" rel="noopener" href="https://btrfs.wiki.kernel.org/index.php/SysadminGuide#Subvolumes">Subvolume</a>子文件系统，父文件系统就像一个pool一样给这些子文件系统们提供底层的存储空间。这就意味着子文件系统无需关心设置各自的大小，反正背后有父文件系统撑腰。Btrfs还支持对子文件系统的快照，速度非常快，起码比Device Mapper快多了。快照在Btrfs里也是一等公民，同样也可以像Subvolume那样再快照、被加载，享受写时复制技术。</p>
+<p>要使用Btrfs，得先安装工具包：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install btrfs-tools</span><br></pre></td></tr></table></figure>
+
+<p>下面我们来创建一个文件，用Loop device把它模拟成块设备：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/btrfscd ~/btrfsmkdir resultdd <span class="keyword">if</span>=/dev/zero of=data.img bs=1024K count=10sudo losetup /dev/loop0 data.imgsudo losetup -a</span><br></pre></td></tr></table></figure>
+
+<p>把这个块设备格式化成btrfs：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkfs.btrfs -f /dev/loop0sudo mount /dev/loop0 result/</span><br></pre></td></tr></table></figure>
+
+<p>新建一个subvolumn并往里写个文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume create result/origin/sudo sh -c <span class="string">&quot;echo file1 in origin &gt; result/origin/file1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>给result&#x2F;origin这个subvolumn添加一份快照snap1，能看见先前写的file1文件被同步过来了。再往里写个新文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/origin/ result/snap1sudo <span class="built_in">ls</span> -l result/snap1sudo <span class="built_in">cat</span> result/snap1/file1    <span class="comment"># file1 in originsudo sh -c &quot;echo file2 in snap1 &gt; result/snap1/file2&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>快照也像Device Mapper那样能生成其他的快照，下面从snap1生成一份snap11：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/snap1/ result/snap11sudo <span class="built_in">ls</span> -l result/snap11sudo <span class="built_in">cat</span> result/snap11/file1    <span class="comment"># file1 in originsudo cat result/snap11/file2    # file2 in snap1</span></span><br></pre></td></tr></table></figure>
+
+<p>也是可以生成多个快照的，下面从snap1再生成一份snap12：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/snap1/ result/snap12sudo <span class="built_in">ls</span> -l result/snap12sudo <span class="built_in">cat</span> result/snap12/file1    <span class="comment"># file1 in originsudo cat result/snap12/file2    # file2 in snap1</span></span><br></pre></td></tr></table></figure>
+
+<p>可以使用这个命令来查看所有快照：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume list result</span><br></pre></td></tr></table></figure>
+
+<p>可以使用这个命令来查看这个文件系统：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs filesystem show /dev/loop0</span><br></pre></td></tr></table></figure>
+
+<p>测试完成，清场~</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount resultsudo losetup -d /dev/loop0cd ..<span class="built_in">rm</span> -rf btrfs</span><br></pre></td></tr></table></figure>
+
+<p>我们看到它比Device Mapper更简单一些，并且速度很快，不需要sleep以待同步完成。<a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/cn/linux/l-cn-btrfs/index.html">这篇文章</a>虽然有点儿旧了，但是对Btrfs的原理讲得挺清楚的。</p>
+<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/btfs_container_layer.jpg"></p>
+<p>一切就都很清楚明了：最底层是个subvolume，再它之上层层累加快照，镜像也不例外。</p>
+<h2 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h2><p>最初它叫做OverlayFS，后来被合并进Linux内核的时候被改名为Overlay。它和AUFS一样都是联合文件系统。Overlay由两层文件系统组成：upper（上层）和lower（下层）。下层可以是只读的任意的Linux支持的文件系统，甚至可以是另一个Overlay，而上层一般是可读写的。所以模型上比AUFS要简单一些，这就是为什么我们会认为它更轻量级一些。</p>
+<p>用<code>uname -r</code>可以看到我们现在这个vagrant虚拟机的Linux内核版本是3.13，而内核3.18之后才支持Overlay，所以我们得先升级一下内核，否则在mount的时候会出错：<code>mount: wrong fs type, bad option, bad superblock on overlay</code>。运行以下命令来升级ubuntu 14.04的内核：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp/wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-headers-3.18.0-031800-generic_3.18.0-031800.201412071935_amd64.debwget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-headers-3.18.0-031800_3.18.0-031800.201412071935_all.debwget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-image-3.18.0-031800-generic_3.18.0-031800.201412071935_amd64.debsudo dpkg -i linux-headers-3.18.0-*.deb linux-image-3.18.0-*.debsudo update-grubsudo reboot</span><br></pre></td></tr></table></figure>
+
+<p>等待重启之后，重新连接进vagrant虚拟机：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
+
+<p>完成之后再用<code>uname -r</code>看一下，现在应该已经是3.18了。下面我们开搞吧：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/overlaycd ~/overlaymkdir lower upper work mergedecho file1 <span class="keyword">in</span> lower &gt; lower/file1echo file2 <span class="keyword">in</span> lower &gt; lower/file2echo file1 <span class="keyword">in</span> upper &gt; upper/file1</span><br></pre></td></tr></table></figure>
+
+<p>现在的文件层级结构看起来是酱紫的：</p>
+<p>├── lower<br>│   ├── file1   # file1 in lower<br>│   └── file2   # file2 in lower<br>├── merged<br>├── upper<br>│   └── file1   # file1 in upper<br>└── work</p>
+<p>然后我们加载merged，让它的下层是lower，上层是upper。除此之外还需要一个workdir，据说是用来<a target="_blank" rel="noopener" href="https://github.com/codelibre-net/schroot/issues/1">做一些内部文件原子性操作</a>的，必须是空文件夹：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t overlay overlay -olowerdir=lower,upperdir=upper,workdir=work mergedcat merged/file1   <span class="comment"># file1 in uppercat merged/file2   # file2 in lower</span></span><br></pre></td></tr></table></figure>
+
+<p>所以我们最终得到了类似AUFS一样的结果。测试完成，清场~</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount mergedcd ..<span class="built_in">rm</span> -rf overlay</span><br></pre></td></tr></table></figure>
+
+<p>在Linux内核3.19之后，overlay还能够支持多层lower（Multiple lower layers），这样就能更好地支持docker镜像的模型了。多层的mount命令是酱紫的：<code>mount -t overlay overlay -olowerdir=/lower1:/lower2:/lower3 /merged</code>，有兴趣的朋友可以再次升级Linux内核试试。</p>
+<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs.jpg"></p>
+<p>很好地说明了OverlayFS驱动下容器和镜像的存储是怎么工作的，lower、upper和merged各自的关系。然后看看docker镜像：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs2.jpg"></p>
+<p>因为目前docker支持的还不是多层存储，所以在镜像里只是用硬链接来在较低层之间共享数据。今后docker应该会利用overlay的多层技术来改善镜像各层的存储。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>ZFS和VFS由于官方都不推荐上生产我们就不试了，虽然OverlayFS也不推荐，但是它毕竟代表着未来的趋势，还是值得我们看一看的。下表列出了docker所支持的存储驱动特性对比：</p>
+<p>驱动<br>联合文件系统<br>写时复制<br>内核<br>SELinux<br>上生产环境<br>速度<br>存储空间占用</p>
+<p>AUFS<br>是<br>文件级别<br>不支持<br>支持<br>推荐<br>快<br>小</p>
+<p>Device Mapper<br>不是<br>块级别<br>2.6.9<br>支持<br>有限推荐<br>慢<br>较大</p>
+<p>Btrfs<br>不是<br>块级别<br>2.6.29<br>不支持<br>有限推荐<br>较快<br>较小</p>
+<p>OverlayFS<br>是<br>文件级别<br>3.18<br>不支持<br>不推荐<br>快<br>小</p>
+<p>ZFS<br>不是<br>块级别<br>不支持<br>不支持<br>不推荐<br>较快<br>较小</p>
+<p>VFS<br>不是<br>不支持<br>2.4<br>支持<br>不推荐<br>很慢<br>大</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/docker-storage/" data-id="cuidlWKjjhVIg1UmN8I_it-Ih" data-title="Docker的存储是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/" rel="tag">storage</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/kubernetes-in-mesos-6/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          如果有10000台机器，你想怎么玩？（六）性能
+        
+      </div>
+    </a>
+  
+  
+    <a href="/docker-bridge-network/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Docker的桥接网络是怎么工作的</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

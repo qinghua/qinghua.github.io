@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>删除Docker Registry里的镜像怎么那么难 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="删除Docker Registry里的镜像怎么那么难">
+<meta property="og:url" content="https://qinghua.github.io/docker-registry-delete/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了删除的API，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/docker-image.jpg">
+<meta property="article:published_time" content="2016-02-14T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:09.962Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="docker registry">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/docker-image.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-docker-registry-delete" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/docker-registry-delete/" class="article-date">
+  <time class="dt-published" datetime="2016-02-14T08:00:00.000Z" itemprop="datePublished">2016-02-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      删除Docker Registry里的镜像怎么那么难
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/issues/1183">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
+<p>目前docker官方提供了如下3个软删除的方法：</p>
+<ul>
+<li><code>DELETE:/v2//manifests/</code>：这个API是软删除一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md">清单（manifest）</a>，但是真正占用存储空间的层还在。</li>
+<li><code>DELETE:/v2//blobs/</code>：这个API类似上面那个，只不过它要软删除的对象是层（layer）罢了。</li>
+<li><code>DELETE:/v2//blobs/uploads/</code>：这个只是取消掉另一个上传的进程罢了。</li>
+</ul>
+<h2 id="难点"><a href="#难点" class="headerlink" title="[难点"></a>[难点</h2><p>为了删除不需要的数据，腾出磁盘空间，我们希望有删除功能。但是如果一个不健全的删除功能不小心把有用的数据给删了，那还不如没有这个功能呢。在这个逻辑前提下，docker团队选择了不删除数据。除此之外，还有一个考虑：删除功能是需要很大工作量的。大家知道程序员们的价格是比较高的，以相对便宜的磁盘空间为代价，在眼下先节省这笔人工费开销，并把它投入到更有价值的地方去，不是更有意义么。</p>
+<p>那为什么删除功能需要很大的工作量呢？这是因为删除有一个大坑。首先我们来看一下存储模型：所有的数据都被存放到VFS之上，它提供了最终一致性，但是可能需要较长时间才能达到一致。再看镜像的数据结构：一个docker镜像包含了3个概念：标签（tag）、清单（manifest）和层（layer）。标签被关联到清单上，而清单则被关联到层上，就像下图一样：<br><img src="/img/docker-image.jpg"></p>
+<p>其实单说删除本身其实是比较容易的事情，就像现在的垃圾收集算法一样。一个是根搜索法，从根节点开始计算，若某对象不可达，则表明不被用到，可删之。在docker镜像中并没有“根层”的概念，所以需要循环所有的清单来看是否有哪些层不被用到。还有一个是引用计数法，它为每一个对象添加一个引用计数器，为0则表明不被用到。实现起来比较简单，但是很难删除掉循环引用。在docker镜像中，因为它是一个有向无环图（DAG）](<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes)%EF%BC%8C%E6%89%80%E4%BB%A5%E5%B9%B6%E4%B8%8D%E4%BC%9A%E6%9C%89%E2%80%9C%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E2%80%9D%EF%BC%8C%E6%AD%A3%E6%98%AF%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E7%9A%84%E6%9E%81%E4%BD%B3%E6%96%B9%E6%A1%88%E4%B9%8B%E4%B8%80%E3%80%82%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E5%A4%A7%E5%9D%91%E5%9C%A8%E5%93%AA%E9%87%8C%E5%91%A2%EF%BC%9F%E9%97%AE%E9%A2%98%E5%9C%A8%E4%BA%8E%E5%B9%B6%E5%8F%91%E3%80%82%E6%83%B3%E8%B1%A1%E4%B8%80%E4%B8%8B%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%9C%A8%E5%88%A0%E9%99%A4%E6%9F%90%E5%B1%82%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E6%9C%89%E5%8F%A6%E5%A4%96%E4%B8%80%E4%B8%AApush%E7%9A%84%E7%BA%BF%E7%A8%8B%E8%AF%AF%E8%AE%A4%E4%B8%BA%E6%AD%A4%E5%B1%82%E5%B7%B2%E7%BB%8F%E5%AD%98%E5%9C%A8%EF%BC%8C%E5%B0%B1%E4%BC%9A%E5%9C%A8%E5%88%A0%E9%99%A4%E4%B9%8B%E5%90%8E%E5%AF%BC%E8%87%B4%E7%AC%AC%E4%BA%8C%E4%B8%AA%E7%BA%BF%E7%A8%8Bpush%E7%9A%84%E9%95%9C%E5%83%8F%E4%B8%8D%E8%83%BD%E6%AD%A3%E5%B8%B8%E5%B7%A5%E4%BD%9C%E3%80%82">https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes)，所以并不会有“循环引用”，正是解决这个问题的极佳方案之一。那么这个大坑在哪里呢？问题在于并发。想象一下，如果在删除某层的过程中，有另外一个push的线程误认为此层已经存在，就会在删除之后导致第二个线程push的镜像不能正常工作。</a></p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>目前docker官方有几个数据删除的方案（但是还没有实现）：</p>
+<ul>
+<li>引用计数法：如上文所述是垃圾收集算法的一种。需要维护引用计数器，对于已经存在着的docker registry来说需要数据迁移。</li>
+<li>全局锁：引入GC线程来做删除。删除的时候不能写入。实现简单，但是影响性能。</li>
+<li>新老代：也是引入GC线程来做删除。将存储分为年轻年老两代，GC线程删除某一代的时候允许同时写入另一代。避免了全局锁的性能问题但是实现起来比较麻烦。</li>
+<li>数据库：引入一个数据库，用事务来解决并发的问题。</li>
+</ul>
+<p>如果你等不及docker官方的实现，并且对自己的私有库的控制力比较强，不需要考虑并发，可以使用<a target="_blank" rel="noopener" href="https://github.com/burnettk/delete-docker-registry-image">这个脚本</a>来彻底删除，记得先把registry停掉，或者是设置为<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-read-only-mode">只读模式</a>以避免并发哦。设置一个cron任务，每天凌晨停止服务一小段时间，然后运行脚本，再启动服务就好了。</p>
+<p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
+<p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
+<p>写完这篇博客后不久，一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/gc.md">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。抛开解决方案，就删除功能而言，我在测试过程中也发现了一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/issues/1548">缺陷</a>，需要使用docker 1.10版和registry 2.3版才能解决。</p>
+<h2 id="v1-vs-v2"><a href="#v1-vs-v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a target="_blank" rel="noopener" href="https://github.com/docker/docker-registry">这里</a>。新版本v2是用go写的，源码在<a target="_blank" rel="noopener" href="https://github.com/docker/distribution">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a target="_blank" rel="noopener" href="http://www.csdn.net/article/2015-09-09/2825651">这篇文章</a>。</p>
+<p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/docker-registry-delete/" data-id="cuidsYwzn5wyk1padQmfGGU1r" data-title="删除Docker Registry里的镜像怎么那么难" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/mesos-chronos/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          用容器轻松搭建Chronos运行环境
+        
+      </div>
+    </a>
+  
+  
+    <a href="/kubernetes-in-mesos-7/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">如果有10000台机器，你想怎么玩？（七）生命周期</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

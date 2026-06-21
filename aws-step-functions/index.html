@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>用AWS创建工作流 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问AWS来试用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用AWS创建工作流">
+<meta property="og:url" content="https://qinghua.github.io/aws-step-functions/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问AWS来试用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v1.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-lambda-CrawAmazonPrice.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-sns-PriceDown.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-cw-DailyLookUpPrice.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-execution.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v2.png">
+<meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v3.png">
+<meta property="article:published_time" content="2018-12-15T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:09.940Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="aws">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-aws-step-functions" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/aws-step-functions/" class="article-date">
+  <time class="dt-published" datetime="2018-12-15T08:00:00.000Z" itemprop="datePublished">2018-12-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      用AWS创建工作流
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问<a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/free/">AWS</a>来试用。</p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>首先假定一个场景：我需要定期抓取亚马逊某商品的价格，并通知自己。传统的实现方式就是写一个爬虫，然后在服务器上cron一下就好了。虽然能使，但是一旦考虑到灵活性（商品应该可定制，通知手段应该灵活）、高可用（服务器挂了也不应该影响到业务）、可视化（提供易于使用的界面，以看当前和历史的执行情况）、可监控（看当前的执行情况、出错了需要通知开发者）等，那就费时费力了。好在AWS给我们提供了一系列的服务，允许我们像Linux的管道那样把服务简单、灵活地拼接起来，从而实现需求。</p>
+<h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><h3 id="服务介绍"><a href="#服务介绍" class="headerlink" title="服务介绍"></a>服务介绍</h3><p>首先简单介绍一下在这个工作流中我们会涉及到的AWS服务：<br><strong>Step Functions</strong>：用于可视化管理工作流。是本文的核心。<br><strong>SNS</strong>：通知服务，只要给主题（Topic）发消息，主题的订阅者（Subscription）就会通过订阅的渠道（如邮件、短信等）收到消息。<br><strong>Lambda</strong>：无需服务器即可运行代码的计算服务，免去了管理服务器的烦恼。只有在程序运行的时候才收费。<br><strong>CloudWatch</strong>：监控或触发AWS资源的服务。在本文中我们姑且把它当做一个cron服务。</p>
+<h3 id="Step-Functions"><a href="#Step-Functions" class="headerlink" title="Step Functions"></a>Step Functions</h3><p>对于本文的需求来说，最简单明了的工作流即是下图：<br><img src="/img/aws-sf-CrawAmazonPrice-v1.png"></p>
+<p>非常直观，一眼就能看出来它会先抓取亚马逊的价格，然后通知自己。对于Step Functions来说，这张流程图的代码很简洁：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>  <span class="attr">&quot;StartAt&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CrawAmazonPrice&quot;</span><span class="punctuation">,</span>  <span class="attr">&quot;States&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>    <span class="attr">&quot;CrawAmazonPrice&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Task&quot;</span><span class="punctuation">,</span>      <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice&quot;</span><span class="punctuation">,</span>      <span class="attr">&quot;Next&quot;</span><span class="punctuation">:</span> <span class="string">&quot;NotifyMe&quot;</span>    <span class="punctuation">&#125;</span><span class="punctuation">,</span>    <span class="attr">&quot;NotifyMe&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Task&quot;</span><span class="punctuation">,</span>      <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:states:::sns:publish&quot;</span><span class="punctuation">,</span>      <span class="attr">&quot;Parameters&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span>        <span class="attr">&quot;Message.$&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.body&quot;</span><span class="punctuation">,</span>        <span class="attr">&quot;TopicArn&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:sns:us-east-1:XXX_ACCOUNT_ID_XXX:PriceDown&quot;</span>      <span class="punctuation">&#125;</span><span class="punctuation">,</span>      <span class="attr">&quot;End&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span>    <span class="punctuation">&#125;</span>  <span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Lambda"><a href="#Lambda" class="headerlink" title="Lambda"></a>Lambda</h3><p>上面的<code>CrawAmazonPrice</code>指定了<code>Resource</code>是一个名为<code>CrawAmazonPrice</code>的AWS Lambda函数，而<code>NotifyMe</code>则指定了一个名为<code>PriceDown</code>的SNS主题。对这个主题感兴趣的用户（比如说，我）可以用期待的方式（邮件、短信等）订阅它。所以这个流程就是：开始-&gt;CrawAmazonPrice（Lambda）-&gt;NotifyMe（SNS）-&gt;结束。</p>
+<p>为了简便起见，我们可以直接通过AWS界面实现<code>CrawAmazonPrice</code>的Lambda函数。直接新建一个Python 3.7的脚本即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonimport refrom urllib <span class="keyword">import</span> requestdef lambda_handler(event, context):    req = request.Request(<span class="string">&#x27;http://www.amazon.cn/dp/B07FNP8DX4&#x27;</span>)    req.add_header(<span class="string">&#x27;User-Agent&#x27;</span>, <span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102&#x27;</span>)    response = request.urlopen(req)    html = response.read().decode(<span class="string">&#x27;utf-8&#x27;</span>)    price = re.search(<span class="string">&#x27;data-asin-price=\&quot;(.+?)\&quot;&#x27;</span>, html).group(<span class="number">1</span>)    <span class="keyword">return</span> &#123;        <span class="string">&#x27;statusCode&#x27;</span>: <span class="number">200</span>,        <span class="string">&#x27;body&#x27;</span>: json.dumps(price)    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/aws-lambda-CrawAmazonPrice.png"></p>
+<h3 id="SNS"><a href="#SNS" class="headerlink" title="SNS"></a>SNS</h3><p>SNS就更简单了，创建一个名为<code>PriceDown</code>的新主题，然后为它创建一个协议为<code>Email</code>的订阅，填入自己的邮箱地址，便会收到AWS给这个邮箱发送的确认订阅邮件。点击邮件中的链接，即可完成订阅。要是日后有其他人对这个主题也感兴趣，增加一个订阅即可。<br><img src="/img/aws-sns-PriceDown.png"></p>
+<h3 id="CloudWatch"><a href="#CloudWatch" class="headerlink" title="CloudWatch"></a>CloudWatch</h3><p>剩下的事情就是创建一个CloudWatch，来定期触发这个Step Functions。直接通过AWS界面创建一个规则（Rule），固定频率为每天，将目标设置为上面的Step Function工作流，取个名字如<code>DailyLookUpPrice</code>就可以啦！<br><img src="/img/aws-cw-DailyLookUpPrice.png"></p>
+<h3 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h3><p>每次当CloudWatch被触发时，都会在Step Functions中留下自己的足迹。<br><img src="/img/aws-sf-CrawAmazonPrice-execution.png"></p>
+<p>由上图可以看到，每个状态的进入和退出都清晰可见，非常方便。</p>
+<h2 id="需求变更"><a href="#需求变更" class="headerlink" title="需求变更"></a>需求变更</h2><p>假如我们只想在价格低的时候通知自己，除了修改Lambda中定义的代码以外，还可以增加一个Task，以便增强灵活性。例如，公司内部有一个最低价格的服务，但是无法被公司外部（如AWS）调用到。即便如此，Step Functions也可以支持这种应用场景。在任何可以调用公司服务的地方写一段代码，这段代码作为一个活动（Activity）来轮询Step Functions，当执行到该Task时，该代码就被运行，调用公司内部的服务。AWS的实现也很简单，首先新增一个名为<code>EnsureLowestPrice</code>的活动，然后在Step Function的JSON中增加一个Task，并修改<code>CrawAmazonPrice</code>，使其<code>Next</code>指向<code>EnsureLowestPrice</code>：<br>12345”EnsureLowestPrice”: {  “Type”: “Task”,  “Resource”: “arn:aws:states:us-east-1:XXX_ACCOUNT_ID_XXX:activity:EnsureLowestPrice”,  “Next”: “NotifyMe”}</p>
+<p>这回的Task就不是Lambda啦，而是自己运行在随意机器上的代码。以Java为例，可以参考<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/step-functions/latest/dg/tutorial-creating-activity-state-machine.html">AWS官方文档</a>来实现。</p>
+<p>“价格低于最低价”的服务，在这里只是一个表示内部服务的示例罢了。当然，如果真要实现一个类似的服务，用AWS的DynamoDB甚至S3可以很方便地实现。</p>
+<p>假如需要并行查询多种商品价格，Step Functions也能轻易支持：<br><img src="/img/aws-sf-CrawAmazonPrice-v2.png"></p>
+<p>并行的代码如下：<br>1234567891011121314151617181920212223242526”CrawAmazonPrice”: {  “Type”: “Parallel”,  “Next”: “EnsureLowestPrice”,  “Branches”: [    {      “StartAt”: “CrawPrice1”,      “States”: {        “CrawPrice1”: {          “Type”: “Task”,          “Resource”: “arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice”,          “End”: true        }      }    },    {      “StartAt”: “CrawPrice2”,      “States”: {        “CrawPrice2”: {          “Type”: “Task”,          “Resource”: “arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice”,          “End”: true        }      }    }  ]}</p>
+<p>由于<code>Branches</code>及<code>States</code>的灵活性，再复杂的工作流也不在话下。</p>
+<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>如果代码出现死循环之类的问题，可能会导致工作流无法继续流动下去。这时可以通过给该状态设置超时<code>TimeoutSeconds</code>以使之到时退出。合理地设置这个值需要考虑某个状态可能需要运行的时间、是否有人工步骤等。默认的<code>TimeoutSeconds</code>为99999999。</p>
+<h3 id="心跳"><a href="#心跳" class="headerlink" title="心跳"></a>心跳</h3><p>如果程序可能运行数个小时，也许你难以知道现在的状态是运行中，还是程序挂掉了。这时可以通过设置心跳<code>HeartbeatSeconds</code>来使Step Functions知道当前的运行状况，以便及时把挂掉了（没有心跳了）的任务分发给其它节点。当然为了这个功能，程序中需要增加相对应的逻辑（定期发送心跳）。</p>
+<h3 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h3><p>有时候程序出错，可能只需要重试一下就好了。这时我们可以使用Step Functions提供的重试<code>Retry</code>机制。如以下程序所示：<br>1234567”Retry” : [  {    “ErrorEquals”: [ “States.TaskFailed”, “States.Timeout” ],    “IntervalSeconds”: 600,    “MaxAttempts”: 3  }]</p>
+<p><code>Retry</code>是一个集合，所以可以为不同的错误定义不同的重试机制。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>如果重试还是不行，那还有一个招式就是异常处理机制<code>Catch</code>。它与重试类似，可以为不同的错误定义不同的状态流向:<br>123456”Catch”: [  {    “ErrorEquals”: [ “States.ALL” ],    “Next”: “NotifyError”  }]</p>
+<p>在上面的代码里，只要出错了（并且重试也没有成功），就跳转到<code>NotifyError</code>的状态，可以通过SNS通知订阅者了。</p>
+<h3 id="错误状态"><a href="#错误状态" class="headerlink" title="错误状态"></a>错误状态</h3><p>在异常处理中由于跳转到了<code>NotifyError</code>，并且通知成功，反而倒让这个工作流从异常变成正常了。想让工作流失败，只需在<code>NotifyError</code>的后面接一步简单的<code>FailExecution</code>状态就可以了。<br>123”FailExecution”: {  “Type”: “Fail”}</p>
+<h3 id="最终工作流"><a href="#最终工作流" class="headerlink" title="最终工作流"></a>最终工作流</h3><p><img src="/img/aws-sf-CrawAmazonPrice-v3.png"></p>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>最求完美，永无止境。例如，这些服务我们现在都是在AWS界面上点来点去的，其实这些人工操作可以通过<code>CloudFormation</code>来变成自动化的脚本。如此，便可以实现我们的基础设施即代码，做到一键部署了。另外，随着需求的演化，如果要更新Step Functions的工作流，还可能需要考虑到对其进行版本管理。还有，当处理活动的节点数较多时，如果能够把某次执行的机器名输出到工作流中，也有助于错误排查。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/aws-step-functions/" data-id="cuidl5IXLoQOq9gLJqs2wQk-o" data-title="用AWS创建工作流" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/" rel="tag">aws</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/ai-programming-maturity-model/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          AI编程成熟度模型：从3倍到10倍的路径
+        
+      </div>
+    </a>
+  
+  
+    <a href="/future-software-development/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">未来的软件开发什么样</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

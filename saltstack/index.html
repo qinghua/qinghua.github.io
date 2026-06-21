@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>SaltStack环境安装及入门 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt (1) 入门是个不错的参考教程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SaltStack环境安装及入门">
+<meta property="og:url" content="https://qinghua.github.io/saltstack/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="SaltStack简称salt，是一个配置管理工具，类似Ansible、Chef和Puppet，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有部分中文文档。它分为服务器（master）和客户端（minion），服务器也是一个客户端。Salt (1) 入门是个不错的参考教程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-02-23T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.078Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="salt">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-saltstack" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/saltstack/" class="article-date">
+  <time class="dt-published" datetime="2016-02-23T08:00:00.000Z" itemprop="datePublished">2016-02-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      SaltStack环境安装及入门
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="http://saltstack.com/">SaltStack</a>简称salt，是一个配置管理工具，类似<a target="_blank" rel="noopener" href="http://www.ansible.com/get-started">Ansible</a>、<a target="_blank" rel="noopener" href="https://www.chef.io/chef/">Chef</a>和<a target="_blank" rel="noopener" href="https://puppetlabs.com/">Puppet</a>，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有<a target="_blank" rel="noopener" href="http://docs.saltstack.cn/zh_CN/latest/">部分中文文档</a>。它分为服务器（master）和客户端（minion），服务器也是一个客户端。<a target="_blank" rel="noopener" href="http://ohmystack.com/articles/salt-1-basic/">Salt (1) 入门</a>是个不错的参考教程。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> testcd testvagrant init ubuntu/trusty64vi Vagrantfile</span><br></pre></td></tr></table></figure>
+
+<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>minion1</strong>和<strong>minion2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，其中minion2安装CentOS，其它安装Ubuntu。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;master&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|  host.vm.hostname = <span class="string">&quot;master&quot;</span>  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span>endconfig.vm.define <span class="string">&quot;minion1&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|  host.vm.hostname = <span class="string">&quot;minion1&quot;</span>  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span>endconfig.vm.define <span class="string">&quot;minion2&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|  host.vm.box = <span class="string">&quot;bento/centos-7.1&quot;</span>  host.vm.hostname = <span class="string">&quot;minion2&quot;</span>  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>改好之后，分别在三个终端运行以下命令启动并连接三台虚拟机。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant upvagrant ssh master</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion2</span><br></pre></td></tr></table></figure>
+
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先在master的虚拟机上安装salt-master和salt-minion，注意master自己也是一个minion：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | <span class="built_in">sudo</span> apt-key add -<span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main&#x27; &gt;&gt; /etc/apt/sources.list&quot;</span><span class="built_in">sudo</span> apt-get updatesudo apt-get install -y salt-minionsudo apt-get install -y salt-master</span><br></pre></td></tr></table></figure>
+
+<p>然后在minion上安装salt-minion，这次salt-master就没有必要了，Ubuntu和CentOS的安装方法不太一样：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | <span class="built_in">sudo</span> apt-key add -<span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main&#x27; &gt;&gt; /etc/apt/sources.list&quot;</span><span class="built_in">sudo</span> apt-get updatesudo apt-get install -y salt-minion</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rpm --import https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pubsudo sh -c <span class="string">&quot;cat /etc/yum.repos.d/saltstack.repo[saltstack-repo]name=SaltStack repo for RHEL/CentOS 7baseurl=https://repo.saltstack.com/yum/redhat/7/x86_64/latestenabled=1gpgcheck=1gpgkey=https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pubEOF&quot;</span><span class="built_in">sudo</span> yum clean expire-cachesudo yum updatesudo yum install -y salt-minion</span><br></pre></td></tr></table></figure>
+
+<p>默认安装好的minion会自动试图连接到名为salt的master去，所以我们得配置一下，然后重新启动salt-minion服务：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&quot;s/#master: salt/master: 192.168.33.17/&quot;</span> /etc/salt/minionsudo service salt-minion restart</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&quot;s/#master: salt/master: 192.168.33.17/&quot;</span> /etc/salt/minionsudo systemctl start salt-minion</span><br></pre></td></tr></table></figure>
+
+<p>随便在哪台虚拟机上运行<code>sudo tail -1 /var/log/salt/minion</code>，如果看到错误消息<strong>The Salt Master has cached the public key for this node</strong>，那就说明前面的安装都是顺利的—这是因为第一次运行的时候，需要建立互信。Salt维护着一个互信列表，在master上运行<code>sudo salt-key</code>可以看到这个表，现在应该是这样子的：<br><strong>Accepted Keys:</strong><br><strong>Denied Keys:</strong><br><strong>Unaccepted Keys:</strong><br>master<br>minion1<br>minion2<br><strong>Rejected Keys:</strong></p>
+<p>从上表可以看出，互信列表里的记录有<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/cli/salt-key.html#description">四种状态</a>：</p>
+<ul>
+<li>Unaccepted：待处理</li>
+<li>Accepted：互信</li>
+<li>Rejected：运维人员运行命令拒绝</li>
+<li>Denied：master自动拒绝（比如ID重复等）</li>
+</ul>
+<p>现在所有的minion包括master自己都是处于Unaccepted的状态。运行以下命令就可以把它们都加入到Accepted：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt-key --accept=master --yessudo salt-key --accept=minion1 --yessudo salt-key --accept=minion2 --<span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
+
+<p>如果minion太多了，也可以用<code>sudo salt-key --accept-all --yes</code>来全部accept。忽略<code>--yes</code>可以让我们手动确认所有的Unaccepted记录。再次运行<code>sudo salt-key</code>，确认所有的minion都已经加入到Accepted Keys里了，安装步骤就此完成。</p>
+<p>小贴士：可以用<code>sudo salt-key --reject=minion2</code>来把minion2加入到Rejected列表中。用<code>sudo salt-key --include-all --accept-all</code>来把Rejected列表中的minion再加到Accepted中来。</p>
+<h2 id="运行命令"><a href="#运行命令" class="headerlink" title="运行命令"></a>运行命令</h2><h3 id="salt"><a href="#salt" class="headerlink" title="salt"></a>salt</h3><p>安装完成之后，在master上运行<code>sudo salt &#39;*&#39; test.ping</code>可以看到各minion是否能联通。其中的*****代表<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/targeting/index.html">目标（target）</a>，这里即是所有的minion（master现在也是一个minion），<strong>test.ping</strong>称为<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/">执行模块（execution module）</a>，也就是需要在目标上调用的方法。<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/all/index.html">这个列表</a>里记载了所有的原生执行模块。我们来尝试一下其中的<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.cmdmod.html#module-salt.modules.cmdmod">cmdmod</a>模块：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt minion1 cmd.run <span class="string">&#x27;ifconfig&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>这就相当于在minion1上直接运行ifconfig了。</p>
+<h3 id="salt-call"><a href="#salt-call" class="headerlink" title="salt-call"></a>salt-call</h3><p>Salt还提供了一个<code>salt-call</code>命令，它只能在本机执行，所以无需输入目标。在master上运行<code>sudo salt-call cmd.run &#39;hostname&#39;</code>，效果相当于直接本地运行命令。有所不同的是，它相当于运行在salt的机制上。Salt需要两个端口来运行：通过<a target="_blank" rel="noopener" href="http://zeromq.org/">ZeroMQ</a>在4505发消息，4506用来接收结果，所有的minion都会订阅4505端口。也就是说，运行这条命令使用了这两个端口。配合上<code>--log-level=debug</code>的参数，使得<code>salt-call</code>非常适用于调试。运行以下命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt-call --log-level=debug disk.usage</span><br></pre></td></tr></table></figure>
+
+<p>从打印出来的调试信息，我们能看到原来<strong>disk.usage</strong>模块用的是<code>df -P</code>命令。</p>
+<h3 id="salt-run"><a href="#salt-run" class="headerlink" title="salt-run"></a>salt-run</h3><p>最后再介绍一个<code>salt-run</code>命令。我们简单地试一试在master上运行<code>sudo salt-run manage.up</code>，这个manage.up是个runner，在这里它的作用类似于test.ping模块，也是查看所有minion的状态，但是不需要指定目标即可使用。它一般分为几个步骤，一个步骤内并行执行，步骤之间串行执行。比如先部署好数据库（步骤A）再部署应用服务器（步骤B）。<code>salt-run</code>运行的命令称为runner，<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/runners/all/index.html">这个列表</a>里记载了所有的原生runner。</p>
+<h2 id="指定目标"><a href="#指定目标" class="headerlink" title="指定目标"></a>指定目标</h2><p>Salt支持多种方式来指定目标，简单尝试一下就知道啦。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;minion*&#x27;</span> test.ping                      <span class="comment"># 通配符，以&quot;minion&quot;开头的minionsudo salt -L &#x27;minion1,minion2&#x27; test.ping           # 列表，minion1和minion2sudo salt -E &#x27;minion(1|2)&#x27; test.ping               # 正则表达式，minion1或minion2sudo salt -S &#x27;192.168.33.19&#x27; test.ping             # IP，minion2sudo salt -G &#x27;os:Ubuntu&#x27; test.ping                 # Grains，操作系统为Ubuntusudo salt -C &#x27;minion* and G@os:Ubuntu&#x27; test.ping   # 组合，以&quot;minion&quot;开头的minion并且操作系统为Ubuntusudo salt -C &#x27;master or G@os:CentOS&#x27; test.ping     # 组合，master或操作系统为CentOS（不区分大小写）sudo salt -I &#x27;region:cn&#x27; test.ping                 # Pillar，region为cn的minion</span></span><br></pre></td></tr></table></figure>
+
+<p>其中的<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/targeting/grains.html">Grains</a>是minion的属性，包含机器名、IP、操作系统、CPU等多种信息。可以运行<code>sudo salt &#39;*&#39; grains.items</code>来查看所有的grains数据。那<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/pillar/index.html">Pillar</a>又是什么鬼？简言之，Pillar是存放在master的变量，Grains是minion自己的常量。上面的命令中，Pillar这行应该会报错：<strong>No minions matched the target</strong>，这是因为我们没有在master上加Pillar的缘故。Pillar文件为yaml格式，默认存放在<code>/srv/pillar</code>里。由于pillar只会加密传送给指定的minion，所以可以存放密码等敏感信息。我们来加两个文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/pillar/top.slsbase:  &#x27;*&#x27;:    - defaultEOF&quot;</span><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;region: cn&#x27; &gt; /srv/pillar/default.sls&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>首先创建的<code>top.sls</code>是一个默认的入口文件，它表示所有minion都适用<code>default.sls</code>文件。而<code>default.sls</code>里指定了变量。运行以下的命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;*&#x27;</span> pillar.items            <span class="comment"># 生成、分发、查看现在的pillar。用pillar.raw可以仅查看当前值sudo salt -I &#x27;region:cn&#x27; test.ping    # 再次运行test.ping，以pillar为目标</span></span><br></pre></td></tr></table></figure>
+
+<p>就能看到现在已经不报错了，所有的minion都是目标。</p>
+<h2 id="维持状态（State）"><a href="#维持状态（State）" class="headerlink" title="维持状态（State）"></a>维持状态（State）</h2><p>Salt提供了<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/tutorials/starting_states.html">state</a>（点开一看，设计哲学是“简单，简单，简单”。大家都知道重要的事情说三遍）的方式让我们维持所有minion的状态一致。我们来加两个文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/salt/top.slsbase:  &#x27;*&#x27;:    - defaultEOF&quot;</span><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/salt/default.sls/tmp/ggg:  file.directory:    - makedirs: TrueEOF&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如同pillar，首先创建的<code>top.sls</code>是一个默认的入口文件，<code>default.sls</code>里指定了这个状态需要有<code>/tmp/ggg</code>这个文件夹。接下来让我们来运行它：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;master&#x27;</span> state.show_sls default    <span class="comment"># 检查并显示default的statesudo salt &#x27;master&#x27; state.sls default         # 运行default的statels /tmp                                      # 能够看到ggg文件夹已经创建好了sudo salt &#x27;master&#x27; state.sls default         # 再次运行default的statels /tmp                                      # 运行几次都一样，维持状态</span></span><br></pre></td></tr></table></figure>
+
+<p>State可以说是salt的核心功能。它通过yaml格式的数据文件sls（<strong>S</strong>a<strong>L</strong>t <strong>S</strong>tate file）确保了一个系统应该是什么状态的。<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/states/all/">这个列表</a>里记载了所有可用的状态。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/saltstack/" data-id="cuid_H3YF4TkKuae9b04cc948" data-title="SaltStack环境安装及入门" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/salt/" rel="tag">salt</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/sed/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          看例子学sed
+        
+      </div>
+    </a>
+  
+  
+    <a href="/marathon-bamboo/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">用容器轻松搭建Bamboo来提供Marathon的对外服务</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

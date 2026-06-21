@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>用容器轻松搭建Portus运行环境 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器轻松搭建Portus运行环境">
+<meta property="og:url" content="https://qinghua.github.io/portus/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的Portus很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-sign-up.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-new-registry.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-new-user.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-new-team.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-new-namespace.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-new-member.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/portus-dashboard.jpg">
+<meta property="article:published_time" content="2016-03-13T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.069Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="docker registry">
+<meta property="article:tag" content="portus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/portus-sign-up.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-portus" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/portus/" class="article-date">
+  <time class="dt-published" datetime="2016-03-13T08:00:00.000Z" itemprop="datePublished">2016-03-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      用容器轻松搭建Portus运行环境
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a target="_blank" rel="noopener" href="http://port.us.org/">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> testcd testvagrant init minimum/ubuntu-trusty64-dockervi Vagrantfile</span><br></pre></td></tr></table></figure>
+
+<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span>config.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|  v.memory = 2048end</span><br></pre></td></tr></table></figure>
+
+<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant upvagrant ssh</span><br></pre></td></tr></table></figure>
+
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>我们将会把docker registry和portus都安装在同一台虚拟机上。一方面是比较方便，另一方面也避免了<a target="_blank" rel="noopener" href="https://github.com/SUSE/Portus/issues/510">时钟同步问题</a>。为了启动一个带认证的docker registry，首先要生成自签名证书：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  ssl.conf[ req ]prompt             = nodistinguished_name = req_subjx509_extensions    = x509_ext[ req_subj ]CN = Localhost[ x509_ext ]subjectKeyIdentifier   = hashauthorityKeyIdentifier = keyid,issuerbasicConstraints       = CA:truesubjectAltName         = @alternate_names[ alternate_names ]DNS.1 = localhostIP.1  = 192.168.33.18EOFsudo <span class="built_in">mkdir</span> /certssudo sh -c <span class="string">&quot;openssl req -config ssl.conf \-new -x509 -nodes -sha256 -days 365 -newkey rsa:4096 \-keyout /certs/server-key.pem -out /certs/server-crt.pem&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>证书生成好了，但是由于这是自签名证书，客户端还需要配置证书文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker/certs.d/192.168.33.18:5000sudo <span class="built_in">cp</span> /certs/server-crt.pem /etc/docker/certs.d/192.168.33.18:5000/ca.crtsudo service docker restart</span><br></pre></td></tr></table></figure>
+
+<p>接下来生成一个registry的配置文件，里面指定刚才的证书和token方式的认证。认证服务器设置到一会儿要启动的portus去：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  config.ymlversion: 0.1loglevel: debugstorage:    cache:        blobdescriptor: inmemory    filesystem:        rootdirectory: /var/lib/registry    delete:        enabled: truehttp:    addr: :5000    headers:        X-Content-Type-Options: [nosniff]    tls:        certificate: /certs/server-crt.pem        key: /certs/server-key.pemauth:    token:        realm: https://192.168.33.18/v2/token        service: 192.168.33.18:5000        issuer: 192.168.33.18        rootcertbundle: /certs/server-crt.pemnotifications:    endpoints:      - name: portus        url: https://192.168.33.18/v2/webhooks/events        <span class="built_in">timeout</span>: 500ms        threshold: 5        backoff: 1sEOF</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以启动registry容器了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \    --name registry \    -p 5000:5000 \    --restart=always \    -v /var/lib/registry:/var/lib/registry \    -v /certs:/certs \    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \    registry:2.3.0</span><br></pre></td></tr></table></figure>
+
+<p>Docker registry配置完成后，就该准备portus了。Portus需要一个数据库来存储信息，官方推荐<a target="_blank" rel="noopener" href="https://mariadb.org/">MariaDB</a>，当然mysql也是没问题的。我们把数据库启动起来：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \    --name mariadb \    --net=host \    --restart=always \    -e MYSQL_ROOT_PASSWORD=123456 \    -e TERM=xterm \    mariadb:10.1.10</span><br></pre></td></tr></table></figure>
+
+<p>等数据库启动完成，我们连接上去：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mariadb mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
+
+<p>为portus创建用户和数据库：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create database portus;GRANT ALL ON portus.* TO <span class="string">&#x27;portus&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED BY <span class="string">&#x27;portus&#x27;</span>;<span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<p>万事俱备，让我们来启动portus：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d \    --name portus \    --net host \    --restart=always \    -v /certs:/certs \    -v /usr/sbin/update-ca-certificates:/usr/sbin/update-ca-certificates \    -v /etc/ca-certificates:/etc/ca-certificates \    --<span class="built_in">env</span> DB_ADAPTER=mysql2 \    --<span class="built_in">env</span> DB_ENCODING=utf8 \    --<span class="built_in">env</span> DB_HOST=192.168.33.18 \    --<span class="built_in">env</span> DB_PORT=3306 \    --<span class="built_in">env</span> DB_USERNAME=portus \    --<span class="built_in">env</span> DB_PASSWORD=portus \    --<span class="built_in">env</span> DB_DATABASE=portus \    --<span class="built_in">env</span> RACK_ENV=production \    --<span class="built_in">env</span> RAILS_ENV=production \    --<span class="built_in">env</span> PUMA_SSL_KEY=/certs/server-key.pem \    --<span class="built_in">env</span> PUMA_SSL_CRT=/certs/server-crt.pem \    --<span class="built_in">env</span> PUMA_PORT=443 \    --<span class="built_in">env</span> PUMA_WORKERS=4 \    --<span class="built_in">env</span> MACHINE_FQDN=192.168.33.18 \    --<span class="built_in">env</span> SECRETS_SECRET_KEY_BASE=secret-goes-here \    --<span class="built_in">env</span> SECRETS_ENCRYPTION_PRIVATE_KEY_PATH=/certs/server-key.pem \    --<span class="built_in">env</span> SECRETS_PORTUS_PASSWORD=portuspw \    h0tbird/portus:v2.0.2-1</span><br></pre></td></tr></table></figure>
+
+<p>启动完成后，在浏览器打开<code>https://192.168.33.18/</code>，应该会看到证书不被浏览器所信任的提示。无视之，选择继续的话，应该就能看到注册页面啦：<br><img src="/img/portus-sign-up.jpg"></p>
+<h2 id="权限管理"><a href="#权限管理" class="headerlink" title="权限管理"></a>权限管理</h2><p>Portus现在只能管理一个私有库。它有一个团队的概念，每一个团队可以有多个命名空间，每个命名空间就是多个镜像的集合。每个团队有三种角色：</p>
+<ul>
+<li>查看者（Viewer）：只能pull镜像</li>
+<li>贡献者（Contributor）：除了pull，还可以push镜像</li>
+<li>所有者（Owner）：除了推拉镜像，还可以对团队成员进行管理</li>
+</ul>
+<p>由于角色是定义在团队里的，所以命名空间就不需要再考虑权限问题了，它只是镜像的集合而已。命名空间也有三种类型：</p>
+<ul>
+<li>全局（Global）：只有管理员可以push，其他人只能pull</li>
+<li>团队（Team）：团队成员可以做自己角色支持的操作</li>
+<li>个人（Personal）：只有所有者和管理员可以推拉</li>
+</ul>
+<p>命名空间还可以设置为public，这样不需要login也能pull。</p>
+<p>说完一些基本概念，让我们来尝试一下。首先，portus需要配置一个用户，来调用docker registry的API，与其进行同步。<a target="_blank" rel="noopener" href="http://port.us.org/docs/How-to-setup-secure-registry.html#synchronizing-the-registry-and-portus">同步</a>有<a target="_blank" rel="noopener" href="http://port.us.org/features/1_Synchronizing-the-Registry-and-Portus.html">两种方式</a>：一是在docker registry的配置文件里写的<code>notifications</code>，这样每当有人push一个新镜像上去，docker registry将会通知portus修改数据库。可是时间长了，有可能数据库偶尔挂掉或是网络不稳定啥的导致两边数据不一致。Portus针对这种情况也提供了一个crono的job，设置定时运行即可，一会儿我们会试验。现在先让我们来创建这个用户：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus bundle <span class="built_in">exec</span> rake portus:create_api_account</span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以在注册页面自行注册啦，注册完毕后会跳转到登记registry页面：<br><img src="/img/portus-new-registry.jpg"></p>
+<p>照上图填入registry，点击<strong>Create</strong>按钮创建一个docker registry。接着创建一个新用户。点击左边的<strong>Admin</strong>，再点击中间的<strong>Users</strong>，然后点击右边的<strong>Create new user</strong>，填写用户信息：<br><img src="/img/portus-new-user.jpg"></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新用户了。接下来创建一个团队。点击左边的<strong>Teams</strong>，再点击右边的<strong>Create new team</strong>，填写团队信息：<br><img src="/img/portus-new-team.jpg"></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新团队了。点击刚刚创建好的团队，再点击右边的<strong>Add namespace</strong>，填写命名空间信息：<br><img src="/img/portus-new-namespace.jpg"></p>
+<p>点击<strong>Add</strong>按钮就可以创建一个新命名空间了。接下来把用户添加到这个团队中。点击右边的<strong>Add members</strong>，填写刚才增加的用户信息：<br><img src="/img/portus-new-member.jpg"></p>
+<p>点击<strong>Add</strong>按钮就可以把用户加进来了。回到控制台，搞一个镜像，push一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull microbox/etcd:2.1.1docker tag microbox/etcd:2.1.1 192.168.33.18:5000/microbox/etcd:2.1.1docker push 192.168.33.18:5000/microbox/etcd:2.1.1</span><br></pre></td></tr></table></figure>
+
+<p>出错了：<strong>unauthorized: authentication required</strong>，我们必须用docker先登录：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u gggg -e gggg@123.com 192.168.33.18:5000</span><br></pre></td></tr></table></figure>
+
+<p>填上自己刚才设置的密码，登录成功之后，再试着push一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push 192.168.33.18:5000/microbox/etcd:2.1.1</span><br></pre></td></tr></table></figure>
+
+<p>Bingo！换一个命名空间试试看：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag h0tbird/portus:v2.0.2-1 192.168.33.18:5000/h0tbird/portus:v2.0.2-1docker push 192.168.33.18:5000/h0tbird/portus:v2.0.2-1</span><br></pre></td></tr></table></figure>
+
+<p>出错了：<strong>unauthorized: authentication required</strong>，可见我们的权限控制确实起作用了。</p>
+<h2 id="镜像同步"><a href="#镜像同步" class="headerlink" title="镜像同步"></a>镜像同步</h2><p>接下来我们试试定时同步任务。首先需要在容器里信任我们的自签名证书：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus <span class="built_in">mkdir</span> /usr/local/share/ca-certificatesdocker <span class="built_in">cp</span> /certs/server-crt.pem portus:/usr/local/share/ca-certificates/ca.crtdocker <span class="built_in">exec</span> portus update-ca-certificates</span><br></pre></td></tr></table></figure>
+
+<p>然后启动定时同步任务，设置为每10秒钟同步一次：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it portus bashRAILS_ENV=production CATALOG_CRON=<span class="string">&quot;10.seconds&quot;</span> bundle <span class="built_in">exec</span> crono</span><br></pre></td></tr></table></figure>
+
+<p>等十秒钟，就会看到**[catalog] Created the tag ‘2.1.1’<strong>的提示。如果先前没有信任自签名证书，同步的时候会报</strong>certificate verify failed<strong>的错误。现在回到portus的界面，点击左边的</strong>Dashboard**，就能看到刚才push的microbox&#x2F;etcd镜像已经显示在右边了：<br><img src="/img/portus-dashboard.jpg"></p>
+<p>最后一步就是自动同步了，先把刚才的crono给Ctrl+C掉，Ctrl+D退出portus容器。由于docker registry需要调用portus的API，所以我们需要在registry容器里也信任这个证书：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">cp</span> /certs/server-crt.pem registry:/usr/local/share/ca-certificates/ca.crtdocker <span class="built_in">exec</span> registry update-ca-certificatessudo service docker restart</span><br></pre></td></tr></table></figure>
+
+<p>然后再push一个镜像：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag registry:2.3.0 192.168.33.18:5000/microbox/registry:2.3.0docker push 192.168.33.18:5000/microbox/registry:2.3.0</span><br></pre></td></tr></table></figure>
+
+<p>到portus的dashboard刷新一下，搞定！在中间的<strong>Recent activities</strong>还能看到是谁push的这个镜像，对审计、追踪来说很有帮助。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/portus/" data-id="cuid7g2ATzL3hVGvMM1oTKVlC" data-title="用容器轻松搭建Portus运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/portus/" rel="tag">portus</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/certificate/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          证书的那些事儿
+        
+      </div>
+    </a>
+  
+  
+    <a href="/vr-htc-vive/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">HTC VIVE初体验</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

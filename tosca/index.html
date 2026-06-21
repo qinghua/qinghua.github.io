@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>TOSCA简介 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TOSCA简介">
+<meta property="og:url" content="https://qinghua.github.io/tosca/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="TOSCA（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了TOSCA的YAML版前两章，以便用尽量少的时间了解尽">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png">
+<meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png">
+<meta property="article:published_time" content="2016-03-28T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.100Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="cloudify">
+<meta property="article:tag" content="tosca">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-tosca" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/tosca/" class="article-date">
+  <time class="dt-published" datetime="2016-03-28T07:00:00.000Z" itemprop="datePublished">2016-03-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      TOSCA简介
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://www.oasis-open.org/committees/tosca/">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a target="_blank" rel="noopener" href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
+<p>目前它的开源实现有OpenStack (Heat-Translator，Tacker，Senlin)，Alien4Cloud，Cloudify等。</p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
+<p>tosca_definitions_version: tosca_simple_yaml_1_0</p>
+<p>description: Template for deploying a single server with predefined properties.</p>
+<p>topology_template:<br>  node_templates:<br>    my_server:<br>      type: tosca.nodes.Compute<br>      capabilities:<br>        host:<br>          properties:<br>            num_cpus: 1<br>            disk_size: 10 GB<br>            mem_size: 4096 MB<br>        os:<br>          properties:<br>            architecture: x86_64<br>            type: linux<br>            distribution: rhel<br>            version: 6.5 </p>
+<p>除了TOSCA的版本<code>tosca_definitions_version</code>和描述信息<code>description</code>以外，就是这个<code>topology_template</code>了。这里我们看到有一个名为<code>my_server</code>的节点，它的类型是<code>tosca.nodes.Compute</code>。这个类型预置了两个<code>capabilities</code>信息，一个是<code>host</code>，定义了硬件信息；另一个是<code>os</code>，定义了操作系统信息。</p>
+<h3 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h3><p>再看看下面这个描述文件：</p>
+<p>topology_template:<br>  inputs:<br>    cpus:<br>      type: integer<br>      description: Number of CPUs for the server.<br>      constraints:<br>        - valid_values: [ 1, 2, 4, 8 ]</p>
+<p>  node_templates:<br>    my_server:<br>      type: tosca.nodes.Compute<br>      capabilities:<br>        host:<br>          properties:<br>            num_cpus: { get_input: cpus }<br>            mem_size: 2048  MB<br>            disk_size: 10 GB</p>
+<p>  outputs:<br>    server_ip:<br>      description: The private IP address of the provisioned server.<br>      value: { get_attribute: [ my_server, private_address ] }</p>
+<p>这里的<code>inputs</code>和<code>outputs</code>分别定义了输入和输出。输入的<code>cpus</code>是在1，2，4和8中的一个整数，而输出的<code>server_ip</code>就是<code>my_server</code>这个节点的<code>private_address</code>也就是私有IP地址。另外一点是TOSCA提供了一些内置函数，在上面这个文件中使用了<code>get_input</code>和<code>get_attribute</code>。输入参数可以通过<code>get_input</code>被使用。</p>
+<h3 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h3><p>第三个描述文件如下：</p>
+<p>topology_template:<br>  inputs:<br>    # 略</p>
+<p>  node_templates:<br>    mysql:<br>      type: tosca.nodes.DBMS.MySQL<br>      properties:<br>        root_password: { get_input: my_mysql_rootpw }<br>        port: { get_input: my_mysql_port }<br>      requirements:<br>        - host: db_server</p>
+<pre><code>db_server:
+  type: tosca.nodes.Compute
+  capabilities:
+    # 略
+</code></pre>
+<p>我们看到了一个新的节点类型：<code>tosca.nodes.DBMS.MySQL</code>。这个类型允许接收<code>root_password</code>和<code>port</code>的参数。在<code>requirements</code>里定义了<code>mysql</code>这个节点需要被安装到<code>db_server</code>这个节点上，这就是“关系”。如果只想表明依赖，比如说<code>service_a</code>依赖于<code>service_b</code>，也可以直接用<code>- dependency: service_b</code>来描述。上面文件的拓扑结构如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png"></p>
+<h3 id="初始化数据库"><a href="#初始化数据库" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>第四个描述文件如下：</p>
+<p>  node_templates:<br>    my_db:<br>      type: tosca.nodes.Database.MySQL<br>      properties:<br>        name: { get_input: database_name }<br>        user: { get_input: database_user }<br>        password: { get_input: database_password }<br>        port: { get_input: database_port }<br>      artifacts:<br>        db_content:<br>          file: files&#x2F;my_db_content.txt<br>          type: tosca.artifacts.File<br>      requirements:<br>        - host: mysql<br>      interfaces:<br>        Standard:<br>          create:<br>            implementation: db_create.sh<br>            inputs:<br>              db_data: { get_artifact: [ SELF, db_content ] }</p>
+<pre><code>mysql:
+  type: tosca.nodes.DBMS.MySQL
+  properties:
+    root_password: { get_input: mysql_rootpw }
+    port: { get_input: mysql_port }
+  requirements:
+    - host: db_server
+
+db_server:
+  # 略
+</code></pre>
+<p>这里的<code>tosca.nodes.Database.MySQL</code>表示一个MySQL数据库的实例。在<code>artifacts</code>的<code>db_content</code>里指定了一个文本文件，而这个文件将被<code>interfaces</code>里的<code>Create</code>所用，为<code>db_create.sh</code>脚本提供数据。<code>Standard</code>表示生命周期，可能会包含<code>configure</code>、<code>start</code>、<code>stop</code>等各种操作，而<code>db_create.sh</code>本身是对<code>tosca.nodes.Database.MySQL</code>提供的默认<code>create</code>操作的一个重写。如下图：<br><img src="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png"></p>
+<h3 id="两层应用"><a href="#两层应用" class="headerlink" title="两层应用"></a>两层应用</h3><p>再来看看第五个描述文件：</p>
+<p>  node_templates:<br>    wordpress:<br>      type: tosca.nodes.WebApplication.WordPress<br>      properties:<br>        context_root: { get_input: context_root }<br>        admin_user: { get_input: wp_admin_username }<br>        admin_password: { get_input: wp_admin_password }<br>        db_host: { get_attribute: [ db_server, private_address ] }<br>      requirements:<br>        - host: apache<br>        - database_endpoint: wordpress_db<br>      interfaces:<br>        Standard:<br>          inputs:<br>            db_host: { get_attribute: [ db_server, private_address ] }<br>            db_port: { get_property: [ wordpress_db, port ] }<br>            db_name: { get_property: [ wordpress_db, name ] }<br>            db_user: { get_property: [ wordpress_db, user ] }<br>            db_password: { get_property: [ wordpress_db, password ] }<br>    apache:<br>      type: tosca.nodes.WebServer.Apache<br>      properties:<br>        # 略<br>      requirements:<br>        - host: web_server<br>    web_server:<br>      type: tosca.nodes.Compute<br>      # 略</p>
+<pre><code>wordpress_db:
+  type: tosca.nodes.Database.MySQL
+  # 略
+mysql:
+  type: tosca.nodes.DBMS.MySQL
+  # 略
+db_server:
+  type: tosca.nodes.Compute
+  # 略
+</code></pre>
+<p>这个文件描述了一个很常见的拓扑结构：<code>mysql</code>里有一个<code>wordpress_db</code>，运行在<code>db_server</code>上；<code>apache</code>部署了一个<code>wordpress</code>，运行在<code>web_server</code>上。<code>wordpress</code>需要<code>wordpress_db</code>。</p>
+<h3 id="关系定制化"><a href="#关系定制化" class="headerlink" title="关系定制化"></a>关系定制化</h3><p>第六个描述文件：</p>
+<p>  node_templates:<br>    wordpress:<br>      type: tosca.nodes.WebApplication.WordPress<br>      properties:<br>        # 略<br>      requirements:<br>        - host: apache<br>        - database_endpoint:<br>            node: wordpress_db<br>            relationship: my.types.WordpressDbConnection<br>    wordpress_db:<br>      type: tosca.nodes.Database.MySQL<br>      properties:<br>        # 略<br>      requirements:<br>        - host: mysql<br>  relationship_templates:<br>    my.types.WordpressDbConnection:<br>      type: ConnectsTo<br>      interfaces:<br>        Configure:<br>          pre_configure_source: scripts&#x2F;wp_db_configure.sh</p>
+<p>这里的关注点是<code>relationship</code>里的<code>my.types.WordpressDbConnection</code>。这是一个自定义的关系，在文件的下半部分描述了详细定义。它实际上是一个<code>ConnectsTo</code>类型，为<code>pre_configure_source</code>操作提供了一个自定义脚本。这个定义也可以单独提出一个文件，就像下面这样：</p>
+<p>tosca_definitions_version: tosca_simple_yaml_1_0</p>
+<p>description: Definition of custom WordpressDbConnection relationship type</p>
+<p>relationship_types:<br>  my.types.WordpressDbConnection:<br>    derived_from: tosca.relationships.ConnectsTo<br>    interfaces:<br>      Configure:<br>        pre_configure_source: scripts&#x2F;wp_db_configure.sh</p>
+<h3 id="限定需求资源"><a href="#限定需求资源" class="headerlink" title="限定需求资源"></a>限定需求资源</h3><p>再看一个描述文件：</p>
+<p>  node_templates:<br>    mysql:<br>      type: tosca.nodes.DBMS.MySQL<br>      properties:<br>        # 略<br>      requirements:<br>        - host:<br>            node_filter:<br>              capabilities:<br>                - host:<br>                    properties:<br>                      - num_cpus: { in_range: [ 1, 4 ] }<br>                      - mem_size: { greater_or_equal: 2 GB }<br>                - os:<br>                    properties:<br>                      - architecture: { equal: x86_64 }<br>                      - type: linux<br>                      - distribution: ubuntu</p>
+<p>需要关注的是<code>node_filter</code>。这里并没有指定mysql在哪个节点上启动，但是指定了一些节点信息，只有符合的节点才能够启动它。也可以抽出来做个模板：</p>
+<p>  node_templates:<br>    mysql:<br>      type: tosca.nodes.DBMS.MySQL<br>      properties:<br>        # 略<br>      requirements:<br>        - host: mysql_compute</p>
+<pre><code>mysql_compute:
+  type: Compute
+  node_filter:
+    capabilities:
+      - host:
+          properties:
+            num_cpus: { equal: 2 }
+            mem_size: { greater_or_equal: 2 GB }
+      - os:
+          properties:
+            architecture: { equal: x86_64 }
+            type: linux
+            distribution: ubuntu
+</code></pre>
+<p>数据库也可以使用：</p>
+<p>  node_templates:<br>    my_app:<br>      type: my.types.MyApplication<br>      properties:<br>        admin_user: { get_input: admin_username }<br>        admin_password: { get_input: admin_password }<br>        db_endpoint_url: { get_property: [SELF, database_endpoint, url_path ] }<br>      requirements:<br>        - database_endpoint:<br>            node: my.types.nodes.MyDatabase<br>            node_filter:<br>              properties:<br>                - db_version: { greater_or_equal: 5.5 }</p>
+<p>上面指定了数据库的版本。也可以抽出来做个模板：</p>
+<p>  node_templates:<br>    my_app:<br>      type: my.types.MyApplication<br>      properties:<br>        admin_user: { get_input: admin_username }<br>        admin_password: { get_input: admin_password }<br>        db_endpoint_url: { get_property: [SELF, database_endpoint, url_path ] }<br>      requirements:<br>        - database_endpoint: my_abstract_database<br>    my_abstract_database:<br>      type: my.types.nodes.MyDatabase<br>      properties:<br>        - db_version: { greater_or_equal: 5.5 }</p>
+<h3 id="节点模板替换"><a href="#节点模板替换" class="headerlink" title="节点模板替换"></a>节点模板替换</h3><p>再看一个描述文件：</p>
+<p>  node_templates:<br>    web_app:<br>      type: tosca.nodes.WebApplication.MyWebApp<br>      requirements:<br>        - host: web_server<br>        - database_endpoint: db</p>
+<pre><code>web_server:
+  type: tosca.nodes.WebServer
+  requirements:
+    - host: server
+
+server:
+  type: tosca.nodes.Compute
+  # 略
+
+db:
+  # 这是一个抽象节点
+  type: tosca.nodes.Database
+  properties:
+    user: my_db_user
+    password: secret
+    name: my_db_name
+</code></pre>
+<p>这里的<code>db</code>是一个抽象节点，可以被下面的描述文件所替换：</p>
+<p>topology_template:<br>  inputs:<br>    db_user:<br>      type: string<br>    # 略<br>  substitution_mappings:<br>    node_type: tosca.nodes.Database<br>    capabilities:<br>      database_endpoint: [ database, database_endpoint ]<br>  node_templates:<br>    database:<br>      type: tosca.nodes.Database<br>      properties:<br>        user: { get_input: db_user }<br>        # 略<br>      requirements:<br>        - host: dbms<br>    dbms:<br>      type: tosca.nodes.DBMS<br>      # 略<br>    server:<br>      type: tosca.nodes.Compute<br>      # 略</p>
+<p>这里的<code>database_endpoint</code>是由<code>database</code>节点提供的<code>database_endpoint</code>。两个文件联系起来看，表明了上面的<code>web_app</code>不需要管<code>db</code>是什么样子的，有什么拓扑结构，它关心的只是<code>database_endpoint</code>。而下面由<code>database</code>、<code>dbms</code>和<code>server</code>三个节点组成的模板正好可以提供<code>database_endpoint</code>，从而替换掉<code>db</code>这个抽象节点。另外，这样的替换也支持嵌套。</p>
+<h3 id="节点模板组"><a href="#节点模板组" class="headerlink" title="节点模板组"></a>节点模板组</h3><p>再看一个描述文件：</p>
+<p>  node_templates:<br>    apache:<br>      type: tosca.nodes.WebServer.Apache<br>      properties:<br>        # 略<br>      requirements:<br>        - host: server<br>    server:<br>      type: tosca.nodes.Compute<br>        # 略<br>  groups:<br>    webserver_group:<br>      type: tosca.groups.Root<br>      members: [ apache, server ]</p>
+<p>  policies:<br>    - my_anti_collocation_policy:<br>        type: my.policies.anticolocateion<br>        targets: [ webserver_group ]<br>        # 可以一起处理</p>
+<p>这个例子表明了<code>apache</code>和<code>server</code>应该是一组的关系。这样它们就可以一起被处理，比如说伸缩。</p>
+<h3 id="YAML宏"><a href="#YAML宏" class="headerlink" title="YAML宏"></a>YAML宏</h3><p>下面这个描述文件使用了宏来避免重复：</p>
+<p>dsl_definitions:<br>  my_compute_node_props: &amp;my_compute_node_props<br>    disk_size: 10 GB<br>    num_cpus: 1<br>    mem_size: 2 GB</p>
+<p>topology_template:<br>  node_templates:<br>    my_server:<br>      type: Compute<br>      capabilities:<br>        - host:<br>            properties: *my_compute_node_props</p>
+<pre><code>my_database:
+  type: Compute
+  capabilities:
+    - host:
+        properties: *my_compute_node_props
+</code></pre>
+<h3 id="传参"><a href="#传参" class="headerlink" title="传参"></a>传参</h3><p>先看一个描述文件：</p>
+<p>  node_templates:<br>    wordpress:<br>      type: tosca.nodes.WebApplication.WordPress<br>      requirements:<br>        - database_endpoint: mysql_database<br>      interfaces:<br>        Standard:<br>          inputs:<br>            wp_db_port: { get_property: [ SELF, database_endpoint, port ] }<br>          configure:<br>            implementation: wordpress_configure.sh<br>            inputs:<br>              wp_db_port: { get_property: [ SELF, database_endpoint, port ] }</p>
+<p>这个例子有两个<code>inputs</code>，前者指的是为所有操作都声明一个变量，后者指的是为<code>configure</code>这个操作声明一个变量。再看下一个文件：</p>
+<p>  node_templates:<br>    frontend:<br>      type: MyTypes.SomeNodeType<br>      attributes:<br>        url: { get_operation_output: [ SELF, Standard, create, generated_url ] }<br>      interfaces:<br>        Standard:<br>          create:<br>            implementation: scripts&#x2F;frontend&#x2F;create.sh<br>          configure:<br>            implementation: scripts&#x2F;frontend&#x2F;configure.sh<br>            inputs:<br>              data_dir: { get_operation_output: [ SELF, Standard, create, data_dir ] }</p>
+<p>在这个例子里有两个<code>get_operation_output</code>，前者指的是将<code>create</code>操作的环境变量<code>generated_url</code>设置到<code>url</code>里，后者是将<code>data_dir</code>传递给<code>configure</code>操作。</p>
+<h3 id="取动态值"><a href="#取动态值" class="headerlink" title="取动态值"></a>取动态值</h3><p>最后一个描述文件：</p>
+<p>node_types:<br>  ServerNode:<br>    derived_from: SoftwareComponent<br>    properties:<br>      notification_port:<br>        type: integer<br>    capabilities:<br>      # 略<br>  ClientNode:<br>    derived_from: SoftwareComponent<br>    properties:<br>      # 略<br>    requirements:<br>      - server:<br>          capability: Endpoint<br>          node: ServerNode<br>          relationship: ConnectsTo<br>topology_template:<br>  node_templates:<br>    my_server:<br>      type: ServerNode<br>      properties:<br>        notification_port: 8000<br>    my_client:<br>      type: ClientNode<br>      requirements:<br>        - server:<br>            node: my_server<br>            relationship: my_connection<br>  relationship_templates:<br>    my_connection:<br>      type: ConnectsTo<br>      interfaces:<br>        Configure:<br>          inputs:<br>            targ_notify_port: { get_attribute: [ TARGET, notification_port ] }<br>            # 略</p>
+<p>这个例子里，类型为<code>ClientNode</code>的<code>my_client</code>在<code>my_connection</code>关系的<code>Configure</code>操作上需要<code>notification_port</code>变量。这样的话，当类型为<code>ServerNode</code>的<code>my_server</code>连接过来时，就能取到它的<code>notification_port</code>变量，并设置到<code>targ_notify_port</code>环境变量里。有一点值得注意的是，真实的<code>notification_port</code>可能是8000，也可能不是。所以在这种情况下，不用<code>get_property</code>，而用<code>get_attribute</code>函数。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/tosca/" data-id="cuidtDoHEJHaobTSzsRs1nDgn" data-title="TOSCA简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/prometheus/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          用容器轻松搭建Prometheus运行环境
+        
+      </div>
+    </a>
+  
+  
+    <a href="/cloudify/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">轻松搭建Cloudify运行环境</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>Kotlin的语法糖们 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="当今的Kotlin真是炙手可热啊。自2011年JetBrains为了提高IDEA的销量而推出这个项目至今，它一直低调而稳定地发展着。到了上个月即2017年5月，Google宣布将Kotlin语言作为Android开发的一级编程语言，算是到达了语言生的第一个巅峰。Kotlin自身受到Java、C#、JavaScript、Scala、Groovy等语言的影响，本文总结了它提供的部分常见语法糖并与其它语">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin的语法糖们">
+<meta property="og:url" content="https://qinghua.github.io/kotlin-syntax-suger/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="当今的Kotlin真是炙手可热啊。自2011年JetBrains为了提高IDEA的销量而推出这个项目至今，它一直低调而稳定地发展着。到了上个月即2017年5月，Google宣布将Kotlin语言作为Android开发的一级编程语言，算是到达了语言生的第一个巅峰。Kotlin自身受到Java、C#、JavaScript、Scala、Groovy等语言的影响，本文总结了它提供的部分常见语法糖并与其它语">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-06-24T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:43:22.115Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="kotlin">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-kotlin-syntax-suger" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/kotlin-syntax-suger/" class="article-date">
+  <time class="dt-published" datetime="2017-06-24T07:00:00.000Z" itemprop="datePublished">2017-06-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Kotlin的语法糖们
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>当今的<a target="_blank" rel="noopener" href="https://kotlinlang.org/">Kotlin</a>真是炙手可热啊。自2011年JetBrains为了提高IDEA的销量而推出这个项目至今，它一直低调而稳定地发展着。到了上个月即2017年5月，<a target="_blank" rel="noopener" href="https://blog.jetbrains.com/kotlin/2017/05/kotlin-on-android-now-official/">Google宣布将Kotlin语言作为Android开发的一级编程语言</a>，算是到达了语言生的第一个巅峰。<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/faq.html#is-kotlin-hard">Kotlin自身受到Java、C#、JavaScript、Scala、Groovy等语言的影响</a>，本文总结了它提供的部分常见语法糖并与其它语言进行比较。</p>
+<h2 id="字符串模板（string-template）"><a href="#字符串模板（string-template）" class="headerlink" title="字符串模板（string template）"></a>字符串模板（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-types.html#string-templates">string template</a>）</h2><p>Kotlin可以直接通过<code>println(&quot;Hello, {name}&quot;)</code>或<code>println(&quot;Hello, $name&quot;)</code>来使用字符串模板，而Java则需要先借助<code>String.format</code>来生成字符串。而kotlin还支持表达式，如<code>${person.name}</code>和<code>${2 * 3}</code>。这块古老的糖从shell开始就有了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Hello, $&#123;name&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如果你疑惑为什么无须导入包即可直接使用<code>println</code>，那是因为这个方法所在的<code>kotlin.io</code>包是默认导入（Default Imports）的，正如Java会默认导入<code>java.lang.*</code>一样。Kotlin的默认导入请参考<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/packages.html#default-imports">这里</a>。</p>
+<h2 id="分号推断（semicolon-inference）"><a href="#分号推断（semicolon-inference）" class="headerlink" title="分号推断（semicolon inference）"></a>分号推断（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/grammar.html#semicolons">semicolon inference</a>）</h2><p>我们知道Java中的每一条语句结束后，需要加上分号。Kotlin中的分号是可选的。这应该是来自JavaScript吧。不过写JavaScript还是推荐把分号都加上，否则可能<a target="_blank" rel="noopener" href="http://cjihrig.com/blog/the-dangers-of-javascripts-automatic-semicolon-insertion/">有危险</a>。Groovy、Scala也有同样的能力。</p>
+<h2 id="定义函数（define-function）"><a href="#定义函数（define-function）" class="headerlink" title="定义函数（define function）"></a>定义函数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/functions.html">define function</a>）</h2><p>JavaScript中，<code>function</code>；Go语言，<code>func</code>；Kotlin，<code>fun</code>。怎么看都像是SIM卡变成了micro-SIM，然后又变成了nano-SIM卡。Kotlin可以在类之外定义全局函数，也可以在函数中定义局部函数。这一点类似于JavaScript。</p>
+<h2 id="var／val（local-variable）"><a href="#var／val（local-variable）" class="headerlink" title="var／val（local variable）"></a>var／val（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#defining-local-variables">local variable</a>）</h2><p>变量是<code>var</code>，表示variable；常量是<code>val</code>，表示fixed value。这个很明显来自Scala。在Java中就只能用<code>final</code>关键字了。</p>
+<h2 id="可空值（nullable-value）"><a href="#可空值（nullable-value）" class="headerlink" title="可空值（nullable value）"></a>可空值（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/null-safety.html">nullable value</a>）</h2><p>在变量类型后面加上一个问号，表明这个变量可以为null，否则默认不能为null。例如：<br>这一句编译错误：<code>var a: Int = null</code><br>这样才能成功：<code>var a: Int? = null</code><br>这块糖显然来自于C#，但是更加严格了。它是为了避免Java中的null所造成的<a target="_blank" rel="noopener" href="https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare">十亿美元的错误</a>。</p>
+<h2 id="集合字面量（collection-literals）"><a href="#集合字面量（collection-literals）" class="headerlink" title="集合字面量（collection literals）"></a>集合字面量（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/collections.html#collections">collection literals</a>）</h2><p>Java从来就不愿意用糖吸引小朋友……所以一般快速创建集合是这么写的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> Arrays.asList(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>有好事者（Guava）提供了这样的类库：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> ImmutableList.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>其实Java 8提供的Stream也许已经能够满足你的需求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Stream</span> <span class="variable">colors</span> <span class="operator">=</span> Stream.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Java 9很可能会<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/269">引入集合字面量</a>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> List.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Kotlin出手了：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = listOf(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>不过实际上并非是语法层面的糖，<code>listOf</code>只是一个方法而已。我相信是从Scala中偷师的：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = <span class="type">List</span>(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>当然Scala还有自己的经典方式：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = <span class="string">&quot;red&quot;</span> :: <span class="string">&quot;blue&quot;</span> :: <span class="type">Nil</span></span><br></pre></td></tr></table></figure>
+
+<p>C#可以这样来初始化集合：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> colors = <span class="keyword">new</span> ArrayList&#123;<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>JavaScript、Ruby、Go等直接扩展了数组，所以就更省心了。</p>
+<h2 id="when表达式（when-expression）"><a href="#when表达式（when-expression）" class="headerlink" title="when表达式（when expression）"></a>when表达式（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/control-flow.html#when-expression">when expression</a>）</h2><p><code>when</code>表达式有点像是不需要<code>break</code>的<code>switch…case</code>：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">when</span> (x) &#123;    <span class="number">1</span> -&gt; print(<span class="string">&quot;x == 1&quot;</span>)    <span class="number">2</span> -&gt; print(<span class="string">&quot;x == 2&quot;</span>)    <span class="keyword">else</span> -&gt; &#123; <span class="comment">// 这里可以写多行哦        print(&quot;x is neither 1 nor 2&quot;)    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>但它还可以做得更多：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">when</span> &#123;    <span class="string">&quot;orange&quot;</span> <span class="keyword">in</span> items -&gt; println(<span class="string">&quot;juicy&quot;</span>)    <span class="string">&quot;apple&quot;</span> <span class="keyword">in</span> items -&gt; println(<span class="string">&quot;apple is fine too&quot;</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以把它作为扩展版<code>if…else</code>来用。它有点类似Groovy的<code>switch</code>。</p>
+<h2 id="is运算符（is-operator）"><a href="#is运算符（is-operator）" class="headerlink" title="is运算符（is operator）"></a>is运算符（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#using-type-checks-and-automatic-casts">is operator</a>）</h2><p>先看代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">getStringLength</span><span class="params">(obj: <span class="type">Any</span>)</span></span>: <span class="built_in">Int</span>? &#123;    <span class="keyword">if</span> (obj <span class="keyword">is</span> String &amp;&amp; obj.length &gt; <span class="number">0</span>) &#123;        <span class="keyword">return</span> obj.length    &#125;    <span class="keyword">return</span> <span class="literal">null</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里，<code>obj is String</code>之后就可以将其作为<code>String</code>来使用了，调用<code>String</code>的<code>length</code>属性。<code>is</code>不仅比<code>instanceof</code>更加短小精悍，而且还会自动将变量转换为<code>is</code>后面的类型。应该是出于C#而胜于C#。C#提供了<code>is</code>和<code>as</code>，但是<code>as</code>在Kotlin中显然就毫无用武之地了。</p>
+<h2 id="范围运算符（range）"><a href="#范围运算符（range）" class="headerlink" title="范围运算符（range）"></a>范围运算符（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/ranges.html">range</a>）</h2><p>Java如果要循环打印1至9，一般就是这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 8以前for (int i = 1; i     System.out.println(i);&#125;// Java 8 lambdaIntStream.range(1, 9).forEach(System.out::println);</span></span><br></pre></td></tr></table></figure>
+
+<p>如果需要步长（step），lambda方案就需要引入filter、map或iterate。Kotlin自带接口<code>ClosedRange</code>，用了点糖：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.9</span>) print(i)<span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.9</span> step <span class="number">2</span>) print(i)<span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">9</span> downTo <span class="number">1</span>) print(i)</span><br></pre></td></tr></table></figure>
+
+<p>bash早就支持大括号配合<code>..</code>（<a target="_blank" rel="noopener" href="http://www.gnu.org/software/bash/manual/html_node/Brace-Expansion.html">brace expansion</a>）的这种方式了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for i in &#123;1..9&#125;; do echo $i; done# bash 4支持步长for i in &#123;1..9..2&#125;; do echo $i; done# 否则用seqfor i in `seq 1 2 9`; do echo $i; done</span><br></pre></td></tr></table></figure>
+
+<p>不过我更喜欢ruby，支持lambda的写法更加优雅：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>..<span class="number">9</span>).each &#123;|<span class="params">x</span>| puts x&#125;(<span class="number">1</span>..<span class="number">9</span>).step(<span class="number">2</span>) &#123;|<span class="params">x</span>| puts x&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运算符重载（operator-overloading）"><a href="#运算符重载（operator-overloading）" class="headerlink" title="运算符重载（operator overloading）"></a>运算符重载（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/operator-overloading.html">operator overloading</a>）</h2><p>这个是C#和Scala的把戏：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Point</span>(<span class="keyword">val</span> x: <span class="built_in">Int</span>, <span class="keyword">val</span> y: <span class="built_in">Int</span>)<span class="keyword">operator</span> <span class="function"><span class="keyword">fun</span> Point.<span class="title">plus</span><span class="params">(<span class="keyword">val</span> point: <span class="type">Point</span>)</span></span> = Point(x + point.x, y + point.y)Point(<span class="number">1</span>, <span class="number">2</span>) + Point(<span class="number">3</span>, <span class="number">4</span>) <span class="comment">// Point(x=4, y=6)</span></span><br></pre></td></tr></table></figure>
+
+<p>怎么知道<code>+</code>号上映射的是<code>plus</code>方法呢？还是得参考<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/operator-overloading.html">官方文档</a>。</p>
+<h2 id="包别名（package-alias）"><a href="#包别名（package-alias）" class="headerlink" title="包别名（package alias）"></a>包别名（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/packages.html#imports">package alias</a>）</h2><p>Kotlin支持为包指定别名，对代码洁癖患者可能会起到一定的疗效：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.math.BigDecimal <span class="keyword">as</span> bd</span><br></pre></td></tr></table></figure>
+
+<p>Python、Groovy也都是这样：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List <span class="keyword">as</span> UtilListimport java.awt.List <span class="keyword">as</span> AwtList</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型别名（type-alias）"><a href="#类型别名（type-alias）" class="headerlink" title="类型别名（type alias）"></a>类型别名（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/type-aliases.html">type alias</a>）</h2><p>Kotlin还支持为类型指定别名：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typealias</span> Row = List</span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自Scala的Type：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Row</span> </span>= <span class="type">List</span>[<span class="type">Int</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="扩展函数（extension-function）"><a href="#扩展函数（extension-function）" class="headerlink" title="扩展函数（extension function）"></a>扩展函数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/extensions.html">extension function</a>）</h2><p>扩展函数允许为一个类增加公有静态方法，调用时就好像这个方法是原生的一样。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> String.<span class="title">greetingsWith</span><span class="params">(greeting: <span class="type">String</span>)</span></span> &#123;    println(<span class="string">&quot;<span class="variable">$greeting</span>, <span class="variable">$this</span>&quot;</span>)&#125;<span class="string">&quot;ggg&quot;</span>.greetingsWith(<span class="string">&quot;Hello&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>虽然JavaScript也能轻易做到，但我还是强烈地认为它来自于C#，毕竟都是一脉相承。kotlin更近一步支持扩展属性：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> String.halfLength: <span class="built_in">Int</span>    <span class="keyword">get</span>() = length / <span class="number">2</span><span class="string">&quot;ggg&quot;</span>.halfLength <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="函数扩展（function-expansion）"><a href="#函数扩展（function-expansion）" class="headerlink" title="函数扩展（function expansion）"></a>函数扩展（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/lambdas.html#higher-order-functions">function expansion</a>）</h2><p>如果函数的最后一个参数类型是个函数，可以通过大括号来传值：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">calculate</span><span class="params">(a: <span class="type">Int</span>, cal: (<span class="type">Int</span>) -&gt; <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;    <span class="keyword">return</span> cal(a)&#125;calculate(<span class="number">3</span>) &#123; x -&gt; x * x &#125; <span class="comment">// 9</span></span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自ruby的block：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">a, &amp;cal</span>)    cal.call aendcalculate(<span class="number">3</span>) &#123; |<span class="params">x</span>| x * x &#125; <span class="comment"># 9</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="默认参数（default-arguments）"><a href="#默认参数（default-arguments）" class="headerlink" title="默认参数（default arguments）"></a>默认参数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/functions.html#default-arguments">default arguments</a>）</h2><p>Kotlin支持为参数指定一个默认值：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>)</span></span> &#123;  show()  show(<span class="string">&quot;Good morning&quot;</span>)&#125;<span class="function"><span class="keyword">fun</span> <span class="title">show</span> <span class="params">(msg: <span class="type">String</span> = <span class="string">&quot;Hello World&quot;</span>)</span></span> &#123;    println(<span class="string">&quot;<span class="variable">$msg</span>&quot;</span>) &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java一般是靠重载来实现默认参数。许多其它的语言都支持默认参数。例如，JavaScript在ES6上也支持默认参数了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">multiply</span>(<span class="params">a, b = <span class="number">1</span></span>) &#123;  <span class="keyword">return</span> a * b;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="单例对象（singleton）"><a href="#单例对象（singleton）" class="headerlink" title="单例对象（singleton）"></a>单例对象（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/object-declarations.html#object-declarations">singleton</a>）</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">object</span> Document &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自于Scala，连关键字都一模一样。</p>
+<h2 id="伴生对象（companion-object）"><a href="#伴生对象（companion-object）" class="headerlink" title="伴生对象（companion object）"></a>伴生对象（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/object-declarations.html#companion-objects">companion object</a>）</h2><p>伴生对象经常用于Factory。这一点相信也是来自于Scala。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;    <span class="keyword">companion</span> <span class="keyword">object</span> Factory &#123; <span class="comment">// Factory可省略，省略后可用Companion引用        fun create(): MyClass = MyClass()    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="getter和setter（getter-and-setter）"><a href="#getter和setter（getter-and-setter）" class="headerlink" title="getter和setter（getter and setter）"></a>getter和setter（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/properties.html#getters-and-setters">getter and setter</a>）</h2><p>Kotlin像C#一样支持属性（property）。我们来看两个例子：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> isEmpty: <span class="built_in">Boolean</span>    <span class="keyword">get</span>() = <span class="keyword">this</span>.size == 0var counter = <span class="number">0</span>    <span class="keyword">private</span> <span class="keyword">set</span>(value) &#123;        <span class="keyword">if</span> (value &gt;= <span class="number">0</span>) field = value    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据类（data-class）"><a href="#数据类（data-class）" class="headerlink" title="数据类（data class）"></a>数据类（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/data-classes.html">data class</a>）</h2><p>告别繁琐的Java数据类的时代到来了：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">User</span>(<span class="keyword">val</span> name: String, <span class="keyword">val</span> age: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
+
+<p>看到最前面的<code>data</code>，我突然觉得这是源于<a href="/lombok">lombok</a>…</p>
+<h2 id="没有原始类型（no-raw-types）"><a href="#没有原始类型（no-raw-types）" class="headerlink" title="没有原始类型（no raw types）"></a>没有原始类型（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/java-interop.html#mapped-types">no raw types</a>）</h2><p>Kotlin没有原始类型，一切皆对象：<code>1.inc()</code>。这一点与Ruby、Scala相同。</p>
+<h2 id="没有受检查异常（no-checked-exception）"><a href="#没有受检查异常（no-checked-exception）" class="headerlink" title="没有受检查异常（no checked exception）"></a>没有受检查异常（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/exceptions.html#checked-exceptions">no checked exception</a>）</h2><p>Kotlin并没有受检查异常。因为在大型的项目中，它对代码质量的提升极其有限，但是却大大降低了效率。C#十多年前就是这样了，有兴趣的读者可以参考<a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/csharpfaq/2004/03/12/why-doesnt-c-have-checked-exceptions/">这篇文章</a>。</p>
+<h2 id="没有static（no-static-member）"><a href="#没有static（no-static-member）" class="headerlink" title="没有static（no static member）"></a>没有static（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/classes.html#companion-objects">no static member</a>）</h2><p>Kotlin也没有static的成员。这一点与Scala相同。在Kotiln中可以使用包级别的函数，或者是伴生对象来实现static的效果。</p>
+<h2 id="多返回值（multiple-return-values）"><a href="#多返回值（multiple-return-values）" class="headerlink" title="多返回值（multiple return values）"></a>多返回值（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/multi-declarations.html">multiple return values</a>）</h2><p>可以从<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/multi-declarations.html#example-returning-two-values-from-a-function">这一个例子</a>中看到Kotlin是如何实现函数的多返回值的。我猜应该是受到了Go语言的启发。</p>
+<h2 id="嵌套块注释（nested-block-comment）"><a href="#嵌套块注释（nested-block-comment）" class="headerlink" title="嵌套块注释（nested block comment）"></a>嵌套块注释（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#comments">nested block comment</a>）</h2><p>Kotlin支持块注释<code>/* … */</code>的嵌套。这可能是来自Haskell或F#。</p>
+<h2 id="在线版IDE"><a href="#在线版IDE" class="headerlink" title="在线版IDE"></a>在线版IDE</h2><p>如果不想安装那么多语言，可以试试这个<a target="_blank" rel="noopener" href="https://codepad.remoteinterview.io/">在线版IDE</a>，它支持包括Kotlin在内的几十种语言。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/kotlin-syntax-suger/" data-id="cuid-AypQ_Lk699RqOYMqaVI1" data-title="Kotlin的语法糖们" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/intelligence-age-book-review/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          《智能时代》读后感
+        
+      </div>
+    </a>
+  
+  
+    <a href="/lombok/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">用Lombok优雅地写代码</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

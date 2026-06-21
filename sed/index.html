@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>看例子学sed | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="看例子学sed">
+<meta property="og:url" content="https://qinghua.github.io/sed/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-02-26T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.080Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="sed">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-sed" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/sed/" class="article-date">
+  <time class="dt-published" datetime="2016-02-26T08:00:00.000Z" itemprop="datePublished">2016-02-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/linux-unix/">linux/unix</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      看例子学sed
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。</p>
+<p>假设我们有一个csv文件如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csvGavo,35Jane,21Bill,25Jimmy,42EOF</span><br></pre></td></tr></table></figure>
+
+<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><h3 id="在文件头-尾增加一行"><a href="#在文件头-尾增加一行" class="headerlink" title="在文件头&#x2F;尾增加一行"></a>在文件头&#x2F;尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1i Name,Age&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2a Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>要是想在文件尾增加一行的话，用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;$a Hetty,29&#x27;</span> staff.csv    <span class="comment"># 指定行内容sed $&#x27;$a \\\n&#x27; staff.csv       # 增加空行</span></span><br></pre></td></tr></table></figure>
+
+<p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
+<h3 id="在匹配的地方增加一行"><a href="#在匹配的地方增加一行" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i \ \ Hetty,29&#x27;</span> staff.csv    <span class="comment"># 行头插入两个空格sed &#x27;/21/i Hetty,29&#x27; staff.csv          # 部分匹配sed &#x27;/J/i Hetty,29&#x27; staff.csv           # 匹配了两行</span></span><br></pre></td></tr></table></figure>
+
+<p>下面这个命令可以在Gavo后面增加两行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/a Hetty,29\nEmma,45&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<h2 id="删"><a href="#删" class="headerlink" title="删"></a>删</h2><h3 id="删除特定行"><a href="#删除特定行" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1d&#x27;</span> staff.csv         <span class="comment"># 删除第一行sed &#x27;$d&#x27; staff.csv         # 删除最后一行sed &#x27;/Jane/d&#x27; staff.csv    # 删除包含Jane的一行sed &#x27;/21/d&#x27; staff.csv      # 删除包含21的一行sed &#x27;/J/d&#x27; staff.csv       # 删除包含J的两行</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="删除关联行"><a href="#删除关联行" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;d;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>其中的<code>N</code>就是下一行（next line）的意思。如果不想删除Gavo这行，用这个命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;s/\n.*//;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>相当于匹配了两行也就是<code>Gavo,35\nJane,21</code>之后，再把<code>\n</code>之后的所有文本替换成空白，即删除。替换的命令在下面的<a href="/sed/#u6539">改</a>中会详细介绍。</p>
+<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><h3 id="所有行头-尾增加项目"><a href="#所有行头-尾增加项目" class="headerlink" title="所有行头&#x2F;尾增加项目"></a>所有行头&#x2F;尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/^/China,/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>其中的<code>s</code>表示替换（substitute），<code>^</code>表示开头，相对应的<code>$</code>表示结尾。</p>
+<h3 id="所有行修改项目"><a href="#所有行修改项目" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/China/US/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/,[A-Z][a-z]*/&amp;-dev/&#x27;</span> staff.csvsed -r <span class="string">&#x27;s/(,.*),/\1-dev,/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
+<h3 id="正则替换"><a href="#正则替换" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[^,]+/&quot;&amp;&quot;/g&#x27;</span> staff.csvsed -e <span class="string">&#x27;s/^\|$/&quot;/g&#x27;</span> -e <span class="string">&#x27;s/,/&quot;,&quot;/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。如果不想用正则的方式，只想做完全匹配的字符串替换，可以用<code>perl</code>，例如：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[name]/ggg/g&#x27;</span> hello [name]EOF# hgggllo [gggggggggggg]perl -pe <span class="string">&#x27;s/\Q[name]/ggg/g&#x27;</span> hello [name]EOF# hello ggg</span><br></pre></td></tr></table></figure>
+
+<h3 id="全局替换"><a href="#全局替换" class="headerlink" title="全局替换"></a>全局替换</h3><p>把所有的<code>l</code>改成<code>L</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
+<p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g; s/m/M/g&#x27;</span> staff.csvsed -e <span class="string">&#x27;s/l/L/g&#x27;</span> -e <span class="string">&#x27;s/m/M/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<h3 id="大小写替换"><a href="#大小写替换" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/.*/\L&amp;/&#x27;</span> staff.csvsed <span class="string">&#x27;s/.*/\U&amp;/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p><code>\L</code>就是全部小写（lowercase），<code>\U</code>就是全部大写（uppercase）。<code>&amp;</code>在上文有提到，表示匹配上的内容。</p>
+<h3 id="修改指定行"><a href="#修改指定行" class="headerlink" title="修改指定行"></a>修改指定行</h3><p>现在表头的第一列也成了US，把它改成Country：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1s/US/Country/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>把第2行到4行的US替换成China：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2,4s/US/China/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>把第3行整行替换掉：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;3s/.*/China,Hetty,29/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<h3 id="删除所有符号"><a href="#删除所有符号" class="headerlink" title="删除所有符号"></a>删除所有符号</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/[[:punct:]]//g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p><code>[[:punct:]]</code>是正则表达式中预先定义的子字符类（character classes），代表所有的标点符号。sed支持的<a target="_blank" rel="noopener" href="http://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html">子字符类</a>如下：</p>
+<ul>
+<li>[:alnum:]：[0-9A-Za-z]</li>
+<li>[:alpha:]：[A-Za-z]</li>
+<li>[:blank:]：空格和TAB</li>
+<li>[:cntrl:]：控制字符（Control characters），ASCII码为000~037和177 (DEL)</li>
+<li>[:digit:]：[0-9]</li>
+<li>[:graph:]：[:alnum:]和[:punct:]</li>
+<li>[:lower:]：[a-z]</li>
+<li>[:print:]：[:alnum:]、[:punct:]和空格</li>
+<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . &#x2F; : ;  ? @ [ \ ] ^ _ &#96; { | } ~</li>
+<li>[:space:]：[:blank:]和回车、换行等</li>
+<li>[:upper:]：[A-Z]</li>
+<li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
+</ul>
+<h3 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h3><p>如果想用变量里的值来代替，可以这么写（注意是双引号而不是单引号了）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=gggecho <span class="variable">$namesed</span> -r <span class="string">&quot;s/name/<span class="variable">$&#123;name&#125;</span>/g&quot;</span> hello nameEOFunset name</span><br></pre></td></tr></table></figure>
+
+<h2 id="查"><a href="#查" class="headerlink" title="查"></a>查</h2><h3 id="查看特定行"><a href="#查看特定行" class="headerlink" title="查看特定行"></a>查看特定行</h3><p>查（print）也和<a href="/sed/#u589E">増</a>很类似，区别是把<code>i</code>或<code>a</code>换成<code>p</code>即可：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1p&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1p&#x27;</span> staff.csv         <span class="comment"># 查看第一行sed -n &#x27;$p&#x27; staff.csv         # 查看最后一行sed -n &#x27;/Jane/p&#x27; staff.csv    # 查看包含Jane的一行sed -n &#x27;/21/p&#x27; staff.csv      # 查看包含21的一行sed -n &#x27;/J/p&#x27; staff.csv       # 查看包含J的两行sed -n &#x27;/21$/p&#x27; staff.csv     # 查看以21结尾的一行sed -n &#x27;/21/!p&#x27; staff.csv     # 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure>
+
+<p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
+<h3 id="查看行范围"><a href="#查看行范围" class="headerlink" title="查看行范围"></a>查看行范围</h3><p>如果想要查看直到匹配某条记录，用下面这条命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/q&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+
+<p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1,/Jane/p&#x27;</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止sed -n &#x27;/Gavo/,/Jane/p&#x27; staff.csv    # 从匹配Gavo的记录开始到匹配Jane的记录为止sed -n &#x27;/Jane/,$p&#x27; staff.csv         # 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="查看奇-偶数行"><a href="#查看奇-偶数行" class="headerlink" title="查看奇&#x2F;偶数行"></a>查看奇&#x2F;偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;n;d&#x27;</span> staff.csv       <span class="comment"># 奇数行sed &#x27;1d;n;d&#x27; staff.csv    # 偶数行</span></span><br></pre></td></tr></table></figure>
+
+<p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
+<h3 id="从单行中查找"><a href="#从单行中查找" class="headerlink" title="从单行中查找"></a>从单行中查找</h3><p>比如想从<strong>I am 18 years old</strong>里查找18这个年龄，可以这么做：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am 18 years old&quot;</span> | sed -n <span class="string">&quot;s/I am \(.*\) years old/\1/p&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里<code>\1</code>代表第一个被匹配上的内容也就是<code>\(.*\)</code>。发挥想象力：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am 18 years old&quot;</span> | sed -n <span class="string">&quot;s/I am \(.*\) \(.*\) old/\2: \1/p&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>The UNIX School 里的<a target="_blank" rel="noopener" href="http://www.theunixschool.com/p/awk-sed.html">awk and sed tutorials</a>含有大量的例子和解释，非常容易上手，本文就是以其为基础整理而成。<br>酷壳的<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/9104.html">sed 简明教程</a>很适合入门。<br>当然还有最全面的<a target="_blank" rel="noopener" href="http://www.gnu.org/software/sed/manual/sed.html">官方文档</a>。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/sed/" data-id="cuidY-zGiQgWC2XPj-6ZO8Hsz" data-title="看例子学sed" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sed/" rel="tag">sed</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/awk/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          看例子学awk
+        
+      </div>
+    </a>
+  
+  
+    <a href="/saltstack/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">SaltStack环境安装及入门</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

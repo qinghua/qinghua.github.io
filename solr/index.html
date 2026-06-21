@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>用容器快速上手Apache Solr | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Apache Solr是用Java开发的基于Apache Lucene的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。 对Elasticsearch入门有兴趣的朋友请参考用容器快速上手Elasticsearch。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器快速上手Apache Solr">
+<meta property="og:url" content="https://qinghua.github.io/solr/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Apache Solr是用Java开发的基于Apache Lucene的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。 对Elasticsearch入门有兴趣的朋友请参考用容器快速上手Elasticsearch。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/solr-dashboard.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/solr-query.jpg">
+<meta property="og:image" content="https://qinghua.github.io/img/solr-analysis.jpg">
+<meta property="article:published_time" content="2016-08-13T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:10.085Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="solr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/solr-dashboard.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-solr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/solr/" class="article-date">
+  <time class="dt-published" datetime="2016-08-13T07:00:00.000Z" itemprop="datePublished">2016-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      用容器快速上手Apache Solr
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/">Apache Solr</a>是用Java开发的基于<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a>的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。</p>
+<p>对<a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>入门有兴趣的朋友请参考<a href="/elastic-search">用容器快速上手Elasticsearch</a>。</p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>关于Solr的入门知识，有一本gitbook：<a target="_blank" rel="noopener" href="https://www.gitbook.com/book/paynexu/create-your-vertical-search-engine-with-solr/details">《用Solr构建垂直搜索引擎》</a>写得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Solr：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8983:8983 --name solr solr:6.1.0</span><br></pre></td></tr></table></figure>
+
+<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr">http://192.168.99.100:8983/solr</a>来访问Solr Admin了：<br><img src="/img/solr-dashboard.jpg"></p>
+<p>在Solr里，<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Solr+Cores+and+solr.xml">Core</a>可以认为是一个集合，一个Solr实例可以有多个Core。可以说Solr实例和Core的关系像是数据库实例和数据库的关系。现在我们来新建一个core，命名为ggg：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</span><br></pre></td></tr></table></figure>
+
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Solr支持<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-XMLFormattedIndexUpdates">xml</a>、<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-JSONFormattedIndexUpdates">json</a>和<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-CSVFormattedIndexUpdates">csv</a>格式的数据文件用于索引。接下来让我们来试试。首先登录进solr容器：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bash</span><br></pre></td></tr></table></figure>
+
+<h3 id="xml"><a href="#xml" class="headerlink" title="xml"></a>xml</h3><p>Solr存储的对象称为Document，每个Document数个Field组成，每个Field代表一个属性。现在按照&#96;&#96;的格式来生成一个xml文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.xml      978-0641723445    The Lightning Thief    Rick Riordan    Percy Jackson and the Olympians    1    fantasy    <span class="literal">true</span>    12.50    384        978-1423103349    The Sea of Monsters    Rick Riordan    Percy Jackson and the Olympians    2    <span class="literal">true</span>    6.49    304  EOF</span><br></pre></td></tr></table></figure>
+
+<p>细心的你可能已经发现了下面一条数据里并没有<code>fantasy</code>，我故意的~~现在用以下命令将这个xml导入索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
+
+<p>索引完成后，在Solr Admin的ggg Core的Query里，直接点击Execute Query便可以看到我们新索引的这两条数据：<br><img src="/img/solr-query.jpg"></p>
+<p>在<code>q</code>里输入搜索的关键词便可以查询索引：</p>
+<ul>
+<li>Rick Riordan：匹配作者</li>
+<li>Jackson：分词可以工作</li>
+<li>the：不区分大小写</li>
+<li>fantasy：不符合的记录不会被查询到</li>
+<li>fantasy 0123：不是所有关键词都会被使用</li>
+<li>0123：但如果只有查不到的关键词，那就是查不到</li>
+<li>fantasy -Rick：<code>-</code>表示过滤</li>
+<li>Lightni：单词不全不能匹配</li>
+<li>Lightn?ng：<code>?</code>匹配一位</li>
+<li>L*g：<code>*</code>匹配多位</li>
+<li>Lightnixx<del>：&#96;</del>&#96;用于模糊查询</li>
+<li>Lightnxxx<del>：&#96;</del>&#96;最多就匹配两位</li>
+</ul>
+<p>还有很多查询的技巧，可以在<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser">这里</a>找到。</p>
+<p>再次导入相同的数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
+
+<p>可以看到查询结果并没有变化。这是因为solr会根据<code>id</code>来区分每一个数据。如果更新xml再导入，那就会覆盖掉旧的数据。现在让我们把漏了的<code>fantasy</code>补上：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;/2/a \ \ \ \ fantasy&#x27;</span> books.xmlcat books.xmlbin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
+
+<p>可以查询<code>fantasy</code>看到结果变成了两条。</p>
+<h3 id="json"><a href="#json" class="headerlink" title="json"></a>json</h3><p>接下来创建一个json文件并索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.json[  &#123;    <span class="string">&quot;id&quot;</span> : <span class="string">&quot;978-1857995879&quot;</span>,    <span class="string">&quot;cat&quot;</span> : [<span class="string">&quot;book&quot;</span>,<span class="string">&quot;paperback&quot;</span>],    <span class="string">&quot;name&quot;</span> : <span class="string">&quot;Sophie&#x27;s World : The Greek Philosophers&quot;</span>,    <span class="string">&quot;author&quot;</span> : <span class="string">&quot;Jostein Gaarder&quot;</span>,    <span class="string">&quot;sequence_i&quot;</span> : 1,    <span class="string">&quot;genre_s&quot;</span> : <span class="string">&quot;fantasy&quot;</span>,    <span class="string">&quot;inStock&quot;</span> : <span class="literal">true</span>,    <span class="string">&quot;price&quot;</span> : 3.07,    <span class="string">&quot;pages_i&quot;</span> : 64  &#125;,  &#123;    <span class="string">&quot;id&quot;</span> : <span class="string">&quot;978-1933988177&quot;</span>,    <span class="string">&quot;cat&quot;</span> : [<span class="string">&quot;book&quot;</span>,<span class="string">&quot;paperback&quot;</span>],    <span class="string">&quot;name&quot;</span> : <span class="string">&quot;Lucene in Action, Second Edition&quot;</span>,    <span class="string">&quot;author&quot;</span> : <span class="string">&quot;Michael McCandless&quot;</span>,    <span class="string">&quot;sequence_i&quot;</span> : 1,    <span class="string">&quot;genre_s&quot;</span> : <span class="string">&quot;IT&quot;</span>,    <span class="string">&quot;inStock&quot;</span> : <span class="literal">true</span>,    <span class="string">&quot;price&quot;</span> : 30.50,    <span class="string">&quot;pages_i&quot;</span> : 475  &#125;]EOFbin/post -c ggg books.json</span><br></pre></td></tr></table></figure>
+
+<p>查询一下<code>978</code>，就能看到json文件的内容也被索引进来了。</p>
+<h3 id="csv"><a href="#csv" class="headerlink" title="csv"></a>csv</h3><p>接下来创建一个csv文件并索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.csvid,<span class="built_in">cat</span>,name,price,inStock,author,series_t,sequence_i,genre_s0553573403,book,A Game of Thrones,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,1,fantasy0553579908,book,A Clash of Kings,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,2,fantasy055357342X,book,A Storm of Swords,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,3,fantasy0553293354,book,Foundation,7.99,<span class="literal">true</span>,Isaac Asimov,Foundation Novels,1,scifi0812521390,book,The Black Company,6.99,<span class="literal">false</span>,Glen Cook,The Chronicles of The Black Company,1,fantasy0812550706,book,Ender<span class="string">&#x27;s Game,6.99,true,Orson Scott Card,Ender,1,scifi0441385532,book,Jhereg,7.95,false,Steven Brust,Vlad Taltos,1,fantasy0380014300,book,Nine Princes In Amber,6.99,true,Roger Zelazny,the Chronicles of Amber,1,fantasy0805080481,book,The Book of Three,5.99,true,Lloyd Alexander,The Chronicles of Prydain,1,fantasy080508049X,book,The Black Cauldron,5.99,true,Lloyd Alexander,The Chronicles of Prydain,2,fantasyEOFbin/post -c ggg books.csv</span></span><br></pre></td></tr></table></figure>
+
+<p>查询一下<code>*:*</code>，就能看到csv文件的内容也被索引进来了。一共有14条<code>numFound</code>记录，但是只会显示10条。通过<code>Query</code>页面上的<code>start, rows</code>，就可以很方便地查询分页。</p>
+<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p><code>bin/post</code>这个命令也能索引文件夹，不管里面的文件是什么格式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> booksmv books.xml booksmv books.json booksmv books.csv booksbin/post -c ggg books</span><br></pre></td></tr></table></figure>
+
+<p>还有一个比较基本的需求是使用The Data Import Handler (DIH)来索引数据库。可以参考<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler">https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler</a>。</p>
+<p>再有就是如何在程序中更新数据。Solr支持多种语言的客户端，对于Java来说，可以参考<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Using+SolrJ">SolrJ</a>。</p>
+<p>还可以通过http请求来更新索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:8983/solr/ggg/update?commit=true&#x27;</span> \  -H <span class="string">&#x27;Contenttype: application/json&#x27;</span> \  -d <span class="string">&#x27;[&#123;&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;Practical DevOps&quot;,&quot;author&quot;:&quot;Joakim Verona&quot;,&quot;gere_s&quot;:&quot;IT&quot;&#125;]&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>删除索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg -d <span class="string">&quot;12345&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><p>其实上一节已经介绍了不少查询相关的内容了。在查询页面的右上角有一个url，例如<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr/ggg/select?indent=on&q=*:*&wt=json">http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=<em>:</em>&amp;wt&#x3D;json</a>。只要对其发出<code>get</code>请求，便可以获取到查询结果。当然直接<code>curl</code>也可以：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=*:*&amp;wt=json&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>至于<code>Query</code>页面上的其它查询条件，可以在<a target="_blank" rel="noopener" href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a>上查到。这里简介如下：</p>
+<ul>
+<li>fq（Filter Query）：过滤查询，可以指定多个条件并缓存。例如：<code>inStock:false</code></li>
+<li>sort：排序。例如：<code>sequence_i desc</code></li>
+<li>start：查询结果忽略掉前n条</li>
+<li>rows：查询结果数量</li>
+<li>fl（Field List）：指定查询结果字段。例如<code>author, sequence_i</code></li>
+<li>df（Default Field）：指定查询字段。</li>
+<li>wt（Write Type）：指定输出格式，有xml，json，python，ruby，php，csv等多项可选</li>
+</ul>
+<p>还有一些高级功能，本文旨在入门，就不细说了。访问<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr/ggg/browse">http://192.168.99.100:8983/solr/ggg/browse</a>可以查看已索引的所有数据。最后输入<code>exit</code>退出solr容器。</p>
+<h2 id="中文"><a href="#中文" class="headerlink" title="中文"></a>中文</h2><p>在没有使用任何中文分词组件的情况下，Solr会把所有中文的每个字当成一个词来检索。要想让Solr支持中文分词，需要使用中文分词组件。<a target="_blank" rel="noopener" href="http://www.hansight.com/blog-lucene4.10-with-chinese-segment.html">《与Lucene 4.10配合的中文分词比较》</a>一文里介绍了几种中文分词组件并做了比较。虽然我们用的是Solr 6.1.0版，但是也是很有参考意义的。接下来我们使用<a target="_blank" rel="noopener" href="https://github.com/chenlb/mmseg4j-solr">mmseg4j</a>来试一下。</p>
+<p>目前的mmseg4j暂时不支持solr 6.1.0，不过已经有热心人士提交<a target="_blank" rel="noopener" href="http://amao12580.github.io/post/2016/07/mmseg4j-solr-compatible-solr-6-1/">pull request</a>了，只是还没合并进去。我们本着简单的原则，替换solr镜像成5.3.1版本。在作者的github上指定的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1dD7qMFf#path=%252Fmmseg4j-solr">百度网盘</a>里下载<code>mmseg4j-solr-2.3.0-with-mmseg4j-core.zip</code>，解压后得到两个jar文件。之后重新创建一个solr容器并再次生成ggg的core：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f solrdocker create -p 8983:8983 --name solr solr:5.3.1docker <span class="built_in">cp</span> mmseg4j-core-1.10.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/docker <span class="built_in">cp</span> mmseg4j-solr-2.3.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/docker start solrdocker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</span><br></pre></td></tr></table></figure>
+
+<p>现在用solr提供的<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Schema+API">Schema API</a>来配置mmseg4j：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bashcurl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;  &quot;add-field-type&quot;:&#123;    &quot;name&quot;:&quot;textComplex&quot;,    &quot;class&quot;:&quot;solr.TextField&quot;,    &quot;positionIncrementGap&quot;:&quot;100&quot;,    &quot;analyzer&quot;:&#123;      &quot;tokenizer&quot;:&#123;         &quot;class&quot;:&quot;com.chenlb.mmseg4j.solr.MMSegTokenizerFactory&quot;,        &quot;mode&quot;:&quot;complex&quot;,        &quot;dicPath&quot;:&quot;dic&quot;      &#125;    &#125;  &#125;&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schemacurl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;  &quot;add-field-type&quot;:&#123;    &quot;name&quot;:&quot;textMaxWord&quot;,    &quot;class&quot;:&quot;solr.TextField&quot;,    &quot;positionIncrementGap&quot;:&quot;100&quot;,    &quot;analyzer&quot;:&#123;      &quot;tokenizer&quot;:&#123;         &quot;class&quot;:&quot;com.chenlb.mmseg4j.solr.MMSegTokenizerFactory&quot;,        &quot;mode&quot;:&quot;max-word&quot;      &#125;    &#125;  &#125;&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schema</span><br></pre></td></tr></table></figure>
+
+<p>上面的命令增加了<code>textComplex</code>和<code>textMaxWord</code>两种字段类型，它们的区别在<a target="_blank" rel="noopener" href="https://paynexu.gitbooks.io/create-your-vertical-search-engine-with-solr/content/configure-mmseg4j-analyzer-on-solr5.html#complex%E5%92%8Cmaxword%E4%B8%A4%E7%A7%8D%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8C%BA%E5%88%AB">这里</a>解释得很清楚。下面就可以在<code>Analysis</code>页面上，看到我们的分词生效了：<br><img src="/img/solr-analysis.jpg"></p>
+<p>还可以尝试用<code>孙悟空吃香蕉</code>这个短句来测试<code>textComplex</code>和<code>textMaxWord</code>的不同效果。接下来将<code>field desc</code>添加到<code>textComplex</code>里：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;  &quot;add-field&quot;:&#123;     &quot;name&quot;:&quot;desc&quot;,     &quot;type&quot;:&quot;textComplex&quot;,     &quot;stored&quot;:true &#125;&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schema</span><br></pre></td></tr></table></figure>
+
+<p>现在让我们来索引几条包含<code>field desc</code>的中文数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  cities.csvid,city,desc010,北京,简称“京”，是中华人民共和国首都、直辖市和京津冀城市群的中心，中国的政治、文化、交通、科技创新和国际交往中心，中国经济、金融的决策和管理中心021,上海,简称沪，别称申，中华人民共和国直辖市、国家中心城市之一，也是中国按行政区划主城区内人口排名的最大的城市EOFbin/post -c ggg cities.csv</span><br></pre></td></tr></table></figure>
+
+<p>现在在<code>Query</code>页面上，输入<code>desc:中华人民共和国</code>就可以找到相对应的记录，而输入<code>desc:人民</code>就已经不能检索到结果啦。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/solr/" data-id="cuidvKL6uzGMyHMKhZJupJ-mz" data-title="用容器快速上手Apache Solr" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/" rel="tag">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/redis-cluster/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          用容器轻松搭建redis主从和集群环境
+        
+      </div>
+    </a>
+  
+  
+    <a href="/spring-scheduler/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Spring Scheduler的使用与坑</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

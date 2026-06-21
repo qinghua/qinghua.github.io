@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="懒程序员改变世界">
+<meta property="og:url" content="https://qinghua.github.io/page/3/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Qinghua Gao">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-jgit" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jgit/" class="article-date">
+  <time class="dt-published" datetime="2017-08-13T07:00:00.000Z" itemprop="datePublished">2017-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/jgit/">用JGit通过Java来操作Git</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://eclipse.org/jgit/">JGit</a>是一个由<a target="_blank" rel="noopener" href="https://www.eclipse.org/org/">Eclipse基金会</a>开发、用于操作git的纯Java库。它本身也是Eclispe的一部分，实际上Eclipse的插件<a target="_blank" rel="noopener" href="http://www.eclipse.org/egit/">EGit</a>便是基于JGit的。如果你像我这样有使用代码来操作git的需求，那就准备好拥抱JGit吧。目前来看别的竞品没它靠谱。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>从用户指南的<a target="_blank" rel="noopener" href="http://wiki.eclipse.org/JGit/User_Guide#Concepts">概念</a>一节中可以看到，JGit的基本概念如下：</p>
+<ul>
+<li><p>Git对象（Git Objects）：就是git的对象。它们在git中用SHA-1来表示。在JGit中用<code>AnyObjectId</code>和<code>ObjectId</code>表示。而它又包含了四种类型：<br>二进制大对象（blob）：文件数据</p>
+</li>
+<li><p>树（tree）：指向其它的tree和blob</p>
+</li>
+<li><p>提交（commit）：指向某一棵tree</p>
+</li>
+<li><p>标签（tag）：把一个commit标记为一个标签</p>
+</li>
+<li><p>引用（Ref）：对某一个git对象的引用。</p>
+</li>
+<li><p>仓库（Repository）：顾名思义，就是用于存储所有git对象和Ref的仓库。</p>
+</li>
+<li><p>RevWalk：该类用于从commit的关系图（graph）中遍历commit。晦涩难懂？看到范例就清楚了。</p>
+</li>
+<li><p>RevCommit：表示一个git的commit</p>
+</li>
+<li><p>RevTag：表示一个git的tag</p>
+</li>
+<li><p>RevTree：表示一个git的tree</p>
+</li>
+<li><p>TreeWalk：类似RevWalk，但是用于遍历一棵tree</p>
+</li>
+</ul>
+<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>让我们从一个最典型的用例开始吧。首先在<code>/tmp/jgit/repo</code>中创建一个git仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /tmp/jgit/repocd /tmp/jgit/repogit init --bare</span><br></pre></td></tr></table></figure>
+
+<p>再创建一个clone该仓库的客户端：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp/jgit/git clone repo clientcd client</span><br></pre></td></tr></table></figure>
+
+<p>输入<code>git status</code>应该能够看到<strong>Initial commit</strong>，这样环境就没有问题了。然后提交一个文件，给仓库里来点库存：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo hello &gt; hello.txtgit add hello.txtgit commit -m &quot;hello&quot;git push</span><br></pre></td></tr></table></figure>
+
+<h2 id="动手"><a href="#动手" class="headerlink" title="动手"></a>动手</h2><h3 id="获取仓库"><a href="#获取仓库" class="headerlink" title="获取仓库"></a>获取仓库</h3><p>动手时间。新建Maven工程，往pom.xml中增加dependency，最后的pom.xml看起来就像这样：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;    4.0.0    org.ggg.jgit    helloJgit    1.0-SNAPSHOT                        org.eclipse.jgit            org.eclipse.jgit            4.8.0.201706111038-r</span><br></pre></td></tr></table></figure>
+
+<p>让我们先尝试clone一下这个仓库。因为client分为已经存在以及重新clone的两种，所以我们在src&#x2F;main&#x2F;java中新增一个<code>RepositoryProvider</code>接口，用两种不同实现以示区分：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RepositoryProvider</span> &#123;    Repository <span class="title function_">get</span><span class="params">()</span> <span class="keyword">throws</span> Exception;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>并实现之：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RepositoryProviderCloneImpl</span> <span class="keyword">implements</span> <span class="title class_">RepositoryProvider</span> &#123;    <span class="keyword">private</span> String repoPath;    <span class="keyword">private</span> String clientPath;    <span class="keyword">public</span> <span class="title function_">RepositoryProviderCloneImpl</span><span class="params">(String repoPath, String clientPath)</span> &#123;        <span class="built_in">this</span>.repoPath = repoPath;        <span class="built_in">this</span>.clientPath = clientPath;    &#125;    <span class="meta">@Override</span>    <span class="keyword">public</span> Repository <span class="title function_">get</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;        <span class="type">File</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(clientPath);        client.mkdir();        <span class="keyword">try</span> (<span class="type">Git</span> <span class="variable">result</span> <span class="operator">=</span> Git.cloneRepository()                .setURI(repoPath)                .setDirectory(client)                .call()) &#123;            <span class="keyword">return</span> result.getRepository();        &#125;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>新增一个<code>HelloJGit</code>主程序类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloJGit</span> &#123;    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">RepositoryProvider</span> <span class="variable">repoProvider</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RepositoryProviderCloneImpl</span>(<span class="string">&quot;/tmp/jgit/repo&quot;</span>, <span class="string">&quot;/tmp/jgit/clientJava&quot;</span>);    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;        <span class="keyword">try</span> (<span class="type">Git</span> <span class="variable">git</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Git</span>(repoProvider.get())) &#123;            git.pull().call();        &#125;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接运行<code>HelloJGit</code>的<code>main</code>函数，<code>ls /tmp/jgit/</code>应该就能看到新clone出来的<code>clientJava</code>文件夹了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp/jgit/clientJavalsgit status</span><br></pre></td></tr></table></figure>
+
+<p>我们当然不希望总是在使用的时候才重新clone一个仓库，因为当仓库很大的时候可能会非常耗时。让我们在<code>client</code>中再提交一个commit：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo hello2 &gt; hello2.txtgit add hello2.txtgit commit -m &quot;hello again&quot;git push</span><br></pre></td></tr></table></figure>
+
+<p>然后尝试直接从刚刚clone下来的clientJava中创建Repository：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RepositoryProviderExistingClientImpl</span> <span class="keyword">implements</span> <span class="title class_">RepositoryProvider</span> &#123;    <span class="keyword">private</span> String clientPath;    <span class="keyword">public</span> <span class="title function_">RepositoryProviderExistingClientImpl</span><span class="params">(String clientPath)</span> &#123;        <span class="built_in">this</span>.clientPath = clientPath;    &#125;    <span class="meta">@Override</span>    <span class="keyword">public</span> Repository <span class="title function_">get</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;        <span class="keyword">try</span> (<span class="type">Repository</span> <span class="variable">repo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileRepository</span>(clientPath)) &#123;            <span class="keyword">return</span> repo;        &#125;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后把<code>HelloJGit</code>的<code>repoProvider</code>实例替换为<code>RepositoryProviderExistingClientImpl</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="type">RepositoryProvider</span> <span class="variable">repoProvider</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RepositoryProviderExistingClientImpl</span>(<span class="string">&quot;/tmp/jgit/clientJava/.git&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>注意这次的路径中需要加上<code>.git</code>才行。再次运行<code>HelloJGit</code>的<code>main</code>函数，便可以通过<code>ls /tmp/jgit/clientJava</code>看到新提交的<code>hello2.txt</code>文件了。</p>
+<h3 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h3><p>接下来尝试<code>git add</code>、<code>git commit</code>和<code>git push</code>这几个最常用的命令。让我们往<code>clientJava</code>中添加一个<code>hello3.txt</code>文件并提交。如下修改<code>HelloJGit</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;    <span class="keyword">try</span> (<span class="type">Repository</span> <span class="variable">repo</span> <span class="operator">=</span> repoProvider.get();         <span class="type">Git</span> <span class="variable">git</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Git</span>(repo)) &#123;        createFileFromGitRoot(repo, <span class="string">&quot;hello3.txt&quot;</span>, <span class="string">&quot;hello3&quot;</span>);        git.add()                .addFilepattern(<span class="string">&quot;hello3.txt&quot;</span>)                .call();        git.commit()                .setMessage(<span class="string">&quot;hello3&quot;</span>)                .call();        git.push()                .call();    &#125;&#125;<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">createFileFromGitRoot</span><span class="params">(Repository repo, String filename, String content)</span> <span class="keyword">throws</span> FileNotFoundException &#123;    <span class="type">File</span> <span class="variable">hello3</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(repo.getDirectory().getParent(), filename);    <span class="keyword">try</span> (<span class="type">PrintWriter</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PrintWriter</span>(hello3)) &#123;        out.println(content);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>虽然操作多了，但是有了<code>Repository</code>和<code>Git</code>对象之后，看起来它们的实现都非常直观。运行<code>main</code>函数之后，可以到<code>client</code>文件夹中校验一下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /tmp/jgit/clientgit pullcat hello3.txtgit log</span><br></pre></td></tr></table></figure>
+
+<p>在我的机器上运行<code>git log</code>，可以得到：<strong>commit 7841b8b80a77918f2ec45bcedb934e2723b16b5c (HEAD -&gt; master, origin&#x2F;master)</strong>，以及另外两个commit。有兴趣的读者们可以自行尝试其它的git命令。</p>
+<h3 id="其它对象"><a href="#其它对象" class="headerlink" title="其它对象"></a>其它对象</h3><p>虽然上面两小节的内容对于普通需求来说已经大致上够用了，但是在<a href="/jgit/#%E6%A6%82%E5%BF%B5">概念一节</a>中介绍到的其它概念，如Git对象、引用等还没有出场呢。我们再新建一个<code>WalkJGit</code>的类，在<code>main</code>函数中编写如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> (<span class="type">Repository</span> <span class="variable">repo</span> <span class="operator">=</span> repoProvider.get()) &#123;    <span class="type">Ref</span> <span class="variable">ref</span> <span class="operator">=</span> repo.getAllRefs().get(Constants.HEAD);    <span class="type">ObjectId</span> <span class="variable">objectId</span> <span class="operator">=</span> ref.getObjectId();    System.out.println(objectId);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这回，<code>Ref</code>和<code>ObjectId</code>都出现了。在我的机器上，运行以上程序打印出来了<strong>AnyObjectId[7841b8b80a77918f2ec45bcedb934e2723b16b5c]</strong>。我们可以看到，取得<code>HEAD</code>的<code>Ref</code>，其<code>ObjectId</code>其实就是在<code>client</code>文件夹中运行<code>git log</code>之后结果。除了<code>HEAD</code>以外，<code>repo.getAllRefs()</code>返回的<code>Map</code>实例中还有<code>refs/heads/master</code>和<code>refs/remotes/origin/master</code>，在目前的情况下，它们的<code>ObjectId</code>完全相同。那么如何获取其它的commit呢？那就是<code>RevWalk</code>出场的时候。把<code>main</code>函数中的内容替换为如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> (<span class="type">Repository</span> <span class="variable">repo</span> <span class="operator">=</span> repoProvider.get()) &#123;    <span class="type">Ref</span> <span class="variable">ref</span> <span class="operator">=</span> repo.getAllRefs().get(Constants.HEAD);    <span class="keyword">try</span> (<span class="type">RevWalk</span> <span class="variable">revWalk</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RevWalk</span>(repo)) &#123;        <span class="type">RevCommit</span> <span class="variable">lastCommit</span> <span class="operator">=</span> revWalk.parseCommit(ref.getObjectId());        revWalk.markStart(lastCommit);        revWalk.forEach(System.out::println);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>RevWalk</code>本身是实现了<code>Iterable</code>接口的。通过对该对象进行循环，就可以获取所有的commit的<code>RevCommit</code>对象。可以到<code>client</code>文件夹确认一下，这些SHA-1字符串应该跟刚才<code>git log</code>命令的结果相同。<code>RevCommit</code>对象本身含有这个commit的所有信息，所以可以如下打印出来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">revWalk.forEach(c -&gt; &#123;    System.out.println(<span class="string">&quot;commit &quot;</span> + c.getName());    System.out.printf(<span class="string">&quot;Author: %s \n&quot;</span>, c.getAuthorIdent().getName(), c.getAuthorIdent().getEmailAddress());    System.out.println(<span class="string">&quot;Date: &quot;</span> + LocalDateTime.ofEpochSecond(c.getCommitTime(), <span class="number">0</span>, ZoneOffset.UTC));    System.out.println(<span class="string">&quot;\t&quot;</span> + c.getShortMessage() + <span class="string">&quot;\n&quot;</span>);&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这样看起来是不是很有<code>git log</code>的感觉呢？需要注意的是，<code>RevWalk</code>线程不安全，并且像<code>Stream</code>那样，只能使用一次。<a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit/blob/master/org.eclipse.jgit/src/org/eclipse/jgit/revwalk/RevWalk.java#L77">如果想要再来一次</a>，就需要重新创建<code>RevWalk</code>对象或是调用其<code>reset</code>方法（还得重新<code>markStart</code>！）。</p>
+<p>要想看到每个commit中有什么内容，那就需要用到<code>TreeWalk</code>了，它的思路和<code>RevWalk</code>类似。尝试如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (RevCommit commit : revWalk) &#123;    System.out.println(<span class="string">&quot;\ncommit: &quot;</span> + commit.getName());    <span class="keyword">try</span> (<span class="type">TreeWalk</span> <span class="variable">treeWalk</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeWalk</span>(repo)) &#123;        treeWalk.addTree(commit.getTree());        treeWalk.setRecursive(<span class="literal">true</span>);        <span class="keyword">while</span> (treeWalk.next()) &#123;            System.out.println(<span class="string">&quot;filename: &quot;</span> + treeWalk.getPathString());            <span class="type">ObjectId</span> <span class="variable">objectId</span> <span class="operator">=</span> treeWalk.getObjectId(<span class="number">0</span>);            <span class="type">ObjectLoader</span> <span class="variable">loader</span> <span class="operator">=</span> repo.open(objectId);            loader.copyTo(System.out);        &#125;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样便可以显示仓库在每个commit时候的状态了。如果需要diff，那么还将需要用到<code>DiffEntry</code>等类，本文就不再赘述了，有兴趣的读者可以参考<a target="_blank" rel="noopener" href="https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ShowChangedFilesBetweenCommits.java">这个类</a>。</p>
+<p>最后将环境还原：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /tmp/jgit</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://github.com/centic9/jgit-cookbook">这个代码库</a>里有很全面的、基本可以直接用于生产环境的范例。<br><a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit">JGit的源码</a>和<a target="_blank" rel="noopener" href="http://wiki.eclipse.org/JGit/User_Guide">用户指南</a>。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/jgit/" data-id="cuidtLFN9o_1RoF9Rop059YKY" data-title="用JGit通过Java来操作Git" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-intelligence-age-book-review" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/intelligence-age-book-review/" class="article-date">
+  <time class="dt-published" datetime="2017-07-02T07:00:00.000Z" itemprop="datePublished">2017-07-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AI/">AI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/intelligence-age-book-review/">《智能时代》读后感</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>上个月刚刚读完吴军的<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26838557/">《智能时代》</a>，本文总结并记录一些笔记及感想。</p>
+<h2 id="数据、信息、知识和智能"><a href="#数据、信息、知识和智能" class="headerlink" title="数据、信息、知识和智能"></a>数据、信息、知识和智能</h2><p>在谈论数据时，人们经常将其与信息相混淆。其实信息来源于数据，但是并非所有的数据都承载着有用的信息。例如，对于<code>dd if=/dev/zero of=ggg.txt bs=1k count=10000</code>这样的一个10M文件来说，里面的每一个bit都为0，所以并不能提供什么有意义的信息。而且，无意义和伪造的数据都会干扰和影响我们。通过对信息的处理，可以获取知识，以推动人类文明的发展。例如：通过测量星球的位置和对应的时间，我们可以得到数据；通过处理这些数据得到星球运动的轨迹，就是信息；通过信息总结出开普勒三定律，则是知识。而人类的智能往往体现在：获取数据→分析数据→建立模型→预测未知上。</p>
+<p>现在我们所说的人工智能有两个定义：狭义的人工智能指的是20世纪五六十年代的研究机器智能的特定方法，即传统人工智能方法，专注于让机器像人一样地去思考；广义的人工智能指的是任何可以让计算机通过图灵测试的方法，即让一台机器和一个人在幕后，一位裁判同时与他们交流，看看裁判是否能够分辨出自己交流的对象是机器还是人。以翻译为例：传统的方法就是针对某两种语言编写大量的规则，以反映人类的思考方式；而现代的方法则是通过数据驱动，用机器学习的方式训练出翻译模型的各种参数。在互联网出现以前，很难获取到大量的有效数据，因而实用性不高。但是在如今的大数据时代，获取大量数据已经成为了可能。越来越多的信息可以使模型越来越准确，进而使翻译的效果越来越好。这里有个大数据预测美国大选的例子：2012年有人把互联网上公开的新闻、Facebook、Twitter等选战数据按照州来整理，竟然成功地预测了全部50+1个州的选举结果。</p>
+<p>数据的作用过去常常被人们所忽视。首先是由于过去的数据量不足（少了大数据的大，Vast）；其次是数据缺乏相关性（少了多维度，即多样性Variety）。而现在的数据量由于计算机本身的数据、传感器的数据以及旧信息的数字化，比过去增加了许多，使量变足以成为了质变。数据驱动方法过去的死穴在于，使用基于概率统计的模型会有很多小概率事件覆盖不到。只有提高数据的完备性才行。这在以前是很难做到的，比如搜集全国所有人的面孔。但是如今这样的事情也并非遥不可及。所以我们也许需要重新认识穷举法，在大数据时代它并不像想象中的那样笨。数据的相关性也非常重要。我上班的时候会经过一家广东肠粉的小吃店，招牌上“广”字的一点已经脱落，成了“厂东肠粉”。我们的智能当然能够判断出来这是广东而不是厂东，但是大数据呢？首先它并不能找到什么有意义的“厂东”，但是能找到广东，并且“厂”和“广”字形非常接近。但是这样也无法否定是不是有个小地方叫“厂东”，或是老板的名字叫“厂东”。所以需要交叉验证。接下来发现“广东”和“肠粉”两字经常出现，有相关性。这样数据的相关性便大大提升了可信度。要是有图片，还能根据“厂”的字形比另外三个字稍扁来做进一步的交叉验证，准确性就能够更上一层楼。实际上如果在baidu搜索“厂东肠粉”的时候，它已经会问你“您要找的是不是: 广东肠粉”。Google虽然并不提示你，但显示的搜索结果也都是广东肠粉。当大家都意识到数据的重要性后，市场上的竞争就从技术的竞争转变成了数据的竞争，智能问题已经演变成了数据问题。<br><img src="/img/intelligence-age-guang-dong.png"></p>
+<h2 id="智能革命"><a href="#智能革命" class="headerlink" title="智能革命"></a>智能革命</h2><p>我们现在说起机械思维，总觉得它是个贬义词。但其实它正是以前推动工业革命的要素。机械思维认为世界变化的规律是确定的，因此规律可以被认识，并且可以用公式或语言描述清楚，放之四海而皆准。但成也萧何败萧何，它的局限性正是否认了不确定性和不可知性。世界的不确定性首先来自影响世界的变量实在太多，以至于无法套用公式算出结果。其次世界本身也是不确定的，人类对于世界的观察将会改变世界本身，如量子力学的不确定性原理。但是不确定并不意味着没有规律可循。香农在概率论的基础上，用信息论将世界的不确定性与信息联系了起来，给了人们一种看待世界和处理问题的全新思路。</p>
+<p>新思路为我们带来了大数据思维。它的核心是：数据中所包含的信息可以帮助我们消除不确定性，而数据之间的相关性在某种程度上可以取代原来的因果关系，帮助我们得到想知道的答案。例如，根据大数据的统计结果，可以发现在视频网站上投放零食的广告效果很好，我们可以据此猜出人们在看视频时喜欢吃零食。所以这种新的思维方法允许我们在不知道原因的情况下直接从大量数据中寻找答案，即无监督学习。虽然机器推算出来相关的事情只有一定的概率，但是世界本身就充满了不确定性，100%的准确率固然是好，但是90%的结果也是非常有价值的。这就是思维的革命。</p>
+<p>还有产业的革命。套用一个公式：<strong>现有产业 + 新技术 &#x3D; 新产业</strong>。例如：</p>
+<ul>
+<li>第一次工业革命：现有产业 + 蒸汽机 &#x3D; 新产业</li>
+<li>第二次工业革命：现有产业 + 电 &#x3D; 新产业</li>
+<li>现今的信息革命：现有产业 + 摩尔定律 &#x3D; 新产业</li>
+<li>由大数据引发的智能革命：<br>现有产业 + 大数据 &#x3D; 新产业</li>
+<li>现有产业 + 机器智能 &#x3D; 新产业</li>
+</ul>
+<p>在瓦特改良万能蒸汽机之后，很多上千年历史的古老行业都通过使用蒸汽机而变为新产业，如纺织业冲击了几千年来的家庭纺织业，而瓷器则由白色黄金变成了日用品等。并不需要每一个工厂都去制造蒸汽机，而大多数工厂都会受益于蒸汽机。到了19世纪末，电力的应用也催生了各种新产业，如建筑业通过使用电梯使人们可以把楼盖高，交通运输业通过电车、地铁等公共交通促进了城市的发展，形成了大都市。但是也不需要太多的供电公司，对于美国而言就是通用电气和西屋电气，而大多数公司都会受益于电。“二战”之后，许多产业在使用计算机之后产生了质的变化，如金融业、通信业等。计算机处理器是信息革命的代表产品，但是同样并不需要有很多生产它的公司，今天大部分的处理器都是来自Intel或AMD以及ARM公司所设计的产品，而大部分电脑和智能设备都离不开它们。正在到来的智能革命，也将催生和改造出许多的新产业，但同样，并不是所有公司都会掌握大数据或是培养出机器智能，而大多数公司都将受益于大数据和机器智能。</p>
+<h2 id="挑战"><a href="#挑战" class="headerlink" title="挑战"></a>挑战</h2><p>新革命的到来当然不会是一帆风顺的，首先要解决的是技术上的挑战。大量的数据必然需要大量的存储，并使查找和使用数据的时间剧增。早期存储数据的磁带和软盘根本不可能承担起存储如此海量数据的任务。硬盘虽然容量上去了，但是其存取速度仍然受限于机械运动。直到SSD的崛起和平价化，才使得在存储技术上适应了大数据。数据的传输也是一个挑战，直到移动互联网和WIFI技术的兴起，才使得大量数据的传输成为可能。而对数据的处理，则受益于摩尔定律，处理器速度增加并越来越便宜，从而导致并行处理技术如Map Reduce等的发展。也有目前还没完全解决的问题，如数据的标准化等。Google设计了一种称为<a target="_blank" rel="noopener" href="https://github.com/google/protobuf">Protocal Buffer</a>的数据格式，并已开源供大家使用。</p>
+<p>技术问题解决后，就是商业问题了。如何获得一个全集的大数据呢？例如，为了了解电视的收视率，显然不能再一个个地去发传单、打电话了。最好的方法是通过机顶盒记录用户的收视情况。但是掌握这些数据的生产厂商和有线电视运营商当然不会轻易地把这些数据分享出来。所以Google推出了自己的电视机顶盒Google TV，为获取数据进入电视广告市场做准备，但是销售结果很糟糕，据说后来每个季度退回来的机顶盒比卖出去的还多。以至于Google在2014年斥巨资收购了还在亏损状态的nest公司，以获取nest公司的产品（恒温器）在每一个家庭的数据。一些公司已经敏锐地发现了数据的价值，而另一些公司却捧着金饭碗要饭。</p>
+<p>还有数据的安全。首先由于数据量大，数据一旦丢失或被盗，损失将是巨大的。一种行之有效的方式就是利用大数据本身的特点来保护大数据的信息安全。如果外来的入侵者侵入了计算机系统，由于对业务的不熟悉，他的操作很可能与众不同，因此可以通过与大数据的对比而被发现，从而被制止。还有就是对于隐私的保护。如果导航系统能够帮人们导航并避开拥堵路段，那也说明它知道每个人的行踪。一旦这些信息暴露出来，这是非常危险的。再比如说<a target="_blank" rel="noopener" href="http://www.sohu.com/a/117859356_469880">《大数据高手塔吉特：我知道你怀孕了！》</a>。现在的很多公司都或多或少具备了这样的能力，只是大家不知道或者不注意而已。甚至连淘宝的商家都有可能收集到你的信息，从而决定给你寄真货还是寄假货。</p>
+<p>最后，随着生产力的进一步发展，机器将会抢掉许多人的饭碗：工人、医生、律师、翻译、编辑、中间商等等。特斯拉的汽车装配厂都是由机器人操作，很少雇佣汽车行业的人员，而所雇的都是IT人员。机器将会从大数据中学习到各种专家的知识，甚至表现得更好。那未来如此多失业的人将会怎么办？目前人类还没有很好的办法，只能靠“拖”字决。一两代之后，无法掌握新技能的人也已经到了退休年龄了。AI会有更好的办法么？也许AI会发现只需要让大家陷入深深的睡眠就可以了。《黑客帝国》又向现实迈进了一步。但是AI毕竟来自于大数据，而不是全数据。有朝一日醒来的人类，也许能够通过制造不常见的场景，引发AI的bug，就像李世石曾经战胜AlphaGo的那一盘围棋一样。而埃隆·马斯克用“<a target="_blank" rel="noopener" href="https://www.huxiu.com/article/201384.html">脑机接口</a>”的宏伟蓝图来应对AI。既然人类可能最终会被AI消灭，那不如就让人类与AI成为一体。</p>
+<p>“2%的人将控制未来，成为他们或被淘汰”。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/intelligence-age-book-review/" data-id="cuid9jI0qLuOfzhm5-Z2Cm8-K" data-title="《智能时代》读后感" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-kotlin-syntax-suger" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/kotlin-syntax-suger/" class="article-date">
+  <time class="dt-published" datetime="2017-06-24T07:00:00.000Z" itemprop="datePublished">2017-06-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/kotlin-syntax-suger/">Kotlin的语法糖们</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>当今的<a target="_blank" rel="noopener" href="https://kotlinlang.org/">Kotlin</a>真是炙手可热啊。自2011年JetBrains为了提高IDEA的销量而推出这个项目至今，它一直低调而稳定地发展着。到了上个月即2017年5月，<a target="_blank" rel="noopener" href="https://blog.jetbrains.com/kotlin/2017/05/kotlin-on-android-now-official/">Google宣布将Kotlin语言作为Android开发的一级编程语言</a>，算是到达了语言生的第一个巅峰。<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/faq.html#is-kotlin-hard">Kotlin自身受到Java、C#、JavaScript、Scala、Groovy等语言的影响</a>，本文总结了它提供的部分常见语法糖并与其它语言进行比较。</p>
+<h2 id="字符串模板（string-template）"><a href="#字符串模板（string-template）" class="headerlink" title="字符串模板（string template）"></a>字符串模板（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-types.html#string-templates">string template</a>）</h2><p>Kotlin可以直接通过<code>println(&quot;Hello, {name}&quot;)</code>或<code>println(&quot;Hello, $name&quot;)</code>来使用字符串模板，而Java则需要先借助<code>String.format</code>来生成字符串。而kotlin还支持表达式，如<code>${person.name}</code>和<code>${2 * 3}</code>。这块古老的糖从shell开始就有了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;Hello, $&#123;name&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如果你疑惑为什么无须导入包即可直接使用<code>println</code>，那是因为这个方法所在的<code>kotlin.io</code>包是默认导入（Default Imports）的，正如Java会默认导入<code>java.lang.*</code>一样。Kotlin的默认导入请参考<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/packages.html#default-imports">这里</a>。</p>
+<h2 id="分号推断（semicolon-inference）"><a href="#分号推断（semicolon-inference）" class="headerlink" title="分号推断（semicolon inference）"></a>分号推断（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/grammar.html#semicolons">semicolon inference</a>）</h2><p>我们知道Java中的每一条语句结束后，需要加上分号。Kotlin中的分号是可选的。这应该是来自JavaScript吧。不过写JavaScript还是推荐把分号都加上，否则可能<a target="_blank" rel="noopener" href="http://cjihrig.com/blog/the-dangers-of-javascripts-automatic-semicolon-insertion/">有危险</a>。Groovy、Scala也有同样的能力。</p>
+<h2 id="定义函数（define-function）"><a href="#定义函数（define-function）" class="headerlink" title="定义函数（define function）"></a>定义函数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/functions.html">define function</a>）</h2><p>JavaScript中，<code>function</code>；Go语言，<code>func</code>；Kotlin，<code>fun</code>。怎么看都像是SIM卡变成了micro-SIM，然后又变成了nano-SIM卡。Kotlin可以在类之外定义全局函数，也可以在函数中定义局部函数。这一点类似于JavaScript。</p>
+<h2 id="var／val（local-variable）"><a href="#var／val（local-variable）" class="headerlink" title="var／val（local variable）"></a>var／val（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#defining-local-variables">local variable</a>）</h2><p>变量是<code>var</code>，表示variable；常量是<code>val</code>，表示fixed value。这个很明显来自Scala。在Java中就只能用<code>final</code>关键字了。</p>
+<h2 id="可空值（nullable-value）"><a href="#可空值（nullable-value）" class="headerlink" title="可空值（nullable value）"></a>可空值（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/null-safety.html">nullable value</a>）</h2><p>在变量类型后面加上一个问号，表明这个变量可以为null，否则默认不能为null。例如：<br>这一句编译错误：<code>var a: Int = null</code><br>这样才能成功：<code>var a: Int? = null</code><br>这块糖显然来自于C#，但是更加严格了。它是为了避免Java中的null所造成的<a target="_blank" rel="noopener" href="https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare">十亿美元的错误</a>。</p>
+<h2 id="集合字面量（collection-literals）"><a href="#集合字面量（collection-literals）" class="headerlink" title="集合字面量（collection literals）"></a>集合字面量（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/collections.html#collections">collection literals</a>）</h2><p>Java从来就不愿意用糖吸引小朋友……所以一般快速创建集合是这么写的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> Arrays.asList(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>有好事者（Guava）提供了这样的类库：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> ImmutableList.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>其实Java 8提供的Stream也许已经能够满足你的需求：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Stream</span> <span class="variable">colors</span> <span class="operator">=</span> Stream.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Java 9很可能会<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/269">引入集合字面量</a>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">colors</span> <span class="operator">=</span> List.of(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Kotlin出手了：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = listOf(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>不过实际上并非是语法层面的糖，<code>listOf</code>只是一个方法而已。我相信是从Scala中偷师的：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = <span class="type">List</span>(<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>当然Scala还有自己的经典方式：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> colors = <span class="string">&quot;red&quot;</span> :: <span class="string">&quot;blue&quot;</span> :: <span class="type">Nil</span></span><br></pre></td></tr></table></figure>
+
+<p>C#可以这样来初始化集合：</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> colors = <span class="keyword">new</span> ArrayList&#123;<span class="string">&quot;red&quot;</span>, <span class="string">&quot;blue&quot;</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>JavaScript、Ruby、Go等直接扩展了数组，所以就更省心了。</p>
+<h2 id="when表达式（when-expression）"><a href="#when表达式（when-expression）" class="headerlink" title="when表达式（when expression）"></a>when表达式（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/control-flow.html#when-expression">when expression</a>）</h2><p><code>when</code>表达式有点像是不需要<code>break</code>的<code>switch…case</code>：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">when</span> (x) &#123;    <span class="number">1</span> -&gt; print(<span class="string">&quot;x == 1&quot;</span>)    <span class="number">2</span> -&gt; print(<span class="string">&quot;x == 2&quot;</span>)    <span class="keyword">else</span> -&gt; &#123; <span class="comment">// 这里可以写多行哦        print(&quot;x is neither 1 nor 2&quot;)    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>但它还可以做得更多：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">when</span> &#123;    <span class="string">&quot;orange&quot;</span> <span class="keyword">in</span> items -&gt; println(<span class="string">&quot;juicy&quot;</span>)    <span class="string">&quot;apple&quot;</span> <span class="keyword">in</span> items -&gt; println(<span class="string">&quot;apple is fine too&quot;</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以把它作为扩展版<code>if…else</code>来用。它有点类似Groovy的<code>switch</code>。</p>
+<h2 id="is运算符（is-operator）"><a href="#is运算符（is-operator）" class="headerlink" title="is运算符（is operator）"></a>is运算符（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#using-type-checks-and-automatic-casts">is operator</a>）</h2><p>先看代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">getStringLength</span><span class="params">(obj: <span class="type">Any</span>)</span></span>: <span class="built_in">Int</span>? &#123;    <span class="keyword">if</span> (obj <span class="keyword">is</span> String &amp;&amp; obj.length &gt; <span class="number">0</span>) &#123;        <span class="keyword">return</span> obj.length    &#125;    <span class="keyword">return</span> <span class="literal">null</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里，<code>obj is String</code>之后就可以将其作为<code>String</code>来使用了，调用<code>String</code>的<code>length</code>属性。<code>is</code>不仅比<code>instanceof</code>更加短小精悍，而且还会自动将变量转换为<code>is</code>后面的类型。应该是出于C#而胜于C#。C#提供了<code>is</code>和<code>as</code>，但是<code>as</code>在Kotlin中显然就毫无用武之地了。</p>
+<h2 id="范围运算符（range）"><a href="#范围运算符（range）" class="headerlink" title="范围运算符（range）"></a>范围运算符（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/ranges.html">range</a>）</h2><p>Java如果要循环打印1至9，一般就是这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 8以前for (int i = 1; i     System.out.println(i);&#125;// Java 8 lambdaIntStream.range(1, 9).forEach(System.out::println);</span></span><br></pre></td></tr></table></figure>
+
+<p>如果需要步长（step），lambda方案就需要引入filter、map或iterate。Kotlin自带接口<code>ClosedRange</code>，用了点糖：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.9</span>) print(i)<span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1.</span><span class="number">.9</span> step <span class="number">2</span>) print(i)<span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">9</span> downTo <span class="number">1</span>) print(i)</span><br></pre></td></tr></table></figure>
+
+<p>bash早就支持大括号配合<code>..</code>（<a target="_blank" rel="noopener" href="http://www.gnu.org/software/bash/manual/html_node/Brace-Expansion.html">brace expansion</a>）的这种方式了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for i in &#123;1..9&#125;; do echo $i; done# bash 4支持步长for i in &#123;1..9..2&#125;; do echo $i; done# 否则用seqfor i in `seq 1 2 9`; do echo $i; done</span><br></pre></td></tr></table></figure>
+
+<p>不过我更喜欢ruby，支持lambda的写法更加优雅：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>..<span class="number">9</span>).each &#123;|<span class="params">x</span>| puts x&#125;(<span class="number">1</span>..<span class="number">9</span>).step(<span class="number">2</span>) &#123;|<span class="params">x</span>| puts x&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="运算符重载（operator-overloading）"><a href="#运算符重载（operator-overloading）" class="headerlink" title="运算符重载（operator overloading）"></a>运算符重载（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/operator-overloading.html">operator overloading</a>）</h2><p>这个是C#和Scala的把戏：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Point</span>(<span class="keyword">val</span> x: <span class="built_in">Int</span>, <span class="keyword">val</span> y: <span class="built_in">Int</span>)<span class="keyword">operator</span> <span class="function"><span class="keyword">fun</span> Point.<span class="title">plus</span><span class="params">(<span class="keyword">val</span> point: <span class="type">Point</span>)</span></span> = Point(x + point.x, y + point.y)Point(<span class="number">1</span>, <span class="number">2</span>) + Point(<span class="number">3</span>, <span class="number">4</span>) <span class="comment">// Point(x=4, y=6)</span></span><br></pre></td></tr></table></figure>
+
+<p>怎么知道<code>+</code>号上映射的是<code>plus</code>方法呢？还是得参考<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/operator-overloading.html">官方文档</a>。</p>
+<h2 id="包别名（package-alias）"><a href="#包别名（package-alias）" class="headerlink" title="包别名（package alias）"></a>包别名（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/packages.html#imports">package alias</a>）</h2><p>Kotlin支持为包指定别名，对代码洁癖患者可能会起到一定的疗效：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.math.BigDecimal <span class="keyword">as</span> bd</span><br></pre></td></tr></table></figure>
+
+<p>Python、Groovy也都是这样：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List <span class="keyword">as</span> UtilListimport java.awt.List <span class="keyword">as</span> AwtList</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型别名（type-alias）"><a href="#类型别名（type-alias）" class="headerlink" title="类型别名（type alias）"></a>类型别名（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/type-aliases.html">type alias</a>）</h2><p>Kotlin还支持为类型指定别名：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typealias</span> Row = List</span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自Scala的Type：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Row</span> </span>= <span class="type">List</span>[<span class="type">Int</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="扩展函数（extension-function）"><a href="#扩展函数（extension-function）" class="headerlink" title="扩展函数（extension function）"></a>扩展函数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/extensions.html">extension function</a>）</h2><p>扩展函数允许为一个类增加公有静态方法，调用时就好像这个方法是原生的一样。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> String.<span class="title">greetingsWith</span><span class="params">(greeting: <span class="type">String</span>)</span></span> &#123;    println(<span class="string">&quot;<span class="variable">$greeting</span>, <span class="variable">$this</span>&quot;</span>)&#125;<span class="string">&quot;ggg&quot;</span>.greetingsWith(<span class="string">&quot;Hello&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>虽然JavaScript也能轻易做到，但我还是强烈地认为它来自于C#，毕竟都是一脉相承。kotlin更近一步支持扩展属性：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> String.halfLength: <span class="built_in">Int</span>    <span class="keyword">get</span>() = length / <span class="number">2</span><span class="string">&quot;ggg&quot;</span>.halfLength <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="函数扩展（function-expansion）"><a href="#函数扩展（function-expansion）" class="headerlink" title="函数扩展（function expansion）"></a>函数扩展（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/lambdas.html#higher-order-functions">function expansion</a>）</h2><p>如果函数的最后一个参数类型是个函数，可以通过大括号来传值：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">calculate</span><span class="params">(a: <span class="type">Int</span>, cal: (<span class="type">Int</span>) -&gt; <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;    <span class="keyword">return</span> cal(a)&#125;calculate(<span class="number">3</span>) &#123; x -&gt; x * x &#125; <span class="comment">// 9</span></span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自ruby的block：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">calculate</span>(<span class="params">a, &amp;cal</span>)    cal.call aendcalculate(<span class="number">3</span>) &#123; |<span class="params">x</span>| x * x &#125; <span class="comment"># 9</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="默认参数（default-arguments）"><a href="#默认参数（default-arguments）" class="headerlink" title="默认参数（default arguments）"></a>默认参数（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/functions.html#default-arguments">default arguments</a>）</h2><p>Kotlin支持为参数指定一个默认值：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>)</span></span> &#123;  show()  show(<span class="string">&quot;Good morning&quot;</span>)&#125;<span class="function"><span class="keyword">fun</span> <span class="title">show</span> <span class="params">(msg: <span class="type">String</span> = <span class="string">&quot;Hello World&quot;</span>)</span></span> &#123;    println(<span class="string">&quot;<span class="variable">$msg</span>&quot;</span>) &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java一般是靠重载来实现默认参数。许多其它的语言都支持默认参数。例如，JavaScript在ES6上也支持默认参数了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">multiply</span>(<span class="params">a, b = <span class="number">1</span></span>) &#123;  <span class="keyword">return</span> a * b;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="单例对象（singleton）"><a href="#单例对象（singleton）" class="headerlink" title="单例对象（singleton）"></a>单例对象（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/object-declarations.html#object-declarations">singleton</a>）</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">object</span> Document &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这应该是来自于Scala，连关键字都一模一样。</p>
+<h2 id="伴生对象（companion-object）"><a href="#伴生对象（companion-object）" class="headerlink" title="伴生对象（companion object）"></a>伴生对象（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/object-declarations.html#companion-objects">companion object</a>）</h2><p>伴生对象经常用于Factory。这一点相信也是来自于Scala。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;    <span class="keyword">companion</span> <span class="keyword">object</span> Factory &#123; <span class="comment">// Factory可省略，省略后可用Companion引用        fun create(): MyClass = MyClass()    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="getter和setter（getter-and-setter）"><a href="#getter和setter（getter-and-setter）" class="headerlink" title="getter和setter（getter and setter）"></a>getter和setter（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/properties.html#getters-and-setters">getter and setter</a>）</h2><p>Kotlin像C#一样支持属性（property）。我们来看两个例子：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> isEmpty: <span class="built_in">Boolean</span>    <span class="keyword">get</span>() = <span class="keyword">this</span>.size == 0var counter = <span class="number">0</span>    <span class="keyword">private</span> <span class="keyword">set</span>(value) &#123;        <span class="keyword">if</span> (value &gt;= <span class="number">0</span>) field = value    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据类（data-class）"><a href="#数据类（data-class）" class="headerlink" title="数据类（data class）"></a>数据类（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/data-classes.html">data class</a>）</h2><p>告别繁琐的Java数据类的时代到来了：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">User</span>(<span class="keyword">val</span> name: String, <span class="keyword">val</span> age: <span class="built_in">Int</span>)</span><br></pre></td></tr></table></figure>
+
+<p>看到最前面的<code>data</code>，我突然觉得这是源于<a href="/lombok">lombok</a>…</p>
+<h2 id="没有原始类型（no-raw-types）"><a href="#没有原始类型（no-raw-types）" class="headerlink" title="没有原始类型（no raw types）"></a>没有原始类型（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/java-interop.html#mapped-types">no raw types</a>）</h2><p>Kotlin没有原始类型，一切皆对象：<code>1.inc()</code>。这一点与Ruby、Scala相同。</p>
+<h2 id="没有受检查异常（no-checked-exception）"><a href="#没有受检查异常（no-checked-exception）" class="headerlink" title="没有受检查异常（no checked exception）"></a>没有受检查异常（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/exceptions.html#checked-exceptions">no checked exception</a>）</h2><p>Kotlin并没有受检查异常。因为在大型的项目中，它对代码质量的提升极其有限，但是却大大降低了效率。C#十多年前就是这样了，有兴趣的读者可以参考<a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/csharpfaq/2004/03/12/why-doesnt-c-have-checked-exceptions/">这篇文章</a>。</p>
+<h2 id="没有static（no-static-member）"><a href="#没有static（no-static-member）" class="headerlink" title="没有static（no static member）"></a>没有static（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/classes.html#companion-objects">no static member</a>）</h2><p>Kotlin也没有static的成员。这一点与Scala相同。在Kotiln中可以使用包级别的函数，或者是伴生对象来实现static的效果。</p>
+<h2 id="多返回值（multiple-return-values）"><a href="#多返回值（multiple-return-values）" class="headerlink" title="多返回值（multiple return values）"></a>多返回值（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/multi-declarations.html">multiple return values</a>）</h2><p>可以从<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/multi-declarations.html#example-returning-two-values-from-a-function">这一个例子</a>中看到Kotlin是如何实现函数的多返回值的。我猜应该是受到了Go语言的启发。</p>
+<h2 id="嵌套块注释（nested-block-comment）"><a href="#嵌套块注释（nested-block-comment）" class="headerlink" title="嵌套块注释（nested block comment）"></a>嵌套块注释（<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/reference/basic-syntax.html#comments">nested block comment</a>）</h2><p>Kotlin支持块注释<code>/* … */</code>的嵌套。这可能是来自Haskell或F#。</p>
+<h2 id="在线版IDE"><a href="#在线版IDE" class="headerlink" title="在线版IDE"></a>在线版IDE</h2><p>如果不想安装那么多语言，可以试试这个<a target="_blank" rel="noopener" href="https://codepad.remoteinterview.io/">在线版IDE</a>，它支持包括Kotlin在内的几十种语言。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/kotlin-syntax-suger/" data-id="cuid-AypQ_Lk699RqOYMqaVI1" data-title="Kotlin的语法糖们" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-lombok" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/lombok/" class="article-date">
+  <time class="dt-published" datetime="2017-05-20T07:00:00.000Z" itemprop="datePublished">2017-05-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/lombok/">用Lombok优雅地写代码</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://projectlombok.org/index.html">Lombok</a>是一个比较早、小众但是功能强大的Java库，源码在<a target="_blank" rel="noopener" href="https://github.com/rzwitserloot/lombok">github上</a>。如果你厌恶写Java代码时不得不手写或用IDE生成大量无趣的样板代码，如getter、setter等，那就准备好拥抱lombok吧。</p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><h3 id="数据类"><a href="#数据类" class="headerlink" title="数据类"></a>数据类</h3><p>Lombok通过注解来减少样板代码的使用。对于数据类来说，自己看<a target="_blank" rel="noopener" href="https://projectlombok.org/">官网的视频</a>吧。三分钟太长不想看？那么也可以快速浏览一下<a target="_blank" rel="noopener" href="https://projectlombok.org/features/Data.html">这里的代码</a>。神奇的事情是怎么做到的呢？奥秘就是<a target="_blank" rel="noopener" href="http://notatube.blogspot.com/2010/11/project-lombok-trick-explained.html">在编译时插入代码</a>。你甚至还可以创建自己的注解！参考<a target="_blank" rel="noopener" href="http://notatube.blogspot.com/2010/12/project-lombok-creating-custom.html">这篇文章</a></p>
+<h3 id="其它特性"><a href="#其它特性" class="headerlink" title="其它特性"></a>其它特性</h3><p>除了本职的数据类以外，lombok还提供了许多<a target="_blank" rel="noopener" href="https://projectlombok.org/features/index.html">其它的特性</a>，以帮助我们减少样板代码的使用。官网的说明非常详细，也都附带了代码，我就不做说明书的搬运工了。这里放一个例子：<a target="_blank" rel="noopener" href="https://projectlombok.org/features/Synchronized.html">@Synchronized</a>。</p>
+<h2 id="与Intellij-IDEA集成"><a href="#与Intellij-IDEA集成" class="headerlink" title="与Intellij IDEA集成"></a>与Intellij IDEA集成</h2><p>动手时间。新建Maven工程，往pom.xml中增加dependency，最后的pom.xml看起来就像这样：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;    4.0.0    org.ggg.lombok    helloLombok    1.0-SNAPSHOT                        org.projectlombok            lombok            1.16.16            provided                            junit            junit            4.12            test</span><br></pre></td></tr></table></figure>
+
+<p>在src&#x2F;main&#x2F;java中新增一个Person类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Person</span> &#123;    <span class="keyword">private</span> String name;    <span class="keyword">private</span> <span class="type">int</span> age;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Person类中右击，Go To，Test（或者Ctrl&#x2F;Command+T）便可以在src&#x2F;test&#x2F;java中新增一个对应的测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.junit.Test;<span class="keyword">import</span> <span class="keyword">static</span> org.junit.Assert.*;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PersonTest</span> &#123;    <span class="meta">@Test</span>    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">should_get_name_from_person</span><span class="params">()</span> &#123;        <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;ggg&quot;</span>, <span class="number">18</span>);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>出现了一条红线，编译失败。回到Person类中，在Person类的定义上面加上<code>@AllArgsConstructor</code>并<code>import lombok.AllArgsConstructor;</code>，还是编译不过。现在到了应该加载IDEA插件的时候了。参考<a target="_blank" rel="noopener" href="https://github.com/mplushnikov/lombok-intellij-plugin">这里</a>来安装lombok插件，别忘了重启Intellij IDEA。这回编译成功了。在测试的调用构造函数处Command&#x2F;Ctrl+B便能跳转到Person类的<code>@AllArgsConstructor</code>上。接着写测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Person</span> <span class="variable">ggg</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;ggg&quot;</span>, <span class="number">18</span>);assertEquals(<span class="string">&quot;ggg&quot;</span>, ggg.getName());</span><br></pre></td></tr></table></figure>
+
+<p>getName又红了。切换回Person类，再加上<code>@Getter</code>，编译通过！运行测试，绿了！<br><img src="/img/lombok.jpg"></p>
+<p>还可以通过Find Usages来找到字段的get方法在哪调用，可惜不能找到构造函数在哪调用。在享用便捷的同时，也需要付出些许的代价。有兴趣的看官可以自行尝试文档中的其它注解。例如<code>@ToString(of=&quot;name&quot;)</code>，<code>@Log</code>，<code>@Getter(lazy=true)</code>等等。值得一提的是，<a target="_blank" rel="noopener" href="https://projectlombok.org/features/Cleanup.html">@Cleanup</a>可以轻松地关闭流、连接等对象，Java 7也提供了<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html">try-with-resources</a>来做到这一点，只不过需要缩进罢了，但是可以很明显地看出作用域。还请自行选择喜欢的那个。当然，如果你的项目还在用老旧的Java 6，那确实也没有什么选择的余地。</p>
+<h2 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h2><p>首先，Lombok扮演着一个注解处理器的角色，在编译时通过修改抽象语法树（Abstract Syntax Tree，AST）来修改代码。但是这是被注解处理器规范所明令禁止的，规范仅允许生成新文件或是新类。而聪明的lombok开发者通过javac未公开的API绕开了这个限制。所以有人视lombok为邪门歪道。不过嘛，不管黑猫白猫，能捉老鼠的就是好猫；不管黑糖白糖，能少写代码的就是好糖。先了解它，再决定要不要因为代价而放弃收益。如果未来的Java版本取消了后门，那么使用lombok的项目就存在升级JDK的风险。如果介意这一点，并且只有数据类的需求，可以去看看google的<a target="_blank" rel="noopener" href="https://github.com/google/auto/blob/master/value/userguide/index.md">AutoValue</a>。不过白魔法比黑魔法总是缺了点什么…</p>
+<p>第二点是IDE的支持。虽然是支持，但是你也看到了并不能像原来虽然写了代码，但大都是自动生成的代码那样随心所欲地各种重构。另外IDE偶尔抽点风也可能会让你流半天汗。</p>
+<p>第三点是代码覆盖率的测试。如果贵公司对它有明确而严格的要求，那就需要好好研究lombok与所用的代码覆盖率工具的兼容程度了。目前看来lombok与<a target="_blank" rel="noopener" href="http://cobertura.github.io/cobertura/">Cobertura</a>的兼容性还是最好的。</p>
+<p>最后一点是代码行为可能会与你的预期不一样，比如enum的<code>@ToString</code>。<a target="_blank" rel="noopener" href="https://medium.com/@vgonzalo/dont-use-lombok-672418daa819">这篇文章</a>中详细地介绍了非预期的代码行为、去lombok的痛苦以及替代方案，值得看官们参考。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/lombok/" data-id="cuidI_T-XOJ-wrB7yBTmNaQhu" data-title="用Lombok优雅地写代码" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-blockchain" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blockchain/" class="article-date">
+  <time class="dt-published" datetime="2017-04-03T07:00:00.000Z" itemprop="datePublished">2017-04-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/architecture/">architecture</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/blockchain/">区块链技术浅析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8C%BA%E5%9D%97%E9%93%BE">区块链</a>是2016年起突然走红起来的一门技术，连国务院印发的<a target="_blank" rel="noopener" href="http://news.sohu.com/20161227/n477114271.shtml">《“十三五”国家信息化规划》</a>也将其纳入。上周公司举办黑客马拉松的活动，有幸浅尝了一下区块链的应用，本文旨在记录并分享区块链的一些心得。</p>
+<h2 id="比特币（Bitcoin）"><a href="#比特币（Bitcoin）" class="headerlink" title="比特币（Bitcoin）"></a>比特币（Bitcoin）</h2><p>要说清楚区块链，首先需要了解<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%AF%94%E7%89%B9%E5%B8%81">比特币</a>。2008年金融危机时，神秘的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%B8%AD%E6%9C%AC%E8%81%AA">中本聪</a>发表了一篇论文，详细描述了比特币。一年之后，他将其实现。再一年之后，他便把比特币交予社区维护，自己不再露面了。比特币其实就是一个文件，里面记载了所有人的账户及交易信息。这个文件只能往里增加数据而不能修改数据。比特币网络中的每一个人都拥有这个文件的备份。</p>
+<p>我也可以写一个文件来表示所有人的帐户信息，但是它一文不值。为什么比特币就有价值呢？它存在价值是因为人们相信它有价值，就像印出来的钞票一样。而人们自发的信任是需要时间的。最初比特币也没有什么价值。第一笔交易发生在2010年，一位程序员在佛罗里达花了一万个比特币购买了价值25美元的披萨。截止本文发布，一个比特币大约是7000元人民币左右，可以在<a target="_blank" rel="noopener" href="https://www.okcoin.cn/market-btc.html">OKCoin</a>上查看。随着比特币的流行，出现了不少类似的货币，如以太坊（Ethereum）、莱特币（Litecoin）等等。只要有人相信它，它就有价值。想当年刚听说比特币的时候，我心底还暗自嘲笑怎么会有人相信这种一点实体都没有的东西，事实证明我还是太naive了。</p>
+<p>作为一种货币，需要能够向别人转账。假如邻居家老王要给你转10个比特币，他需要把这笔交易写入文件并告诉比特币网络的其他节点，让大家把交易添加进这个文件。所以每个人都能够得知这笔交易信息。现在问题来了，其它的节点怎么知道这笔转账是可信的，即老王提出的呢？要是每个人都发起从老王转账到自己的请求，那老王可就亏死了。其他人当然做不到。因为这笔交易需要用老王的私钥签名。公私钥的简介可以参考我写的<a href="http://qinghua.github.io/certificate/#u975E_u5BF9_u79F0_u52A0_u5BC6">《证书的那些事儿》的非对称加密一节</a>。其他人拿不到老王的私钥，当然就无从伪造请求了。在比特币中，公钥也用于表示对方的地址。消费时，你需要用数字签名证明你拥有对应的私钥。比特币没有中心节点，所以如果老王转错账了，抱歉，要不回来了。你只知道对方的公钥（或者说是比特币的帐号或地址），并不知道对方的身份。</p>
+<p>为了安全，比特币上并不会记载每个账户的余额是多少。每当要转账时，它需要提供至少一笔未消费的历史交易信息作为input，转完账后，剩余的部分称为零钱，可以转入你自己的公钥，或是你小号的公钥。至此，未消费的交易就变成了已消费，不能被再次使用了。所以多次重复的请求只有第一笔才能成功。比特币的转账并非立即生效，只有在解开一道数学题之后才行。解题的过程就叫挖矿。题目的难度由程序控制，程序会根据历史记录把解题时间控制在大约十分钟左右。</p>
+<p>还有一个问题，由于网络传输的不确定性，你并不能保证老王的转账被及时同步到了所有的节点上。所以如果在这笔交易完全传播出去之前，老王又在这笔交易之前将本来作为input的历史交易转帐给他的小号呢？其它的节点根本判断不了哪个在前，哪个在后。所以顺序在这里至关重要。比特币是这么解决这个问题的：把交易分配到区块里（多对一），然后将区块链接起来，称为区块链。每个区块都会引用上一个区块，这样便实现了有序。同一区块内的交易被认为是同时发生的。由于同一时间可能会产生多笔交易，所以可能会产生多个区块。那如何知道应该以哪一个区块为准呢？事实上，每一个区块都包含了一道特殊的数学题，只有解开这道题才能使之有效。当一个节点解开了这道题，它便会向比特币网络广播自己的结果，并把交易排在区块链的下一位。如果偶尔有多人同时解出了结果，那么区块链便会产生不同的分支。两个分支开始竞争，看谁能够更快生成下一个区块。哪个分支更长，哪个分支就有效。这样的话，由于多人同时算出答案的概率很低，所以分支会在一定时间之后消失。如果你的交易在一个消失的分支的区块里，便会重新放到未确认的交易区里，等待加入下一个区块。那如果有人能快速计算多个区块，岂不是可以随心所欲了？话虽如此，但是要以个人之力来对抗全网，实在是非常困难的事情。除非控制了整个比特币网络上50%以上的运算力，才开始有可能做到。这样的成本是非常高的，对于一般的交易来说，实在是有些不值得。你也无法提前运算，因为下一个区块需要引用当前的区块和随机数，只有在当前区块完成之后，才能开始计算。所以说参与的机器越多，比特币或者说区块链就越安全。还有一点值得注意的是，越前面的区块就越安全，因为攻击所需的资源会越大。小规模的转账，等一个区块便可以了；大规模的话，最好多等几个，以降低分支消失的概率。</p>
+<p>有意思的是，由于比特币网络上的机器是那么的多，导致个人很难能够挖到矿。所以采矿池（mining pool）应运而生，集多人的算力，挖到矿后根据贡献来分配。但是采矿池太大了也会带来安全问题，因为有可能超过了50%的运算力。有一家BTC Guild曾经能够独立解出一个链中的6个区块，所以这个采矿组织主动限制了规模和会员的数量，以减少比特币网络成员的不安。</p>
+<h2 id="区块链（blockchain）"><a href="#区块链（blockchain）" class="headerlink" title="区块链（blockchain）"></a>区块链（blockchain）</h2><p>上一节已经介绍了比特币的区块链了。其实区块链就是一个去中心化的存储。在这一点上，它与git是比较相似的。它们都是分布式、无中心的链式存储，但是在出现分支时的解决方式不一样。Git可以通过merge和rebase来解决冲突，而区块链则是通过链的长度来自动废弃分支，作废分支里的交易重新放到未确认的交易区里，以便下次再放入新区块里，这样的行为有些类似<code>git rebase</code>。</p>
+<p>由于区块链不停地往里增加区块，势必导致文件越来越大。虽然可以控制区块的大小（最大1M）和增长速度（10分钟左右），但这么计算每年也有<code>365×24×6×1M=52G</code>左右的数据。长此以往，如何受得了？作为消费者来说，已经校验并消费过了的历史数据，可以仅保存其散列码，这样便能大大减少数据。比特币钱包用的是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Merkle_tree">Merkle Tree</a>来做验证。</p>
+<p>区块链按照参与者的身份，可以分为公有链（Public blockchain）、联盟链（Consortium blockchain）和私有链（Private blockchain），公有链如比特币，是通过挖矿来达成共识（consensus），但是挖矿的计算需要消耗大量的电力资源。联盟链顾名思义，仅由联盟内部可写，外部经过授权可读。而私有链只有一个成员可写，类似传统的分布式数据库。联盟链和私有链由于成员并非匿名，可受部分信任，并且消耗运算力其实也是一种浪费，所以可以相对放松一些要求，不必非得挖矿，可以通过共识协议来达成共识。</p>
+<p>使用区块链必须能够达成共识，否则就失去意义了。其实传统的分布式一致性算法也能解决达成共识的问题，只不过一般并不考虑恶意节点篡改数据的问题罢了，而且实际上使用的节点也不像区块链那么多。传统的常见算法有：ZooKeeper使用的Zab协议；etcd使用的Raft协议；当然还有大名鼎鼎的Paxos协议。限于篇幅，本文就不具体讨论它们的具体算法了。</p>
+<p>区块链最主要的贡献，是解决了在不信任网络中的信任问题。与传统的解决方案相反，参与区块链的人越多则越安全。但是如果你的组织已经有足够的信誉，是否真的需要使用区块链来实现？当你想使用区块链技术来解决特定问题的时候，应该先问问自己，如果不用区块链，会有什么问题？如果回答不了这个问题，那可能你对区块链还不够了解，或者是区块链并不是你问题的最佳解决方案。相对于技术本身来说，更麻烦的问题是靠谱的想法和实施。别手里拿着个锤子看什么都是钉子哦。再考虑一下传统的方案吧。</p>
+<p>除了金融领域以外，还有许多应用区块链的有趣想法：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://business.sohu.com/20160414/n444147338.shtml">当Airbnb遇到区块链：你弄碎房东花瓶的事全世界都会知道</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.weiyangx.com/165124.html">纳斯达克在爱沙尼亚推出区块链投票系统</a></li>
+<li><a target="_blank" rel="noopener" href="http://36kr.com/p/5068610.html">沃尔玛推零售“黑科技”:区块链跟踪食品溯源</a></li>
+<li><a target="_blank" rel="noopener" href="http://news.163.com/16/0711/05/BRLVNTKN00014AED.html">蚂蚁金服将使用区块链技术 追踪每一笔公益善款去向</a></li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="http://v.youku.com/v_show/id_XNjQ0NzE0Mjky.html">《详解比特币的原理和运行机制》</a><br><a target="_blank" rel="noopener" href="http://blockchaindev.org/article/introduce_blockchain.html">《区块链(Blockchain)深入介绍》</a><br><a target="_blank" rel="noopener" href="http://blockchaindev.org/article/consensus_introduction.html">《浅谈区块链共识机制与分布式一致性算法》</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/blockchain/" data-id="cuidWSe-J0aDx2tEaPp8N2eJA" data-title="区块链技术浅析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-devopsdays-beijing-2017" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/devopsdays-beijing-2017/" class="article-date">
+  <time class="dt-published" datetime="2017-03-19T07:00:00.000Z" itemprop="datePublished">2017-03-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/devopsdays-beijing-2017/">DevOpsDays北京站见闻</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>首度来到中国的DevOpsDays北京站昨天顺利举行了。有幸得到赠票，在大会上见到了DevOps之父Patrick Debois还有诸多业内专家。当天的盛况及ppt下载请移步<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s/A6QDB4Z-O5cm4KCnDOmKAw">此处</a>。</p>
+<p>传统的DevOps主要涵盖了CAMS（Culture文化、Automation自动化、Measure度量、Sharing分享）四大方面。而要落地DevOps，需要两条腿：一条是组织方面的转型，另一条是技术方面的自动化工具。组织转型是要涉及到利益的，不容易下手。所以大部分的分享还是以技术方面为主。只有Patrick的好基友<a target="_blank" rel="noopener" href="http://www.krisbuytaert.be/blog/">Kris Buytaert</a>的ppt讲的是reorg。乔梁讲的是他在百度和腾讯的经历，但可能是受时间所限并没有太多的实际内容。如果没有自上而下的变革，很难推动起组织转型。对于许多人来说，也许能够做到的，也就是自动化工具罢了。下午的Open Space深度交流专场里，不乏对组织转型方面的问题，但是嘉宾们其实也没有什么非常好的办法。有些技巧（比如说拿数据说话）可以让你把DevOps推销给老板，但终究一场战斗的胜利很难能够左右战略上的部署。没有自上而下的决心和后盾，在触及利益的时候肯定是各种痛啊。两条慢腿可能凑活着还能走走，一条腿快一条腿慢必然会驱使着变革的前进或倒退。DevOps讲究痛点驱动，相信以后的DevOpsDays会有更多组织转型方面的分享。</p>
+<p>在技术上，专家们一直强调，没有DevOps团队，别叫他们DevOps工程师。DevOps需要融入到跨功能团队中的每一个人，不是某一类人，不是某一个团队。这里我感觉有一个词很重要：<strong>同理心</strong>。有了同理心，你会理解其它角色的痛点，反之亦然。由此，便可以催生出<strong>分享</strong>。有了分享，理解痛点，便能从“像部署一样痛苦的事要多做”出发，提取出最佳实践，催生<strong>自动化</strong>。要衡量效果如何？数据说话。于是催生<strong>度量</strong>。这几方面相辅相成，在整体的良性循环之下，团队<strong>文化</strong>的成型便是顺理成章。怎样让大家拥有同理心？除了依靠人的素质进步，百度的刘俊还提到了一个做法，据说甚是有效，那就是开发运维轮岗。想想也对，把你推到别人的位置上，自然就有同理心了。</p>
+<p>我在《DevOps实践》的译者序上也说过，DevOps是要很高成本的。在应用它之前，先问自己这样的问题：为什么要上DevOps？它能解决我的什么问题？不要说我想提高工作效率，提高程序质量，要从更高层次的业务上说。换句话说，从战略层面上想清楚应用DevOps的目的，然后在战术层面上依照战略来有根据有优先级地安排资源打硬仗。跟性能调优一样，搞清楚哪里才是瓶颈，针对性地动手解决。而不是直接拍胸脯就上DevOps，把最宝贵的资源浪费在可能对这个组织最没用的地方上。</p>
+<p>对于中小企业来说，不要开发自己的自动化工具，不要重复发明轮子，直接拿现成的开源工具来用吧。不是BAT这样的量级，玩不起自研版的工具，它们其实是很重量级的。针对开源工具有些功能不符合自己的需求这方面，ThoughtWorks的黄博文说道：可以从另一个角度来看待这个问题，为什么你要的功能没有？这是一个正常的功能吗？究竟是功能的缺失，还是说只是你走错了路？此言深得我心。据说业界运维做得最好的应该就是谷歌和Netfilx。它们都有不少开源的运维工具，值得业内人士仔细研究。</p>
+<p>最后放一张乔梁对DevOps和持续交付的看法，四个角色分别是产品、开发、测试和运维。先剧透一下并不是所有人都同意这个观点，少年，你怎么看？<br><img src="/img/agile-devops-and-cicd.jpg"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/devopsdays-beijing-2017/" data-id="cuidemNJiwsEkvYIpI-Wkyhh8" data-title="DevOpsDays北京站见闻" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/activity/" rel="tag">activity</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-test-random" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/test-random/" class="article-date">
+  <time class="dt-published" datetime="2017-03-05T08:00:00.000Z" itemprop="datePublished">2017-03-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/development/">development</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/test-random/">如何测试随机数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>怎样知道它是不是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0">随机数</a>？如何测试一个<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8">随机数生成器</a>？</p>
+<p>有些程序很容易测试，但并非所有程序都是如此。自动化测试的目的是以现在的时间成本，来换取未来的时间成本。很多程序员们经常自己写一个小玩意，就不爱写测试了，这是因为他们觉得这个小玩意也就用那么几次，不值得为它单写一个测试。从这个角度上看，这是没错的。大型项目经常会有比较完备的测试，因为这个项目可能会交付很长时间，也可能会有很长的维护时间。这时候测试的成本就可以在未来得到回报。测试随机数生成器，首先要回答的问题是：值不值得做这个测试？如果说这个随机数生成器本来就是系统提供的接口，那是否我们有必要费精力去测试它呢？如果它是不可靠的，那可能暗示着你的技术选型出了问题。如果它可靠（<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%80%A7">伪随机数</a>也算是可靠），那是否可以使用系统的随机数生成器来生成你自己特定的随机数生成器呢？在这种情况下，自己写的随机数生成器还是可能需要测试的。那应该怎么测试它呢？</p>
+<p>让我们来举个简单的例子。比如我们需要得到由两位数字组成的随机字符串（”00”<del>”99”），它要做的仅仅是调用系统接口生成0</del>99的数字并格式化为”00”~”99”的字符串。这时我们只需测试它调用系统接口的参数，以及格式化的逻辑即可。而它们都可以通过mock等技术手段很容易地测试。在系统提供的随机数生成器的支持下，应该是可以满足大部分的随机需求的。</p>
+<p>如果你非要以打硬仗的方式来测试随机数的话，除去成本因素，要想从纯技术上回答这个问题，那就要先回答另一个问题：什么是随机数？这就回到了业务的本质：在不考虑测试时，在什么情况下你会认为它是一个随机数？简单起见，我们就以0~99的伪随机数为例。取决于业务，可能你的需求是：①连续两次执行结果基本不同（“基本”是由于真随机的不可预测性，它们是可能相同的），或者是②连续执行100遍每次数字都不同，或者是③计算一万遍，要求结果呈现怎样怎样的分布。对于①来说，两次计算结果相同的概率只有百分之一（1% * 1% * 100），三次结果相同的概率只有万分之一（1% * 1% * 1% * 100）。所以测试可以这样来设计：调用两次，如果结果相同，那就再调用一次，如果还相同，那就再调用，直至不同为止。最后看调用次数<code>count</code>：如果<code>count = 2</code>，很好。如果<code>count = 3</code>，那就说明现在正好是1%的那次。如果<code>count = 4</code>，说明是0.01%的那次。理想情况下，如果每天运行100次测试，可能会有1次<code>count = 3</code>，运行100天，有1次<code>count = 4</code>，运行10000天（大约27年），会有一次<code>count = 5</code>。根据业务的容忍程度判断<code>count</code>的大小，例如当它大于5就算测试失败。虽然偶尔也会出现<code>count = 6</code>的情况，但是非常罕有，平均2700年会有一次，而且就算测试失败，也很容易排查到这个问题。所以就可以认为是符合业务需求。对于②来说，那就执行100遍看结果好了，也是技术上可实现的。对于③来说，其实与①有相似之处，只要能够描述出来，就能够测试出来。只要自己控制好测试的阈值就可以了。</p>
+<p>维基百科上提供了一些<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%80%A7#.E9.9A.8F.E6.9C.BA.E6.80.A7.E6.B5.8B.E8.AF.95.E6.96.B9.E6.B3.95">随机性测试方法</a>。只要能描述，就可以测试。但是，值得吗？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/test-random/" data-id="cuidBjGgaLKndizsDcInKAbcg" data-title="如何测试随机数" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/test/" rel="tag">test</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-avoid-production-accident" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/avoid-production-accident/" class="article-date">
+  <time class="dt-published" datetime="2017-02-02T08:00:00.000Z" itemprop="datePublished">2017-02-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/idea/">idea</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/avoid-production-accident/">如何尽量避免生产事故</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>运维不好当啊。上个月<a target="_blank" rel="noopener" href="http://hs.blizzard.cn/articles/16/8565">炉石传说数据库故障导致数据损坏</a>刚刚补偿完毕，这两天又出了个<a target="_blank" rel="noopener" href="http://www.oschina.net/news/81473/gitlab-com-down">GitLab误删生产数据库</a>。本文聊聊尽量避免生产事故的一些方法。</p>
+<p>我看到<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s/kTA24o0opEk51Q-RNNWPKg">圈内讨论</a>里有人说，重要系统维护的时候必须两个人一起干活，一个做另外一个在旁边看。这有点儿像是结对编程的思路。我觉得两个人一起固然会好一点，但从结对的实际经验来看，一来可能导致效率更低，二来两个人一起也不能保证不会出问题。大部分情况下这两个人的水平并不是一致的，水平高的人操作，容易导致另一个人只是干看着；而水平低的人操作，反而增加了误操作的几率，需要水平高的人紧盯着。</p>
+<p>还有人说，改造一下<code>rm -rf</code>，让它只能删空目录，我觉得这是一个不错的点子。由于人总是可能会出错，所以由一个机制来保证（法制而非人治），效果应该更加理想。不过这种办法也有几个问题存在。一是所有的机器都需要替换并保持<code>rm</code>命令，二是操作的时候还是不免会稍微降低效率，三是误操作一般是在低意识的时候发生，<code>rm</code>的报错，固然有可能会警醒操作者，但也有可能在惯性思维的引导下使操作者直接调用重命名后的老<code>rm</code>。还有其它的办法吗？</p>
+<p>我也来抛砖引玉一个：如果从数据库同步上着手呢？只要是关于删除数据库、数据表（数据记录单谈，视需求而定）的操作，都创建新库来备份旧数据而非直接删除。缺点一是需要修改同步工具的代码，工作难度比较大；二是需要定期清理同步数据库。</p>
+<p>至于各种灾难恢复演练，确实很有必要，可惜目前的现实是大家每天手上都是一堆活儿，加上IT人员流动性又高，可操作性就欠缺了一点。无论如何，从性价比上来说，一个定期的备份绝对是避免进一步损失的救命稻草。当然，还有不断地学习……</p>
+<p><img src="/img/mysql-drop-and-run.jpg"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/avoid-production-accident/" data-id="cuidQkTOotQu-jgn9JZa1pbE7" data-title="如何尽量避免生产事故" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-work-in-start-up" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/work-in-start-up/" class="article-date">
+  <time class="dt-published" datetime="2017-01-10T08:00:00.000Z" itemprop="datePublished">2017-01-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/idea/">idea</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/work-in-start-up/">创业公司里就职的那些事儿</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>创业公司和一般公司很不一样。第一次加入的小伙伴们如果了解得不够清楚，可能会像我当初那样一脸懵逼。本文主要说的是加入创业公司的一些值得注意的地方。</p>
+<p>创业公司的特点就是快。哪怕代码写的烂，不好维护，也要比竞品更快地推出新功能。当然，这样的程序质量太差，过了一段时间就很难维护或是扩展了。所以在中期拉到投资之后，重心就转移到重构代码使之更稳定上面。当然也有只要修修补补能撑到上市那天就行的战略。至于后期，像阿里腾讯这样的，持续地为社区贡献出开源代码，那就已经是质量非常好的程序了。所以一句话总结就是：前期快速从无到有，中期从有到好，后期从好到精。</p>
+<p>在大公司里，业务和体系都已经比较成熟了，你的位置可能就是一颗螺丝钉，但是可以研究得很深。而在创业公司里，对个人来说，会接触到方方面面的知识，得到更全面的发展，可能研究得广而不深。大公司的机会比较少，创业公司的机会比较多，倒闭的风险也很大。</p>
+<h2 id="融资"><a href="#融资" class="headerlink" title="融资"></a>融资</h2><p>面试的时候，hr总会介绍：我们公司现在已经是A&#x2F;B&#x2F;C轮融资了，估值多少多少万美元。可是在当时的我看来，只不过是一个字母和一个数字罢了，没有太深的感触。它究竟有什么意义呢？这要从创业公司的成长过程说起了。来自36氪的下图说得非常清楚：<br><img src="/img/idea-to-ipo.jpg"></p>
+<ul>
+<li>种子轮和天使轮还没有产品，变数太大，就不细说了。</li>
+<li>A轮意味着已经有了一小部分的用户规模，产品得到初步验证，但是对收入没有什么要求。</li>
+<li>B轮意味着更大规模的用户，也开始要求有初步的商业模式了，对于共享单车这样的领域，很明显用户要使用就必须付费，所以自带商业模式光环，只要市场占有率高就行。</li>
+<li>C轮意味着需要开始变现、盈利，不断地用钱去砸市场。如果市场还没有抢下来，很可能还需要继续融资往里烧钱。</li>
+<li>到了DEF轮，就没有什么本质上的区别了。</li>
+</ul>
+<p>创业公司在C轮之前挂掉很正常，例如找不到盈利模式，或是占不住市场。到了D轮，挂掉的风险就非常小了，公司一般都是奔着上市去了，再不行还可以被收购。</p>
+<h2 id="期权"><a href="#期权" class="headerlink" title="期权"></a>期权</h2><p>期权（option）是员工持股计划（ESOP，Employee Stock Ownership Plans）的一种方式，用于激励员工。期权本身并不是股票，但是赋予了员工以较低价格购买公司普通股（ordinary shares）的权利。一开始100%的股池里，可能会抽出10%~20%作为员工的持股。不过随着每一轮的新投资进来，包括前期投资人在内的所有人的股份都会被稀释。例如：某创业公司天使轮估值1000万，这时候天使投资人投了200万占20%，员工占10%，创始人占70%；到了A轮估值2000万，A轮投资人投了400万占20%，所以原来100%的总池子就只能占80%了，员工就被稀释成了8%，天使投资人变成了16%，创始人变成了56%。不过员工部分虽然原来从10%变成8%，看起来比例降了，但是价值由100万升值为160万，反而倒是更值钱了。不过出于公司持续发展，新人不断进入，需要激励员工的原因，新的投资人一般会要求保持员工的10%不变，那么多出来的2%就需要从创始人和各投资人之间博弈中产生了。</p>
+<p>对于员工来说，进入创业公司，一般来说薪水会比正常公司低一些，但是公司会通过给予期权来提供一夜暴富的可能。一般都是预计给你多少多少股（例如一万股），每年给四分之一，头四分之一需要工作满一年之后才有，也有分季度给的，也有两年之后给一半的，也有根据公司业绩和个人表现，在入职一定时间之后再谈的，比较灵活。一般一年内离职，是拿不到期权的。如果公司已经上市，并且员工已经拿到了期权，就可以在解禁期后行权将其变为股票。公司与员工约定的价格成为行权价（exercise price），加入公司越早，行权价越低，甚至可能是0元。每一轮投资之后，由于估值上升，行权价也会上升。但是行权价对特定员工来说是固定的，也就是说，如果当初说的就是0.01刀一股，那么第四年行权价对此员工来说还是0.01刀一股。而第四年新加入的员工可能已经变成10刀一股的行权价了。越早进入收益越大，当然也伴随这更大的风险。同一时期加入的新员工，行权价是一样的，但是期权数量上可能会不一样。员工能赚取的收益，就是（当前每股价格－行权价）×股数-税收。如果运气不好碰到股票价格下降，也可以选择不行权。如果能等到上市，虽然很难，但是回报最高。有时候下一轮投资者进来，员工也会有机会套现一部分，但是套现的比例和对象都是由公司来决定的。虽然说上市最好，但是万一命不好碰上了普通股对美股18比1的稀释，也只有自吞苦水了。还有，期权是有有效期的，必须在规定的时间内行权，否则就作废了。</p>
+<p>如果公司还未上市，那就麻烦了。要是员工获取了一些期权后，中途离职呢？一般看公司（创始人）的厚道程度，有这么几种做法：</p>
+<ul>
+<li>公司折价（例如70%或80%）回购，当然对员工来说非常有利了</li>
+<li>保留期权，可以等到最终上市再行权，这样对员工来说也不错，但是对于公司来说，可能就会导致期权都发完了，后入职的员工就拿不到期权了</li>
+<li>离职三个月或半年内确定是否行权，若行权则需要员工掏钱。风险较大，若最终未上市，可能股份就变得一文不值了</li>
+<li>直接作废……</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="http://workspace.fx114.net/qa-203-156906.aspx">《期权有哪些坑,你知道吗?》</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23357108/answer/76897476">《你该怎么选Offer》</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19678660/answer/17228691">《在创业公司工作，期权怎么发放？》</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/work-in-start-up/" data-id="cuid1nchjGDq0ujPMu7Fvwl1Y" data-title="创业公司里就职的那些事儿" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-build-tech-team" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/build-tech-team/" class="article-date">
+  <time class="dt-published" datetime="2017-01-09T08:00:00.000Z" itemprop="datePublished">2017-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/idea/">idea</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/build-tech-team/">如何打造一个好氛围的技术团队</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在创业团队里，由于自身名气不响，聘用到合适的员工是非常困难的。我就曾经遇上过无数约好面试不来的，几个发完offer后不报道也不主动回复的，甚至还有面试过程中接到BAT电话提供offer于是立马拔脚走人的。本文尝试记录一下某创业公司里，从零开始打造一个好氛围的技术团队的一些心得。</p>
+<h2 id="组建团队"><a href="#组建团队" class="headerlink" title="组建团队"></a>组建团队</h2><p>招聘难，并不意味着就要降低标准。与其为了眼前利益而将就着聘用一个不太合适的人，并可能在未来使你自己还要耗费精力紧盯他的工作，让大家都痛苦，倒不如一开始就不要入这个坑。实际上招聘员工还是有一些技巧的。最靠谱的，就是自己认识，或者是同事内部推荐的人。这样的人有自己或者同事的背书，相比简历pk加海选，一般还是靠谱得多的。设置一个还不错的推荐费，更能增加一些推荐的动力。猎头们手上也会有一些不错的资源，就是会比较贵一些。选对合适的招聘时机也很重要。过年之后有不少领了年终奖后由于各种原因要跳槽的人，对于公司来说，可以选择的余地多了不少。当然弊端是这时候的竞争对手也会有很多。不过如果你的公司有足够吸引力的话（要不然你为什么会在那里？），关系也不大。提供差异化的岗位也是一个办法。有时候招聘时会觉得这人挺不错的，但就是不太适合这个职位，这时如果有条件的话，可以把眼光放长远些，留得好萝卜，不怕没有坑。有些工作还可以考虑以外包、合作甚至兼职的方式完成，不一定非得通过招聘来解决。</p>
+<p>团队的规模不要太大，不然管理起来又麻烦又累，效率也不高。也不要求每个人都非常资深，工作经验能够均匀地哈希开就可以了。团队成员的性格和技能上最好能够互补。性格上，可以参考<a href="/effective-communication">《人际风格与有效沟通实战》</a>这篇文章，配备各种性格的队员。技能上，最好每个队员都各有所长，这样才能相互学习，促进团队整体的健康发展。</p>
+<h2 id="维护团队"><a href="#维护团队" class="headerlink" title="维护团队"></a>维护团队</h2><h3 id="根"><a href="#根" class="headerlink" title="根"></a>根</h3><p>有了团队之后，就需要让队员在团队里有家一般安心的感觉，这样才能集中精力，发挥出团队的战斗力。新招聘的人，由于对这个团队所知不多，根据各自的性格，可能会不敢表达，或者是急于表现。这就首先需要有一个能让新人感觉可靠的人物。虽然不至于时时嘘寒问暖，但是也要针对不同性格适时鼓励或是交代更多的背景知识。每当我去到一个新团队的时候，我就会把认识的人视为“根”，工作或是政策上有问题都会优先找他，就算他解决不了，也会告诉我应该找谁。有的公司会有类似的政策，称之为buddy或者是sponsor，以帮助新人迅速融入环境。所以为每位新人找到一个合适的“根”，让其从“根”上发芽并迅速成长为参天大树，就是团队领袖的任务之一。</p>
+<h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><p>团队成员如果只是通过工作维系在一起，这样的连接就不是那么的可靠。所以我们需要团队建设（team building）来增加工作之外的连接。我记得新团队的第一次团队建设，是参加一个密室逃脱。在游戏中，不仅能看到每个人的特点和配合能力，还能给未来增加不少谈资，从而加强团队成员间的连接。相比起来，如果只是吃顿饭……效果就比较有限了，但总是比没有强。所以许多公司会有针对新人的拓展训练。如果公司层面能够组织旅游那就更理想了，除了提振团队士气，甚至找到自己的另一半也不无可能。团队发展好了，就会自发产生各种活动，甚至邀请团队成员去自己家里玩，从而将同事变成了朋友，在这样的团队里工作相信一定是令人愉悦的享受，而不仅仅是为了养家糊口而工作。</p>
+<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p><a target="_blank" rel="noopener" href="http://wiki.mbalib.com/wiki/%E5%9B%A2%E9%98%9F">团队是指一种为了实现某一目标而由相互协作的个体所组成的正式群体</a>，所以明确团队的目标是非常重要的，可以说没有目标就没有团队存在的必要。这个目标需要让所有的团队成员都心中有数。曾经有一段时间完成一期的开发工作之后，第二天团队突然发现没有活儿了，于是有人开始焦虑，有人开始懒散，还有人浑浑噩噩，不知道整天都做了些什么。直到PM组织大家开了一个小会，说明了接下来的目标之后，团队才找到了存在的价值，重新振奋士气走下去。实现团队目标的同时，也可以兼顾团队成员个体的目标，尽量使之也能协同实现。</p>
+<h3 id="会议"><a href="#会议" class="headerlink" title="会议"></a>会议</h3><p>工作上，新人可能对别人都干了些什么不那么了解，会有一种“不那么透明”的感觉。每天早上团队<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%AB%99%E4%BC%9A">站会（stand-up meeting）</a>是解决这个问题的良方之一。大家轮着说昨天都做了什么，今天要做些什么，遇到了哪些问题，有心的人自然能从中获取到有用的信息。<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%BB%93%E5%AF%B9%E7%BC%96%E7%A8%8B">结对编程（pair programming）</a>也有助于在团队成员之间共享信息，但是它的成本比较高，可以在创业公司中将其作为非常规手段，只在必要的时候结对即可。一个迭代或项目完成之后的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Scrum#Scrum.E4.BC.9A.E8.AE.AE">回顾会议（retrospective）</a>也对改进团队效率、增加团队透明度很有帮助。大致做法如下：</p>
+<ul>
+<li>如果团队成员之间不很熟悉，或者氛围非常不好，需要做安全度检查，大家匿名打分，如果分数偏低，需要请在场人士中级别最高的人员离场，之后重复打分直至分数较高为止。如果一直都是很低，那团队肯定有问题。这个会也没有必要开了，领导需要在线下解决。这个是担心开会的时候，大家真话说得少，光说套话等。不说真话的会，不如不开，省的浪费大家时间。</li>
+<li>主持人组织大家写一些便利贴，一般包含好的（well）、不好的（less well）和不确定的（puzzle）三类，然后将其贴在白板上并进行归类。一个well的例子可能是我们有XXX新人加入，一个less well的例子可能是好久没有团建了，一个puzzle的例子可能是我们好久没有code review了。主持人应该尽量客观，通常尽量少发表自己的看法。他还要负责时间上的控制，不要太发散了，导致问题都聊不完，或者聊太high了。建议主持人轮岗。</li>
+<li>让大家都明白白板上的便利贴说的到底都是什么事。</li>
+<li>让大家投票选出最想聊的几件事，然后讨论并记下可以做的行动（action）以及负责人。</li>
+<li>主持人记录回顾内容并发给大家（wiki或邮件），这样可以在下次回顾会议的时候看看上次的行动进展如何了。</li>
+</ul>
+<h3 id="分权"><a href="#分权" class="headerlink" title="分权"></a>分权</h3><p>如果管理得太过精细，管理者难免会心力交瘁（有些人除外）。适当地放手，让团队成员自己负责某一块领域，不仅有助于管理者集中精力处理自己的任务，也更能促进团队成员的成长。即使管理者有事不在的时候，也能迅速找到后备者顶上，解决一些迫在眉睫的问题。每个团队成员都不一样，有些人不喜欢总是做一样的事情，这种时候就可以考虑轮岗，增加其技术广度。而有些人可能由于家庭或别的原因，希望稳定一段时间，这种时候就可以让其深入成为某一领域上的专家。所以一对一地聊一聊，确认对方的喜好，以及公司层面可以提供的支持，可以作为领导者的事前功课。</p>
+<h3 id="提高效率"><a href="#提高效率" class="headerlink" title="提高效率"></a>提高效率</h3><p>团队的开发效率非常重要，可以说是关系到团队的存亡。这方面可以采用痛点驱动的办法来提高团队效率。例如，如果程序员写的代码，要部署上某个环境非常费劲，那就会迫使程序员尽量少去部署。这时候团队就需要有人站出来，解决部署慢的问题。有许多时候这其实就是个对某原则的妥协，或是对某个工具不太熟悉罢了。例如，当时团队开发app的h5端的时候，部署测试环境需要五分钟，导致调试效率低下。后来通过分析为什么慢，并打出一系列组合拳来解决那些原因，我们将部署时间缩短到了10秒，大家的工作热情很容易就起来了。还有一次由于包引用的关系，导致部署并调试本地环境需要耗时三分钟。分析原因之后，我们放弃了DRY原则，将比较类似的代码分散到了不同的代码库里，极大地提高了本地的调试效率。而被放弃的DRY原则在这种场景下其实并不是那么的适用。</p>
+<p>许多程序员倾向于复制&#x2F;粘贴代码来作为自己的模板。所以如果技术领导者想要大家写出什么样的代码，首先需要让自己的代码成为理想代码的模板。例如，如果我希望大家编写单元测试，那我的代码就需要有单元测试，这样当其他人复制的时候，就需要考虑单元测试怎么写的问题。但如果只是口头说说，很快就会流于形式。而模板当然不可能一口气就写得那么完美，所以当代码审查的时候，需要识别并不断改进烂代码，还要把思想传达给其他人，最终成为团队共同的财富。</p>
+<h3 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h3><p>仅有工作的热情还不够，程序员其实并不是吃青春饭的职业，而是终身不断学习提高的职业。团队应该能够提供集体学习的环境，例如大家每周三晚上共同学习某一个课程（例如某个特定技术或是在线课程），共同成长。一个人学，学得快；一群人学，学得深。集体学习因为可以相互分享和讨论，学习效果要比个体学习更加突出。</p>
+<h3 id="分享"><a href="#分享" class="headerlink" title="分享"></a>分享</h3><p>要想打造一个技术氛围浓厚的团队，适时地举办技术分享会是一个很不错的办法。一开始可能由于各种原因没人响应，这就需要团队领袖走出第一步并持续鼓励大家分享。如果团队成员不太自信，一开始的分享内容可以是非技术的，也可以是较短时间的。只要走出了第一步，后面总会越来越好的。分享除了让团队成员获取知识，更直接的其实是让分享者自身成长，还有助于将自己塑造成此领域的技术专家形象。分享可能会带来一些工作时间上的消耗（准备分享以及大家聚集在一起的时间），但是从长远来看是非常有益于团队成长和技术氛围构筑的。我所在的上一个团队就成功地推出了两档分享品牌，一个是每周五下午一个小时左右的技术主题分享，以及不定期的午间半小时非技术或是小技术分享。除了session形式的分享以外，还可以有workshop类型的分享，大家一起动手完成某个任务，效果更佳。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/build-tech-team/" data-id="cuidnTxV2eMnD7y6AX8UKXlrE" data-title="如何打造一个好氛围的技术团队" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; 上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/4/">下一页 &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

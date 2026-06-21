@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>用容器快速上手Elasticsearch | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。 对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用容器快速上手Elasticsearch">
+<meta property="og:url" content="https://qinghua.github.io/elastic-search/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。 对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-08-28T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:28:09.976Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-elastic-search" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/elastic-search/" class="article-date">
+  <time class="dt-published" datetime="2016-08-28T07:00:00.000Z" itemprop="datePublished">2016-08-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      用容器快速上手Elasticsearch
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>是用Java开发的基于<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a>的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。</p>
+<p>对<a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/">Apache Solr</a>入门有兴趣的朋友请参考<a href="/solr">用容器快速上手Apache Solr</a>。</p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>关于Elasticsearch的入门知识，有一本gitbook：<a target="_blank" rel="noopener" href="https://www.gitbook.com/book/fuxiaopang/learnelasticsearch/details">《Elasticsearch 权威指南》</a>翻译得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Elasticsearch：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=es elasticsearch:2.3.5</span><br></pre></td></tr></table></figure>
+
+<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a target="_blank" rel="noopener" href="http://192.168.99.100:9200/">http://192.168.99.100:9200/</a>来从Elasticsearch获得json数据了：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>  <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;Lorvex&quot;</span><span class="punctuation">,</span>  <span class="attr">&quot;cluster_name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;elasticsearch&quot;</span><span class="punctuation">,</span>  <span class="attr">&quot;version&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span>    <span class="attr">&quot;number&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2.3.5&quot;</span><span class="punctuation">,</span>    <span class="attr">&quot;build_hash&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;90f439ff60a3c0f497f91663701e64ccd01edbb4&quot;</span><span class="punctuation">,</span>    <span class="attr">&quot;build_timestamp&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2016-07-27T10:36:52Z&quot;</span><span class="punctuation">,</span>    <span class="attr">&quot;build_snapshot&quot;</span> <span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span>    <span class="attr">&quot;lucene_version&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;5.5.0&quot;</span>  <span class="punctuation">&#125;</span><span class="punctuation">,</span>  <span class="attr">&quot;tagline&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;You Know, for Search&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以使用<code>_cat</code>直接在命令行获取Elasticsearch的健康状态和节点状态：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;192.168.99.100:9200/_cat/health?v&#x27;</span>curl <span class="string">&#x27;192.168.99.100:9200/_cat/nodes?v&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>与Solr不同，Elasticsearch只支持json格式。创建索引的过程，就是向服务器POST数据的过程：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;first_name&quot; : &quot;John&quot;,    &quot;last_name&quot; :  &quot;Smith&quot;,    &quot;age&quot; :        25,    &quot;about&quot; :      &quot;I love to go rock climbing&quot;,    &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>立刻就能得到Elasticsearch返回的结果：<strong>{“_index”:”megacorp”,”_type”:”employee”,”_id”:”AVbK2ssDm7bdYo65QJ6k”,”_version”:1,”_shards”:{“total”:2,”successful”:1,”failed”:0},”created”:true}</strong>。Url里的megacorp是索引的名字（想象成一个数据库），employee是类型的名字（想象成一张表）。返回的<code>_id</code>是Elasticsearch随机创建的一个ID，用于标识数据。</p>
+<p>可以通过以下url获取Elasticsearch的索引信息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/_cat/indices?v&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>修改索引的话，发出PUT请求就可以了（别忘了把ID换成你自己生成的<code>_id</code>）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;first_name&quot; : &quot;Johnie&quot;,    &quot;last_name&quot; :  &quot;Smithreen&quot;,    &quot;age&quot; :        38,    &quot;about&quot; :      &quot;I do not love to go rock climbing&quot;,    &quot;interests&quot;: []&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果指定的ID不存在，那么PUT也会新建一条记录。删除索引的话，发出DELETE请求就可以了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>或者删除整个索引：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">&#x27;http://192.168.99.100:9200/megacorp&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>再次获取索引信息，便会看到已经没有索引了。让我们加上三条数据，以备下一节搜索使用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/1&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;first_name&quot; : &quot;John&quot;,    &quot;last_name&quot; :  &quot;Smith&quot;,    &quot;age&quot; :        25,    &quot;about&quot; :      &quot;I love to go rock climbing&quot;,    &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]&#125;&#x27;</span>curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/2&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;first_name&quot; :  &quot;Jane&quot;,    &quot;last_name&quot; :   &quot;Smith&quot;,    &quot;age&quot; :         32,    &quot;about&quot; :       &quot;I like to collect rock albums&quot;,    &quot;interests&quot;:  [ &quot;music&quot; ]&#125;&#x27;</span>curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/3&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;first_name&quot; :  &quot;Douglas&quot;,    &quot;last_name&quot; :   &quot;Fir&quot;,    &quot;age&quot; :         35,    &quot;about&quot;:        &quot;I like to build cabinets&quot;,    &quot;interests&quot;:  [ &quot;forestry&quot; ]&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h2><h3 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h3><p>要查看刚刚创建的数据，直接get就可以了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/1&#x27;</span>curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/2&#x27;</span>curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/3&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>全部查询改一下url就可以了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span>curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/_search&#x27;</span>curl <span class="string">&#x27;http://192.168.99.100:9200/_search&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="简易搜索"><a href="#简易搜索" class="headerlink" title="简易搜索"></a>简易搜索</h3><p>上面的命令都只能算查询，还不算搜索。接下来让我们尝试Elasticsearch强大的搜索功能：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search?q=last_name:Smith&#x27;</span>curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;query&quot; : &#123;        &quot;match&quot; : &#123;            &quot;last_name&quot; : &quot;Smith&quot;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="查询DSL"><a href="#查询DSL" class="headerlink" title="查询DSL"></a>查询DSL</h3><p>上面两条命令都是去获取<code>last_name</code>为<code>Smith</code>的数据，但是下面一条用到了<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">查询DSL</a>。这是Elasticsearch提供的DSL查询语言，可以通过它完成更加复杂的搜索。接下来除了<code>Smith</code>以外，我们还要增加30岁以上这一条件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;query&quot; : &#123;        &quot;filtered&quot; : &#123;            &quot;filter&quot; : &#123;                &quot;range&quot; : &#123;                    &quot;age&quot; : &#123; &quot;gt&quot; : 30 &#125;                 &#125;            &#125;,            &quot;query&quot; : &#123;                &quot;match&quot; : &#123;                    &quot;last_name&quot; : &quot;smith&quot;                 &#125;            &#125;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这里介绍一下<code>filter</code>和<code>query</code>。可以这么理解：<code>filter</code>是精确查找（想象成sql里where子句的&#x3D;、），速度快，有缓存。<code>query</code>是模糊查找（想象成sql里where子句的like，但是能根据匹配度打分），虽然没有<code>filter</code>那么快，但是查询结果能更准确一些。业务上的查询通常都是同时使用二者，通过<code>filter</code>快速找到对象数据，再通过<code>query</code>来匹配。</p>
+<h3 id="全文搜索"><a href="#全文搜索" class="headerlink" title="全文搜索"></a>全文搜索</h3><p>接下来尝试全文搜索，从<code>about</code>的句子里查询想要的数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;query&quot; : &#123;        &quot;match&quot; : &#123;            &quot;about&quot; : &quot;rock climbing&quot;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>查到了两个结果。返回值包含了一项<code>_score</code>，既含有<code>rock</code>又含有<code>climbing</code>的数据，得分明显高于只含有<code>rock</code>的数据。理所当然的，得分高的数据排在上面。如果想要精确匹配<code>rock climbing</code>，把<code>match</code>改为<code>match_phrase</code>就可以了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;query&quot; : &#123;        &quot;match_phrase&quot; : &#123;            &quot;about&quot; : &quot;rock climbing&quot;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="统计"><a href="#统计" class="headerlink" title="统计"></a>统计</h3><p>查找最受欢迎的兴趣：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;  &quot;aggs&quot;: &#123;    &quot;all_interests&quot;: &#123;      &quot;terms&quot;: &#123; &quot;field&quot;: &quot;interests&quot; &#125;    &#125;  &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>查找每个兴趣的平均年龄：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;&#123;    &quot;aggs&quot; : &#123;        &quot;all_interests&quot; : &#123;            &quot;terms&quot; : &#123; &quot;field&quot; : &quot;interests&quot; &#125;,            &quot;aggs&quot; : &#123;                &quot;avg_age&quot; : &#123;                    &quot;avg&quot; : &#123; &quot;field&quot; : &quot;age&quot; &#125;                &#125;            &#125;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>这些数据都是实时计算出来的。就像使用SQL来查询数据库一样，Elasticsearch提供了自己的DSL来让我们基于复杂的条件来搜索。<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html">这里</a>是统计功能的官方文档。</p>
+<h2 id="中文"><a href="#中文" class="headerlink" title="中文"></a>中文</h2><p>同Solr一样，要想让Elasticsearch支持中文分词，需要使用中文分词组件。这里我们还是用<a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-analysis-mmseg">mmseg插件</a>。首先下载并解压：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/medcl/elasticsearch-analysis-mmseg/releases/download/v1.9.4/elasticsearch-analysis-mmseg-1.9.4.zipunzip -d elasticsearch-analysis-mmseg-1.9.4 elasticsearch-analysis-mmseg-1.9.4.zipsed -i <span class="string">&#x27;s/2.3.4/2.3.5/&#x27;</span> elasticsearch-analysis-mmseg-1.9.4/plugin-descriptor.properties</span><br></pre></td></tr></table></figure>
+
+<p>1.9.4版的插件只支持Elasticsearch 2.3.4版，要想支持2.3.5，就需要把<code>elasticsearch.version</code>配置改为<code>2.3.5</code>。除此之外，还需要加点儿东西到Elasticsearch的配置文件里：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  es.ymlnetwork.host: 0.0.0.0index:  analysis:    analyzer:      mmseg_maxword:        <span class="built_in">type</span>: custom        filter:        - lowercase        tokenizer: mmseg_maxword      mmseg_maxword_with_cut_letter_digi:        <span class="built_in">type</span>: custom        filter:        - lowercase        - cut_letter_digit        tokenizer: mmseg_maxwordEOF</span><br></pre></td></tr></table></figure>
+
+<p>上述配置文件的具体语法可以参考<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html">这里</a>。接下来就可以启动容器了，分别挂载配置文件和插件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f esdocker run -d --net=host --name=es \    -v `<span class="built_in">pwd</span>`/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml \    -v `<span class="built_in">pwd</span>`/elasticsearch-analysis-mmseg-1.9.4/:/usr/share/elasticsearch/plugins/elasticsearch-analysis-mmseg-1.9.4/ \    elasticsearch:2.3.5</span><br></pre></td></tr></table></figure>
+
+<p>Elasticsearch服务启动后，就可以增加索引和<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html">映射</a>（mapping，可以理解为数据类型，有点像solr的schema），并且插入一些数据了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT http://192.168.99.100:9200/indexcurl -XPOST http://192.168.99.100:9200/index/fulltext/_mapping -d<span class="string">&#x27;&#123;    &quot;fulltext&quot;: &#123;        &quot;_all&quot;: &#123;            &quot;analyzer&quot;: &quot;mmseg_maxword&quot;,            &quot;search_analyzer&quot;: &quot;mmseg_maxword&quot;,            &quot;term_vector&quot;: &quot;no&quot;,            &quot;store&quot;: &quot;false&quot;        &#125;,        &quot;properties&quot;: &#123;            &quot;content&quot;: &#123;                &quot;type&quot;: &quot;string&quot;,                &quot;store&quot;: &quot;no&quot;,                &quot;term_vector&quot;: &quot;with_positions_offsets&quot;,                &quot;analyzer&quot;: &quot;mmseg_maxword&quot;,                &quot;search_analyzer&quot;: &quot;mmseg_maxword&quot;,                &quot;include_in_all&quot;: &quot;true&quot;,                &quot;boost&quot;: 8            &#125;        &#125;    &#125;&#125;&#x27;</span>curl -XPOST http://192.168.99.100:9200/index/fulltext/1 -d<span class="string">&#x27;&#123;content:&quot;美国留给伊拉克的是个烂摊子吗&quot;&#125;&#x27;</span>curl -XPOST http://192.168.99.100:9200/index/fulltext/2 -d<span class="string">&#x27;&#123;content:&quot;公安部：各地校车将享最高路权&quot;&#125;&#x27;</span>curl -XPOST http://192.168.99.100:9200/index/fulltext/3 -d<span class="string">&#x27;&#123;content:&quot;中韩渔警冲突调查：韩警平均每天扣1艘中国渔船&quot;&#125;&#x27;</span>curl -XPOST http://192.168.99.100:9200/index/fulltext/4 -d<span class="string">&#x27;&#123;content:&quot;中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后搜索<code>中国</code>看看：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/_search  -d<span class="string">&#x27;&#123;    &quot;query&quot; : &#123; &quot;term&quot; : &#123; &quot;content&quot; : &quot;中国&quot; &#125;&#125;,    &quot;highlight&quot; : &#123;        &quot;pre_tags&quot; : [&quot;&quot;, &quot;&quot;],        &quot;post_tags&quot; : [&quot;&quot;, &quot;&quot;],        &quot;fields&quot; : &#123;            &quot;content&quot; : &#123;&#125;        &#125;    &#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以使用<code>_analyze</code>来查看分析的过程：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&quot;http://192.168.99.100:9200/index/_analyze?analyzer=mmseg_maxword&amp;pretty=true&quot;</span> -d <span class="string">&quot;美国留给伊拉克的是个烂摊子吗&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>可见，这句话被解析成：美国、留给、伊、拉克、的、是个、烂、摊子、吗，还不是非常完美。<code>伊拉克</code>、<code>烂摊子</code>都没有很好地识别出来。</p>
+<p>有兴趣的话，还可以重建容器，跟无中文分词的效果对比一下。除了mmseg，大神medcl还写了一个<a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-rtf">elasticsearch-rtf版本</a>，涵盖诸多中文分词工具，可以直接使用。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/elastic-search/" data-id="cuidZmrSylCrj5y6XgI4Uv50z" data-title="用容器快速上手Elasticsearch" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/alibaba_druid/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          不止于数据库连接池的Druid
+        
+      </div>
+    </a>
+  
+  
+    <a href="/redis-cluster/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">用容器轻松搭建redis主从和集群环境</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

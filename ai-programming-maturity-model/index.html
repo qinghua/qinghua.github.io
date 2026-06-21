@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="baidu-site-verification" content="EXHJyZtvnK" />
+<meta name="google-site-verification" content="6RGq-UvXNfWc80Du2Skb0Wek28STlwShTWc2W0svf90" />
+
+  <meta charset="utf-8">
+  
+  
+  <title>AI编程成熟度模型：从3倍到10倍的路径 | 懒程序员改变世界</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="每个用AI写代码的人都说自己变快了。但快了多少？上限是什么？本文提出一个四层成熟度模型，解释为什么有些团队只能做到3倍，而另一些能接近10倍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI编程成熟度模型：从3倍到10倍的路径">
+<meta property="og:url" content="https://qinghua.github.io/ai-programming-maturity-model/index.html">
+<meta property="og:site_name" content="懒程序员改变世界">
+<meta property="og:description" content="每个用AI写代码的人都说自己变快了。但快了多少？上限是什么？本文提出一个四层成熟度模型，解释为什么有些团队只能做到3倍，而另一些能接近10倍。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qinghua.github.io/img/ai-maturity-model.png">
+<meta property="article:published_time" content="2026-05-31T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:42:33.293Z">
+<meta property="article:author" content="Qinghua Gao">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="development">
+<meta property="article:tag" content="thought">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qinghua.github.io/img/ai-maturity-model.png">
+  
+    <link rel="alternate" href="/atom.xml" title="懒程序员改变世界" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">懒程序员改变世界</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://qinghua.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-ai-programming-maturity-model" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/ai-programming-maturity-model/" class="article-date">
+  <time class="dt-published" datetime="2026-05-31T07:00:00.000Z" itemprop="datePublished">2026-05-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AI/">AI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      AI编程成熟度模型：从3倍到10倍的路径
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>每个用AI写代码的人都说”我变快了”。但快了多少？上限又是什么决定的？</p>
+<p>这个问题没有单一答案，但我们可以精确描述决定因素。</p>
+<span id="more"></span>
+
+<h2 id="效率的两个维度"><a href="#效率的两个维度" class="headerlink" title="效率的两个维度"></a>效率的两个维度</h2><p>这个倍数其实有两个维度：</p>
+<ul>
+<li><strong>开发效率</strong>——写代码、调试、让功能跑通的速度</li>
+<li><strong>SDLC效率</strong>——工程师在整个软件开发生命周期中的效率，包括on-call、流水线维护、工单处理、监控审查等非编码工作</li>
+</ul>
+<p>答案取决于AI能在这两个维度上自主执行多少环节。下面介绍一个四层成熟度模型，从开发效率的提升，转到全面SDLC的提升。</p>
+<h2 id="模型总览"><a href="#模型总览" class="headerlink" title="模型总览"></a>模型总览</h2><p><img src="/img/ai-maturity-model.png" alt="AI编程成熟度模型"></p>
+<h2 id="L1——复制粘贴（Chat时代）"><a href="#L1——复制粘贴（Chat时代）" class="headerlink" title="L1——复制粘贴（Chat时代）"></a>L1——复制粘贴（Chat时代）</h2><p>你问AI一个问题。它给你代码。你复制到编辑器里。跑一下。失败了。把报错贴回去。循环往复。</p>
+<p><strong>人是I&#x2F;O层</strong>——手动在AI和开发环境之间搬运上下文。</p>
+<p>效率提升：微乎其微。受限于复制粘贴速度和上下文窗口管理。</p>
+<h2 id="L2——规格驱动（引导式开发）"><a href="#L2——规格驱动（引导式开发）" class="headerlink" title="L2——规格驱动（引导式开发）"></a>L2——规格驱动（引导式开发）</h2><p>AI可以访问你的代码库（通过IDE集成或CLI agent）。你描述需求；它直接写文件。你review、跑测试、接受或拒绝。</p>
+<p>这是大多数团队目前的状态。</p>
+<p><strong>瓶颈在验证-修复循环。</strong> 每次修改仍然需要人来看输出，验证改得对不对。</p>
+<p>这产生了一个公式（简化模型，具体倍数因项目而异）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DevTime = (CodingTime + VerifyTime) × Iterations</span><br></pre></td></tr></table></figure>
+
+<p>在L2，AI把<code>CodingTime</code>压缩得很低（例如1分钟）。<code>Iterations</code>可以通过良好组织的文档来降低。瓶颈就到了<code>VerifyTime</code>。</p>
+<p>假设人类开发1小时，验证30分钟，那么一次迭代就是90分钟。使用AI，开发1分钟，验证30分钟，那么一次迭代就是31分钟，大约<strong>3倍</strong>的提升。</p>
+<h2 id="L3——反馈循环（自主开发）"><a href="#L3——反馈循环（自主开发）" class="headerlink" title="L3——反馈循环（自主开发）"></a>L3——反馈循环（自主开发）</h2><p><strong>关键洞察：如果AI能跑测试并读取结果，它就能验证自己的工作。</strong></p>
+<p>在L3，AI生成代码、执行验证（构建+测试）、解读结果、自我修正——全程无需人工干预。人只需要review最终产出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DevTime = CodingTime + VerifyTime</span><br><span class="line">（迭代发生在AI循环内部，对人而言等效为单次）</span><br></pre></td></tr></table></figure>
+
+<p>降低VerifyTime就是<strong>3倍变10倍</strong>的关键。瓶颈从”人验证多快”转移到”测试套件跑多快”。同样的例子，VerifyTime如果只需要1分钟，那么一次迭代就只需2分钟，相比L2的31分钟，又获得了约15倍的提升。</p>
+<h3 id="L3的前提：测试基础设施"><a href="#L3的前提：测试基础设施" class="headerlink" title="L3的前提：测试基础设施"></a>L3的前提：测试基础设施</h3><p>流水线上的集成测试是我们想在本地复现的目标：它覆盖真实行为，是全流程部署的守门员，但跑一次要30分钟。L3的目标是把同等覆盖率的测试压缩到秒级。</p>
+<p>L3要求测试：</p>
+<ul>
+<li><strong>本地可运行</strong>（越快越好）</li>
+<li><strong>确定性</strong>（不能有flakiness）</li>
+<li><strong>覆盖真实行为</strong>（不只是mock）</li>
+</ul>
+<p>没有这些，AI就无法闭合循环——它没有可靠的信号来迭代。</p>
+<h3 id="L3实践：进程内本地集成测试"><a href="#L3实践：进程内本地集成测试" class="headerlink" title="L3实践：进程内本地集成测试"></a>L3实践：进程内本地集成测试</h3><p>以我们的一个后端服务为例，在L2中AI已经能快速写好代码，但验证周期仍然约30分钟：编译 → 构建Docker镜像 → 启动远程开发环境 → 启动服务 → 设置SSH隧道 → 运行集成测试。每次迭代的瓶颈就在这30分钟的验证上。</p>
+<p>我们构建了一个<strong>进程内本地集成测试框架</strong>将VerifyTime压缩到30秒以内：</p>
+<ul>
+<li><strong>本地代理</strong> 不去部署服务，而是直接通过方法调用真实的业务逻辑类（无HTTP、无部署）</li>
+<li><strong>真实下游服务</strong> 通过SSH隧道连接测试环境</li>
+<li><strong>Record&#x2F;Replay</strong> 模式录制下游响应，支持离线迭代</li>
+<li><strong>多环境验证</strong> 自动管理凭证和隧道</li>
+</ul>
+<p>工作流：AI识别未覆盖的API → 写测试 → 运行 → 失败 → 修复 → 重跑 → 通过。端到端约10分钟写好一个API的集成测试，运行E2E的一个API集成测试所需时间不到30秒。</p>
+<p>关键定位：把本地集成测试视为<strong>开发工具</strong>而非测试工具。它的首要价值是赋能AI反馈循环，而不仅仅是抓回归。</p>
+<p><strong>良性循环：</strong></p>
+<ol>
+<li>AI写集成测试</li>
+<li>测试成为未来代码修改的反馈信号</li>
+<li>代码修改导致的测试失败在同一个循环里自动修复</li>
+<li>遇到新模式 → 经验更新 → 下一次测试更容易</li>
+</ol>
+<h3 id="选择你的依赖策略"><a href="#选择你的依赖策略" class="headerlink" title="选择你的依赖策略"></a>选择你的依赖策略</h3><p>调用真实下游服务只是频谱上的一个点。选择取决于服务的读写特征：</p>
+<ul>
+<li><strong>Replay模式</strong>（无下游调用）——最安全、最快、可离线。适合有写操作或敏感副作用的服务</li>
+<li><strong>只读调用测试环境</strong>——在测试不修改状态时是安全的。提供最高保真度的信号</li>
+<li><strong>写调用共享测试环境</strong>——有风险（状态污染、通知触发）。需要谨慎</li>
+</ul>
+<p>原则是相同的：快速、确定性的反馈，让AI可以迭代。</p>
+<h2 id="L4——Agent循环（自主SDLC）"><a href="#L4——Agent循环（自主SDLC）" class="headerlink" title="L4——Agent循环（自主SDLC）"></a>L4——Agent循环（自主SDLC）</h2><p>L3加速的是<em>编码</em>阶段。但编码只是开发者工作的一部分。L4将自主运行扩展到整个软件开发生命周期。</p>
+<h3 id="指导原则：控制熵"><a href="#指导原则：控制熵" class="headerlink" title="指导原则：控制熵"></a>指导原则：控制熵</h3><p>软件系统自然趋向混乱（熵增）：依赖变旧、测试变flaky、配置漂移、文档过时、流水线腐化。这些是重要的工作，但从来不会被优先排期——因为不紧急。</p>
+<p>L4的核心定位：<strong>让agent持续产出代码变更来对抗软件熵。人审阅并批准。</strong></p>
+<p>需要注意的是：不是所有熵都需要清除。有些技术债是有意识的权衡。Agent选择”修什么、不修什么”本身需要人来校准。</p>
+<h3 id="L4的设计原则"><a href="#L4的设计原则" class="headerlink" title="L4的设计原则"></a>L4的设计原则</h3><ol>
+<li><strong>Agent要么产出代码变更，要么产出backlog。</strong> 如果搞不定，就写一个待办事项，后续由人类驱动AI来解决。</li>
+<li><strong>生产环境只读。</strong> Agent永远不部署、不修改生产环境。</li>
+<li><strong>信噪比。</strong> Agent不能用误报或低优先级修复淹没reviewer。</li>
+<li><strong>并行性。</strong> 多个领域专用agent并发运行。</li>
+<li><strong>透明性。</strong> Agent的运行历史、状态、待处理事项对人类可见，随时可以查看当前状态。</li>
+</ol>
+<h3 id="L4的覆盖范围"><a href="#L4的覆盖范围" class="headerlink" title="L4的覆盖范围"></a>L4的覆盖范围</h3><ul>
+<li><strong>流水线与构建</strong>——修复阻塞的流水线、解决依赖更新导致的构建失败</li>
+<li><strong>测试稳定性</strong>——修flaky test、为关键路径补测试</li>
+<li><strong>依赖管理</strong>——安全补丁升级、废弃API迁移、检测未使用依赖</li>
+<li><strong>配置漂移</strong>——实际状态vs声明代码的漂移、跨Region配置不一致</li>
+<li><strong>代码健康</strong>——死代码检测移除、日志格式标准化</li>
+<li><strong>监控与可观测性</strong>——检测无告警的API、Dashboard异常检测</li>
+<li><strong>文档同步</strong>——代码变更后保持文档同步</li>
+<li><strong>合规与安全</strong>——IAM最小权限收紧、安全风险修复</li>
+<li><strong>主动学习</strong>——扫描公开故障报告产出预防性修复</li>
+</ul>
+<h3 id="L4实践：流水线熵控制"><a href="#L4实践：流水线熵控制" class="headerlink" title="L4实践：流水线熵控制"></a>L4实践：流水线熵控制</h3><p>我们有一个agent按工作日定时运行，扫描团队所有流水线，自动修复故障：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">定时任务 (工作日晚9点)</span><br><span class="line">    -&gt; 编排器读取配置</span><br><span class="line">        -&gt; 扫描流水线健康</span><br><span class="line">        -&gt; 分类故障类型</span><br><span class="line">        -&gt; 派发子agent（并行，最多3个）</span><br><span class="line">            |-- 版本策略违规 -&gt; 升级依赖版本</span><br><span class="line">            |-- 构建失败 -&gt; 诊断 + 修复</span><br><span class="line">            |-- 部署失败 -&gt; 诊断 + 修复</span><br><span class="line">            +-- 集成测试失败 -&gt; 诊断报告</span><br><span class="line">        -&gt; 验证代码变更（本地构建 + 静态分析）</span><br><span class="line">        -&gt; 发布变更 -&gt; 分配给on-call review</span><br><span class="line">        -&gt; Slack摘要 + 面板报告</span><br></pre></td></tr></table></figure>
+
+<p><strong>护栏：</strong> Agent永远不会merge。代码变更必须通过本地构建+静态分析后才会发布。修不了的问题生成诊断报告写入backlog。</p>
+<p><strong>实测（一周）：</strong> 15个代码变更提交，12个包修复，88条流水线监控。人只需review：约5分钟&#x2F;个。</p>
+<p><strong>局限性：</strong> 集成测试失败目前只能诊断不能自动修复；跨团队上游包的构建失败需要人跟进；偶尔会被拒（选择了错误的升级路径）。</p>
+<h3 id="L4中人的角色"><a href="#L4中人的角色" class="headerlink" title="L4中人的角色"></a>L4中人的角色</h3><p>人从<strong>执行者</strong>转变为<strong>审阅者和系统架构师</strong>：</p>
+<ul>
+<li>Review代码变更——生产代码的最终责任</li>
+<li>驱动Backlog——解决AI还无法自主解决的问题</li>
+<li>改进Agent循环——元工作：让agent变得更好</li>
+<li>决定做什么——战略、用户同理心、权衡取舍</li>
+<li>跨团队协商——社交动态、组织上下文</li>
+</ul>
+<p>最高杠杆的活动是”改进agent循环”——因为每一次改进都会在所有未来任务中复利式累积。</p>
+<h3 id="改进Agent循环的两种路径"><a href="#改进Agent循环的两种路径" class="headerlink" title="改进Agent循环的两种路径"></a>改进Agent循环的两种路径</h3><p><strong>路径一：人类驱动改进。</strong> 人处理agent搞不定的backlog时，顺便把解决方法固化。下次agent就能自己处理了。每一次backlog的消化都在扩大agent的能力边界。</p>
+<p><strong>路径二：AI自主迭代（早期探索）。</strong> Agent在运行过程中发现自身的不足，自主将经验写成新的规则文件，提交供人review。这个能力仍在早期阶段，产出质量参差不齐，需要人来把关。但方向是明确的：agent的知识库能随使用自动增长。</p>
+<p>这两条路径形成正反馈：人处理backlog → agent能力增长 → backlog减少 → 人有更多时间改进agent → agent能力进一步增长。</p>
+<h2 id="各层是递进依赖的"><a href="#各层是递进依赖的" class="headerlink" title="各层是递进依赖的"></a>各层是递进依赖的</h2><p>每一层都依赖下面一层。跳级不是不可能，但效果会大幅打折。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">L4 依赖 L3 -- 没有自动验证，agent产出需要人逐一验证</span><br><span class="line">L3 依赖 L2 -- AI写代码不够快的话，快速验证的意义不大</span><br><span class="line">L2 依赖 L1 -- AI需要能访问代码库才能写代码</span><br></pre></td></tr></table></figure>
+
+<p><strong>为什么不建议跳过L3直接做L4：</strong> 一个修流水线或处理工单的agent，其可靠性取决于它验证自身工作的能力。没有快速反馈循环，agent的每个产出都需要人完整验证。</p>
+<p>我们观察到一个有趣的对比：同一个agent修构建失败时，依赖本地构建作为验证（L3），所以能自动闭环，变更通过率很高。而对于集成测试失败，缺乏快速的本地集成测试环境，只能产出诊断报告而无法自动修复。同一个agent，有L3的场景能自动闭环，没有L3的场景只能半自动。</p>
+<h2 id="如何到达下一层"><a href="#如何到达下一层" class="headerlink" title="如何到达下一层"></a>如何到达下一层</h2><p><strong>L1 → L2：让AI访问你的代码。</strong> 使用IDE集成工具而非聊天窗口。让它读文件、写文件、跑命令。提供良好的上下文文档。</p>
+<p><strong>L2 → L3：构建反馈循环。</strong> 识别你的验证瓶颈，让它尽快跑完，让结果机器可读，消除flakiness。对于后端服务，进程内调用+Record&#x2F;Replay是一个已验证的模板。前端可以用headless浏览器+快照比对，数据管道可以用本地执行+样本数据集。</p>
+<p><strong>L3 → L4：将运维知识固化。</strong> 先用AI一起解决一次，提取模式，写成机器可读指令，让agent自己跑，人review输出。这是一个迭代过程，每个规则初始都不完美，在使用中不断优化。</p>
+<h2 id="乘数效应"><a href="#乘数效应" class="headerlink" title="乘数效应"></a>乘数效应</h2><p>模型的各层不只关乎个人速度——它们在团队层面复合增长：</p>
+<ul>
+<li>L1：微弱提升，无团队乘数</li>
+<li>L2：数倍（编码速度），微弱团队乘数——每个人仍需自己验证</li>
+<li>L3：数倍~数十倍（编码速度），中等团队乘数——测试框架是共享基础设施，一次投入全团队受益</li>
+<li>L4：解放非编码时间（SDLC效率），<strong>高团队乘数</strong>——规则写一次，所有使用该agent的工程师立即获益，可跨团队复用</li>
+</ul>
+<p>L3和L4提升的是不同维度：L3压缩编码任务的周转时间，L4释放原本花在运维&#x2F;工单&#x2F;流水线上的时间。两者叠加才是整体效率的提升。</p>
+<h2 id="一些思考"><a href="#一些思考" class="headerlink" title="一些思考"></a>一些思考</h2><p><strong>为什么新项目比老项目提升更大？</strong> 因为新项目可以从第一天就设计反馈循环。老项目的集成测试在流水线里跑20分钟，加装快速反馈循环可以做到但需要刻意投入。如果你正在启动新项目，花时间设计L3反馈循环不是额外开销，而是单笔ROI最高的基础设施投资。</p>
+<p><strong>为什么快速本地集成测试现在才开始流行？</strong> 两个原因。第一，以前测试不是瓶颈——编码花几个小时，验证才30分钟，占比不大。L2普及后CodingTime趋近于零，VerifyTime才成为主导项。第二，搭建框架以前成本太高——打通服务间的网络和凭证，以前是几周的工作。有了AI之后几天就能搞定。受益于反馈循环的AI，同时也让反馈循环的建设成本大幅降低。</p>
+<p><strong>没有L3直接做L4行不行？</strong> 效果很随机。我们观察到：同一个agent，有本地构建验证的场景能自动闭环，没有的场景只能产出诊断报告。feedback loop是让agent可靠自我修正的基础，没有它你得到的是一个昂贵的建议引擎而不是一个自主运维者。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>从3倍到10倍的路径不在于更好的模型，而在于闭合反馈循环让AI能自主迭代。从10倍编码到10倍SDLC的路径则是教会AI做那些实际消耗工程师大部分时间的非编码工作。</p>
+<p>2018年我写过<a href="/future-software-development/">《未来的软件开发什么样》</a>，当时觉得AI和程序员”合作”还只是萌芽。没想到不到八年，我们已经走到了让AI自主运维服务的阶段。那篇文章里的”合作”和”创新”两个预测基本应验了，但演进的速度远超当时的想象。</p>
+<p>这个模型还在演进中。也许未来还会有L5——AI自主决定做什么，而不只是执行人类定义的任务。不过那是另一个话题了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://qinghua.github.io/ai-programming-maturity-model/" data-id="cuidc39qYN2fhEW8p0MKcEktp" data-title="AI编程成熟度模型：从3倍到10倍的路径" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/thought/" rel="tag">thought</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/async-standup-in-ai-era/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          AI时代的站会：从同步到异步
+        
+      </div>
+    </a>
+  
+  
+    <a href="/aws-step-functions/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">用AWS创建工作流</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/agile/">agile</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/architecture/">architecture</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/db/">db</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/development/">development</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/devops/">devops</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/idea/">idea</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux-unix/">linux/unix</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tool/">tool</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vr/">vr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/" rel="tag">.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET-Core/" rel="tag">.NET Core</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/" rel="tag">ASP.NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C#</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/" rel="tag">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GitUp/" rel="tag">GitUp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTC-Vive/" rel="tag">HTC Vive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IntelliJ-IDEA/" rel="tag">IntelliJ IDEA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JGit/" rel="tag">JGit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JaVers/" rel="tag">JaVers</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OCR/" rel="tag">OCR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TDD/" rel="tag">TDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TermRecord/" rel="tag">TermRecord</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activity/" rel="tag">activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/agile/" rel="tag">agile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ansible/" rel="tag">ansible</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/asciinema/" rel="tag">asciinema</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/awk/" rel="tag">awk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/" rel="tag">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bamboo/" rel="tag">bamboo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/" rel="tag">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/book/" rel="tag">book</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ceph/" rel="tag">ceph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/certficate/" rel="tag">certficate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chronos/" rel="tag">chronos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cloudify/" rel="tag">cloudify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db/" rel="tag">db</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/db-migration/" rel="tag">db migration</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/development/" rel="tag">development</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker-registry/" rel="tag">docker registry</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/druid/" rel="tag">druid</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbo/" rel="tag">dubbo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dubbox/" rel="tag">dubbox</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encoding/" rel="tag">encoding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/encryption/" rel="tag">encryption</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flannel/" rel="tag">flannel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flyway/" rel="tag">flyway</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/" rel="tag">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/idea/" rel="tag">idea</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetty/" rel="tag">jetty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/" rel="tag">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lombok/" rel="tag">lombok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/management/" rel="tag">management</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/marathon/" rel="tag">marathon</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mesos/" rel="tag">mesos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/monitor/" rel="tag">monitor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/network/" rel="tag">network</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nfs/" rel="tag">nfs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openstack-swift/" rel="tag">openstack swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance-tuning/" rel="tag">performance tuning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/portus/" rel="tag">portus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prometheus/" rel="tag">prometheus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/radosgw/" rel="tag">radosgw</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/" rel="tag">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest/" rel="tag">rest</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/" rel="tag">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/salt/" rel="tag">salt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scheduler/" rel="tag">scheduler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sed/" rel="tag">sed</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/service-governance/" rel="tag">service governance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/showterm/" rel="tag">showterm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soft-skill/" rel="tag">soft skill</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/" rel="tag">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/" rel="tag">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/start-up/" rel="tag">start up</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/storage/" rel="tag">storage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swarm/" rel="tag">swarm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tampermonkey/" rel="tag">tampermonkey</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tesseract/" rel="tag">tesseract</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/" rel="tag">test</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thought/" rel="tag">thought</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/" rel="tag">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tosca/" rel="tag">tosca</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/NET/" style="font-size: 10px;">.NET</a> <a href="/tags/NET-Core/" style="font-size: 10px;">.NET Core</a> <a href="/tags/AI/" style="font-size: 13.75px;">AI</a> <a href="/tags/ASP-NET/" style="font-size: 10px;">ASP.NET</a> <a href="/tags/C/" style="font-size: 10px;">C#</a> <a href="/tags/DDD/" style="font-size: 10px;">DDD</a> <a href="/tags/GitUp/" style="font-size: 10px;">GitUp</a> <a href="/tags/HTC-Vive/" style="font-size: 10px;">HTC Vive</a> <a href="/tags/IntelliJ-IDEA/" style="font-size: 15px;">IntelliJ IDEA</a> <a href="/tags/JGit/" style="font-size: 11.25px;">JGit</a> <a href="/tags/JaVers/" style="font-size: 10px;">JaVers</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/OCR/" style="font-size: 11.25px;">OCR</a> <a href="/tags/TDD/" style="font-size: 10px;">TDD</a> <a href="/tags/TermRecord/" style="font-size: 10px;">TermRecord</a> <a href="/tags/activity/" style="font-size: 10px;">activity</a> <a href="/tags/agile/" style="font-size: 12.5px;">agile</a> <a href="/tags/ansible/" style="font-size: 10px;">ansible</a> <a href="/tags/asciinema/" style="font-size: 10px;">asciinema</a> <a href="/tags/awk/" style="font-size: 10px;">awk</a> <a href="/tags/aws/" style="font-size: 10px;">aws</a> <a href="/tags/bamboo/" style="font-size: 10px;">bamboo</a> <a href="/tags/blockchain/" style="font-size: 10px;">blockchain</a> <a href="/tags/book/" style="font-size: 11.25px;">book</a> <a href="/tags/ceph/" style="font-size: 12.5px;">ceph</a> <a href="/tags/certficate/" style="font-size: 10px;">certficate</a> <a href="/tags/chronos/" style="font-size: 10px;">chronos</a> <a href="/tags/cloudify/" style="font-size: 11.25px;">cloudify</a> <a href="/tags/db/" style="font-size: 10px;">db</a> <a href="/tags/db-migration/" style="font-size: 10px;">db migration</a> <a href="/tags/development/" style="font-size: 10px;">development</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/docker-registry/" style="font-size: 12.5px;">docker registry</a> <a href="/tags/druid/" style="font-size: 10px;">druid</a> <a href="/tags/dubbo/" style="font-size: 12.5px;">dubbo</a> <a href="/tags/dubbox/" style="font-size: 10px;">dubbox</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/encoding/" style="font-size: 10px;">encoding</a> <a href="/tags/encryption/" style="font-size: 10px;">encryption</a> <a href="/tags/flannel/" style="font-size: 10px;">flannel</a> <a href="/tags/flyway/" style="font-size: 10px;">flyway</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/idea/" style="font-size: 16.25px;">idea</a> <a href="/tags/jetty/" style="font-size: 10px;">jetty</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/kotlin/" style="font-size: 10px;">kotlin</a> <a href="/tags/kubernetes/" style="font-size: 20px;">kubernetes</a> <a href="/tags/lombok/" style="font-size: 10px;">lombok</a> <a href="/tags/management/" style="font-size: 10px;">management</a> <a href="/tags/marathon/" style="font-size: 11.25px;">marathon</a> <a href="/tags/mesos/" style="font-size: 18.75px;">mesos</a> <a href="/tags/monitor/" style="font-size: 10px;">monitor</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/network/" style="font-size: 11.25px;">network</a> <a href="/tags/nfs/" style="font-size: 10px;">nfs</a> <a href="/tags/openstack-swift/" style="font-size: 11.25px;">openstack swift</a> <a href="/tags/performance-tuning/" style="font-size: 10px;">performance tuning</a> <a href="/tags/portus/" style="font-size: 10px;">portus</a> <a href="/tags/prometheus/" style="font-size: 10px;">prometheus</a> <a href="/tags/radosgw/" style="font-size: 11.25px;">radosgw</a> <a href="/tags/rancher/" style="font-size: 10px;">rancher</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/rest/" style="font-size: 10px;">rest</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/salt/" style="font-size: 10px;">salt</a> <a href="/tags/scheduler/" style="font-size: 10px;">scheduler</a> <a href="/tags/sed/" style="font-size: 10px;">sed</a> <a href="/tags/service-governance/" style="font-size: 12.5px;">service governance</a> <a href="/tags/showterm/" style="font-size: 10px;">showterm</a> <a href="/tags/soft-skill/" style="font-size: 16.25px;">soft skill</a> <a href="/tags/solr/" style="font-size: 10px;">solr</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/start-up/" style="font-size: 11.25px;">start up</a> <a href="/tags/storage/" style="font-size: 16.25px;">storage</a> <a href="/tags/swarm/" style="font-size: 10px;">swarm</a> <a href="/tags/tampermonkey/" style="font-size: 10px;">tampermonkey</a> <a href="/tags/tesseract/" style="font-size: 10px;">tesseract</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/thought/" style="font-size: 12.5px;">thought</a> <a href="/tags/tomcat/" style="font-size: 10px;">tomcat</a> <a href="/tags/tosca/" style="font-size: 10px;">tosca</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">六月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/async-standup-in-ai-era/">AI时代的站会：从同步到异步</a>
+          </li>
+        
+          <li>
+            <a href="/ai-programming-maturity-model/">AI编程成熟度模型：从3倍到10倍的路径</a>
+          </li>
+        
+          <li>
+            <a href="/aws-step-functions/">用AWS创建工作流</a>
+          </li>
+        
+          <li>
+            <a href="/future-software-development/">未来的软件开发什么样</a>
+          </li>
+        
+          <li>
+            <a href="/java-11/">Java 11时代，这些编程习惯可以改一改了</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Qinghua Gao<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
