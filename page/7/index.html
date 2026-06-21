@@ -101,102 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://getcloudify.org/">Cloudify</a>是一个开源的云应用编排系统，它允许使用DSL来描述应用的拓扑结构，并部署到任意环境中。本文大量参考了<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/intro/what-is-cloudify/">官方教程</a>从零开始搭建并管理一个cloudify 3.3.1集群。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，注释掉并在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>manager</strong>，它的IP是<strong>192.168.33.17</strong>；另一台叫做<strong>agent</strong>，它们的IP是<strong>192.168.33.18</strong>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;manager&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.box = <span class="string">&quot;cloudify-virtualbox_3.3.0-ga-b300.box&quot;</span></span><br><span class="line">  host.vm.box_url = <span class="string">&quot;http://repository.cloudifysource.org/org/cloudify3/3.3.0/ga-RELEASE/cloudify-virtualbox_3.3.0-ga-b300.box&quot;</span></span><br><span class="line">  host.vm.hostname = <span class="string">&quot;manager&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line">  host.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">    v.memory = <span class="number">2048</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;agent&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.box = <span class="string">&quot;minimum/ubuntu-trusty64-docker&quot;</span></span><br><span class="line">  host.vm.hostname = <span class="string">&quot;agent&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>虚拟机agent所用的vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。虚拟机manager用的远程镜像是cloudify官方镜像，提供了cloudify manager功能。然后分别在两个终端运行以下命令启动并连接两台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh manager</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh agent</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在Ubuntu上安装cloudify很简单，在agent上运行以下命令即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget -c http://repository.cloudifysource.org/org/cloudify3/get-cloudify.py</span><br><span class="line"><span class="built_in">sudo</span> python get-cloudify.py</span><br></pre></td></tr></table></figure>
-
-<p>安装完了之后，运行以下命令可以看到cloudify命令行的版本及帮助文档：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cfy --version</span><br><span class="line">cfy -h</span><br></pre></td></tr></table></figure>
-
-<h2 id="部署应用"><a href="#部署应用" class="headerlink" title="部署应用"></a>部署应用</h2><p>Cloudify的应用被称为<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/intro/blueprints/">蓝图</a>（blueprint），这个名字很好地诠释了它在主页上声称的“从蓝图到生产环境（From Blueprint to Production）”。官方已经为我们的第一次使用准备了一个Hello World，让我们先下载下来：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/cloudify-examples/simple-python-webserver-blueprint/archive/master.zip</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -f unzip</span><br><span class="line">unzip master.zip</span><br><span class="line"><span class="built_in">cd</span> simple-python-webserver-blueprint-master/</span><br></pre></td></tr></table></figure>
-
-<p>接下来初始化下载的蓝图并传入端口等参数：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> init --blueprint-path blueprint.yaml --inputs <span class="string">&#x27;&#123;&quot;webserver_port&quot;: &quot;8000&quot;, &quot;host_ip&quot;:&quot;localhost&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>Cloudify使用工作流（workflow）来管理应用程序。现在启动install工作流来部署一个python的web服务器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> execute --workflow install</span><br><span class="line">curl localhost:8000</span><br></pre></td></tr></table></figure>
-
-<p>也可以在启动vagrant虚拟机的主机上访问：<a target="_blank" rel="noopener" href="http://192.168.33.18:8000/">http://192.168.33.18:8000</a>：<br><img src="/img/cloudify-hello-world.jpg"></p>
-<p>短短几步，我们便顺利部署了一个应用。通过以下命令可以看到一些运行的参数：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> outputs</span><br></pre></td></tr></table></figure>
-
-<p>我们看到的内容称之为模型（model）。蓝图是应用的模板，蓝图的实例称为部署（deployment），部署就是模型的内容之一。蓝图里的每个实体称之为节点（node），节点在部署里称为节点实例（node-instances），它们是一对多的关系。但是在这个例子里，我们有两个节点，每个节点各有一个节点实例。可以用以下命令查看节点实例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> instances</span><br></pre></td></tr></table></figure>
-
-<p>我们能看到这两个节点实例分别是host和http_web_server，其中http_web_server运行在host之上。可以用以下命令来结束部署：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> execute -w uninstall</span><br></pre></td></tr></table></figure>
-
-<h2 id="蓝图解析"><a href="#蓝图解析" class="headerlink" title="蓝图解析"></a>蓝图解析</h2><p>现在让我们看一看刚才所用的蓝图的结构：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> blueprint.yaml</span><br></pre></td></tr></table></figure>
-
-<p>这就是一个yaml格式的文件，里面都是cloudify的DSL。文件分为以下五个部分：</p>
-<ul>
-<li>tosca_definitions_version：蓝图的DSL版本，这里是cloudify_dsl_1_2</li>
-<li>imports：引用yaml文件的地址</li>
-<li>inputs：蓝图的配置信息，也就是一开始初始化蓝图时传入的参数</li>
-<li>node_templates：描述了应用的资源以及应用是如何被部署的，可以跟刚才看到的节点实例相对应起来</li>
-<li>outputs：输出信息，也就是刚才看到的模型里的内容</li>
-</ul>
-<p>其中包括了三个内置函数（Intrinsic Functions），分别是<code>get_input</code>，<code>get_property</code>和<code>concat</code>，只能在蓝图里使用。它们的意思也都比较明显，可以从函数名推断出来。所有的内置函数可以在<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/blueprints/spec-intrinsic-functions/">这里</a>查看到。</p>
-<h2 id="部署容器"><a href="#部署容器" class="headerlink" title="部署容器"></a>部署容器</h2><p>Cloudify通过<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/plugins/docker/">docker插件</a>来支持docker。这个插件依赖于Docker Python API库，而不是Docker CLI，所以体验上有所不同。比如说，<code>docker run</code>将会被分解为<code>docker create</code>和<code>docker start</code>。接下来让我们来尝试部署一个tomcat容器。首先需要生成一个tomcat容器的蓝图：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ../docker</span><br><span class="line"><span class="built_in">cd</span> ../docker</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span>  blueprint.yaml</span><br><span class="line">tosca_definitions_version: cloudify_dsl_1_2</span><br><span class="line">imports:</span><br><span class="line">  - http://www.getcloudify.org/spec/cloudify/3.4m3/types.yaml</span><br><span class="line">  - http://www.getcloudify.org/spec/docker-plugin/1.3.1/plugin.yaml</span><br><span class="line">inputs:</span><br><span class="line">  host_ip:</span><br><span class="line">      description: &gt;</span><br><span class="line">        The ip of the host the application will be deployed on</span><br><span class="line">      default: 127.0.0.1</span><br><span class="line">  tomcat_container_port_bindings:</span><br><span class="line">    description: &gt;</span><br><span class="line">      A dict of port bindings <span class="keyword">for</span> the node container.</span><br><span class="line">    default:</span><br><span class="line">      8080: 8080</span><br><span class="line">node_templates:</span><br><span class="line">  host:</span><br><span class="line">    <span class="built_in">type</span>: cloudify.nodes.Compute</span><br><span class="line">    properties:</span><br><span class="line">      install_agent: <span class="literal">false</span></span><br><span class="line">      ip: &#123; get_input: host_ip &#125;</span><br><span class="line">  tomcat_container:</span><br><span class="line">    <span class="built_in">type</span>: cloudify.docker.Container</span><br><span class="line">    properties:</span><br><span class="line">      name: tomcat</span><br><span class="line">      image:</span><br><span class="line">        repository: tomcat</span><br><span class="line">        tag: 8.0.30-jre8</span><br><span class="line">    interfaces:</span><br><span class="line">      cloudify.interfaces.lifecycle:</span><br><span class="line">        create:</span><br><span class="line">          implementation: docker.docker_plugin.tasks.create_container</span><br><span class="line">          inputs:</span><br><span class="line">            params:</span><br><span class="line">              stdin_open: <span class="literal">true</span></span><br><span class="line">              <span class="built_in">tty</span>: <span class="literal">true</span></span><br><span class="line">        start:</span><br><span class="line">          implementation: docker.docker_plugin.tasks.start</span><br><span class="line">          inputs:</span><br><span class="line">            params:</span><br><span class="line">              port_bindings: &#123; get_input: tomcat_container_port_bindings &#125;</span><br><span class="line">    relationships:</span><br><span class="line">      - <span class="built_in">type</span>: cloudify.relationships.contained_in</span><br><span class="line">        target: host</span><br><span class="line">outputs:</span><br><span class="line">  http_endpoint:</span><br><span class="line">    description: Tomcat web server endpoint</span><br><span class="line">    value: &#123; <span class="string">&#x27;http://localhost:8080&#x27;</span> &#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>这个蓝图需要docker的插件，所以必须先安装一下，然后就可以初始化蓝图（这次不传参数，使用默认值）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> create-requirements -o requirements.txt -p blueprint.yaml</span><br><span class="line"><span class="built_in">sudo</span> pip install -r requirements.txt</span><br><span class="line">cfy <span class="built_in">local</span> init -p blueprint.yaml</span><br></pre></td></tr></table></figure>
-
-<p>现在可以运行啦。由于第一次运行需要下载镜像，可能会比较慢：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> execute -w install</span><br><span class="line">docker ps</span><br><span class="line">docker images</span><br></pre></td></tr></table></figure>
-
-<p>总算是可以访问了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl localhost:8080</span><br></pre></td></tr></table></figure>
-
-<p>也可以在启动vagrant虚拟机的主机上访问：<a target="_blank" rel="noopener" href="http://192.168.33.18:8080/">http://192.168.33.18:8080</a>。查看运行参数和节点实例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> outputs</span><br><span class="line">cfy <span class="built_in">local</span> instances</span><br></pre></td></tr></table></figure>
-
-<p>可以用以下命令来结束部署：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cfy <span class="built_in">local</span> execute -w uninstall</span><br><span class="line">docker ps -a</span><br></pre></td></tr></table></figure>
-
-<p>看起来容器会被删除。感觉怎么样？你愿意天天这样来部署docker么？</p>
-<h2 id="Cloudify管理器"><a href="#Cloudify管理器" class="headerlink" title="Cloudify管理器"></a>Cloudify管理器</h2><p>除了命令行以外，cloudify也支持使用管理器来部署应用。Cloudify管理器有自己的用户界面，提供历史记录、授权和鉴权等功能，并且支持并行运行工作流。下面我们来试着安装一个cloudify管理器。启动cloudify管理器就像是启动一个普通的蓝图一样。可是安装需要下载一大堆的依赖，比较繁琐，有兴趣的童鞋可以参考<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/manager/bootstrapping/">官方教程</a>。官方另外还提供了一个<a target="_blank" rel="noopener" href="http://docs.getcloudify.org/3.3.1/manager/getting-started/">vagrant镜像</a>，里面已经配置好了整个Cloudify管理器，因为我们启动vagrant的时候就已经导入了，直接用它更方便。只要虚拟机启动起来（按照本教程的话，现在是起来的状态），可以直接访问<a target="_blank" rel="noopener" href="http://192.168.33.17/">http://192.168.33.17/</a>来打开cloudify管理器的页面了：<br><img src="/img/cloudify-manager-blueprint.jpg"></p>
-<p>接下来我们来上传一个官方的蓝图，这是nodejs调用mongodb的应用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> blueprints</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/cloudify-cosmo/cloudify-nodecellar-example</span><br><span class="line"><span class="built_in">cd</span> cloudify-nodecellar-example/</span><br><span class="line">git checkout tags/3.3</span><br><span class="line">cfy blueprints upload -b nodecellar -p simple-blueprint.yaml</span><br></pre></td></tr></table></figure>
-
-<p><code>-b</code>参数的nodecellar是这个蓝图的名字。刷新蓝图的界面，我们就能看到一个名为nodecellar的蓝图。点击进去，还能看到更详细的拓扑结构、节点信息等。甚至还可以点击图上的各个组件查看详细信息：<br><img src="/img/cloudify-blueprint-topology.jpg"></p>
-<p>这里有4个节点：</p>
-<ul>
-<li>host：部署的主机</li>
-<li>mongod：mongoDB，运行在host上</li>
-<li>nodejs：nodejs服务器，运行在host上</li>
-<li>nodec…：显示不下的nodecellar，也就是这个酒窖应用，运行在nodejs服务器上，它会去访问mongoDB</li>
-</ul>
-<p>接下来让我们生成一个部署对象：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i &amp;apos;s/host_ip: .*/host_ip: 192.168.33.17/&amp;apos; ../inputs/nodecellar-singlehost.yaml</span><br><span class="line">cfy deployments create -b nodecellar -d nodecellar --inputs ../inputs/nodecellar-singlehost.yaml</span><br></pre></td></tr></table></figure>
-
-<p><code>-d</code>参数的nodecellar是这个部署的ID。页面上点击左边的Deployments，我们就能看到ID为nodecellar的部署了。而Logs &amp; Events里面也生成了好几页日志和事件。与此同时，最左下的Nodes也出现了4条记录。接下来，真正地开始部署：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy executions start -w install -d nodecellar</span><br></pre></td></tr></table></figure>
-
-<p>部署需要一些时间，在笔者的mac上大约5分钟。这时如果刷新部署页面，就能看到Action显示Install，旁边还有一个<code>×</code>号，可以通过点击它来取消本次部署。点击部署页面上nodecellar的ID，就能看到一系列详细信息，甚至还有监控：<br><img src="/img/cloudify-deployments-monitoring.jpg"></p>
-<p>部署完成后，就可以直接访问<a target="_blank" rel="noopener" href="http://192.168.33.17:8080/">http://192.168.33.17:8080/</a>来打开这个nodejs酒窖的网站了：<br><img src="/img/cloudify-node-cellar.jpg"></p>
-<p>还可以用以下命令来停止nodecellar的部署，并删除这个部署：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cfy executions start -w uninstall -d nodecellar</span><br><span class="line">cfy deployments delete -d nodecellar</span><br></pre></td></tr></table></figure>
-
-<p>值得一提的是，刚才我们输入的命令，都可以通过cloudify manager的界面来操作。如果需要停止cloudify manager，可以用以下命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfy teardown -f</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/cloudify/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/cloudify/" data-id="cuidn2BBzxvB61KH4G8QypKOq" data-title="轻松搭建Cloudify运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/cloudify/" data-id="cuid_EfJGQD3-HCo7Q9Q8xcD0" data-title="轻松搭建Cloudify运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -237,87 +150,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;master&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;master&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line">  host.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">    v.memory = <span class="number">1024</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;node1&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node1&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line">  host.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">    v.memory = <span class="number">2048</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;node2&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node2&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line">  host.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">    v.memory = <span class="number">2048</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像默认的docker版本为1.9.0，如果你愿意，可以用下面的命令将其升级为1.10.3，但这不是必须的：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo deb https://apt.dockerproject.org/repo ubuntu-trusty main &gt; /etc/apt/sources.list.d/docker.list&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get purge lxc-docker</span><br><span class="line"><span class="built_in">sudo</span> apt-cache policy docker-engine</span><br><span class="line"><span class="built_in">sudo</span> apt-get install docker-engine</span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br><span class="line">docker -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建网络环境"><a href="#搭建网络环境" class="headerlink" title="搭建网络环境"></a>搭建网络环境</h2><p>为了打通不同主机上的容器的网络连接，最简单的方法是安装一个覆盖网络，这里我们使用flannel。它使用etcd来配置，所以我们需要先运行一个etcd实例。下面在master虚拟机上用容器运行一个etcd实例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --net=host \</span><br><span class="line">  --restart=always \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  -v /var/etcd/data:/var/etcd/data \</span><br><span class="line">  kubernetes/etcd:2.0.5 \</span><br><span class="line">  /usr/local/bin/etcd \</span><br><span class="line">  --addr=192.168.33.17:4001 \</span><br><span class="line">  --bind-addr=0.0.0.0:4001 \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure>
-
-<p>接下来往etcd里插入flannel的配置数据。这里指定flannel可以使用的IP地址为<code>10.0.0.0/8</code>区间：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl <span class="built_in">set</span> /qinghua.github.io/network/config <span class="string">&#x27;&#123;&quot;Network&quot;: &quot;10.0.0.0/8&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后安装并在后台运行flannel：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/coreos/flannel/releases/download/v0.5.5/flannel-0.5.5-linux-amd64.tar.gz</span><br><span class="line">tar zxvf flannel-0.5.5-linux-amd64.tar.gz</span><br><span class="line"><span class="built_in">sudo</span> flannel-0.5.5/flanneld --etcd-endpoints=http://192.168.33.17:4001 --etcd-prefix=/qinghua.github.io/network --iface=eth1 &gt; flannel.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="built_in">cat</span> flannel.log</span><br></pre></td></tr></table></figure>
-
-<p>Flannel启动完成后，会获得一个可用于分配的IP集合，并存放到<code>/run/flannel/subnet.env</code>里。我们需要配置一下docker的可用IP为可用于分配的IP：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /run/flannel/subnet.env</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo DOCKER_OPTS=\\\&quot;--bip=<span class="variable">$FLANNEL_SUBNET</span> --mtu=<span class="variable">$FLANNEL_MTU</span>\\\&quot; &gt;&gt; /etc/default/docker&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建k8s环境"><a href="#搭建k8s环境" class="headerlink" title="搭建k8s环境"></a>搭建k8s环境</h2><p>终于轮到k8s啦。首先需要下载并解压kubernetes 1.2.0版：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/kubernetes/kubernetes/releases/download/v1.2.0/kubernetes.tar.gz</span><br><span class="line">tar zxvf kubernetes.tar.gz</span><br><span class="line">tar zxvf kubernetes/server/kubernetes-server-linux-amd64.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>解压出来的文件里面含了一些启动master需要的docker镜像文件，将它们导入：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker load -i kubernetes/server/bin/kube-apiserver.tar</span><br><span class="line">docker load -i kubernetes/server/bin/kube-controller-manager.tar </span><br><span class="line">docker load -i kubernetes/server/bin/kube-scheduler.tar</span><br><span class="line">docker images</span><br></pre></td></tr></table></figure>
-
-<p>有条件科学上网的童鞋可以自行准备<code>gcr.io/google_containers/etcd:2.2.1</code>这个镜像，否则就凑合着使用先前的<code>kubernetes/etcd:2.0.5</code>。注意，这里为了简单起见，使用同一套etcd。真实环境里，flannel和kubernetes使用的etcd是分开的。接下来开始启动api server：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --insecure-bind-address=192.168.33.17 \</span><br><span class="line">  --service-cluster-ip-range=11.0.0.0/16 \</span><br><span class="line">  --etcd-servers=http://192.168.33.17:4001</span><br></pre></td></tr></table></figure>
-
-<p>然后是controller manager：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=cm \</span><br><span class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</span><br><span class="line">  kube-controller-manager \</span><br><span class="line">  --master=192.168.33.17:8080</span><br></pre></td></tr></table></figure>
-
-<p>最后是scheduler：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:903b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=192.168.33.17:8080</span><br></pre></td></tr></table></figure>
-
-<p>服务器启动完毕，可以运行以下命令来查看版本，咱们用的是1.2：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 version</span><br></pre></td></tr></table></figure>
-
-<p>接下来该客户端了。首先启动kubelet：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">&#x27;inet addr:&#x27;</span> | <span class="built_in">cut</span> -d: -f2 | <span class="built_in">cut</span> -d<span class="string">&#x27; &#x27;</span> -f1`</span><br><span class="line"><span class="built_in">sudo</span> kubernetes/server/bin/kubelet --api-servers=192.168.33.17:8080 --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="built_in">cat</span> kubelet.log</span><br></pre></td></tr></table></figure>
-
-<p>Kubelet启动完成后，在master上就可以看到了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get no</span><br></pre></td></tr></table></figure>
-
-<p>最后启动kube-proxy：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> kubernetes/server/bin/kube-proxy --master=192.168.33.17:8080 &gt; proxy.log 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="built_in">cat</span> proxy.log</span><br></pre></td></tr></table></figure>
-
-<h2 id="测试k8s环境"><a href="#测试k8s环境" class="headerlink" title="测试k8s环境"></a>测试k8s环境</h2><p>环境安装好了，接下来试着启动一个pod。启动之前，由于kubernetes需要通过gcr.io&#x2F;google_containers&#x2F;pause:2.0的小镜像来管理pod的网络。在解压出来的kubernetes文件夹里可以导入：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load -i kubernetes/addons/gcr.io~google_containers~pause:2.0.tar</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以用命令行在任意一台虚拟机上运行一个tomcat，并生成服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> tomcat.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      name: tomcat</span><br><span class="line">      labels:</span><br><span class="line">        app: tomcat</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: tomcat</span><br><span class="line">        image: tomcat:8.0.30-jre8</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 8080</span><br><span class="line">---</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: tomcat</span><br><span class="line">  labels: </span><br><span class="line">    app: tomcat</span><br><span class="line">spec:</span><br><span class="line">  <span class="built_in">type</span>: NodePort</span><br><span class="line">  selector:</span><br><span class="line">    app: tomcat</span><br><span class="line">  ports:</span><br><span class="line">  - port: 80</span><br><span class="line">    targetPort: 8080</span><br><span class="line">    nodePort: 30088</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 create -f tomcat.yaml</span><br></pre></td></tr></table></figure>
-
-<p>一开始由于需要下载tomcat镜像可能会慢点，随时可以用下面的命令来查看进度：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 describe po tomcat</span><br></pre></td></tr></table></figure>
-
-<p>可以用下面的命令来查看pod、replication controller、service和endpoint：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get po</span><br><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get rc</span><br><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get svc</span><br><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get ep</span><br></pre></td></tr></table></figure>
-
-<p>我们看到的endpoint里，应该有一个tomcat。在我的虚拟机上它的ENDPOINTS是<code>10.0.8.3:8080</code>，访问一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POD_IP=`kubernetes/server/bin/kubectl -s 192.168.33.17:8080 get ep tomcat -o jsonpath=&#123;.subsets[*].addresses[*].ip&#125;`</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$POD_IP</span></span><br><span class="line">curl <span class="variable">$POD_IP</span>:8080</span><br></pre></td></tr></table></figure>
-
-<p>顺利的话，这三台虚拟机任意一台都可以访问这个tomcat的endpoint。由于启动这三台vagrant虚拟机的主机上并没有安装flannel，所以目前就别想用主机的浏览器打开这个网址啦。但是，由于我们创建服务的时候类型设置为NodePort，这样外部是可以通过任意node的特定端口访问这个服务的。也就是说，下面这两个url都是可以在集群外部访问的，并且效果一样：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="http://192.168.33.18:30088/">http://192.168.33.18:30088/</a></li>
-<li><a target="_blank" rel="noopener" href="http://192.168.33.19:30088/">http://192.168.33.19:30088/</a></li>
-</ul>
-<p>初步测试完毕，可以使用以下命令来删除刚才创建的tomcat系列对象：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s 192.168.33.17:8080 delete -f tomcat.yaml</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-installation/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-installation/" data-id="cuidTzK0G37hFzyPxL7uSyFxc" data-title="轻松搭建Kubernetes 1.2版运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-installation/" data-id="cuidM94dXhTxgGaoB3SQ7j6Bl" data-title="轻松搭建Kubernetes 1.2版运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -358,54 +199,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的安全性，还有多租户。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="Kubernetes"><a href="#Kubernetes" class="headerlink" title="Kubernetes"></a>Kubernetes</h2><h3 id="鉴权和授权"><a href="#鉴权和授权" class="headerlink" title="鉴权和授权"></a>鉴权和授权</h3><p>身份认证分为鉴权（authentication）和授权（authorization）。前者是看你能不能登录，后者是看你登录后有什么权限。Kubernetes的1.2版支持以下<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/authentication/">5种鉴权</a>方式：</p>
-<ul>
-<li>CA认证（Client certificate authentication）：就是基于SSL证书的认证，基本概念可以参考<a href="/certificate">证书的那些事儿</a></li>
-<li>Token文件认证（Token File）：用一个CSV文件指定用户名、用户id和组名，组名是为了给下面的授权使用的</li>
-<li>OpenID认证（OpenID Connect ID Token）：基于第三方的<a target="_blank" rel="noopener" href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID</a></li>
-<li>基本认证（Basic authentication）：也是CSV文件，指定了用户名、密码和用户id</li>
-<li>Keystone认证（Keystone authentication）：基于openstack的身份认证服务<a target="_blank" rel="noopener" href="http://docs.openstack.org/developer/keystone/">Keystone</a></li>
-</ul>
-<p>身份验证通过，接下来就是授权。Kubernetes的1.2版支持以下<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/authorization/">4种授权</a>方式：</p>
-<ul>
-<li>总是拒绝（AlwaysDeny）：这个一般用于测试</li>
-<li>总是允许（AlwaysAllow）：只要能登录进来，就有所有权限</li>
-<li>用户配置（ABAC）：基于用户授权配置，可以对资源（比如pod、service等）和命名空间设置用户&#x2F;组的只读或可写权限，多租户管理的时候很有用</li>
-<li>钩子（Webhook）：也能实现类似用户配置的粒度，只不过是基于一个远程的REST服务</li>
-</ul>
-<h3 id="账户"><a href="#账户" class="headerlink" title="账户"></a>账户</h3><p>用户账户（User account）和<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/service-accounts/">服务账户</a>（Service account）在kubernetes里是不同的两个东西。用户账户是给人使用的，不可重复，目前创建的时候需要重启API Server。而服务账户是给pod里的容器使用的，在不同的命名空间中可以重复，比较轻量级一点，可以动态创建。如果创建pod的时候指定了服务账户，那就没的说，直接用就好了；但要是没有指定，k8s会自动为pod指定一个指定命名空间的名为default的服务账户。它是在创建命名空间时自动生成的。</p>
-<h3 id="秘密"><a href="#秘密" class="headerlink" title="秘密"></a>秘密</h3><p>想象一个正常的开发场景，比如tomcat容器访问mysql，攻城狮们理所当然地把mysql的密码存放在tomcat容器里。Kubernetes提供了<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/secrets/">秘密</a>（Secret）这个对象用来保存这样的敏感信息。需要用的时候像挂卷一样把秘密挂载到pod里就好了，密码就不需要直接写了。有了秘密，妈妈再也不用担心我的霸气侧漏了。实际上，上面提到的服务账户本质上就是秘密的集合。</p>
-<h3 id="多租户"><a href="#多租户" class="headerlink" title="多租户"></a>多租户</h3><p>Kubernetes本身支持用不同的命名空间来区分多租户，它们之间不会相互干扰。还有一个系统使用的命名空间叫做<code>kube-system</code>。但是系统的资源是恒定的，如果有个租户打算扶着墙进来，再扶着墙出去，是不是其他人都没得吃了？Kubernetes有一个<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/resource-quota/">资源限额</a>（Resource Quota）的概念，可以用于命名空间上。目前可以限制的资源有CPU和内存。除了资源，在pod、rc、服务等的数量上也可以进行限制。这样就能很方便地像现在的CaaS那样卖实例吧。</p>
-<h2 id="Mesos"><a href="#Mesos" class="headerlink" title="Mesos"></a>Mesos</h2><p>Mesos默认使用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/CRAM-MD5">CRAM-MD5</a><a target="_blank" rel="noopener" href="http://mesos.apache.org/documentation/latest/authentication/">鉴权</a>。最典型的用法是master启动的时候，指定一个文件，里面含有用户名（mesos里叫principal）和密码（mesos里叫secret）。只有通过鉴权的framework和slave才能注册进来。<a target="_blank" rel="noopener" href="http://mesos.apache.org/documentation/latest/authorization/">授权</a>是通过ACLs（Access Control Lists）来实现的，目前可以支持以下十种行为的授权：</p>
-<ul>
-<li>register_frameworks: 注册framework</li>
-<li>run_tasks: 运行任务</li>
-<li>teardown_frameworks: 解除framework</li>
-<li>set_quotas: 设置配额</li>
-<li>remove_quotas: 移除配额</li>
-<li>reserve_resources: 保留资源</li>
-<li>unreserve_resources: 解除保留资源</li>
-<li>create_volumes: 创建持久化卷</li>
-<li>destroy_volumes: 删除持久化卷</li>
-<li>update_weights: 更新权重</li>
-</ul>
-<p>Kubernetes的这些多租户的概念，mesos基本上也都有。就是在名称和具体功效上略有差别。比如，mesos的<a target="_blank" rel="noopener" href="http://mesos.apache.org/documentation/latest/roles/">角色</a>（role）就像是k8s的命名空间一样，指定role的framework只能使用特定role的mesos slave。在资源限额上，mesos支持<a target="_blank" rel="noopener" href="http://mesos.apache.org/documentation/latest/quota/">配额</a>和<a target="_blank" rel="noopener" href="http://mesos.apache.org/documentation/latest/weights/">权重</a>（Weights）。配额管的是保留资源以供未来使用，权重管的是角色分配的资源比例。可惜的是对角色和权重的修改都必须重新启动mesos master，而配额可以通过http请求动态修改。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-9/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-9/" data-id="cuid2KZ1db1PayiYUSB6xt4OY" data-title="如果有10000台机器，你想怎么玩？（九）安全性" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-9/" data-id="cuidvm70OO3sBPbSEF5kK-J-k" data-title="如果有10000台机器，你想怎么玩？（九）安全性" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -446,75 +248,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>现在网络这么发达，许多人都在上面购物、理财、预约挂号…网络上传送的可都是自己的重要资料，比如身份证号，信用卡密码等。因特网如何才能保证这些敏感信息的安全？本文试着来探讨一下加密、证书等那些事儿。</p>
-<h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><h3 id="隐藏信息"><a href="#隐藏信息" class="headerlink" title="隐藏信息"></a>隐藏信息</h3><p>古代交通不便，一般都是通过送信的方式传递信息。那么如何保证信件的内容不被泄露呢？一种方法是隐藏字迹。中国古代使用矾书，也就是用明矾水来书写保密书信。水干之后没有任何痕迹，泡水时字才显示。还有一招是使用淀粉水在纸上写字，再把纸泡在碘水中显示字迹。据知乎的水波说<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20986883/answer/16811680">在西方世界里，也有使用牛奶或者羊奶书写信息，待干掉以后再用高温烘烤使之重新显现字迹的说法</a>。这些办法一旦为人所知，便会轻易被破解，而且还有点儿此地无银三百两的意思。</p>
-<h3 id="加密信息"><a href="#加密信息" class="headerlink" title="加密信息"></a>加密信息</h3><p>除了隐藏信息以外，还有加密的方法。在宋代兵书《武经总要》里，<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/34846340/answer/60080691">约定了40个常用的军事短语</a>，送信内容为一首40个字的五言律诗，每个字代表一个军事短语。然后在相应的字上做标记，对方就明白了，这个叫字验。这个就有点儿密码表的意思了。从知乎某匿名用户的回答上找了一张图：<br><img src="/img/ziyan.jpg"></p>
-<p>在西方世界里，古希腊军队将长条羊皮纸缠绕在约定长度和粗细的木棍上书写，木棍称为Scytale。把羊皮纸解下来后就变成没有意义的字母了。古罗马的凯撒大帝用的是字母移位的办法。比如有封信写着：IFMMP，多半我们是不知道啥意思的。要是对方事先说明了把每个字母都右移一位的方法，也就是A变成B，B变成C…Z变成A，那我们就能很轻松地把IFMMP变成HELLO，明白对方的意思。</p>
-<h2 id="现代"><a href="#现代" class="headerlink" title="现代"></a>现代</h2><h3 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h3><p>对上文说的凯撒大帝移位法而言，“右移”就是算法（algorithm），一位的“1”就是密钥（key）。计算机普及后，最早的有影响力的算法是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Data_Encryption_Standard">DES</a>（Data Encryption Standard），它的秘钥是64位，但只有56位会用来计算。所以，只要最多尝试256（大约是七万亿）次的暴力破解，就能解密。随着计算机硬件的发展，这个数量级在1998年只要56小时就能破解，到了1999年变成了24小时以内。这样就不够安全了。于是四年之后，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard">AES</a>（Advanced Encryption Standard）取代了DES成为了新的标准。它可以使用128、192或256位密钥。最低的128位也能承受大约三千万亿亿次的暴力破解，至少目前看起来还算是比较安全的。在DES向AES的过渡期间，使用了<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Triple_DES">3DES</a>算法。所谓3DES，可以理解成重要的事情做三遍，用不同密钥的DES加密三次，几乎也就等同于56×3&#x3D;168位的密钥，这样也算是比较安全了。</p>
-<h3 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h3><p>对称密钥有一个问题，就是密钥通过什么渠道来传输。加密算法再好，密钥被偷走了，也无济于事。在这样的背景下，非对称加密问世了。它的密钥包含着一个公钥和一个私钥。私钥顾名思义是只有你自己的电脑才知道的，公钥是公开的。用私钥加密的数据只有用公钥才能解开，同样的，用公钥加密的数据只有用私钥才能解开。假如两台电脑甲和乙相互通信，双方先把自己的公钥告诉对方。当甲给乙发消息时，用乙的公钥来加密，由于只有乙有相对应的私钥，所以只有乙能解密，甲要是忘记了消息内容连自己都解不了，更遑论第三方了。反之亦然。非对称加密最常用的算法是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)">RSA</a>（发明者Rivest、Shmir和Adleman的姓氏首字母）。它的私钥和公钥是通过至少百位的大质数来生成的。由于在数学上很难计算大整数的因数，所以目前来说是比较安全的。万一哪天数学或<a target="_blank" rel="noopener" href="http://www.guokr.com/question/530973/">量子计算机</a>上有了突破，这种算法也就不再可靠了。1999年，512位的RSA被成功分解。2009年，768位的RSA也被成功分解。现在通用的1024位密钥可能也不那么可靠了，从安全的角度来说应该升级到2048位或以上。密钥这么大，非对称加密的速度比较慢（与对称加密有千倍的差距）也是可以理解的。所以在实际的使用当中一般用对称加密来加密数据，非对称加密来加密对称加密的密钥。</p>
-<h3 id="散列算法"><a href="#散列算法" class="headerlink" title="散列算法"></a>散列算法</h3><p>好吧，密码破解不了，但是攻击者可以截取加密后的数据包，然后篡改。这样“传位十四皇子”就变成了“传位于四皇子”啦。散列算法堵死了这条路。它能把很长的数据变成固定长度的文本。也称为数据的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/w/index.php?title=Message_digest&redirect=no">摘要</a>（digest）或<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Fingerprint_(computing)">指纹</a>（fingerprint）。相同数据的摘要一定是一样的，不同数据的摘要有可能一样，但是通常不一样。正因如此，散列算法是不可逆的，也就是说不能从数据摘要倒推出数据来。但是它可以用来校验数据是否被更改。如果数据有变化，那么摘要通常都是不一样的，概率取决于散列的长度，越长越不容易相同。配合上文所说的非对称加密，如果我用自己的私钥加密了某个摘要，那它就只有用我的公钥才能解密。这就说明了这个摘要一定是我发出的，因为别人不可能有我的私钥。进而推导出摘要所代表的消息也是由我发出的。这个加了密的摘要称为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Digital_signature">数字签名</a>（Digital signature）。它保证数据的完整性，确定数据的发出者，是具有法律效力的。</p>
-<p>原来常用的散列算法有<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/MD5">MD5</a>和<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/SHA-1">SHA1</a>，2004年后，山东大学的王小云教授通过碰撞法分别攻破了这两种算法。也就是说，在已知摘要的情况下，可以很快计算出另一个拥有相同摘要的文本，这样就实现了文本篡改。行话叫散列碰撞（Hash Collision）。所以<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/National_Security_Agency">NSA</a>推出了<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/SHA-2">SHA2</a>和<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/SHA-3">SHA3</a>成为了新的标准。虽然MD5和SHA1被破解，也不用特别在意。因为虽然能找到相同摘要的数据，但是篡改者并不能随心所欲地把数据修改成自己想要的样子。</p>
-<h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><h3 id="SSL-TLS"><a href="#SSL-TLS" class="headerlink" title="SSL&#x2F;TLS"></a>SSL&#x2F;TLS</h3><p>有了加密算法，是不是传输就安全了呢？确实如果严格去用的话，是安全了，但是也麻烦了很多。每次都要跟对方沟通用什么算法，传送密钥，传送摘要…累不累？所以需要有一套协议，大家都遵守这样的协议，就能少掉很多我们不需要太关注的、技术上的事情。这个协议叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/w/index.php?title=Secure_Sockets_Layer&redirect=no">SSL</a>（Secure Sockets Layer）。它所做的事情，主要就是上面说的交换公钥，用对方的公钥加密数据，用自己的私钥解密，还支持MD5用于验证数据的完整性。SSL是网景公司发明的，由于应用广泛，成为了事实上的标准。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Internet_Engineering_Task_Force">IETF</a>（Internet Engineering Task Force）在1999年把SSL 3.0标准化，称为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</a>（Transport Layer Security）。除了标准化以外，相对SSL来说TLS也更加安全一些。</p>
-<h3 id="HTTP-HTTPS"><a href="#HTTP-HTTPS" class="headerlink" title="HTTP&#x2F;HTTPS"></a>HTTP&#x2F;HTTPS</h3><p>因特网发明后，大部分的网站都是用的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol">HTTP</a>协议。这个协议关心的是如何方便地获取到自己需要的资源，并不关心安全性。如果你的网络被监视（比如你的wifi提供者，运营商等等），对方是可以明文看到你的所有信息的，行话叫嗅探（sniffer）。在HTTP上应用SSL&#x2F;TLS的协议叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/HTTPS">HTTPS</a>（HTTP over SSL&#x2F;TLS）。有了它，我们就还可以像以前的HTTP那样方便地在网上冲浪，而不用太担心安全问题，但不是完全不需要担心，一会儿我们会说到。</p>
-<p>顺便说一句，SSL&#x2F;TLS并不是只能用于HTTP，还可以用于<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/File_Transfer_Protocol">FTP</a>（File Transfer Protocol）、<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a>（Simple Mail Transfer Protocol）等一系列应用层协议。</p>
-<h2 id="CA及证书"><a href="#CA及证书" class="headerlink" title="CA及证书"></a>CA及证书</h2><h3 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h3><p>前面说到了HTTPS，为什么有了这么安全的技术我们还是不能高枕无忧呢？这是因为：虽然它能保证我们的信息不被第三方破解，但是它绕不开一个很现实的绕口问题：你怎么知道他就是他声称的那个他？举个栗子：你以为正在访问的网站是某个银行，但是却不知道其实你被钓鱼（phishing）了。对方正等着你输入你的银行卡号和密码，好用它们去真正的银行网站给自己转账。这一切发生得这么自然，你的信息只有钓鱼网站能解密看到，钓鱼网站的信息也只有你能解密看到…就算是你注意到了对方的域名，也有可能因为0和O、1和l傻傻分不清楚或者<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Domain_hijacking">域名劫持</a>（domain hijacking）而上当。数字证书就是用来阻止这事儿发生的。虽然我不认识你，但是如果我认识一个很知名的家伙，他肯为你做担保，那我也可以相信你。这个知名的家伙就叫<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Certificate_authority">CA</a>（Certificate Authority）。它为通信的双方起了一个中间人的作用。CA的担保就叫<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_certificate">数字证书</a>（Digital Certificate或Public Key Certificate）。这个证书是什么格式，有什么内容呢？这是由<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_infrastructure">PKI</a>（Public Key Infrastructure）标准决定的。常用的标准有<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X.509">X.509</a>和<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/PKCS_12">PKCS #12</a>。它们定义了证书里应该含有签发机构名、证书用户名、有效期、算法、公钥等信息。</p>
-<h3 id="信任链"><a href="#信任链" class="headerlink" title="信任链"></a>信任链</h3><p>回到刚才的问题：你怎么知道他就是他声称的那个他？我无条件地信任CA，网站又有了CA的数字证书，我就能信任他就是证书里声称的那个他。如果我因为对CA的信任而有了损失，则证书可以用来追究CA的法律责任。如果我们信任A，A信任B，B信任C，那么我们也会信任B和C，这个叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Chain_of_trust">证书信任链</a>（Chain of trust）。中间的B称为<a target="_blank" rel="noopener" href="https://hk.godaddy.com/en/help/what-is-an-intermediate-certificate-868">中级证书</a>（Intermediate certificate），位于信任链顶端的A称为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Root_certificate">根证书</a>（Root certificate）。如果根证书出了问题，那么它所信任的其它证书也就不再可信了。这个后果可是非常严重，可能会影响整个因特网的信任体系。所以，需要尽可能地少动用根证书以减少根证书的私钥被盗用的风险。如果网站想要被认证，直接用中级证书认证就好了。万一中级证书出问题，吊销掉中级证书也只会影响一部分客户，比整个根证书被吊销掉强。但事情也不绝对。对CA来说，公信力就是一切。说个案例：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/China_Internet_Network_Information_Center">中国互联网络信息中心</a>（China Internet Network Information Center，CNNIC）是中国的顶级域名<code>.cn</code>和中文域名的注册管理机构。MCS集团用CNNIC签发的中级证书，发行了多个冒充成Google的假证书。于是在2015年4月份，chrome、firefox都宣布不再信任CNNIC的证书。如果你用chrome来打开<a target="_blank" rel="noopener" href="https://www.cnnic.net.cn/">https://www.cnnic.net.cn/</a>，应该会看到：<br><img src="/img/https_untrust.png"></p>
-<p>而不是：<br><img src="/img/https_trust.png"></p>
-<p>一般来说操作系统和浏览器都会内置一些信任的CA，比较著名的有公信力的CA有Verisign，GeoTrust等。我们打开google的时候，也能点击小锁看到它的证书：<br><img src="/img/google-ca.jpg"></p>
-<p>再点击证书信息就能看到它的证书链。最上面的是GeoTrust的根证书，它包含的内容都在里面写着了，感兴趣的话就自己看看吧：<br><img src="/img/ca1.jpg"></p>
-<p>中间的是谷歌自己的中级证书：<br><img src="/img/ca2.jpg"></p>
-<p>最后是站点自己的证书，这个有效期一般比较短：<br><img src="/img/ca3.jpg"></p>
-<p>证书是可以自签名的，也就是说，你自己作为CA来发行这个证书。当然，这个证书也只有你自己会信任，广大的网友同志们的眼睛是雪亮的，不会无缘无故地信任你的。那如果我是大企业，是不是就值得信任了？谷歌、微软等通常都是可以信任的。12306，你信任它吗？每个人都会有自己的答案吧。打开<a target="_blank" rel="noopener" href="https://www.12306.cn/">12306</a>看看它的根证书，SRCA（SinoRail Certification Authority）是个什么鬼？这个是中国铁路自己啊。知道为什么首页上总有一个“为保障您顺畅购票，请下载安装根证书”的提示了吧。</p>
-<h3 id="申请证书"><a href="#申请证书" class="headerlink" title="申请证书"></a>申请证书</h3><p>首先，如果你觉得自己的网站没有什么信息不能公开的，那就没必要费那钱和时间去购买证书。</p>
-<p>证书有很多种类型，价格也很不一样，大约一年数千到数万元人民币吧。简单列出几种：</p>
-<ul>
-<li>通配符证书（Wildcard SSL Certificates）：自己的域名和下一级子域名可以使用。比如<code>google.com</code>和<code>maps.google.com</code>就是域名和二级子域名的关系</li>
-<li>多域名证书（Subject Alternative Name SSL Certificates）：不仅限于子域名，不同域名也能使用</li>
-<li>增强型证书（Extended Validation SSL Certificate）：总之就是验证流程更麻烦，结果就是可以在地址栏显示公司的名称，增加可信度。就像这样：<br><img src="/img/github-ca.jpg"></li>
-</ul>
-<p>申请证书需要给CA提供一个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Certificate_signing_request">CSR</a>（certificate sigining request）文件。通常做法就是通过程序把域名、联系人和公钥等信息都放在这个文件里，发送给某个CA。交费之后，如果CA方面没有问题，就会对CSR文件设置有效期等操作，当然还需要用自己的私钥对证书签名，再发送给用户。最后用户把证书绑定到自己的网站上。</p>
-<h2 id="动手时间"><a href="#动手时间" class="headerlink" title="动手时间"></a>动手时间</h2><h3 id="加解密"><a href="#加解密" class="headerlink" title="加解密"></a>加解密</h3><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/OpenSSL">OpenSSL</a>是SSL&#x2F;TLS的开源实现，我们就用它来练练手吧。首先，用DES加解密文本：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl enc -e -des -a    <span class="comment">## 需要输入两次密码，如果你输入的都是1，那么可以用下一条命令解密</span></span><br><span class="line"><span class="built_in">echo</span> U2FsdGVkX19NMXhTRoTNJE0YV+TKcRL0+xzT9UMUN5Y= | openssl enc -d -des -a</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>-a</code>代表base64编码。还可以多试几次加密，就算文本、密码相同，每次加密的结果也很可能是不一样的。把上面的<code>-des</code>变成<code>-des3</code>或者是<code>-aes-256-cbc</code>就可以自行尝试DES3和AES加解密了。接下来尝试RSA。首先生成RSA的私钥：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem 2048</span><br><span class="line"><span class="built_in">cat</span> private.pem</span><br></pre></td></tr></table></figure>
-
-<p>PEM表示这是base64编码的密钥，也可以改成DER即二进制的密钥，加上一个<code>-outform DER</code>的参数就行。然后通过私钥生成公钥：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -<span class="keyword">in</span> private.pem -pubout -out public.pem</span><br><span class="line"><span class="built_in">cat</span> public.pem</span><br></pre></td></tr></table></figure>
-
-<p>接下来用刚刚生成的公钥加密，私钥解密：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -encrypt -pubin -inkey public.pem -out encrypt</span><br><span class="line"><span class="built_in">cat</span> encrypt</span><br><span class="line"><span class="built_in">cat</span> encrypt | openssl rsautl -decrypt -inkey private.pem</span><br></pre></td></tr></table></figure>
-
-<p>然后私钥加密，公钥解密。注意这个的意义其实是私钥签名，公钥认证：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl rsautl -sign -inkey private.pem -out encrypt</span><br><span class="line"><span class="built_in">cat</span> encrypt</span><br><span class="line"><span class="built_in">cat</span> encrypt | openssl rsautl -verify -pubin -inkey public.pem</span><br></pre></td></tr></table></figure>
-
-<h3 id="散列"><a href="#散列" class="headerlink" title="散列"></a>散列</h3><p>现在轮到散列算法了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -md5</span><br><span class="line"><span class="built_in">echo</span> Hello World! | openssl dgst -sha1</span><br></pre></td></tr></table></figure>
-
-<p>也可以用linux自带的小工具实现：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">md5sum</span></span><br><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">sha1sum</span></span><br><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">sha224sum</span></span><br><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">sha256sum</span></span><br><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">sha384sum</span></span><br><span class="line"><span class="built_in">echo</span> Hello World! | <span class="built_in">sha512sum</span></span><br></pre></td></tr></table></figure>
-
-<p>是不是越来越长了？散列越长越不容易被碰撞。</p>
-<h3 id="证书"><a href="#证书" class="headerlink" title="证书"></a>证书</h3><p>申请证书，首先需要生成CSR文件。而CSR文件需要先生成私钥：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private.pem 2048</span><br><span class="line">openssl req -new -key private.pem -out domain.csr</span><br><span class="line"><span class="built_in">cat</span> domain.csr</span><br></pre></td></tr></table></figure>
-
-<p>生成私钥文件是可以加密的，加上一个参数比如<code>-des3</code>就可以了。生成CSR文件的时候需要填写各种信息，没耐心就随便写点什么甚至一路回车也行，反正又不是真的去找CA。如果你真的有需求，<a target="_blank" rel="noopener" href="https://support.rackspace.com/how-to/generate-a-csr-with-openssl/#create-a-csr">这里有一张表格</a>说明了应该怎么填。填完的东西可以这么看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -noout -text -<span class="keyword">in</span> domain.csr</span><br></pre></td></tr></table></figure>
-
-<p>现在我们假装自己是个CA，有自己的密钥对，然后对刚才提交的CSR文件签名：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private_ca.pem 2048</span><br><span class="line">openssl x509 -req -days 365 -<span class="keyword">in</span> domain.csr -signkey private_ca.pem -out my_domain.crt</span><br><span class="line"><span class="built_in">cat</span> my_domain.crt</span><br></pre></td></tr></table></figure>
-
-<p>大功告成！生成的my_domain.crt就是我们要的证书。由于这个是自签名证书，默认是不被我们的操作系统信任的。如果我们需要增加信任，可以参考<a target="_blank" rel="noopener" href="https://briansnelson.com/How_to_add_trusted_root_certificates">这里</a>。比如在Ubuntu&#x2F;Debian里可以这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> my_domain.crt /usr/local/share/ca-certificates/</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates</span><br></pre></td></tr></table></figure>
-
-<p>如果要取消信任，可以这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /usr/local/share/ca-certificates/my_domain.crt</span><br><span class="line"><span class="built_in">sudo</span> update-ca-certificates --fresh</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="http://computer.howstuffworks.com/encryption.htm">How Encryption Works</a><br><a target="_blank" rel="noopener" href="http://victor1980.blog.51cto.com/3664622/1659447">有关SSL证书的一些事儿</a><br><a target="_blank" rel="noopener" href="http://seanlook.com/2015/01/07/tls-ssl/">SSL&#x2F;TLS原理详解</a><br><a target="_blank" rel="noopener" href="http://seanlook.com/2015/01/15/openssl-certificate-encryption/">OpenSSL 与 SSL 数字证书概念贴</a><br><a target="_blank" rel="noopener" href="https://program-think.blogspot.com/2010/02/introduce-digital-certificate-and-ca.html">数字证书及 CA 的扫盲介绍</a><br><a target="_blank" rel="noopener" href="https://program-think.blogspot.com/2014/11/https-ssl-tls-1.html">扫盲 HTTPS 和 SSL&#x2F;TLS 协议</a><br><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html">数字签名是什么？</a><br><a target="_blank" rel="noopener" href="http://boxingp.github.io/blog/2015/04/04/should-cnnic-certificate-to-be-trusted/">CNNIC证书值得信任吗？</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/certificate/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/certificate/" data-id="cuidIfspngDZ3Q_E_sr_die2w" data-title="证书的那些事儿" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/certificate/" data-id="cuidqjt9p4Y9D1LsTxPGnpIdL" data-title="证书的那些事儿" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -555,93 +297,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Docker官方并没有提供docker registry的用户界面，对权限的控制粒度也比较粗。SUSE的<a target="_blank" rel="noopener" href="http://port.us.org/">Portus</a>很好地解决了这个问题。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。本文尝试从零开始用容器搭建一个portus环境。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配一台IP是<strong>192.168.33.18</strong>的虚拟机。Registry配上portus会比较耗内存，所以我们给它2G内存，默认是512M。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">config.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line">config.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">  v.memory = <span class="number">2048</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后在终端运行以下命令启动并连接虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>我们将会把docker registry和portus都安装在同一台虚拟机上。一方面是比较方便，另一方面也避免了<a target="_blank" rel="noopener" href="https://github.com/SUSE/Portus/issues/510">时钟同步问题</a>。为了启动一个带认证的docker registry，首先要生成自签名证书：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  ssl.conf</span><br><span class="line">[ req ]</span><br><span class="line">prompt             = no</span><br><span class="line">distinguished_name = req_subj</span><br><span class="line">x509_extensions    = x509_ext</span><br><span class="line"></span><br><span class="line">[ req_subj ]</span><br><span class="line">CN = Localhost</span><br><span class="line"></span><br><span class="line">[ x509_ext ]</span><br><span class="line">subjectKeyIdentifier   = <span class="built_in">hash</span></span><br><span class="line">authorityKeyIdentifier = keyid,issuer</span><br><span class="line">basicConstraints       = CA:<span class="literal">true</span></span><br><span class="line">subjectAltName         = @alternate_names</span><br><span class="line"></span><br><span class="line">[ alternate_names ]</span><br><span class="line">DNS.1 = localhost</span><br><span class="line">IP.1  = 192.168.33.18</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /certs</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;openssl req -config ssl.conf \</span></span><br><span class="line"><span class="string">-new -x509 -nodes -sha256 -days 365 -newkey rsa:4096 \</span></span><br><span class="line"><span class="string">-keyout /certs/server-key.pem -out /certs/server-crt.pem&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>证书生成好了，但是由于这是自签名证书，客户端还需要配置证书文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker/certs.d/192.168.33.18:5000</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /certs/server-crt.pem /etc/docker/certs.d/192.168.33.18:5000/ca.crt</span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>接下来生成一个registry的配置文件，里面指定刚才的证书和token方式的认证。认证服务器设置到一会儿要启动的portus去：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  config.yml</span><br><span class="line">version: 0.1</span><br><span class="line">loglevel: debug</span><br><span class="line">storage:</span><br><span class="line">    cache:</span><br><span class="line">        blobdescriptor: inmemory</span><br><span class="line">    filesystem:</span><br><span class="line">        rootdirectory: /var/lib/registry</span><br><span class="line">    delete:</span><br><span class="line">        enabled: <span class="literal">true</span></span><br><span class="line">http:</span><br><span class="line">    addr: :5000</span><br><span class="line">    headers:</span><br><span class="line">        X-Content-Type-Options: [nosniff]</span><br><span class="line">    tls:</span><br><span class="line">        certificate: /certs/server-crt.pem</span><br><span class="line">        key: /certs/server-key.pem</span><br><span class="line">auth:</span><br><span class="line">    token:</span><br><span class="line">        realm: https://192.168.33.18/v2/token</span><br><span class="line">        service: 192.168.33.18:5000</span><br><span class="line">        issuer: 192.168.33.18</span><br><span class="line">        rootcertbundle: /certs/server-crt.pem</span><br><span class="line">notifications:</span><br><span class="line">    endpoints:</span><br><span class="line">      - name: portus</span><br><span class="line">        url: https://192.168.33.18/v2/webhooks/events</span><br><span class="line">        <span class="built_in">timeout</span>: 500ms</span><br><span class="line">        threshold: 5</span><br><span class="line">        backoff: 1s</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以启动registry容器了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --name registry \</span><br><span class="line">    -p 5000:5000 \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</span><br><span class="line">    registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>Docker registry配置完成后，就该准备portus了。Portus需要一个数据库来存储信息，官方推荐<a target="_blank" rel="noopener" href="https://mariadb.org/">MariaDB</a>，当然mysql也是没问题的。我们把数据库启动起来：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --name mariadb \</span><br><span class="line">    --net=host \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">    -e TERM=xterm \</span><br><span class="line">    mariadb:10.1.10</span><br></pre></td></tr></table></figure>
-
-<p>等数据库启动完成，我们连接上去：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mariadb mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<p>为portus创建用户和数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create database portus;</span><br><span class="line">GRANT ALL ON portus.* TO <span class="string">&#x27;portus&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED BY <span class="string">&#x27;portus&#x27;</span>;</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<p>万事俱备，让我们来启动portus：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d \</span><br><span class="line">    --name portus \</span><br><span class="line">    --net host \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -v /usr/sbin/update-ca-certificates:/usr/sbin/update-ca-certificates \</span><br><span class="line">    -v /etc/ca-certificates:/etc/ca-certificates \</span><br><span class="line">    --<span class="built_in">env</span> DB_ADAPTER=mysql2 \</span><br><span class="line">    --<span class="built_in">env</span> DB_ENCODING=utf8 \</span><br><span class="line">    --<span class="built_in">env</span> DB_HOST=192.168.33.18 \</span><br><span class="line">    --<span class="built_in">env</span> DB_PORT=3306 \</span><br><span class="line">    --<span class="built_in">env</span> DB_USERNAME=portus \</span><br><span class="line">    --<span class="built_in">env</span> DB_PASSWORD=portus \</span><br><span class="line">    --<span class="built_in">env</span> DB_DATABASE=portus \</span><br><span class="line">    --<span class="built_in">env</span> RACK_ENV=production \</span><br><span class="line">    --<span class="built_in">env</span> RAILS_ENV=production \</span><br><span class="line">    --<span class="built_in">env</span> PUMA_SSL_KEY=/certs/server-key.pem \</span><br><span class="line">    --<span class="built_in">env</span> PUMA_SSL_CRT=/certs/server-crt.pem \</span><br><span class="line">    --<span class="built_in">env</span> PUMA_PORT=443 \</span><br><span class="line">    --<span class="built_in">env</span> PUMA_WORKERS=4 \</span><br><span class="line">    --<span class="built_in">env</span> MACHINE_FQDN=192.168.33.18 \</span><br><span class="line">    --<span class="built_in">env</span> SECRETS_SECRET_KEY_BASE=secret-goes-here \</span><br><span class="line">    --<span class="built_in">env</span> SECRETS_ENCRYPTION_PRIVATE_KEY_PATH=/certs/server-key.pem \</span><br><span class="line">    --<span class="built_in">env</span> SECRETS_PORTUS_PASSWORD=portuspw \</span><br><span class="line">    h0tbird/portus:v2.0.2-1</span><br></pre></td></tr></table></figure>
-
-<p>启动完成后，在浏览器打开<code>https://192.168.33.18/</code>，应该会看到证书不被浏览器所信任的提示。无视之，选择继续的话，应该就能看到注册页面啦：<br><img src="/img/portus-sign-up.jpg"></p>
-<h2 id="权限管理"><a href="#权限管理" class="headerlink" title="权限管理"></a>权限管理</h2><p>Portus现在只能管理一个私有库。它有一个团队的概念，每一个团队可以有多个命名空间，每个命名空间就是多个镜像的集合。每个团队有三种角色：</p>
-<ul>
-<li>查看者（Viewer）：只能pull镜像</li>
-<li>贡献者（Contributor）：除了pull，还可以push镜像</li>
-<li>所有者（Owner）：除了推拉镜像，还可以对团队成员进行管理</li>
-</ul>
-<p>由于角色是定义在团队里的，所以命名空间就不需要再考虑权限问题了，它只是镜像的集合而已。命名空间也有三种类型：</p>
-<ul>
-<li>全局（Global）：只有管理员可以push，其他人只能pull</li>
-<li>团队（Team）：团队成员可以做自己角色支持的操作</li>
-<li>个人（Personal）：只有所有者和管理员可以推拉</li>
-</ul>
-<p>命名空间还可以设置为public，这样不需要login也能pull。</p>
-<p>说完一些基本概念，让我们来尝试一下。首先，portus需要配置一个用户，来调用docker registry的API，与其进行同步。<a target="_blank" rel="noopener" href="http://port.us.org/docs/How-to-setup-secure-registry.html#synchronizing-the-registry-and-portus">同步</a>有<a target="_blank" rel="noopener" href="http://port.us.org/features/1_Synchronizing-the-Registry-and-Portus.html">两种方式</a>：一是在docker registry的配置文件里写的<code>notifications</code>，这样每当有人push一个新镜像上去，docker registry将会通知portus修改数据库。可是时间长了，有可能数据库偶尔挂掉或是网络不稳定啥的导致两边数据不一致。Portus针对这种情况也提供了一个crono的job，设置定时运行即可，一会儿我们会试验。现在先让我们来创建这个用户：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus bundle <span class="built_in">exec</span> rake portus:create_api_account</span><br></pre></td></tr></table></figure>
-
-<p>接下来就可以在注册页面自行注册啦，注册完毕后会跳转到登记registry页面：<br><img src="/img/portus-new-registry.jpg"></p>
-<p>照上图填入registry，点击<strong>Create</strong>按钮创建一个docker registry。接着创建一个新用户。点击左边的<strong>Admin</strong>，再点击中间的<strong>Users</strong>，然后点击右边的<strong>Create new user</strong>，填写用户信息：<br><img src="/img/portus-new-user.jpg"></p>
-<p>点击<strong>Add</strong>按钮就可以创建一个新用户了。接下来创建一个团队。点击左边的<strong>Teams</strong>，再点击右边的<strong>Create new team</strong>，填写团队信息：<br><img src="/img/portus-new-team.jpg"></p>
-<p>点击<strong>Add</strong>按钮就可以创建一个新团队了。点击刚刚创建好的团队，再点击右边的<strong>Add namespace</strong>，填写命名空间信息：<br><img src="/img/portus-new-namespace.jpg"></p>
-<p>点击<strong>Add</strong>按钮就可以创建一个新命名空间了。接下来把用户添加到这个团队中。点击右边的<strong>Add members</strong>，填写刚才增加的用户信息：<br><img src="/img/portus-new-member.jpg"></p>
-<p>点击<strong>Add</strong>按钮就可以把用户加进来了。回到控制台，搞一个镜像，push一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull microbox/etcd:2.1.1</span><br><span class="line">docker tag microbox/etcd:2.1.1 192.168.33.18:5000/microbox/etcd:2.1.1</span><br><span class="line">docker push 192.168.33.18:5000/microbox/etcd:2.1.1</span><br></pre></td></tr></table></figure>
-
-<p>出错了：<strong>unauthorized: authentication required</strong>，我们必须用docker先登录：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u gggg -e gggg@123.com 192.168.33.18:5000</span><br></pre></td></tr></table></figure>
-
-<p>填上自己刚才设置的密码，登录成功之后，再试着push一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push 192.168.33.18:5000/microbox/etcd:2.1.1</span><br></pre></td></tr></table></figure>
-
-<p>Bingo！换一个命名空间试试看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker tag h0tbird/portus:v2.0.2-1 192.168.33.18:5000/h0tbird/portus:v2.0.2-1</span><br><span class="line">docker push 192.168.33.18:5000/h0tbird/portus:v2.0.2-1</span><br></pre></td></tr></table></figure>
-
-<p>出错了：<strong>unauthorized: authentication required</strong>，可见我们的权限控制确实起作用了。</p>
-<h2 id="镜像同步"><a href="#镜像同步" class="headerlink" title="镜像同步"></a>镜像同步</h2><p>接下来我们试试定时同步任务。首先需要在容器里信任我们的自签名证书：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> portus <span class="built_in">mkdir</span> /usr/local/share/ca-certificates</span><br><span class="line">docker <span class="built_in">cp</span> /certs/server-crt.pem portus:/usr/local/share/ca-certificates/ca.crt</span><br><span class="line">docker <span class="built_in">exec</span> portus update-ca-certificates</span><br></pre></td></tr></table></figure>
-
-<p>然后启动定时同步任务，设置为每10秒钟同步一次：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it portus bash</span><br><span class="line">RAILS_ENV=production CATALOG_CRON=<span class="string">&quot;10.seconds&quot;</span> bundle <span class="built_in">exec</span> crono</span><br></pre></td></tr></table></figure>
-
-<p>等十秒钟，就会看到**[catalog] Created the tag ‘2.1.1’<strong>的提示。如果先前没有信任自签名证书，同步的时候会报</strong>certificate verify failed<strong>的错误。现在回到portus的界面，点击左边的</strong>Dashboard**，就能看到刚才push的microbox&#x2F;etcd镜像已经显示在右边了：<br><img src="/img/portus-dashboard.jpg"></p>
-<p>最后一步就是自动同步了，先把刚才的crono给Ctrl+C掉，Ctrl+D退出portus容器。由于docker registry需要调用portus的API，所以我们需要在registry容器里也信任这个证书：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">cp</span> /certs/server-crt.pem registry:/usr/local/share/ca-certificates/ca.crt</span><br><span class="line">docker <span class="built_in">exec</span> registry update-ca-certificates</span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>然后再push一个镜像：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker tag registry:2.3.0 192.168.33.18:5000/microbox/registry:2.3.0</span><br><span class="line">docker push 192.168.33.18:5000/microbox/registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>到portus的dashboard刷新一下，搞定！在中间的<strong>Recent activities</strong>还能看到是谁push的这个镜像，对审计、追踪来说很有帮助。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/portus/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/portus/" data-id="cuidlsnAdN0nSuc_GIKpCbMgR" data-title="用容器轻松搭建Portus运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/portus/" data-id="cuidLl8dIzkN0qR75pbZXN3w9" data-title="用容器轻松搭建Portus运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -682,23 +346,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>没想到到深圳来出差，竟然碰上了<a target="_blank" rel="noopener" href="https://bbs.htc.com/cn/news.php?mod=viewthread&tid=68841">HTC Vive中国开发者峰会</a>。虽然我不是VR开发者，但怎么说也是一名消费者，借着周末赶紧去体验了一把。趁着现在热乎劲还没过去，写一下我的一些见闻及感受吧。</p>
-<h2 id="日程"><a href="#日程" class="headerlink" title="日程"></a>日程</h2><p>3月9<del>11日是开发者峰会，11</del>18日的每天10:00~18:00是公众开放体验时间，可以在深圳大学附近的威盛科技大厦29层参与免费体验。一共有8个项目，分为A、B两组，每组4个项目。一次排队只能排一个组，每人有十分钟的时间，可以自己选择两个项目来体验。A组有蓝色世界、空间画刷、神秘商店和太空海盗，较B组来说会稍微刺激一些。B组有机器人修理、亚利桑那阳光、未来办公室和预算消减（真个怪名字）。具体项目内容下文会详细叙述。</p>
-<h2 id="体验"><a href="#体验" class="headerlink" title="体验"></a>体验</h2><p>Vive包含一个头戴设备（含耳机），两个手柄和两个基站。玩之前先坐在椅子上，首先工作人员会帮忙戴上头戴设备及耳机。Vive是可以把眼镜一起套在设备里的。第一次体验的时候，戴得比较正，几乎感觉不出来里面还有个我自己的眼镜。第二次的工作人员就有点儿不那么专业，戴着不那么舒服，也影响了效果。可见姿势很重要。这时候眼前看到的是一片白色的背景，还有很多经纬线。往下看的话，有很多同心圆，中心就是自己所在的位置。如果转向了，可以根据脚下的显示回到中心。这感觉像是Vive的操作系统。上下左右前后都是有内容的，都可以扭头、转身去看。但是光转动眼珠子是不行的哦，因为Vive是根据陀螺仪来判断方位的。底下稍稍有点儿漏光，不过不注意的话也不太能感觉出来。这时旁边的工作人员会帮助选择要体验的项目，教玩家一些基本用法。之后工作人员把手柄递给我。这时我眼前看到的是两个悬空的手柄在等着我伸手去够。在没有准备的时候可能会吓一小跳。手柄下面有扳机，两侧有按钮，大拇指可以够着正面，有一个圆形的触摸板，也可以当作按钮按下。然后工作人员让我站起来，我可以自由移动了。如果快要碰到实体墙的话，眼镜里会有虚拟的透明墙出现，这时就知道不要再过去了，不然要碰鼻子滴。</p>
-<p>很快工作人员用电脑帮我调到第一个项目：亚利桑那阳光。这是个打僵尸的游戏，那两个带扳机的手柄就是我的手枪，按下触摸板可以装子弹。工作人员提醒我向左边看，我一扭头，原来是几个玻璃瓶。用手枪瞄准玻璃瓶，把它们都打碎，游戏也就正式开始了。手枪带有激光瞄准，准心处是有红点的，所以知道子弹会射向哪里，但是因为手总是不可能完全静止，会有轻微的抖动，所以射击出来也不是那么的准，需要适应一下。画面随即切换到了户外，估计是亚利桑那洲吧，有几个僵尸向我冲过来。用刚才的手枪把僵尸们都干掉吧。随着剧情的深入，可以拿到更高级的武器，打起来也就更爽了。可惜手柄没有震动反馈，不然加上后坐力一定更能带来更深的沉浸感。如果仔细观看，还是有一些颗粒感的。</p>
-<p>五分钟很快就结束了，接下来是未来办公室项目。这是一个虚拟的办公室，工作人员会引导我用手柄拿杯子，接咖啡，开抽屉，拿文件，开电脑什么的。中间咖啡杯没拿稳还摔地上了，可惜了一整杯咖啡 ：） 吐个槽，怎么未来办公室的电脑屏幕还是CRT的呢，也太不和谐了。</p>
-<p>B组的两个项目体验完了，我就到A组去，这回排了一个半小时。听说这还是快的了，去年12月在北京的活动，都需要排3个小时队。接下来我选的项目是神秘商店。我在一个商店里，寻找白色的图腾。每找到一个，商店就会把我传送到另一个地方去。可能出现各种奇怪的东西，比如一个盒子里蹦出来一个弹簧人，吓了我一跳。可以拿手上的手柄（这次是魔法杖）狠狠地抽它。</p>
-<p>然后是太空海盗。这也是一个射击游戏。两个手柄一个是枪，一个是盾。海盗们源源不断地乘小飞机逼近并射击我，需要用盾挡住他们的进攻并用枪把他们击落。由于这个比较立体，不像上面打僵尸那个游戏，僵尸只会在地面跑，所以难度还是会大一点的。</p>
-<p>A组也体验了两个项目，接下来继续回到B组。中午了，排队的人少了一些，这回只用了一个小时就排到了。首先是预算消减。这是一个密室逃脱类游戏，由于空间限制，不可能无限制地走动，所以是通过手柄来移动的。剧情上，大约就是费劲心思搞到一把刀，然后用它去捅某个怪物…我比较愚钝一点，反倒是被怪物给捅了…</p>
-<p>下一个是机器人修理。一开始先是开抽屉等基本动作，然后大门打开，有个有问题的机器人过来，让我帮忙修理它。也不知道是我水平不行还是程序设计如此，总之没有修好，然后地板自动翻开，机器人变成一堆零件掉了下去。虽然知道实际上只是普通的地板而已，但是看着脚下的深渊，还是不由的让人感叹如此深的沉浸感。</p>
-<p>本想就此结束体验，但是听说剩下的A组两个项目都是最好玩的…于是咬咬牙又等了一个半小时。这回是蓝色世界。我在一艘沉船上，看着周围的鱼儿游来游去。后来来了一条大鲸鱼，细节之处看得非常清楚。最后鲸鱼游走，大尾巴打过来，那种感觉还是很震撼的。</p>
-<p>最后一个项目是google开发的空间画刷。一支手柄是菜单，另一支是画笔。只要旋转菜单手柄就可以切换菜单，再用画笔手柄来选择。中间工作人员会帮助切换不同的背景，比如雪世界等等。而画笔也能画出不同的效果，比如火焰般的燃烧效果。而这一切都是在三维空间上存在着的，于是乎就有了神笔马良般的感觉。Google出品，果然不一般。可惜啊，体验时间很快又结束了。就这么的一天过去了。不过一个项目也没落下，还是很值得的。</p>
-<h2 id="行业现状"><a href="#行业现状" class="headerlink" title="行业现状"></a>行业现状</h2><p>现在的现实模拟技术主要分为两类：VR（Virtual Reality）虚拟现实和AR（Augmented Reality）增强现实。前者就像玩游戏那样，一切都是假的。后者是在现实中增加虚拟的物体，代表产品有谷歌眼镜和微软的HoloLens。VR贵则数千，便宜则一两百甚至几十。高级的代表产品有Oculus Rift（这就是被facebook以20亿刀收购的公司开发的产品），PS VR（还未发售，据说快了）和HTC Vive（最贵，但效果也最好，支持几平米级别的移动）。为了减少头晕现象，需要提高刷新率至90Hz，降低延迟至15ms。除了PS VR有PS4以外，另外两款都需要配合高性能PC（至少970以上显卡才能玩转，整机估计得上万元了）才能跑得动，这也有点儿限制了高端VR的普及。便宜的VR以三星Gear VR、暴风魔镜等为代表，不像高端VR那样自带屏幕，一般就是透镜加手机。甚至谷歌搞出一个Cardboard，就是纸盒加透镜。由于大众手机分辨率目前一般是1920×1080，分成左右眼的两个屏幕后就变成960×1080，如果看片的话，由于影片的宽高比，1080还得往下降到540左右，所以导致颗粒感比较明显。如果配上更高的分辨率和源文件，那效果就会更好一些。当然这个价格的话，体验体验还是可以的哈。其实还有一个混合现实（Mixed Reality），它包括增强现实和增强虚拟，在新的可视化环境里物理和数字对象共存，并实时互动。不过目前还是以研究居多，暂时还没有代表产品问世。</p>
-<p>体验完最顶级的VR后，正好这几天又碰上阿尔法狗大胜李世石。看来黑客帝国的时代离我们人类不远了。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/vr-htc-vive/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/vr-htc-vive/" data-id="cuidYgdgYQeKtEE_Z2TjZEcuJ" data-title="HTC VIVE初体验" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/vr-htc-vive/" data-id="cuid_uX6IC5tVP1IQJfslNZER" data-title="HTC VIVE初体验" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -739,73 +395,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们知道Docker官方提供了一个公有的registry叫做Docker Hub。但是企业内部可能有些镜像还是不方便放到公网上去，所以docker也提供了registry镜像来让需要的人自己搭建私有仓库。本文从零开始搭建Docker Registry的运行环境，并添加用户界面和认证功能。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>registry</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.19</strong>。Registry配上界面会比较耗内存，所以我们给它1G内存，默认是512M。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;registry&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;registry&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line">  host.vm.provider <span class="string">&quot;virtualbox&quot;</span> <span class="keyword">do</span> |<span class="params">v</span>|</span><br><span class="line">    v.memory = <span class="number">1024</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;client&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;client&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh registry</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh client</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动一个registry是很容易的：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    -p 5000:5000 \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>这里指定了一个<code>/var/lib/registry</code>的卷，是为了把真实的镜像数据储存在主机上，而别在容器挂掉之后丢失数据。就算这样，也还是不保险。要是主机挂了呢？Docker官方建议可以放到<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/rados.md">ceph</a>、<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/swift.md">swift</a>这样的存储里，或是<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/s3.md">亚马逊S3</a>、<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/azure.md">微软Azure</a>、<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/gcs.md">谷歌GCS</a>、<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/storage-drivers/oss.md">阿里云OSS</a>之类的云商那里。Docker registry提供了配置文件，可以从容器里复制出来查看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">cp</span> registry:/etc/docker/registry/config.yml config.yml</span><br><span class="line"><span class="built_in">cat</span> config.yml</span><br></pre></td></tr></table></figure>
-
-<p>配置文件里有一个<code>storage</code>，按照<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/configuration.md#storage">这里</a>写的配置，然后执行以下命令重新挂载这个文件来启动registry就可以了，有条件的话可以去试一试：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -fv registry</span><br><span class="line">docker run -d \</span><br><span class="line">    -p 5000:5000 \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/config.yml:/etc/docker/registry/config.yml \</span><br><span class="line">    registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>Docker Registry配置完了，我们在client上传一个镜像试试：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull busybox:1.24.1</span><br><span class="line">docker tag busybox:1.24.1 192.168.33.18:5000/busybox:1.24.1</span><br><span class="line">docker push 192.168.33.18:5000/busybox:1.24.1</span><br></pre></td></tr></table></figure>
-
-<p>结果push的时候就挂了。原来是我们没有配置认证信息，所以这是一个“不安全”的registry。Docker要求在docker daemon的启动参数里增加<code>--insecure-registry</code>，才能允许我们上传镜像：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;--insecure-registry 192.168.33.18:5000\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br><span class="line">docker push 192.168.33.18:5000/busybox:1.24.1</span><br></pre></td></tr></table></figure>
-
-<p>这回就没问题啦。同样地在registry端也配置一下，然后把registry:2.3.0这个镜像上传：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;--insecure-registry 192.168.33.18:5000\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br><span class="line">docker tag registry:2.3.0 192.168.33.18:5000/library/registry:2.3.0</span><br><span class="line">docker push 192.168.33.18:5000/library/registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>如果是没有用户的镜像（通常是官方镜像），打标签和上传都需要加一个<code>library/</code>。客户端必须再配置一个参数<code>--registry-mirror</code>才能在我们自己的私有registry里下载镜像：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;$d&#x27;</span> /etc/default/docker</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;--insecure-registry 192.168.33.18:5000 --registry-mirror http://192.168.33.18:5000\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br><span class="line">docker pull registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>应该有飞一般的感觉了吧。如果镜像不在registry里，客户端会自动去docker hub下载。但是每次打标签再上传岂不是很麻烦？所幸docker提供了一个proxy的功能。只要在<code>config.yml</code>里增加如下配置，重启registry容器即可。这样，客户端pull的镜像，也会自动同步到registry里去。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">proxy:</span><br><span class="line">  remoteurl: https://registry-1.docker.io</span><br></pre></td></tr></table></figure>
-
-<h2 id="界面"><a href="#界面" class="headerlink" title="界面"></a>界面</h2><p>Docker官方只提供了REST API，并没有给我们一个界面。好在有热心人士出马，所以我们只需执行以下命令就可以给我们的私有库提供一个UI了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    -p 8080:8080 \</span><br><span class="line">    --name web \</span><br><span class="line">    -e REGISTRY_HOST=172.17.0.1 \</span><br><span class="line">    -e REGISTRY_PORT=5000\</span><br><span class="line">    hyper/docker-registry-web</span><br></pre></td></tr></table></figure>
-
-<p>然后打开<code>http://192.168.33.18:8080</code>，应该就能看到如下界面：<br><img src="/img/docker-registry-web.png"></p>
-<p>上面是个简易版，如果有更深入的需求，可以尝试SUSE的<a target="_blank" rel="noopener" href="http://port.us.org/">Portus</a>。除了界面以外，它还提供了更细粒度的权限控制、用户认证等功能。</p>
-<h2 id="认证"><a href="#认证" class="headerlink" title="认证"></a>认证</h2><p>我们刚刚配好的insecure registry是不支持认证的，如果要上产品环境，找CA申请一个证书吧。我们自己测试的话，可以用自签名证书。我们准备使用IP代替域名，所以需要在证书里面包含我们的IP：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /certs</span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;/^\[ v3_ca \]$/a subjectAltName = IP:192.168.33.18&#x27;</span> /etc/ssl/openssl.cnf</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;openssl req \</span></span><br><span class="line"><span class="string">    -newkey rsa:4096 -nodes -sha256 -keyout /certs/domain.key \</span></span><br><span class="line"><span class="string">    -x509 -days 365 -out /certs/domain.crt&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>随便填点值完成这繁琐的流程，就能看见certs里面多了两个文件。现在可以用以下命令来启动registry：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f registry</span><br><span class="line">docker run -d \</span><br><span class="line">    -p 5000:5000 \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</span><br><span class="line">    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</span><br><span class="line">    registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>客户端现在就不需要<code>--insecure-registry</code>了，但是由于这是自签名证书，客户端还需要把证书文件复制过去：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;$d&#x27;</span> /etc/default/docker</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /etc/docker/certs.d/192.168.33.18:5000/</span><br><span class="line"><span class="built_in">sudo</span> scp vagrant@192.168.33.18:/certs/domain.crt /etc/docker/certs.d/192.168.33.18:5000/ca.crt</span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>注意vagrant的默认密码也是vagrant。现在push就没有问题了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push 192.168.33.18:5000/busybox:1.24.1</span><br></pre></td></tr></table></figure>
-
-<p>提示镜像已经存在，并没有阻止我们提交。接下来我们加上认证。首先在registry生成用户名hello和密码world：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /auth</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;docker run --entrypoint htpasswd registry:2.3.0 -Bbn hello world &gt; /auth/htpasswd&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>还得指定认证方式和认证文件等参数，重新启动registry容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f registry</span><br><span class="line">docker run -d \</span><br><span class="line">    -p 5000:5000 \</span><br><span class="line">    --name registry \</span><br><span class="line">    --restart=always \</span><br><span class="line">    -v /var/lib/registry:/var/lib/registry \</span><br><span class="line">    -v /auth:/auth \</span><br><span class="line">    -v /certs:/certs \</span><br><span class="line">    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \</span><br><span class="line">    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \</span><br><span class="line">    -e REGISTRY_AUTH=htpasswd \</span><br><span class="line">    -e REGISTRY_AUTH_HTPASSWD_REALM=<span class="string">&quot;Registry Realm&quot;</span> \</span><br><span class="line">    -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \</span><br><span class="line">    registry:2.3.0</span><br></pre></td></tr></table></figure>
-
-<p>这回客户端用<code>docker push 192.168.33.18:5000/busybox:1.24.1</code>来尝试push就会失败啦。但是我们可以用用户名hello和密码world登录啦：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker login -u hello -p world -e email_whatever 192.168.33.18:5000</span><br></pre></td></tr></table></figure>
-
-<p>再次push，就没有问题了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push 192.168.33.18:5000/busybox:1.24.1</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/docker-registry/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-registry/" data-id="cuiduuKlWfQ2iGE7ZZg8H4ibb" data-title="轻松搭建Docker Registry运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-registry/" data-id="cuidV9tb9PVjRhZAhkOjGAUhy" data-title="轻松搭建Docker Registry运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -846,57 +444,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a>是1984年SUN公司开发的一套网络文件系统。它能够让用户像在本机一样操作远程文件。本文用一个比较简单的方式来搭建NFS试验环境。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init ubuntu/trusty64</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>server</strong>，它的IP是<strong>192.168.33.17</strong>；另外一台叫做<strong>client</strong>，它的IP是<strong>192.168.33.18</strong>。我们将会在<strong>server</strong>上启动nfs服务并共享一个目录，然后在client挂载并操作这个目录。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;server&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;server&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;client&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;client&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>分别在两个终端运行以下命令启动并连接两台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh server</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh client</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>启动nfs服务需要nfs-kernel-server这个包，让我们安装并启动：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y nfs-kernel-server</span><br><span class="line"><span class="built_in">sudo</span> service nfs-kernel-server start</span><br></pre></td></tr></table></figure>
-
-<p>服务启动完成后，会生成一个<code>/etc/exports</code>文件，里面就是nfs的配置。我们创建一个文件夹<code>/tmp/nfs</code>，把它配置成nfs的目录，然后重新启动nfs服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /tmp/nfs</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;/tmp/nfs *(rw,no_subtree_check,no_root_squash)&#x27; &gt;&gt; /etc/exports&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> service nfs-kernel-server start</span><br></pre></td></tr></table></figure>
-
-<p>往<code>/etc/exports</code>里写的那一行里，<code>*</code>代表允许所有的客户端访问。如果只想让192.168.33.18访问，把星号改为这个IP就好了。需要支持多个IP的话，用逗号分隔就行。括号里的<code>rw</code>表示允许读写。<code>no_subtree_check</code>表示在服务器端不检查此nfs文件夹的父目录权限。<code>no_root_squash</code>表示客户端root用户也被视为对此nfs文件夹有全部权限的服务端root用户，生产环境不建议使用，因为那样nfs上的文件就可能被随意篡改。想要了解更多的设置，请自行<code>man exports</code>。</p>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>这时候我们就可以去client挂载server的这个nfs目录了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t nfs 192.168.33.17:/tmp/nfs /mnt</span><br><span class="line"><span class="built_in">ls</span> /mnt</span><br></pre></td></tr></table></figure>
-
-<p>往里面写一个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello World!&quot;</span> &gt; /mnt/hw.txt</span><br><span class="line">ll /mnt</span><br></pre></td></tr></table></figure>
-
-<p>然后去server端看一下，是不是已经被同步过来了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ll /tmp/nfs</span><br></pre></td></tr></table></figure>
-
-<p>Server端也可以往nfs的文件夹里写文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello NFS&quot;</span> &gt; /tmp/nfs/hn.txt</span><br></pre></td></tr></table></figure>
-
-<p>照样可以同步到client端：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ll /mnt</span><br></pre></td></tr></table></figure>
-
-<p>无论server端还是client端，都可以通过下面这个命令来查看<code>192.168.33.17</code>上公开了哪些nfs文件夹：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">showmount -e 192.168.33.17</span><br></pre></td></tr></table></figure>
-
-<p>再来一个nfs2文件夹：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /tmp/nfs2</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;/tmp/nfs2 *(rw,no_subtree_check,no_root_squash)&#x27; &gt;&gt; /etc/exports&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这时候再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>并没有出现在列表中。因为nfs并不会去监视<code>/etc/exports</code>这个文件，所以这时候它还不知道我们改变了配置。虽然重新启动nfs服务可以解决这个问题，但是它会中断现存的nfs服务。建议使用以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> exportfs -ar    <span class="comment"># a代表所有的文件夹，r代表重新导出</span></span><br></pre></td></tr></table></figure>
-
-<p>这时候在再<code>showmount -e 192.168.33.17</code>看一下，<code>/tmp/nfs2</code>已经出来啦。加载一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount /mnt</span><br><span class="line"><span class="built_in">sudo</span> mount -t nfs 192.168.33.17:/tmp/nfs2 /mnt</span><br><span class="line"><span class="built_in">ls</span> /mnt</span><br></pre></td></tr></table></figure>
-
-<p>完全没问题。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/nfs-demo/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/nfs-demo/" data-id="cuidLyc0UvvTlSldap1AEb2eP" data-title="轻松搭建nfs存储环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/nfs-demo/" data-id="cuidntg_WKcoPF01WsOj0ZnTA" data-title="轻松搭建nfs存储环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -937,35 +493,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊docker、k8s、mesos+k8s的网络，了解一下容器、pod和服务间是怎样通信的。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="Docker的网络模型"><a href="#Docker的网络模型" class="headerlink" title="Docker的网络模型"></a>Docker的网络模型</h2><p>Docker默认使用<a href="/docker-bridge-network">桥接网络</a>。Docker daemon启动时，会在主机上启动一个名为docker0的网桥接口。当容器启动的时候，自动分配一对VETH设备，一个连接到docker0上，另一个连接到容器内部的eth0里，于是同一台主机上的容器便能够跨越网络的命名空间，经由主机相互通信。可是不同的主机上的容器就不是那么简单的了。有一种办法是把容器的端口映射到主机的某个端口上去，这样其他主机上的容器可以通过访问这个主机端口的方式实现跨主机通信。Docker 1.6版本之后发布了一个<a href="/docker-overlay-network">覆盖网络</a>overlay network。当使用这个覆盖网络的时候，它便能实现容器的跨主机通信和隔离。</p>
-<h2 id="Kubernetes的网络模型"><a href="#Kubernetes的网络模型" class="headerlink" title="[Kubernetes的网络模型"></a>[Kubernetes的网络模型</h2><p>Kubernetes把每个pod当成是一个节点，在这个pod内的所有容器的网络命名空间是共享的，也就意味着它们共享着一个IP地址。Pod内的容器可以用localhost相互通信，与其他容器通信时，直接使用其他pod的IP地址就可以了。如果把每个pod当成一个虚拟机，这样的设计方式是再正常不过的了。用户无需再去考虑pod间的通信问题，也不用考虑pod和主机端口映射的问题了。从这样的易用性出发，kubernetes对网络有三个要求：</p>
-<ul>
-<li>所有的容器可以在不使用NAT的情况下相互通信</li>
-<li>所有的主机和容器可以在不使用NAT的情况下相互通信</li>
-<li>容器自己的IP和外部看它的IP是一样的</li>
-</ul>
-<p>Kubernetes项目启动的时候，docker还只提供了桥接网络。所以单纯地安装docker和kubernetes并不能够满足kubernetes对网络的要求。常见的公有云如GCE、AWS的基础设施都是默认满足网络要求的。私有云的话，一个方法是直接路由，也就是在所有主机的路由表增加其他主机的docker0网桥。但是，增删主机时所有节点都需要重新配置，非常麻烦。另一种方法使用覆盖网络来实现容器跨主机互通，操作相对容易一些。有不少人使用Flannel](<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/networking/)%EF%BC%8C%E4%B9%9F%E6%9C%89%E4%BA%BA%E4%BD%BF%E7%94%A8[Open">http://kubernetes.io/docs/admin/networking/)，也有人使用[Open</a> vSwitch](<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/ovs-networking/)%E3%80%81[Weave](https://github.com/zettio/weave)%E3%80%81[Calico](https://github.com/Metaswitch/calico)%E3%80%82%E5%B0%B1flannel%E6%9D%A5%E8%AF%B4%EF%BC%8C%E5%AE%83%E7%9A%84%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%E5%A6%82%E4%B8%8B%E5%9B%BE%EF%BC%9A">http://kubernetes.io/docs/admin/ovs-networking/)、[Weave](https://github.com/zettio/weave)、[Calico](https://github.com/Metaswitch/calico)。就flannel来说，它的网络传输如下图：</a><br><img src="https://raw.githubusercontent.com/coreos/flannel/master/packet-01.png"></p>
-<p>Flannel会在每个主机上运行一个叫做flanneld的代理，它通过etcd保证所有主机上的容器都不会出现重复IP，并能通过物理网络将数据包投递到目标节点的flanneld去。有兴趣的话可以参考<a target="_blank" rel="noopener" href="http://dockone.io/article/618">《一篇文章带你了解Flannel》</a>。大部分通过覆盖网络实现跨主机容器互通的方案是工作在L2层，在性能上是有些损耗的，但是Calico略微有点不一样。它直接工作在L3层，没有封包解包的损耗，所以性能上影响很小。所付出的代价就是它仅能支持TCP、UDP、ICMP等协议，不过通常来说也足够了。Open vSwitch功能强大，但是配置也比较麻烦。</p>
-<p>虽然docker 1.9版正式宣布内置的覆盖网络可以使用在产品环境了，但是kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a target="_blank" rel="noopener" href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html">这篇文章</a>。</p>
-<h2 id="Kubernetes的服务"><a href="#Kubernetes的服务" class="headerlink" title="[Kubernetes的服务"></a>[Kubernetes的服务</h2><p>Kubernetes是怎么做到一个pod内的容器只有一个IP地址的呢？假如我们启动一个包含俩容器的pod，然后到启动pod的那台虚拟机查看，就会发现除了这两个容器之外，kubernetes另外还启动了一个叫做<code>gcr.io/google_containers/pause</code>的容器。Pod自身的两个容器都是通过在<code>docker run</code>时，net指定使用pause容器网络的办法，把自己需要的端口由pause容器暴露出来的。如下图所示：<br><img src="/img/pause.png"></p>
-<p>当我们通过replication controller，把pod暴露为服务的时候，kubernetes会通过etcd，为这个服务分配一个唯一的虚拟IP。这样做的好处是：避免了用户自己定义的端口有可能重复的问题。每个kube-proxy都会往iptables里写一条关于service虚拟IP的规则。当内部用户使用这个服务的时候，这个虚拟IP便会把流量导入到kube-proxy监听的某个端口上，由kube-proxy使用轮询或基于客户端IP的会话保持的方式，决定最终来提供服务的pod。外部用户由于没有kube-proxy，是不能访问这个服务的，除非我们把服务通过负载均衡或者NodePort的方式暴露出去，本文就不再赘述了。</p>
-<h2 id="http-kubernetes-io-docs-user-guide-services-Kubernetes-Mesos的网络模型"><a href="#http-kubernetes-io-docs-user-guide-services-Kubernetes-Mesos的网络模型" class="headerlink" title="](http://kubernetes.io/docs/user-guide/services/)Kubernetes-Mesos的网络模型"></a>](<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/services/)Kubernetes-Mesos%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B">http://kubernetes.io/docs/user-guide/services/)Kubernetes-Mesos的网络模型</a></h2><p>Mesos使用最基本的Docker网络模型，也就是主机内共享的桥接网络。这点跟kubernetes的要求是矛盾的。所以当一个pod的端点（endpoint），也就是以<strong>pod的IP:端口</strong>的格式暴露出来的时候，由于pod的IP并不能被其他主机所访问，就会导致通信出问题。于是Kubernetes-Mesos开发组想了一个权宜之计：把端点以<strong>主机IP:端口</strong>的格式暴露出来。由于主机的IP是在集群内是都能访问的，所以只要开放端口，通信就能正常工作。如果用户没有指定主机的端口，那就随机分配一个。这个策略是可以通过指定scheduler和controller-manager的启动参数<code>-host-port-endpoints=false</code>（默认为true）来绕过去的，也就是能恢复到kubernetes默认的网络方案去，不过我们就得自己来想办法实现容器的跨主机通信了。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-8/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-8/" data-id="cuidlbIFP90cOGZv6kxuMBuOs" data-title="如果有10000台机器，你想怎么玩？（八）网络" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-8/" data-id="cuidStHDI7PsRJC6BRp9Gjv4S" data-title="如果有10000台机器，你想怎么玩？（八）网络" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1006,74 +542,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们都知道docker支持多种网络，覆盖网络overlay顾名思义，就是指建立在另一个网络上的网络。比如p2p技术，就是建立在因特网上的覆盖网络。而因特网，原来也是建立在电话网络上的覆盖网络，但现在，电话网络更像是建立在因特网上的覆盖网络（引自<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Overlay_network">维基百科</a>）。Docker使用覆盖网络可以解决容器跨主机互通和隔离的问题。在覆盖网络这个领域里，除了docker的overlay network以外，Flannel、Calico、Weave等也都是干这个的。</p>
-<h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>如果把容器的网络驱动设置成overlay，就意味着所有的容器都可以直接ping通，所以所有容器的ip地址都不会重复。为了做到这一点，就需要一个轻量级的存储来存放已经分配出去的ip信息，和其它的一些配置信息。技术上Docker使用了<a target="_blank" rel="noopener" href="https://github.com/docker/libkv">libkv</a>和<a target="_blank" rel="noopener" href="https://github.com/docker/libnetwork">libnetwork</a>来实现自己的覆盖网络。它们都是用go语言所写，前者是对操作分布式键值存储系统如consul，etcd，zookeeper的抽象层，后者实现了容器的网络连接，它的设计如下图：<br><img src="https://raw.githubusercontent.com/docker/libnetwork/master/docs/cnm-model.jpg"></p>
-<p>容器网络模型由三部分组成：</p>
-<ul>
-<li>Sandbox：保存着容器的网络配置，一个Sandbox里可以有多个Endpoint</li>
-<li>Endpoint：可以通过Network和其他的Endpoint通信，每个Endpoint都只在一个网络里</li>
-<li>Network：由数个可以相互通信的Endpoint组成，不同的网络相互隔离</li>
-</ul>
-<p>基于这个网络模型，在同一个网络里的所有容器，都是可以相互通信的。如果容器需要隔离，创建另一个网络即可。通过<a href="/docker-swarm">创建Swarm集群</a>来应用覆盖网络是个很自然的做法，也是docker官方的推荐。而kubernetes并不打算支持docker的覆盖网络，据说技术上最主要的原因是kubernetes并不仅仅是为docker这一种容器技术服务的，kubernetes既不想再引入一个键值存储，也不愿意把自己的键值存储暴露给docker用。当然如果用户自己把docker需要的键值存储管理起来，docker自己的覆盖网络还是能够工作的。非技术上的原因是kubernetes认为docker不够开放，都是因为利益啊。详情可以参考<a target="_blank" rel="noopener" href="http://blog.kubernetes.io/2016/01/why-Kubernetes-doesnt-use-libnetwork.html">这篇文章</a>。这里为了不引入更多复杂度，我们不用Swarm，直接使用原生的docker daemon来做实验。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>conf</strong>，它的IP是<strong>192.168.33.19</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.17</strong>和<strong>192.168.33.18</strong>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;node1&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node1&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;node2&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node2&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;conf&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;conf&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh conf</span><br></pre></td></tr></table></figure>
-
-<p>Ubuntu 14.04的内核版本是3.13，而<a target="_blank" rel="noopener" href="https://github.com/docker/docker/issues/14145">使用docker overlay网络需要Linux内核版本3.16+</a>，所以需要升级内核，建议升级到3.19或以上。因为我们用node1和node2来跑覆盖网络，所以只用升级这两台虚拟机就好了，conf不用管。命令如下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install linux-generic-lts-vivid</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> reboot</span><br></pre></td></tr></table></figure>
-
-<p>等待重启之后，重新连接进vagrant虚拟机：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
-
-<p>完成之后再用<code>uname -r</code>看一下，现在应该已经是3.19了。</p>
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>如上所述，docker的overlay网络支持consul，etcd，zookeeper等键值存储系统。这里我们使用比较轻量点的etcd，整个镜像不到15Mb。运行以下命令启动etcd：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=etcd \</span><br><span class="line">  kubernetes/etcd:2.0.5 \</span><br><span class="line">  /usr/local/bin/etcd \</span><br><span class="line">  --addr=192.168.33.19:4001 \</span><br><span class="line">  --bind-addr=0.0.0.0:4001 \</span><br><span class="line">  --data-dir=/var/etcd/data</span><br></pre></td></tr></table></figure>
-
-<p>在node上，docker daemon启动参数里需要支持TCP，指定键值存储等。在node1和node2上分别运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.17:2375\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store=etcd://192.168.33.19:4001 --cluster-advertise=192.168.33.18:2375\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>有了这些，就可以开始创建overlay网络了。</p>
-<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>现在在node1或者node2上创建两个overlay网络backend和frontend：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker network create --driver overlay --subnet=10.0.7.0/24 backend</span><br><span class="line">docker network create --driver overlay --subnet=10.0.8.0/24 frontend</span><br><span class="line">docker network <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
-
-<p>所有的网络在节点上是分享的，不管在哪个node上运行<code>docker network ls</code>，都能看到全部网络。另外，墙裂建议创建覆盖网络的时候使用<code>--subnet</code>，否则，docker将随机分配一个子网段，虽然docker内部是不会出现重复IP的，但是跟docker外部的其他虚拟机、容器等就不能保证不重复了。</p>
-<p>现在在node1上分别用两个网络各自创建一个容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=backend --name=be1 busybox <span class="built_in">sleep</span> 3600</span><br><span class="line">docker run -d --net=frontend --name=fe1 busybox <span class="built_in">sleep</span> 3600</span><br><span class="line">docker <span class="built_in">exec</span> be1 ifconfig</span><br><span class="line">docker <span class="built_in">exec</span> fe1 ifconfig</span><br></pre></td></tr></table></figure>
-
-<p>执行上面的<code>ifconfig</code>可以看到，eth0的IP地址确实是在指定的<code>subnet</code>里的。然后在node2上用backend网络创建一个容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=backend --name=be2 busybox <span class="built_in">sleep</span> 3600</span><br><span class="line">docker <span class="built_in">exec</span> be2 ifconfig</span><br></pre></td></tr></table></figure>
-
-<p>容器建好以后，我们可以<code>ping</code>一下看看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> be2 ping -c 4 be1</span><br><span class="line">docker <span class="built_in">exec</span> be2 ping -c 4 fe1</span><br></pre></td></tr></table></figure>
-
-<p>上面命令<code>ping</code>里的主机名可以换成IP。运行完可以看到，node2上是可以访问node1上的相同overlay网络的，但是不同的overlay网络不能访问。在node1运行<code>docker exec be1 ping -c 4 fe1</code>也能知道，即使主机相同，不同的overlay网络也是不能访问的，这就很好地实现了网络隔离。原来默认使用bridge的时候，相同主机的所有容器都是可以相互访问的，而不同主机的所有容器都是不能相互访问的。</p>
-<p>最后我们再按照上面的原理图中间那个容器那样，创建一个既使用backend网络也使用frontend网络的容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=backend --name=bf2 busybox <span class="built_in">sleep</span> 3600</span><br><span class="line">docker network connect frontend bf2</span><br><span class="line">docker <span class="built_in">exec</span> bf2 ifconfig</span><br></pre></td></tr></table></figure>
-
-<p>从上面的<code>ifconfig</code>中可以看到，这个新容器既有<code>10.0.7</code>网段的IP地址，又有<code>10.0.8</code>网段的IP地址。网络搭好以后，我们可以<code>ping</code>一下看看，果然它能够和两个覆盖网络里的容器通信：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> bf2 ping -c 4 be1</span><br><span class="line">docker <span class="built_in">exec</span> bf2 ping -c 4 fe1</span><br></pre></td></tr></table></figure>
-
-<p>有兴趣的话，我们还可以去conf虚拟机上看看etcd里面的东东：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl <span class="built_in">ls</span> /docker/nodes                           <span class="comment"># 所有的节点信息</span></span><br><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl <span class="built_in">ls</span> /docker/network/v1.0/endpoint           <span class="comment"># 所有的endpoint信息</span></span><br><span class="line">docker <span class="built_in">exec</span> -it etcd etcdctl <span class="built_in">ls</span> /docker/network/v1.0/overlay/network    <span class="comment"># 所有的overlay网络信息</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://xelatex.github.io/2015/11/15/Battlefield-Calico-Flannel-Weave-and-Docker-Overlay-Network/">这篇文章</a>比较了Docker Overlay Network、Flannel、Calico、Weave等4种覆盖网络，作者还有其它文章分别使用了这些覆盖网络。<br>此外，当然还有<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/networking/dockernetworks/#an-overlay-network">Docker官方文档</a>和<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/networking/get-started-overlay/">新手教程</a>。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/docker-overlay-network/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-overlay-network/" data-id="cuid4pVQrCn0MTjlsV-8L8bKV" data-title="Docker的覆盖网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-overlay-network/" data-id="cuidpz7YiAgoLtylK_0UQe1KC" data-title="Docker的覆盖网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

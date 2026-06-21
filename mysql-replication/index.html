@@ -17,7 +17,7 @@
 <meta property="og:description" content="MySQL复制技术可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-01-11T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.449Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.090Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="mysql">
 <meta name="twitter:card" content="summary">
@@ -104,6 +104,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication.html">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。</p>
+<span id="more"></span>
+
 <p>MySQL 5.7支持多种复制方法。<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html">另一种方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
 <h2 id="binary-logging方式"><a href="#binary-logging方式" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a target="_blank" rel="noopener" href="https://hub.docker.com/r/library/mysql/">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -e MYSQL_ROOT_PASSWORD=123456 --name=mysql mysql:5.7</span><br><span class="line">docker <span class="built_in">cp</span> mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure>
@@ -195,7 +197,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mysql-replication/" data-id="cuidrLIK_JGTW4E0f-RRMVR3Q" data-title="基于docker的MySQL主从复制（replication）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mysql-replication/" data-id="cuid45mDylGAogxC5bA6Ep1qn" data-title="基于docker的MySQL主从复制（replication）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://qinghua.github.io/img/docker-image.jpg">
 <meta property="article:published_time" content="2016-02-14T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.962Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.063Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="docker registry">
@@ -107,6 +107,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？</p>
+<span id="more"></span>
+
 <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/issues/1183">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
 <p>目前docker官方提供了如下3个软删除的方法：</p>
 <ul>
@@ -134,7 +136,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-registry-delete/" data-id="cuidfDQXYvfJGLNIFffGGiWY4" data-title="删除Docker Registry里的镜像怎么那么难" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-registry-delete/" data-id="cuidllnfVLkutO7aS1UFNiI5y" data-title="删除Docker Registry里的镜像怎么那么难" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

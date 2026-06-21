@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://qinghua.github.io/img/flyway-new-project.jpg">
 <meta property="article:published_time" content="2016-11-13T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.424Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.071Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="db">
 <meta property="article:tag" content="db migration">
@@ -108,6 +108,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://flywaydb.org/">Flyway</a>是一个用Java编写的开源数据库版本管理工具，或者说是数据库结构变更工具，旨在帮助开发和运维更容易地管理数据库演进过程中的各个版本。它的源代码在<a target="_blank" rel="noopener" href="https://github.com/flyway/flyway">github</a>上。</p>
+<span id="more"></span>
+
 <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在开发过程中，数据库是不断向前演进的，可以说是拥有“版本”这个概念。通常当在生产环境部署新代码的时候，会由开发或者DBA来做数据库结构变更的操作。当数据库较小，环境数量少的时候，人工操作比较有把握，直接就人肉来做结构变更了。可要是在数据库复杂、环境数量多（开发、测试、预发布、生产……）的情况下，人工处理这样的事就开始有些令人担心了。如何保证所有环境的数据库结构是一致的？如何知道当前环境的数据库是哪个状态？如何知道生产环境的一个关于数据库的hotfix是否也在预发布环境中执行了？Flyway就是用来解决这样的问题的工具。它的原理非常简单，就是在数据库中创建一张自己用的表，例如schema_version，在里面存放数据库当前的状态，以此来管理数据库的版本。Flyway提供了<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/commandline">命令行</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/api">API</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/maven">Maven</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/gradle">Gradle</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/ant">Ant</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/sbt">SBT</a>等各种方式，来让我们更容易将其与自己的项目结合。类似的工具还有<a target="_blank" rel="noopener" href="http://www.liquibase.org/">Liquibase</a>、<a target="_blank" rel="noopener" href="http://dbdeploy.com/">dbdeploy</a>等。</p>
 <p>本文将会用Docker来创建一个mysql的实例，用Maven来创建一个包含数据库的Java项目，并使用Flyway来进行版本管理。</p>
 <h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Docker、Java、Maven和喜欢的IDE。我用的是<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/download/">Intellij IDEA社区版</a>。我用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动mysql容器来提供数据库服务并创建ggg数据库：</p>
@@ -159,7 +161,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/flyway/" data-id="cuidlbNK1XdUZPFJOrPsbNmZE" data-title="轻松上手数据库版本管理工具Flyway" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/flyway/" data-id="cuidfjyooOBHqSawh0z2NRHQP" data-title="轻松上手数据库版本管理工具Flyway" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

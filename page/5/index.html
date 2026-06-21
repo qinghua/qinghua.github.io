@@ -101,51 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://redis.io/">Redis</a>是目前使用得非常广泛的开源分布式缓存。它支持诸多数据结构和数据持久化，并且通过<a target="_blank" rel="noopener" href="http://redis.io/topics/sentinel">Redis Sentinel</a>和<a target="_blank" rel="noopener" href="http://redis.io/topics/cluster-tutorial">Redis cluster</a>来支持高可用。本文旨在通过docker轻松搭建redis的主从&#x2F;集群环境。</p>
-<h2 id="主从"><a href="#主从" class="headerlink" title="主从"></a>主从</h2><p>用容器启动redis实例非常容易：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=host --name=master -d redis:3.2.0</span><br></pre></td></tr></table></figure>
-
-<p>这就搞定了。进去看一看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master redis-cli</span><br><span class="line"><span class="built_in">set</span> ggg 123</span><br><span class="line">keys *</span><br><span class="line">get ggg</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<p>可以通过配置文件、启动参数或者命令来新建一个从实例。接下来我们用启动参数的方式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=host --name=slave -d redis:3.2.0 redis-server --port 6380 --slaveof 127.0.0.1 6379</span><br></pre></td></tr></table></figure>
-
-<p>进去看一看，就能看到刚才创建的ggg已经被同步过来了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave redis-cli</span><br><span class="line">keys *</span><br><span class="line">get ggg</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<p>最后把刚刚创建的实例都删除掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f master slave</span><br></pre></td></tr></table></figure>
-
-<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>Redis的集群至少是3个实例。接下来为这3个实例创建3个端口不同的配置文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  redis1.conf</span><br><span class="line">port 6381</span><br><span class="line">cluster-enabled <span class="built_in">yes</span></span><br><span class="line">cluster-config-file nodes.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">appendonly <span class="built_in">yes</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> redis1.conf redis2.conf</span><br><span class="line">sed -i <span class="string">&#x27;s/6381/6382/&#x27;</span> redis2.conf</span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> redis1.conf redis3.conf</span><br><span class="line">sed -i <span class="string">&#x27;s/6381/6383/&#x27;</span> redis3.conf</span><br></pre></td></tr></table></figure>
-
-<p>通过刚刚创建的配置文件来启动3个redis实例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run --net=host --name=redis1 -v `<span class="built_in">pwd</span>`/redis1.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis2 -v `<span class="built_in">pwd</span>`/redis2.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis3 -v `<span class="built_in">pwd</span>`/redis3.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br></pre></td></tr></table></figure>
-
-<p>创建集群最简单的方式是用源代码库里的<code>redis-trib.rb</code>脚本。我们需要先下载源代码并安装<code>redis</code>的gem使之能够运行这个脚本：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/antirez/redis</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> gem install redis</span><br><span class="line"></span><br><span class="line">ruby redis/src/redis-trib.rb create 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383</span><br></pre></td></tr></table></figure>
-
-<p>运行<code>redis-trib.rb</code>会提示：<strong>Can I set the above configuration? (type ‘yes’ to accept)</strong>，输入<code>yes</code>回车即可。Redis集群就这样搭建好了。我们进去看一看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it redis1 redis-cli -p 6381</span><br><span class="line">cluster nodes</span><br><span class="line"><span class="built_in">set</span> ggg 123</span><br><span class="line"><span class="built_in">set</span> gggg 234</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<p>第一个ggg可以顺利设置成功，但是第二个gggg就不行了，我们会看到错误：<strong>(error) MOVED 6392 127.0.0.1:6382</strong>。这是由于redis<a target="_blank" rel="noopener" href="http://redis.io/topics/cluster-tutorial#redis-cluster-data-sharding">分片（sharding）</a>的缘故。如果频繁地在控制台里切换实例也怪麻烦的，幸好<code>redis-cli</code>提供了一个<code>-c</code>的参数，允许以集群的方式连接：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it redis1 redis-cli -c -p 6381</span><br><span class="line"><span class="built_in">set</span> gggg 234</span><br><span class="line">keys *</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<p>再次设置gggg，就会看到：<strong>Redirected to slot [6392] located at 127.0.0.1:6382</strong>，它表明redis已经把我们连接到6382的实例上去了。最后把前面创建的实例都删除掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f redis1 redis2 redis3</span><br></pre></td></tr></table></figure>
-
-<h2 id="主从集群"><a href="#主从集群" class="headerlink" title="主从集群"></a>主从集群</h2><p>主从集群就是给三个主实例各加一个从实例。现在已经有了三个主实例的配置文件了，再来三个从集群的，一共是6个：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> redis1.conf redis4.conf</span><br><span class="line"><span class="built_in">cp</span> redis1.conf redis5.conf</span><br><span class="line"><span class="built_in">cp</span> redis1.conf redis6.conf</span><br><span class="line"></span><br><span class="line">sed -i <span class="string">&#x27;s/6381/6384/&#x27;</span> redis4.conf</span><br><span class="line">sed -i <span class="string">&#x27;s/6381/6385/&#x27;</span> redis5.conf</span><br><span class="line">sed -i <span class="string">&#x27;s/6381/6386/&#x27;</span> redis6.conf</span><br><span class="line"></span><br><span class="line">docker run --net=host --name=redis1 -v `<span class="built_in">pwd</span>`/redis1.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis2 -v `<span class="built_in">pwd</span>`/redis2.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis3 -v `<span class="built_in">pwd</span>`/redis3.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis4 -v `<span class="built_in">pwd</span>`/redis4.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis5 -v `<span class="built_in">pwd</span>`/redis5.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br><span class="line">docker run --net=host --name=redis6 -v `<span class="built_in">pwd</span>`/redis6.conf:/usr/local/etc/redis/redis.conf -d redis:3.2.0 redis-server /usr/local/etc/redis/redis.conf</span><br></pre></td></tr></table></figure>
-
-<p>一条命令即可启动主从集群：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ruby redis/src/redis-trib.rb create --replicas 1 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384 127.0.0.1:6385 127.0.0.1:6386</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以在里面随意测试啦。最后把创建的实例都删除掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f redis1 redis2 redis3 redis4 redis5 redis6</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/redis-cluster/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/redis-cluster/" data-id="cuid27kyvaca2zco7f7FQNpAj" data-title="用容器轻松搭建redis主从和集群环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/redis-cluster/" data-id="cuidZj0soWvt2V_Mj3Ys7At01" data-title="用容器轻松搭建redis主从和集群环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -186,100 +150,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/">Apache Solr</a>是用Java开发的基于<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a>的高性能全文检索服务器，可以运行在web容器里，提供搜索引擎服务。本文旨在用docker来快速入门并尝试Solr提供的各种功能。</p>
-<p>对<a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>入门有兴趣的朋友请参考<a href="/elastic-search">用容器快速上手Elasticsearch</a>。</p>
-<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>关于Solr的入门知识，有一本gitbook：<a target="_blank" rel="noopener" href="https://www.gitbook.com/book/paynexu/create-your-vertical-search-engine-with-solr/details">《用Solr构建垂直搜索引擎》</a>写得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Solr：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8983:8983 --name solr solr:6.1.0</span><br></pre></td></tr></table></figure>
-
-<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr">http://192.168.99.100:8983/solr</a>来访问Solr Admin了：<br><img src="/img/solr-dashboard.jpg"></p>
-<p>在Solr里，<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Solr+Cores+and+solr.xml">Core</a>可以认为是一个集合，一个Solr实例可以有多个Core。可以说Solr实例和Core的关系像是数据库实例和数据库的关系。现在我们来新建一个core，命名为ggg：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</span><br></pre></td></tr></table></figure>
-
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Solr支持<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-XMLFormattedIndexUpdates">xml</a>、<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-JSONFormattedIndexUpdates">json</a>和<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Data+with+Index+Handlers#UploadingDatawithIndexHandlers-CSVFormattedIndexUpdates">csv</a>格式的数据文件用于索引。接下来让我们来试试。首先登录进solr容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bash</span><br></pre></td></tr></table></figure>
-
-<h3 id="xml"><a href="#xml" class="headerlink" title="xml"></a>xml</h3><p>Solr存储的对象称为Document，每个Document数个Field组成，每个Field代表一个属性。现在按照<code>&lt;add&gt;&lt;doc&gt;&lt;field name=&quot;&quot;&gt;</code>的格式来生成一个xml文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.xml</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    978-0641723445</span><br><span class="line">    The Lightning Thief</span><br><span class="line">    Rick Riordan</span><br><span class="line">    Percy Jackson and the Olympians</span><br><span class="line">    1</span><br><span class="line">    fantasy</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">    12.50</span><br><span class="line">    384</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    978-1423103349</span><br><span class="line">    The Sea of Monsters</span><br><span class="line">    Rick Riordan</span><br><span class="line">    Percy Jackson and the Olympians</span><br><span class="line">    2</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">    6.49</span><br><span class="line">    304</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>细心的你可能已经发现了下面一条数据里并没有<code>fantasy</code>，我故意的~~现在用以下命令将这个xml导入索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
-
-<p>索引完成后，在Solr Admin的ggg Core的Query里，直接点击Execute Query便可以看到我们新索引的这两条数据：<br><img src="/img/solr-query.jpg"></p>
-<p>在<code>q</code>里输入搜索的关键词便可以查询索引：</p>
-<ul>
-<li>Rick Riordan：匹配作者</li>
-<li>Jackson：分词可以工作</li>
-<li>the：不区分大小写</li>
-<li>fantasy：不符合的记录不会被查询到</li>
-<li>fantasy 0123：不是所有关键词都会被使用</li>
-<li>0123：但如果只有查不到的关键词，那就是查不到</li>
-<li>fantasy -Rick：<code>-</code>表示过滤</li>
-<li>Lightni：单词不全不能匹配</li>
-<li>Lightn?ng：<code>?</code>匹配一位</li>
-<li>L*g：<code>*</code>匹配多位</li>
-<li>Lightnixx<del>：&#96;</del>&#96;用于模糊查询</li>
-<li>Lightnxxx<del>：&#96;</del>&#96;最多就匹配两位</li>
-</ul>
-<p>还有很多查询的技巧，可以在<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser">这里</a>找到。</p>
-<p>再次导入相同的数据：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
-
-<p>可以看到查询结果并没有变化。这是因为solr会根据<code>id</code>来区分每一个数据。如果更新xml再导入，那就会覆盖掉旧的数据。现在让我们把漏了的<code>fantasy</code>补上：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;/2/a \ \ \ \ fantasy&#x27;</span> books.xml</span><br><span class="line"><span class="built_in">cat</span> books.xml</span><br><span class="line">bin/post -c ggg books.xml</span><br></pre></td></tr></table></figure>
-
-<p>可以查询<code>fantasy</code>看到结果变成了两条。</p>
-<h3 id="json"><a href="#json" class="headerlink" title="json"></a>json</h3><p>接下来创建一个json文件并索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.json</span><br><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">&quot;id&quot;</span> : <span class="string">&quot;978-1857995879&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cat&quot;</span> : [<span class="string">&quot;book&quot;</span>,<span class="string">&quot;paperback&quot;</span>],</span><br><span class="line">    <span class="string">&quot;name&quot;</span> : <span class="string">&quot;Sophie&#x27;s World : The Greek Philosophers&quot;</span>,</span><br><span class="line">    <span class="string">&quot;author&quot;</span> : <span class="string">&quot;Jostein Gaarder&quot;</span>,</span><br><span class="line">    <span class="string">&quot;sequence_i&quot;</span> : 1,</span><br><span class="line">    <span class="string">&quot;genre_s&quot;</span> : <span class="string">&quot;fantasy&quot;</span>,</span><br><span class="line">    <span class="string">&quot;inStock&quot;</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="string">&quot;price&quot;</span> : 3.07,</span><br><span class="line">    <span class="string">&quot;pages_i&quot;</span> : 64</span><br><span class="line">  &#125;</span><br><span class="line">,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">&quot;id&quot;</span> : <span class="string">&quot;978-1933988177&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cat&quot;</span> : [<span class="string">&quot;book&quot;</span>,<span class="string">&quot;paperback&quot;</span>],</span><br><span class="line">    <span class="string">&quot;name&quot;</span> : <span class="string">&quot;Lucene in Action, Second Edition&quot;</span>,</span><br><span class="line">    <span class="string">&quot;author&quot;</span> : <span class="string">&quot;Michael McCandless&quot;</span>,</span><br><span class="line">    <span class="string">&quot;sequence_i&quot;</span> : 1,</span><br><span class="line">    <span class="string">&quot;genre_s&quot;</span> : <span class="string">&quot;IT&quot;</span>,</span><br><span class="line">    <span class="string">&quot;inStock&quot;</span> : <span class="literal">true</span>,</span><br><span class="line">    <span class="string">&quot;price&quot;</span> : 30.50,</span><br><span class="line">    <span class="string">&quot;pages_i&quot;</span> : 475</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">bin/post -c ggg books.json</span><br></pre></td></tr></table></figure>
-
-<p>查询一下<code>978</code>，就能看到json文件的内容也被索引进来了。</p>
-<h3 id="csv"><a href="#csv" class="headerlink" title="csv"></a>csv</h3><p>接下来创建一个csv文件并索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  books.csv</span><br><span class="line"><span class="built_in">id</span>,<span class="built_in">cat</span>,name,price,inStock,author,series_t,sequence_i,genre_s</span><br><span class="line">0553573403,book,A Game of Thrones,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,1,fantasy</span><br><span class="line">0553579908,book,A Clash of Kings,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,2,fantasy</span><br><span class="line">055357342X,book,A Storm of Swords,7.99,<span class="literal">true</span>,George R.R. Martin,<span class="string">&quot;A Song of Ice and Fire&quot;</span>,3,fantasy</span><br><span class="line">0553293354,book,Foundation,7.99,<span class="literal">true</span>,Isaac Asimov,Foundation Novels,1,scifi</span><br><span class="line">0812521390,book,The Black Company,6.99,<span class="literal">false</span>,Glen Cook,The Chronicles of The Black Company,1,fantasy</span><br><span class="line">0812550706,book,Ender<span class="string">&#x27;s Game,6.99,true,Orson Scott Card,Ender,1,scifi</span></span><br><span class="line"><span class="string">0441385532,book,Jhereg,7.95,false,Steven Brust,Vlad Taltos,1,fantasy</span></span><br><span class="line"><span class="string">0380014300,book,Nine Princes In Amber,6.99,true,Roger Zelazny,the Chronicles of Amber,1,fantasy</span></span><br><span class="line"><span class="string">0805080481,book,The Book of Three,5.99,true,Lloyd Alexander,The Chronicles of Prydain,1,fantasy</span></span><br><span class="line"><span class="string">080508049X,book,The Black Cauldron,5.99,true,Lloyd Alexander,The Chronicles of Prydain,2,fantasy</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">bin/post -c ggg books.csv</span></span><br></pre></td></tr></table></figure>
-
-<p>查询一下<code>*:*</code>，就能看到csv文件的内容也被索引进来了。一共有14条<code>numFound</code>记录，但是只会显示10条。通过<code>Query</code>页面上的<code>start, rows</code>，就可以很方便地查询分页。</p>
-<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p><code>bin/post</code>这个命令也能索引文件夹，不管里面的文件是什么格式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> books</span><br><span class="line"><span class="built_in">mv</span> books.xml books</span><br><span class="line"><span class="built_in">mv</span> books.json books</span><br><span class="line"><span class="built_in">mv</span> books.csv books</span><br><span class="line"></span><br><span class="line">bin/post -c ggg books</span><br></pre></td></tr></table></figure>
-
-<p>还有一个比较基本的需求是使用The Data Import Handler (DIH)来索引数据库。可以参考<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler">https://cwiki.apache.org/confluence/display/solr/Uploading+Structured+Data+Store+Data+with+the+Data+Import+Handler</a>。</p>
-<p>再有就是如何在程序中更新数据。Solr支持多种语言的客户端，对于Java来说，可以参考<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Using+SolrJ">SolrJ</a>。</p>
-<p>还可以通过http请求来更新索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:8983/solr/ggg/update?commit=true&#x27;</span> \</span><br><span class="line">  -H <span class="string">&#x27;Contenttype: application/json&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;[&#123;&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;Practical DevOps&quot;,&quot;author&quot;:&quot;Joakim Verona&quot;,&quot;gere_s&quot;:&quot;IT&quot;&#125;]&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>删除索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/post -c ggg -d <span class="string">&quot;12345&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><p>其实上一节已经介绍了不少查询相关的内容了。在查询页面的右上角有一个url，例如<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr/ggg/select?indent=on&q=*:*&wt=json">http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=<em>:</em>&amp;wt&#x3D;json</a>。只要对其发出<code>get</code>请求，便可以获取到查询结果。当然直接<code>curl</code>也可以：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:8983/solr/ggg/select?indent=on&amp;q=*:*&amp;wt=json&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>至于<code>Query</code>页面上的其它查询条件，可以在<a target="_blank" rel="noopener" href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a>上查到。这里简介如下：</p>
-<ul>
-<li>fq（Filter Query）：过滤查询，可以指定多个条件并缓存。例如：<code>inStock:false</code></li>
-<li>sort：排序。例如：<code>sequence_i desc</code></li>
-<li>start：查询结果忽略掉前n条</li>
-<li>rows：查询结果数量</li>
-<li>fl（Field List）：指定查询结果字段。例如<code>author, sequence_i</code></li>
-<li>df（Default Field）：指定查询字段。</li>
-<li>wt（Write Type）：指定输出格式，有xml，json，python，ruby，php，csv等多项可选</li>
-</ul>
-<p>还有一些高级功能，本文旨在入门，就不细说了。访问<a target="_blank" rel="noopener" href="http://192.168.99.100:8983/solr/ggg/browse">http://192.168.99.100:8983/solr/ggg/browse</a>可以查看已索引的所有数据。最后输入<code>exit</code>退出solr容器。</p>
-<h2 id="中文"><a href="#中文" class="headerlink" title="中文"></a>中文</h2><p>在没有使用任何中文分词组件的情况下，Solr会把所有中文的每个字当成一个词来检索。要想让Solr支持中文分词，需要使用中文分词组件。<a target="_blank" rel="noopener" href="http://www.hansight.com/blog-lucene4.10-with-chinese-segment.html">《与Lucene 4.10配合的中文分词比较》</a>一文里介绍了几种中文分词组件并做了比较。虽然我们用的是Solr 6.1.0版，但是也是很有参考意义的。接下来我们使用<a target="_blank" rel="noopener" href="https://github.com/chenlb/mmseg4j-solr">mmseg4j</a>来试一下。</p>
-<p>目前的mmseg4j暂时不支持solr 6.1.0，不过已经有热心人士提交<a target="_blank" rel="noopener" href="http://amao12580.github.io/post/2016/07/mmseg4j-solr-compatible-solr-6-1/">pull request</a>了，只是还没合并进去。我们本着简单的原则，替换solr镜像成5.3.1版本。在作者的github上指定的<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1dD7qMFf#path=%252Fmmseg4j-solr">百度网盘</a>里下载<code>mmseg4j-solr-2.3.0-with-mmseg4j-core.zip</code>，解压后得到两个jar文件。之后重新创建一个solr容器并再次生成ggg的core：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f solr</span><br><span class="line">docker create -p 8983:8983 --name solr solr:5.3.1</span><br><span class="line">docker <span class="built_in">cp</span> mmseg4j-core-1.10.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/</span><br><span class="line">docker <span class="built_in">cp</span> mmseg4j-solr-2.3.0.jar solr:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/</span><br><span class="line">docker start solr</span><br><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bin/solr create_core -c ggg</span><br></pre></td></tr></table></figure>
-
-<p>现在用solr提供的<a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/solr/Schema+API">Schema API</a>来配置mmseg4j：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it --user=solr solr bash</span><br><span class="line"></span><br><span class="line">curl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">  &quot;add-field-type&quot;:&#123;</span></span><br><span class="line"><span class="string">    &quot;name&quot;:&quot;textComplex&quot;,</span></span><br><span class="line"><span class="string">    &quot;class&quot;:&quot;solr.TextField&quot;,</span></span><br><span class="line"><span class="string">    &quot;positionIncrementGap&quot;:&quot;100&quot;,</span></span><br><span class="line"><span class="string">    &quot;analyzer&quot;:&#123;</span></span><br><span class="line"><span class="string">      &quot;tokenizer&quot;:&#123; </span></span><br><span class="line"><span class="string">        &quot;class&quot;:&quot;com.chenlb.mmseg4j.solr.MMSegTokenizerFactory&quot;,</span></span><br><span class="line"><span class="string">        &quot;mode&quot;:&quot;complex&quot;,</span></span><br><span class="line"><span class="string">        &quot;dicPath&quot;:&quot;dic&quot;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schema</span><br><span class="line"></span><br><span class="line">curl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">  &quot;add-field-type&quot;:&#123;</span></span><br><span class="line"><span class="string">    &quot;name&quot;:&quot;textMaxWord&quot;,</span></span><br><span class="line"><span class="string">    &quot;class&quot;:&quot;solr.TextField&quot;,</span></span><br><span class="line"><span class="string">    &quot;positionIncrementGap&quot;:&quot;100&quot;,</span></span><br><span class="line"><span class="string">    &quot;analyzer&quot;:&#123;</span></span><br><span class="line"><span class="string">      &quot;tokenizer&quot;:&#123; </span></span><br><span class="line"><span class="string">        &quot;class&quot;:&quot;com.chenlb.mmseg4j.solr.MMSegTokenizerFactory&quot;,</span></span><br><span class="line"><span class="string">        &quot;mode&quot;:&quot;max-word&quot;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schema</span><br></pre></td></tr></table></figure>
-
-<p>上面的命令增加了<code>textComplex</code>和<code>textMaxWord</code>两种字段类型，它们的区别在<a target="_blank" rel="noopener" href="https://paynexu.gitbooks.io/create-your-vertical-search-engine-with-solr/content/configure-mmseg4j-analyzer-on-solr5.html#complex%E5%92%8Cmaxword%E4%B8%A4%E7%A7%8D%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8C%BA%E5%88%AB">这里</a>解释得很清楚。下面就可以在<code>Analysis</code>页面上，看到我们的分词生效了：<br><img src="/img/solr-analysis.jpg"></p>
-<p>还可以尝试用<code>孙悟空吃香蕉</code>这个短句来测试<code>textComplex</code>和<code>textMaxWord</code>的不同效果。接下来将<code>field desc</code>添加到<code>textComplex</code>里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H <span class="string">&#x27;Content-type:application/json&#x27;</span> --data-binary <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">  &quot;add-field&quot;:&#123;</span></span><br><span class="line"><span class="string">     &quot;name&quot;:&quot;desc&quot;,</span></span><br><span class="line"><span class="string">     &quot;type&quot;:&quot;textComplex&quot;,</span></span><br><span class="line"><span class="string">     &quot;stored&quot;:true &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span> http://192.168.99.100:8983/solr/ggg/schema</span><br></pre></td></tr></table></figure>
-
-<p>现在让我们来索引几条包含<code>field desc</code>的中文数据：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  cities.csv</span><br><span class="line"><span class="built_in">id</span>,city,desc</span><br><span class="line">010,北京,简称“京”，是中华人民共和国首都、直辖市和京津冀城市群的中心，中国的政治、文化、交通、科技创新和国际交往中心，中国经济、金融的决策和管理中心</span><br><span class="line">021,上海,简称沪，别称申，中华人民共和国直辖市、国家中心城市之一，也是中国按行政区划主城区内人口排名的最大的城市</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">bin/post -c ggg cities.csv</span><br></pre></td></tr></table></figure>
-
-<p>现在在<code>Query</code>页面上，输入<code>desc:中华人民共和国</code>就可以找到相对应的记录，而输入<code>desc:人民</code>就已经不能检索到结果啦。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/solr/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/solr/" data-id="cuidNqcW3fIJ4lAVUCBiAV9k1" data-title="用容器快速上手Apache Solr" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/solr/" data-id="cuidDubyQuJ1lKt9FZJjrGpLl" data-title="用容器快速上手Apache Solr" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -320,58 +199,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/">Spring</a>给程序猿们带来了许多便利。它包含了用于定时任务处理的<a target="_blank" rel="noopener" href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/scheduling.html">Spring Scheduler</a>。本文聊聊Scheduling模型和一些坑。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Spring Scheduler里有两个概念：任务（Task）和运行任务的框架（TaskExecutor&#x2F;TaskScheduler）。TaskExecutor顾名思义，是任务的执行器，允许我们异步执行多个任务。TaskScheduler是任务调度器，来运行未来的定时任务。触发器Trigger可以决定定时任务是否该运行了，最常用的触发器是CronTrigger，具体用法会在下面章节中详细介绍。Spring内置了多种类型的TaskExecutor和TaskScheduler，方便用户根据不同业务场景选择。</p>
-<p>本文聊的是Spring Scheduler，所以我们接下来主要介绍Scheduler的用法。</p>
-<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>用xml配置Spring Scheduler的话，这样就行了：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>当然需要能够reference到doSomethingTask这个实例了。</p>
-<p>用注解配置Spring Scheduler的方式如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.scheduling.annotation.Scheduled;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DoSomethingTask</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(cron=&quot;0 * * * * *&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;do something&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>参考<a target="_blank" rel="noopener" href="http://www.baeldung.com/spring-scheduled-tasks">这篇短文</a>可以迅速了解。</p>
-<h2 id="Cron"><a href="#Cron" class="headerlink" title="Cron"></a>Cron</h2><p>想了解Cron最好的方法是看<a target="_blank" rel="noopener" href="http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger">Quartz的官方文档</a>。本节也会大致介绍一下。</p>
-<p>Cron表达式由6~7项组成，中间用空格分开。从左到右依次是：秒、分、时、日、月、周几、年（可省略）。值可以是数字，也可以是以下符号：<br><code>*</code>：所有值都匹配<br><code>?</code>：无所谓，不关心，通常放在“周几”里<br><code>,</code>：或者<br><code>/</code>：增量值<br><code>-</code>：区间</p>
-<p>下面举几个例子，看了就知道了：<br><code>0 * * * * *</code>：每分钟（当秒为0的时候）<br><code>0 0 * * * *</code>：每小时（当秒和分都为0的时候）<br><code>*/10 * * * * *</code>：每10秒<br><code>0 5/15 * * * *</code>：每小时的5分、20分、35分、50分<br><code>0 0 9,13 * * *</code>：每天的9点和13点<br><code>0 0 8-10 * * *</code>：每天的8点、9点、10点<br><code>0 0/30 8-10 * * *</code>：每天的8点、8点半、9点、9点半、10点<br><code>0 0 9-17 * * MON-FRI</code>：每周一到周五的9点、10点…直到17点（含）<br><code>0 0 0 25 12 ?</code>：每年12约25日圣诞节的0点0分0秒（午夜）<br><code>0 30 10 * * ? 2016</code>：2016年每天的10点半</p>
-<p>其中的<code>?</code>在用法上其实和<code>*</code>是相同的。但是<code>*</code>语义上表示全匹配，而<code>?</code>并不代表全匹配，而是不关心。比如对于<code>0 0 0 5 8 ? 2016</code>来说，2016年8月5日是周五，<code>?</code>表示我不关心它是周几。而<code>0 0 0 5 8 * 2016</code>中的<code>*</code>表示周一也行，周二也行……语义上和2016年8月5日冲突了，你说谁优先生效呢。</p>
-<p>不记得也没关系，记住<a target="_blank" rel="noopener" href="http://www.cronmaker.com/">Cron Maker</a>也可以，它可以在线生成cron表达式。</p>
-<h2 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h2><p>可能会想要在不同的环境配置不同的cron，比如产品环境就是真实的cron，而测试环境希望更频繁触发，可以设置每分钟都触发。</p>
-<p>xml配置的解决方法：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>顺便提一句，java的properties文件支持value中带空格，所以可以放心地写<code>cron_expression=0 * * * * *</code>。</p>
-<p>注解的解决方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scheduled(cron = &quot;$&#123;cron_expression&#125;&quot;)</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><h3 id="同时运行"><a href="#同时运行" class="headerlink" title="同时运行"></a>同时运行</h3><p>同一个task，如果前一个还没跑完后面一个就不会触发，这没有问题。但是不同的task也不能同时运行就不太合理了。不过其实是scheduler的默认线程数为1的缘故。</p>
-<p>解决方法1：如下配置pool-size，但这样会导致同一个task前一个还没跑完后面又被触发的问题。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>解决方法2：让任务分别运行在不同的scheduler里就好了。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="多实例"><a href="#多实例" class="headerlink" title="多实例"></a>多实例</h3><p>若是scheduler与web配置在一起，在高可用的情况下，如果有多个web容器实例，scheduler会在多个实例上同时运行。</p>
-<p>解决方法1：部署的时候，针对不同实例，使用不同的配置。比如tomcat_1打开scheduler，tomcat_2关闭。带来的问题是：</p>
-<ul>
-<li>增加部署成本。</li>
-<li>要是tomcat_1挂了，scheduler就不能运行了，高可用落空。</li>
-</ul>
-<p>解决方法2：在task的基类加入一些逻辑，当开始运行时，将状态（运行机器的IP、时间等）写入数据库、缓存或者zk，运行结束时重置状态。其它实例看到有这样的数据，就直接返回。带来的问题是：</p>
-<ul>
-<li>需要所有实例上的机器时间同步，不然一个刚结束另一个才开始，状态的维护就没有用了。</li>
-<li>一定要保证结束运行后将状态重置，否则下一个运行周期，所有的task都会返回的。实在不行还得写一个task做这个事。</li>
-<li>因为读写状态并非原子操作，偶尔也会发生task同时运行的事。</li>
-</ul>
-<p>解决方法3：将scheduler与web分开。这样还能避免后台任务影响web端。带来的问题是：</p>
-<ul>
-<li>增加部署成本。</li>
-<li>scheduler的高可用需要重新考虑。</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/spring-scheduler/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/spring-scheduler/" data-id="cuid0Js-87jGCfdxFhqc5I3Kv" data-title="Spring Scheduler的使用与坑" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/spring-scheduler/" data-id="cuidDRWNq12QIkHnDxtWdiSjT" data-title="Spring Scheduler的使用与坑" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -412,41 +248,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://dzone.com/articles/why-idea-better-eclipse">IntelliJ IDEA在重构方面碾压eclipse</a>。但是IDEA的免费社区版<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/features/editions_comparison_matrix.html">并不支持web应用开发</a>。好在Maven有一个<code>maven-jetty-plugin</code>插件。如果你正在用IDEA社区版开发一个web应用，可以使用它来动态加载并调试IDE里的web应用。笔者目前使用的IDEA版本为2016.1.1。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>假设我们有一个maven的web项目，已经用IDEA打开了。那么就可以在pom.xml里加上<code>maven-jetty-plugin</code>的插件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    </span><br><span class="line">      org.mortbay.jetty</span><br><span class="line">      maven-jetty-plugin</span><br><span class="line">      6.1.26</span><br><span class="line">      </span><br><span class="line">        /</span><br><span class="line">        0</span><br><span class="line">        </span><br><span class="line">          </span><br><span class="line">            8080</span><br><span class="line">            60000</span><br><span class="line">          </span><br><span class="line">        </span><br><span class="line">      </span><br><span class="line">    </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这样便可以在命令行里用以下命令直接启动jetty服务器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn jetty:run</span><br></pre></td></tr></table></figure>
-
-<h2 id="集成IDEA"><a href="#集成IDEA" class="headerlink" title="集成IDEA"></a>集成IDEA</h2><p>在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Maven</code>，填入下图所示的参数：<br><img src="/img/idea-jetty-parameters.jpg"></p>
-<ul>
-<li>Name：Jetty</li>
-<li>Working directory：默认就好</li>
-<li>Command line：jetty:run</li>
-</ul>
-<p>然后在<code>Runner</code>标签里，填入下图所示的参数：<br><img src="/img/idea-jetty-runner.jpg"></p>
-<ul>
-<li>VM Options：-Xdebug -Xrunjdwp:transport&#x3D;dt_socket,server&#x3D;y,suspend&#x3D;n,address&#x3D;6006</li>
-</ul>
-<p>端口6006可以自行决定，别和其它端口冲突就行。在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Remote</code>，填入下图所示的参数：<br><img src="/img/idea-jetty-debug.jpg"></p>
-<ul>
-<li>Name：Jetty-Remote-Debug</li>
-<li>Port：6006</li>
-</ul>
-<p>和先前在<code>Runner</code>标签里填写的端口一致就行。</p>
-<p>现在就可以试试啦。首先运行Jetty，然后调试Jetty-Remote-Debug。不出意外的话，现在可以访问自己的webapp，并且可以在程序中调试了。现在修改一段程序，编译之后，新程序就能立刻生效了。刷新一下页面看看？</p>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>照例附送一些Mac OS X的keymap快捷键：</p>
-<ul>
-<li>运行Jetty：Alt+Shift+F10</li>
-<li>调试Jetty-Remote-Debug：Alt+Shift+F9</li>
-<li>编译：Command+Shift+F9</li>
-</ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea">https://gist.github.com/naaman/1053217/1fc1403d9d6ebc0194ecd0bf84cb0dec84b92eea</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/intellij-idea-community-hotswap-webapp/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-community-hotswap-webapp/" data-id="cuid2pbOe6flVFpsJBtGJcItE" data-title="使用IntelliJ IDEA社区版动态加载webapp" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-community-hotswap-webapp/" data-id="cuidZzSOMtUx5DGcTAal5Zbiw" data-title="使用IntelliJ IDEA社区版动态加载webapp" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -487,37 +297,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>程序猿和工程狮们的日常工作中，难免遇到代码写得正爽的时候被人打断。要重新进入状态需要时间和心力，万一又被打断，这一天就不能好好过了。本文聊一聊可以把副作用尽可能降低的一些办法。</p>
-<h2 id="降低被打断概率"><a href="#降低被打断概率" class="headerlink" title="降低被打断概率"></a>降低被打断概率</h2><p>被打断是不可避免的，就像程序中我们不得不try…catch一样。但是我们可以想办法降低被exception产生的概率。</p>
-<h3 id="自身原因"><a href="#自身原因" class="headerlink" title="自身原因"></a>自身原因</h3><p>首先看看都有哪些异常发生。以笔者为例，如果写代码进入真·状态，那只有别人找上门才能被干扰。如果是伪·状态，那么自己可能会突然想到：有一条微信没看，有一封邮件忘记回了，麻麻让我在网上买的东东忘记买了……于是就悲剧了。对于这种异常来说，最简单的方法就是预先把它们都给处理好。在办正事之前，先干杂事，收发邮件，手机静音，接杯水，上个厕所。至于有一些买东西、订日程之类的非日常事务，需要一个todo list。我一般是在接到任务的时候，记录到闹钟里，定一个比较有空的时间来做。没有了念想，突然想起有事没做的冷汗就不至于经常冒出来了。</p>
-<p>另外，如果有什么任务可以很快完成（比如两分钟内），哪怕它的优先级不那么高，也可以先将它搞定，排除念想。</p>
-<h3 id="他人原因"><a href="#他人原因" class="headerlink" title="他人原因"></a>他人原因</h3><p>接下来是被人打断的情况。如果要降低这种概率，一种办法是在工位的显眼处挂上一块如下牌子，等有空闲了再摘掉，就是有点儿不近人情。<br><img src="http://images.mydoorsign.com/img/lg/S/do-not-disturb-sign-s-4622.png"></p>
-<p>稍微对用户友好的方法是加一个计时器，别人好歹能知道再过多久之后过来找你比较方便。如果像我这样实在下不了手挂牌子，那就只好用下文介绍的等一下大法了。</p>
-<h3 id="等一下"><a href="#等一下" class="headerlink" title="等一下"></a>等一下</h3><p>花费较少大脑资源，请对方稍微等待一小段时间。但是不要冷冰冰地说：“等一下”。一下是多久？对方要不要找其他人帮忙？这样可能造成对方的困扰，说不定就影响团结了。好歹微笑一下：“稍微等我一会儿可以吗？”，自认在时间上靠谱的朋友还可以更加量化：“等我两分钟好吗”。两分钟之后，听一下对方的需求，是否自己可以迅速搞定，然后再决定是否让对方再等上半小时，或者推荐另一个人来处理。若是对方非常着急，那就花上半分钟记录一下当前手头上的进度和关键因素，就好比暂时让自己这台电脑在这个线程上休眠一下，过一会儿再唤醒。</p>
-<h3 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h3><p>早晨和深夜，活动的人少，被打断的几率就小。不管是早起的鸟儿还是晚睡的虫子，抓住那段时间专心做不想被打断的事。</p>
-<h3 id="判断优先级"><a href="#判断优先级" class="headerlink" title="判断优先级"></a>判断优先级</h3><p>也有火急火燎的事突然插进来。比如运维正在部署你的代码，然后出问题了。或者测试发现了一个非常严重的缺陷，需要马上解决。这些不得不立即处理的事情，就得靠下一章的办法来尽量降低副作用了。</p>
-<h2 id="使自己不怕被打断"><a href="#使自己不怕被打断" class="headerlink" title="使自己不怕被打断"></a>使自己不怕被打断</h2><p>要是能让自己处于不怕被打断的状态，那么就可以来者不拒了。</p>
-<h3 id="日常工作"><a href="#日常工作" class="headerlink" title="日常工作"></a>日常工作</h3><p>如果日常工作以业务开发为主，平时的开发过程可以分为三个阶段：</p>
-<ul>
-<li>拆分任务：把一个故事拆分成数个任务，每一个不要太大</li>
-<li>实现任务：做完其中的一个任务</li>
-<li>重构：虽然已经完成了，但是可以让代码更优雅</li>
-</ul>
-<p>首先是拆分任务。这个阶段应该是在不太长的时间内完成的。虽然很怕被打断，但是由于持续时间短，基本上不太会老被打断。接下来的实现任务会略微麻烦一些，最后再讲。现在说重构。重构是由坏味道驱动，由一系列的重构动作和频繁地运行测试组成的。这就决定了重构应该可以随时中止，所以不是那么怕打断，当然还是需要费时再次阅读代码。如果被打断之后回来不知道要干什么，那么多半是坏味道还不够强烈，这样的代码暂不处理也问题不大。最后讲实现任务。这个阶段的持续时间比较长，取决于具体任务，有可能怕被打断。不过好处是被打断回来也很容易从任务中知道你在做什么。尤其是如果使用TDD的方式，跑一下测试基本上思路就回来了。我们知道TDD有三个法则：</p>
-<ul>
-<li>在编好失败单元测试之前，不要编写任何产品代码</li>
-<li>只要有一个单元测试失败了，就不要再写测试代码；无法通过编译也是一种失败情况</li>
-<li>产品代码恰好能够让当前失败的单元测试成功通过即可，不要多写</li>
-</ul>
-<p>当我们编写测试时被打断，回来时测试名会告诉我们应该做啥了。当我们编写实现时被打断，回来时失败的测试会告诉我们应该做啥了。</p>
-<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>笔者撰写本文的时候，被打断了无数次，确是别有一番滋味。但是我不是很怕被打断（当然还是有少许代价的），因为我也是按照日常工作的方式写作的。先拆分任务，把要写的文章分成不同模块，每个模块起好标题或者是写句话说明自己想在里面写点儿什么。然后实现任务，虽然没有TDD，但是因为文章的框架已经建立起来了，回来的时候很容易回到刚才写作的背景里去。最后是重构，把不通顺的字句重新整理，纠正错别字等。还是那句话，如果重构被打断，导致回来的时候不知道该做什么了，多半是文章还没糟糕到那种地步，凑活用用还是可以的。</p>
-<h2 id="方法和工具"><a href="#方法和工具" class="headerlink" title="方法和工具"></a>方法和工具</h2><p>下面介绍一些时间管理方法，作为扩展阅读，读者可以选取自己喜欢的工具来使用。</p>
-<h3 id="番茄工作法"><a href="#番茄工作法" class="headerlink" title="番茄工作法"></a>番茄工作法</h3><p><a target="_blank" rel="noopener" href="http://www.baike.com/wiki/%E7%95%AA%E8%8C%84%E5%B7%A5%E4%BD%9C%E6%B3%95">番茄工作法</a>无需我多说了，自己看看是不是适合吧。<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20189826">知乎</a>上也有个一千多赞的回答。</p>
-<h3 id="GTD"><a href="#GTD" class="headerlink" title="GTD"></a>GTD</h3><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%B0%BD%E7%AE%A1%E5%8E%BB%E5%81%9A">GTD</a>是英文Getting Things Done的缩写，是一种行为管理的方法。“主要原则在于一个人需要通过记录的方式把头脑中的各种任务移出来，通过这样的方式，头脑可以不用塞满各种需要完成的事情，而集中精力在正在完成的事情，是一种消灭压力的高效工作方法。”</p>
-
+        
+          <p class="article-more-link">
+            <a href="/interrupt-train-of-thought/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/interrupt-train-of-thought/" data-id="cuidkWiyLejqdo7owKMZR6CvT" data-title="思路被打断了怎么办" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/interrupt-train-of-thought/" data-id="cuidZFQ9ZWwXBLZfoghqn_iJE" data-title="思路被打断了怎么办" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -558,61 +346,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>微软前几天<a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/dotnet/2016/06/27/announcing-net-core-1-0/">正式发布</a>了<a target="_blank" rel="noopener" href="https://dotnet.github.io/">.NET Core</a> 1.0。开源、跨平台、运行速度快的.NET Core很可能会成为Java强有力的竞争对手。它支持用ASP.NET开发web应用，但目前的问题是支持的第三方库太少了。本文尝试在Mac的OS X平台上开发.NET Core应用。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>请参考<a target="_blank" rel="noopener" href="http://www.linuxidc.com/Linux/2016-06/132764.htm">《.NET Core 1.0发布：微软开源跨平台大布局序幕》</a>和<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/dotnet/articles/core/index">《.NET Core》</a>。官方也提供了一个<a target="_blank" rel="noopener" href="https://hub.docker.com/r/microsoft/dotnet/">docker镜像</a>以供快速试用。</p>
-<h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>根据微软的<a target="_blank" rel="noopener" href="https://www.microsoft.com/net/core#macos">Getting Started</a>文档介绍，首先需要安装最新版OpenSSL：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew update</span><br><span class="line">brew install openssl</span><br><span class="line">brew <span class="built_in">link</span> --force openssl</span><br></pre></td></tr></table></figure>
-
-<p>下载.NET Core SDK，50M左右：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://go.microsoft.com/fwlink/?LinkID=809124</span><br></pre></td></tr></table></figure>
-
-<p>安装完SDK后，可以很轻易地启动一个Hello World应用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> hwapp</span><br><span class="line"><span class="built_in">cd</span> hwapp</span><br><span class="line">dotnet new</span><br><span class="line">dotnet restore</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>dotnet</code>命令就是.NET Core SDK提供的。顺利的话，就能看到控制台打印出了<code>Hello World!</code>。命令<code>dotnet new</code>会生成两个文件：<code>Program.cs</code>和<code>project.json</code>。打开生成的Program.cs就能看到其实就是一个标准的<code>Main</code>函数，内容为<code>Console.WriteLine(&quot;Hello World!&quot;);</code>。文件<code>project.json</code>内容如下所示，指定了依赖和框架：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1.0.0-*&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;buildOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;debugType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;portable&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;emitEntryPoint&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;frameworks&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;netcoreapp1.0&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Microsoft.NETCore.App&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;platform&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1.0.0&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;imports&quot;</span><span class="punctuation">:</span> <span class="string">&quot;dnxcore50&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>命令<code>dotnet restore</code>会使用NuGet来导入<code>project.json</code>里指定的包并生成一个文件：<code>project.lock.json</code>。命令<code>dotnet run</code>编译并运行这个项目。如果只想编译，用<code>dotnet build</code>就可以了。现在把Hello World中的World改成<code>Qinghua</code>，再试一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/World/Qinghua/&#x27;</span> Program.cs &gt; Program1.cs &amp;&amp; <span class="built_in">mv</span> Program1.cs Program.cs</span><br><span class="line"><span class="built_in">cat</span> Program.cs</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>果然就变成了<code>Hello Qinghua!</code>。</p>
-<h2 id="IDE"><a href="#IDE" class="headerlink" title="IDE"></a>IDE</h2><p>下载Visual Studio Code集成开发环境，也是50M左右，解压后100多M：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://az764295.vo.msecnd.net/stable/fe7f407b95b7f78405846188259504b34ef72761/VSCode-darwin-stable.zip</span><br></pre></td></tr></table></figure>
-
-<p>如果下载页面发生变化，那就参考<a target="_blank" rel="noopener" href="https://code.visualstudio.com/">Visual Studio Code的主页</a>下载。安装并打开Visual Studio Code之后，按下快捷键<code>⌘+P</code>并输入以下命令来安装C#的扩展：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ext install csharp</span><br></pre></td></tr></table></figure>
-
-<p>IDE会提示重新启动。接下来就可以试试C#开发了。按下快捷键<code>⌘+O</code>并打开刚才生成的<code>Program.cs</code>文件，然后把<code>Qinghua</code>改为<code>世界</code>。再次<code>dotnet run</code>一下，就会看到<code>Hello 世界</code>，汉字支持良好。</p>
-<p>整个IDE非常轻量，给人的印象比较简洁，不像Visual Studio那般花里胡哨。支持代码高亮、代码补全、错误提示、内置Git的支持，但是错误修复、重构等就没有了。甚至如何在里面运行代码也令人颇费一番周折。<br><img src="/img/vs-code-ide.jpg"></p>
-<p>关于调试代码，可以参考<a target="_blank" rel="noopener" href="https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger.md">Instructions for setting up the .NET Core debugger</a>。如果<code>⌘+O</code>打开的是包含<code>project.json</code>的文件夹，C#扩展便会自动生成两个文件：<code>.vscode/tasks.json</code>和<code>.vscode/launch.json</code>。前者告诉VS Code如何来构建项目，后者告诉VS Code如何来运行程序。我们需要修改一下<code>launch.json</code>里，<code>name</code>为<code>.NET Core Launch (console)</code>的<code>program</code>，将<code>&lt;target-framework&gt;/&lt;project-name.dll&gt;</code>替换为<code>netcoreapp1.0/hwapp.dll</code>，这样便能在VS Code的调试窗口运行程序了：<br><img src="/img/vs-code-debug.jpg"></p>
-<p>Visual Studio Code支持众多插件。除了C#以外，还有Python、C&#x2F;C++、Go、PowerShell、JavaScript、Ruby等语言，除此之外，还有不少功能性插件，如Git Blame、IIS Express、ftp-sync等。完整列表请参考<a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/vscode/Languages?sortBy=Downloads">Marketplace</a>。</p>
-<h2 id="C-Sharp"><a href="#C-Sharp" class="headerlink" title="C Sharp"></a>C Sharp</h2><p>语法层面上，C#比起Java来最吸引我的点就是Linq+Lambda。虽然Java 8也提供了lambda表达式，但是始终在整洁性上差了那么一点。Java 8 Stream和C#在Linq上的语法区别可以参考<a target="_blank" rel="noopener" href="https://blog.informatech.cr/2013/03/24/java-streams-preview-vs-net-linq/">《Java Streams Preview vs .Net High-Order Programming with LINQ》</a>，里面有着非常丰富的例子。现在我们来改造一下<code>Program.cs</code>，用Linq和Lambda输出10~90之间能被10整除的数字的平方：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">ConsoleApplication</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> arr = Enumerable.Range(<span class="number">1</span>, <span class="number">90</span>);</span><br><span class="line">            arr.Where(i =&gt; i % <span class="number">10</span> == <span class="number">0</span>).Select(i =&gt; i * i).ToList().ForEach(Console.WriteLine);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再次<code>dotnet run</code>一下，就会看到程序按照我们的预期输出了结果。</p>
-<h2 id="ASP-NET"><a href="#ASP-NET" class="headerlink" title="ASP.NET"></a>ASP.NET</h2><p>下面让我们来试一下用.NET Core运行ASP.NET的官方教程。首先像Hello World的例子那样，创建一个新的工程：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">mkdir</span> aspnetcoreapp</span><br><span class="line"><span class="built_in">cd</span> aspnetcoreapp</span><br><span class="line">dotnet new</span><br></pre></td></tr></table></figure>
-
-<p>然后需要把<code>project.json</code>里的<code>&quot;dependencies&quot;: {},</code>替换成下文：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;dependencies&quot;: &#123;</span><br><span class="line">  &quot;Microsoft.NETCore.App&quot;: &#123;</span><br><span class="line">    &quot;type&quot;: &quot;platform&quot;,</span><br><span class="line">    &quot;version&quot;: &quot;1.0.0&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;Microsoft.AspNetCore.Server.Kestrel&quot;: &quot;1.0.0&quot;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
-
-<p>依赖变化了，需要<code>restore</code>一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet restore</span><br></pre></td></tr></table></figure>
-
-<p>然后添加一个文件，处理http request：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Builder;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Http;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">aspnetcoreapp</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Startup</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            app.Run(context =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> context.Response.WriteAsync(<span class="string">&quot;Hello from ASP.NET Core!&quot;</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>接下来修改<code>Program.cs</code>文件来启动web服务：</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">aspnetcoreapp</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] <span class="keyword">args</span></span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> host = <span class="keyword">new</span> WebHostBuilder()</span><br><span class="line">                .UseKestrel()</span><br><span class="line">                .UseStartup()</span><br><span class="line">                .Build();</span><br><span class="line"></span><br><span class="line">            host.Run();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在就可以运行啦：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>访问<a target="_blank" rel="noopener" href="http://localhost:5000/">http://localhost:5000/</a>就可以看到在<code>Startup.cs</code>里写的<code>Hello from ASP.NET Core!</code>啦。确实上手比较容易。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/dot-net-core/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dot-net-core/" data-id="cuidERGtt2n1TD88L45D7oe6w" data-title="用OS X轻松上手.NET Core" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dot-net-core/" data-id="cuid1MGczqEwMZDYDxdCzkEyZ" data-title="用OS X轻松上手.NET Core" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -653,29 +395,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。当当在dubbo的基础上开发了<a target="_blank" rel="noopener" href="https://github.com/dangdangdotcom/dubbox">dubbox</a>（Dubbo eXtensions），<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">支持REST风格远程调用</a>。本文在<a href="/dubbo-1">服务治理框架dubbo上手指南</a>的基础上使用dubbox提供的REST服务。</p>
-<p>首先参考<a href="/dubbo-1">服务治理框架dubbo上手指南</a>，实现自己的dubbo服务。在此基础上，让我们来看看<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">在Dubbo中开发REST风格的远程调用</a>。REST的优势就不多说了，本文关注的是快速搭建环境。</p>
-<p>光看dubbox的官方文档稍微有一点儿坑，因为它对于maven依赖的描述基本没有。Dubbo本身的维护已经不太活跃了，最新的版本是<code>2.5.4-SNAPSHOT</code>。当当接下了维护的重任，目前的最新版是<code>dubbox-2.8.4</code>，其实groupId和artifactId还是原来的不变，只是版本号有变化罢了。所以首先让我们来升级一下依赖，在<code>helloImpl</code>的<code>pom.xml</code>里升级dubbo：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">com.alibaba</span><br><span class="line">dubbo</span><br><span class="line">2.8.4</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        spring-expression</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">        spring-beans</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">        spring-aop</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>使用<code>mvn dependency:tree</code>命令可以看到，dubbox依赖于spring的<code>3.2.9.RELEASE</code>版本。由于我们上一个dubbo的练习中使用了spring的<code>4.2.4.RELEASE</code>版本，所以会有依赖冲突。解决冲突的办法有两个，一是把我们的spring降级到dubbox依赖的<code>3.2.9.RELEASE</code>版本，二是使用exclusions把dubbox依赖的几个spring包都解除掉。这里我们的配置采用了后者。除了dubbox本身，我们还需要以下的依赖：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">org.springframework</span><br><span class="line">spring-core</span><br><span class="line">4.2.4.RELEASE</span><br><span class="line"></span><br><span class="line">com.101tec</span><br><span class="line">zkclient</span><br><span class="line">0.7</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>再然后就是<a target="_blank" rel="noopener" href="https://github.com/dangdangdotcom/dubbox#user-content-rest%E9%A3%8E%E6%A0%BC%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8">dubbox自身的依赖</a>，不管有用没用，先加进来再说：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-jaxrs</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-client</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">javax.validation</span><br><span class="line">validation-api</span><br><span class="line">1.0.0.GA</span><br><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-jackson-provider</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-jaxb-provider</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-netty</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">org.jboss.resteasy</span><br><span class="line">resteasy-jdk-http</span><br><span class="line">3.0.7.Final</span><br><span class="line"></span><br><span class="line">org.apache.tomcat.embed</span><br><span class="line">tomcat-embed-core</span><br><span class="line">8.0.11</span><br><span class="line"></span><br><span class="line">org.apache.tomcat.embed</span><br><span class="line">tomcat-embed-logging-juli</span><br><span class="line">8.0.11</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这样就把所有的依赖都解决了，现在可以修改dubbo的服务配置文件<code>provider.xml</code>了：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">--&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>把原来的dubbo协议注释掉，增加rest协议，用内置的tomcat启动，端口为9090。这里为了清晰起见，注释掉了dubbo协议，而实际上协议是可以并存的。接下来可以改造我们的<code>HelloServiceImpl</code>了。直接放上最后的代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.ggg.hello.service.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.ws.rs.GET;</span><br><span class="line"><span class="keyword">import</span> javax.ws.rs.Path;</span><br><span class="line"><span class="keyword">import</span> javax.ws.rs.Produces;</span><br><span class="line"><span class="keyword">import</span> javax.ws.rs.QueryParam;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.ggg.hello.service.HelloService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Path(&quot;demo&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">HelloService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GET</span></span><br><span class="line">    <span class="meta">@Path(&quot;greeting&quot;)</span></span><br><span class="line">    <span class="meta">@Produces(&quot;application/json; charset=UTF-8&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">sayHello</span><span class="params">(<span class="meta">@QueryParam(&quot;name&quot;)</span> String name)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello &quot;</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先我们在类上增加了一个注解<code>@Path(&quot;demo&quot;)</code>，它指定访问HelloService的URL相对路径是&#x2F;demo，即<code>http://localhost:9090/demo</code>。方法上也有一个<code>@Path(&quot;greeting&quot;)</code>，相当于访问这个方法的URL为<code>http://localhost:9090/demo/greeting</code>。<code>@GET</code>就不用多说了，<code>@Produces</code>可以在Response Headers里增加<code>Content-Type: application/json;charset=UTF-8</code>。如果有必要，也可以来一个相对应的<code>@Consumes(&quot;application/json&quot;)</code>。在参数上还有一个注解<code>@QueryParam(&quot;name&quot;)</code>，有了它就可以通过URL参数的方式传值过来了。启动<code>Provider</code>之后，没有意外的话应该能看见控制台的日志：<strong>Starting ProtocolHandler [“http-nio-9090”]</strong>，接下来就可以通过访问<a target="_blank" rel="noopener" href="http://localhost:9090/demo/greeting?name=ggg">http://localhost:9090/demo/greeting?name=ggg</a>来访问我们的服务了。屏幕上可以看到：<strong>Hello ggg</strong>。</p>
-<p>至此，我们以一个并不太RESTful的URL完成了一个REST请求。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/dubbo-2/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dubbo-2/" data-id="cuidBumVNb7XO3nSmnQGb8HO9" data-title="使用dubbox为dubbo提供REST服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dubbo-2/" data-id="cuidy_E2VS4T0osBNL01Aa2My" data-title="使用dubbox为dubbo提供REST服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -716,50 +444,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。它的<a target="_blank" rel="noopener" href="http://dubbo.io/">文档</a>也非常全面。本文将会大致介绍dubbo的思想，旨在快速上手自己搭建一套服务。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Dubbo是当服务数量很多的时候，用来解决服务治理的问题。服务治理包括服务编排、服务路由、服务发现等一系列功能。它的<a target="_blank" rel="noopener" href="http://dubbo.io/User+Guide-zh.htm">用户指南</a>里介绍得很清楚了，这里就不再赘述了。Dubbo支持多种协议来进行远程调用，但是并不支持REST方式。当当在dubbo的基础上开发了<a target="_blank" rel="noopener" href="https://github.com/dangdangdotcom/dubbox">dubbox</a>（Dubbo eXtensions），<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">支持REST风格远程调用</a>。</p>
-<p>本文将会创建一个dubbo的服务提供者，注册到zookeeper服务注册中心，然后创建一个服务消费者，通过dubbo协议调用服务提供者的方法。<a href="/dubbo-2">下一篇文章</a>将会介绍在dubbo里使用dubbox提供的REST服务。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Java、Maven和喜欢的IDE。我用的是<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/download/">Intellij IDEA社区版</a>。Dubbo可以使用Zookeeper来作为服务的注册中心，所以可以自行安装Zookeeper。我这里用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动Zookeeper容器来提供服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=zk -d -p 2181:2181 -p 2888:2888 -p 3888:3888 jplock/zookeeper:3.4.8</span><br></pre></td></tr></table></figure>
-
-<p>接下来新建一个Maven工程helloService，再给它添加两个Module，分别为helloApi（接口和模型，被消费者所依赖）和helloImpl（实现，依赖helloApi）。GroupId随意设置便可，我填的是<code>org.ggg.dubbo</code>。工程创建好了应该是这样的：<br><img src="/img/dubbo-new-project.jpg"></p>
-<h2 id="HelloWorld"><a href="#HelloWorld" class="headerlink" title="HelloWorld"></a>HelloWorld</h2><h3 id="服务提供者"><a href="#服务提供者" class="headerlink" title="服务提供者"></a>服务提供者</h3><p>一切就绪，开搞。首先给helloApi添加一个服务提供者：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.ggg.hello.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">HelloService</span> &#123;</span><br><span class="line">    String <span class="title function_">sayHello</span><span class="params">(String name)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>很简单，只是提供了一个sayHello的接口。</p>
-<h3 id="实现服务"><a href="#实现服务" class="headerlink" title="实现服务"></a>实现服务</h3><p>接下来就要在helloImpl里实现这个服务了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.ggg.hello.service.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.ggg.hello.service.HelloService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">HelloService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">sayHello</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello &quot;</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>为了编译通过，需要在helloImpl里添加对helloApi的依赖。</p>
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><p>为了启动我们的hello服务，我们需要依赖spring。先往helloImpl的resource里增加spring的配置文件provider.xml：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后往helloImpl里增加一个入口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.ggg.hello.service.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Provider</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ClassPathXmlApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathXmlApplicationContext</span>(<span class="string">&quot;provider.xml&quot;</span>);</span><br><span class="line">        context.start();</span><br><span class="line"></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这时候需要增加spring和dubbo的依赖了。我用的是<code>org.springframework:spring-context:4.2.4.RELEASE</code>和<code>com.alibaba:dubbo:2.5.3</code>。安装完依赖，就可以直接运行Provider了。要是一切顺利，应该看不到错误信息了。在安装zookeeper的虚拟机上，用以下命令可以连接上zookeeper：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it zk bin/zkCli.sh</span><br></pre></td></tr></table></figure>
-
-<p>用以下命令应该能看到多了dubbo的路径：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> /</span><br><span class="line"><span class="built_in">ls</span> /dubbo</span><br><span class="line"><span class="built_in">ls</span> /dubbo/org.ggg.hello.service.HelloService</span><br><span class="line"></span><br><span class="line">quit</span><br></pre></td></tr></table></figure>
-
-<p>这就证明我们的dubbo已经连接到zookeeper的服务注册中心了。</p>
-<h3 id="服务消费者"><a href="#服务消费者" class="headerlink" title="服务消费者"></a>服务消费者</h3><p>服务提供方已经搞定，然后就该是服务的消费者了。按理来说消费者应该是另一个项目，这里为了简单起见，我们姑且认为消费者是一个测试。首先在helloImpl的test文件夹里增加一个resources目录，标记为Test Resources Root。往里新增一个文件consumer.xml：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>然后往test里新增一个类，权当是测试：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.ggg.hello.service.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.ggg.hello.service.HelloService;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Consumer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ClassPathXmlApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathXmlApplicationContext</span>(<span class="string">&quot;consumer.xml&quot;</span>);</span><br><span class="line">        context.start();</span><br><span class="line"></span><br><span class="line">        <span class="type">HelloService</span> <span class="variable">helloService</span> <span class="operator">=</span> (HelloService) context.getBean(<span class="string">&quot;helloService&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">hello</span> <span class="operator">=</span> helloService.sayHello(<span class="string">&quot;world&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(hello);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这样，helloImpl的项目结构应该是这样子的：<br><img src="/img/dubbo-helloImpl.jpg"></p>
-<h3 id="验证服务"><a href="#验证服务" class="headerlink" title="验证服务"></a>验证服务</h3><p>运行这个Consumer类，应该就能看到<code>Hello world</code>啦。如果在运行Consumer之前把Provider停了，就会看见这样的错误消息：<code>Failed to check the status of the service org.ggg.hello.service.HelloService</code>。</p>
-<h3 id="直接连接"><a href="#直接连接" class="headerlink" title="直接连接"></a>直接连接</h3><p>Dubbo支持不用服务注册中心，直接连接本地的服务。这样的话测试起来就非常方便了。在consumer.xml里这么配置：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>移除dubbo:registry，在dubbo:reference里增加本地的url即可。还是非常方便的吧，别忘记把服务先启动起来。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/dubbo-1/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dubbo-1/" data-id="cuidPWGwJWU0os4qn1z8gAq8b" data-title="服务治理框架dubbo上手指南" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dubbo-1/" data-id="cuidsb3KDdnaotwA7giNooe0G" data-title="服务治理框架dubbo上手指南" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -800,32 +493,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://dzone.com/articles/why-idea-better-eclipse">IntelliJ IDEA在重构方面碾压eclipse</a>。但是IDEA的免费社区版是<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/features/editions_comparison_matrix.html">不支持tomcat插件的</a>。如果你正在用IDEA社区版开发一个web应用，可以使用下文的方式来调试运行在tomcat里的web应用。笔者目前使用的IDEA版本为2016.1.1。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>假设我们有一个项目，已经用IDEA打开了，并且这个项目可以构建成一个<code>ggg-webapp.war</code>的包。在菜单<code>Run</code>-&gt;<code>Edit Configurations</code>里，新增一个<code>Remote</code>，填入下图所示的参数：<br><img src="/img/idea-debug-configurations.jpg"></p>
-<ul>
-<li>Name：叫啥都行，这里是tomcat-debug</li>
-<li>Host：准备运行tomcat的机器IP，可以是vagrant虚拟机</li>
-<li>Port：随便选一个端口就好，别跟其它端口冲突</li>
-</ul>
-<p>Tomcat的话可以用docker启动，比较方便。这里选用的是tomcat:7。复制<code>Command line arguments for running remote JVM</code>里的值，用它代替下面的<code>JAVA_OPTS</code>参数里的内容，然后运行tomcat并把war包复制到webapps目录里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=tomcat -e JAVA_OPTS=<span class="string">&#x27;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007&#x27;</span> tomcat:7</span><br><span class="line">docker <span class="built_in">cp</span> ggg-webapp.war tomcat:/usr/local/tomcat/webapps/</span><br></pre></td></tr></table></figure>
-
-<p>Tomcat启动完成后，选择菜单<code>Run</code>-&gt;<code>Debug &#39;tomcat-debug&#39;</code>，就会显示<code>Connected to the target VM, address: &#39;192.168.33.88:7007&#39;, transport: &#39;socket&#39;</code>，然后就可以顺利debug了。</p>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>附送一些调试快捷键：</p>
-<ul>
-<li>F7：Step into</li>
-<li>F8：Step over</li>
-<li>F9：Run</li>
-<li>Shift+F7：Smart step into（弹出对话框让你选择进入哪个方法）</li>
-<li>Shift+F8：Step out</li>
-<li>Ctrl+F8 &#x2F; Command+F8：Toggle Breakpoint</li>
-<li>Alt+F8：Evaluate expression</li>
-<li>Alt+F9：Run To Cursor</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/intellij-idea-community-run-tomcat/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-community-run-tomcat/" data-id="cuidScQuyRuanG3rvP7e6Ww7w" data-title="使用IntelliJ IDEA社区版调试tomcat" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-community-run-tomcat/" data-id="cuidtqB88QGWbs98PwMED40Qq" data-title="使用IntelliJ IDEA社区版调试tomcat" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -866,91 +542,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文介绍kubernetes的安全性配置。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先需要搭建kubernetes集群环境，可以参考<a href="/kubernetes-installation">《轻松搭建Kubernetes 1.2版运行环境》</a>来安装自己的kubernetes集群，运行到flannel配置完成即可。接下来的api server等设置的参数可以参考本文。</p>
-<p>结果应该是有三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>，运行着k8s的api server、controller manager和scheduler；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP分别是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，运行着k8s的kubelet和kube-proxy，当做k8s的两个节点。</p>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>最简单的方式就是通过基于CSV的基本认证。首先需要创建api server的基本认证文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> security</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> 123456,admin,qinghua &gt; security/basic_auth.csv                      <span class="comment"># 格式：用户名,密码,用户ID</span></span><br></pre></td></tr></table></figure>
-
-<p>然后就可以生成CA和api server的证书了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> security</span><br><span class="line"></span><br><span class="line">openssl genrsa -out ca.key 2048</span><br><span class="line">openssl req -x509 -new -nodes -key ca.key -subj <span class="string">&quot;/CN=192.168.33.17&quot;</span> -days 10000 -out ca.crt</span><br><span class="line">openssl genrsa -out server.key 2048</span><br><span class="line">openssl req -new -key server.key -subj <span class="string">&quot;/CN=192.168.33.17&quot;</span> -out server.csr</span><br><span class="line">openssl x509 -req -<span class="keyword">in</span> server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 10000</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br></pre></td></tr></table></figure>
-
-<p>上面的命令会生成若干证书相关文件，作用如下：</p>
-<ul>
-<li>ca.key：自己生成的CA的私钥，用于模拟一个CA</li>
-<li>ca.crt：用自己的私钥自签名的CA证书</li>
-<li>server.key：api server的私钥，用于配置api server的https</li>
-<li>server.csr：api server的证书请求文件，用于请求api server的证书</li>
-<li>server.crt：用自己模拟的CA签发的api server的证书，用于配置api server的https</li>
-</ul>
-<p>接下来启动api server，参数的作用可以参考<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/kube-apiserver/">kube-apiserver官方文档</a>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=192.168.33.17 \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=0.0.0.0 \</span><br><span class="line">  --etcd-servers=http://192.168.33.17:4001 \</span><br><span class="line">  --service-cluster-ip-range=11.0.0.0/16 \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=443 \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv</span><br></pre></td></tr></table></figure>
-
-<p>还需要启动controller manager，参数的作用可以参考<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/kube-controller-manager/">kube-controller-manager官方文档</a>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=cm \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-controller-manager:b9107c794e0564bf11719dc554213f7b \</span><br><span class="line">  kube-controller-manager \</span><br><span class="line">  --master=192.168.33.17:8080 \</span><br><span class="line">  --cluster-cidr=10.245.0.0/16 \</span><br><span class="line">  --allocate-node-cidrs=<span class="literal">true</span> \</span><br><span class="line">  --root-ca-file=/security/ca.crt \</span><br><span class="line">  --service-account-private-key-file=/security/server.key</span><br></pre></td></tr></table></figure>
-
-<p>最后是scheduler，参数的作用可以参考<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/kube-scheduler/">kube-scheduler官方文档</a>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name=scheduler \</span><br><span class="line">  gcr.io/google_containers/kube-scheduler:903b34d5ed7367ec4dddf846675613c9 \</span><br><span class="line">  kube-scheduler \</span><br><span class="line">  --master=192.168.33.17:8080</span><br></pre></td></tr></table></figure>
-
-<p>可以运行以下命令来确认安全配置已经生效：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -k -u admin:123456 https://127.0.0.1/</span><br><span class="line">curl -k -u admin:123456 https://127.0.0.1/api/v1</span><br></pre></td></tr></table></figure>
-
-<p>最后启动kubelet和kube-proxy，参数的作用可以参考<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/kubelet/">kubelet官方文档</a>和<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/admin/kube-proxy/">kube-proxy官方文档</a>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">NODE_IP=`ifconfig eth1 | grep <span class="string">&#x27;inet addr:&#x27;</span> | <span class="built_in">cut</span> -d: -f2 | <span class="built_in">cut</span> -d<span class="string">&#x27; &#x27;</span> -f1`</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> kubernetes/server/bin/kubelet \</span><br><span class="line">  --api-servers=192.168.33.17:8080 \</span><br><span class="line">  --cluster-dns=11.0.0.10 \</span><br><span class="line">  --cluster-domain=cluster.local \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> \</span><br><span class="line">  --node-ip=<span class="variable">$NODE_IP</span> &gt; kubelet.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> kubernetes/server/bin/kube-proxy \</span><br><span class="line">  --master=192.168.33.17:8080 \</span><br><span class="line">  --hostname-override=<span class="variable">$NODE_IP</span> &gt; proxy.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-
-<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>如果需要通过https访问，kubectl的命令就略微有点儿麻烦了，需要用<code>basic_auth.csv</code>里配置的<code>admin/123456</code>来登录：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s https://192.168.33.17 --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=123456 get po</span><br></pre></td></tr></table></figure>
-
-<p>因为8080端口还开着，所以也可以通过http访问：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s http://192.168.33.17:8080 get po</span><br></pre></td></tr></table></figure>
-
-<p>配置完成后，可以看到系统里有TYPE为<code>kubernetes.io/service-account-token</code>的秘密：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s http://192.168.33.17:8080 get secret</span><br></pre></td></tr></table></figure>
-
-<p>里面有三条数据，分别是<code>ca.crt</code>，<code>namespace</code>和<code>token</code>，可以通过以下命令看到：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s http://192.168.33.17:8080 describe secret</span><br></pre></td></tr></table></figure>
-
-<p>如果你通过kubernetes启动了一个pod，就可以在容器的<code>/var/run/secrets/kubernetes.io/serviceaccount/</code>目录里看到以三个文件的形式看到这三条数据（这是<code>--admission-control=ServiceAccount</code>的功劳），当pod需要访问系统服务的时候，就可以使用它们了。可以使用以下命令看到系统的服务账号：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s http://192.168.33.17:8080 get serviceAccount</span><br></pre></td></tr></table></figure>
-
-<h2 id="简化kubectl"><a href="#简化kubectl" class="headerlink" title="简化kubectl"></a>简化kubectl</h2><p>如果我们通过设置<code>--insecure-port=0</code>把api server的http端口关闭，那它就只能通过https访问了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f apiserver</span><br><span class="line">docker run -d \</span><br><span class="line">  --name=apiserver \</span><br><span class="line">  --net=host \</span><br><span class="line">  -v /home/vagrant/security:/security \</span><br><span class="line">  gcr.io/google_containers/kube-apiserver:e68c6af15d4672feef7022e94ee4d9af \</span><br><span class="line">  kube-apiserver \</span><br><span class="line">  --advertise-address=192.168.33.17 \</span><br><span class="line">  --admission-control=ServiceAccount \</span><br><span class="line">  --insecure-bind-address=0.0.0.0 \</span><br><span class="line">  --etcd-servers=http://192.168.33.17:4001 \</span><br><span class="line">  --service-cluster-ip-range=11.0.0.0/16 \</span><br><span class="line">  --tls-cert-file=/security/server.crt \</span><br><span class="line">  --tls-private-key-file=/security/server.key \</span><br><span class="line">  --secure-port=443 \</span><br><span class="line">  --basic-auth-file=/security/basic_auth.csv \</span><br><span class="line">  --insecure-port=0</span><br></pre></td></tr></table></figure>
-
-<p>这样的话，就连取个pod都得这么麻烦：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl -s https://192.168.33.17 --insecure-skip-tls-verify=<span class="literal">true</span> --username=admin --password=123456 get po</span><br></pre></td></tr></table></figure>
-
-<p>幸运的是，kubernetes提供了一种方式，让我们可以大大简化命令，只用这样就好了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure>
-
-<p>下面就让我们来试一下吧！首先用<code>kubectl config</code>命令来配置admin用户：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl config set-credentials admin --username=admin --password=123456</span><br></pre></td></tr></table></figure>
-
-<p>然后是api server的访问方式，给集群起个名字叫qinghua：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl config set-cluster qinghua --insecure-skip-tls-verify=<span class="literal">true</span> --server=https://192.168.33.17</span><br></pre></td></tr></table></figure>
-
-<p>接下来创建一个context，它连接用户admin和集群qinghua：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl config set-context default/qinghua --user=admin --namespace=default --cluster=qinghua</span><br></pre></td></tr></table></figure>
-
-<p>最后设置一下默认的context：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl config use-context default/qinghua</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以用我们的简化版啦：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl get po</span><br></pre></td></tr></table></figure>
-
-<p>可以通过以下命令来看到当前kubectl的配置：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubernetes/server/bin/kubectl config view</span><br></pre></td></tr></table></figure>
-
-<p>能够看到如下内容：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">clusters:</span><br><span class="line">- cluster:</span><br><span class="line">    insecure-skip-tls-verify: <span class="literal">true</span></span><br><span class="line">    server: https://192.168.33.17</span><br><span class="line">  name: qinghua</span><br><span class="line">contexts:</span><br><span class="line">- context:</span><br><span class="line">    cluster: qinghua</span><br><span class="line">    namespace: default</span><br><span class="line">    user: admin</span><br><span class="line">  name: default/qinghua</span><br><span class="line">current-context: default/qinghua</span><br><span class="line">kind: Config</span><br><span class="line">preferences: &#123;&#125;</span><br><span class="line"><span class="built_in">users</span>:</span><br><span class="line">- name: admin</span><br><span class="line">  user:</span><br><span class="line">    password: <span class="string">&quot;123456&quot;</span></span><br><span class="line">    username: admin</span><br></pre></td></tr></table></figure>
-
-<p>实际上这些配置都存放在<code>~/.kube/config</code>文件里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> ~/.kube/config</span><br></pre></td></tr></table></figure>
-
-<p>修改这个文件也可以实时生效。细心的童鞋们可以看到，cluster、context和users都是集合，也就是说如果需要切换用户和集群等，只需要设置默认context就可以了，非常方便。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-security/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-security/" data-id="cuidadZ5874NYRxcviN91Kr6A" data-title="轻松了解Kubernetes认证功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-security/" data-id="cuidtmZuQu9dN8xAcyBt0ZwCe" data-title="轻松了解Kubernetes认证功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

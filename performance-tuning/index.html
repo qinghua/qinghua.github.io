@@ -17,7 +17,7 @@
 <meta property="og:description" content="程序猿和攻城狮们天天写代码，难免碰到别人反映程序慢。我自己就碰到了许多次这样的问题。现在将一些心得记录总结一下，以便大家和未来的自己参考。总体原则是：不能无的放矢。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2017-01-06T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.452Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.092Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="performance tuning">
 <meta name="twitter:card" content="summary">
@@ -104,6 +104,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>程序猿和攻城狮们天天写代码，难免碰到别人反映程序慢。我自己就碰到了许多次这样的问题。现在将一些心得记录总结一下，以便大家和未来的自己参考。总体原则是：不能无的放矢。</p>
+<span id="more"></span>
+
 <p>曾经面试过一个人，问对方说如果有一天客服反馈说你编写的页面加载很慢，那你应该怎么办？对方想了想：加缓存呗。可是此时连慢的原因都还不知道呢，加缓存能管用么？不管如何，首先得知道哪里慢，然后针对慢的地方对症下药，才是解决之道。没有数据的性能调优就是耍流氓！就像这几天霾绕帝都，让人想起炒菜油烟的梗。难道所有人不炒菜雾霾就能消失？首先还是要收集数据，到底慢（mái）的主要原（chéng）因（fèn）是什么？</p>
 <h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p>十年前，那会儿还没有chrome呢。当时web页面调得没有什么问题了，然后在客户那边渲染就是很慢。看了一下数据量确实很大，于是用最原始的办法：加上alert()来人肉估计一下运行时间，然后就发现下面这段代码很慢：</p>
 <pre><code class="language-js">for (var i = 0; i 后端
@@ -117,7 +119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/performance-tuning/" data-id="cuidxFxNGsXEPXb0zUu9i0d8n" data-title="性能调优的一些技巧总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/performance-tuning/" data-id="cuidjTOcm7zMsmghZM4EQg0_w" data-title="性能调优的一些技巧总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

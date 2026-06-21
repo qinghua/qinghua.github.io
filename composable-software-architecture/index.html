@@ -17,7 +17,7 @@
 <meta property="og:description" content="以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-08-12T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.955Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.060Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="idea">
 <meta name="twitter:card" content="summary">
@@ -104,6 +104,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。</p>
+<span id="more"></span>
+
 <h2 id="单体系统→微服务→平台"><a href="#单体系统→微服务→平台" class="headerlink" title="单体系统→微服务→平台"></a>单体系统→微服务→平台</h2><p>随着IT的不断发展，软件能解决的问题越来越多也越来越大。在大型软件开发中，人们发现要与一大坨代码共舞变得越来越困难，于是微服务架构兴起并持续火热，许多单体系统也纷纷挤上风口随之演进，不管是新服务单提出去还是老服务逐步拆分，总之他们都渐渐走到分布式系统的大道上了。服务的数量上去了，便带来了一个问题：你的服务跟别人的服务应该如何集成呢？最简单粗暴直截了当的做法就是直接调用。但是这样缺少定制化支持。对方有什么，你可能就只能凑合着用什么。要不，就得等对方把你的需求排上档期。</p>
 <p>总这样不行呀，缺胳膊少腿的服务和只能傻傻等待着跟不上节奏的服务没法儿工作呀。为了满足不同客户的多方面需求，服务的平台化就成了一个自然而然的选择。作为平台方，不止提供服务，而且提供客户在平台上的定制化功能，客户成为了平台的租户。一般来说，租户需要在平台那边写点儿为自己的需求而定制的代码或是DSL，以便支持自己的业务场景。</p>
 <p>如果你是一个平台的所有者，如何才能让别人在你的平台上顺利安营扎寨，而你无需提供太多的支持工作呢？</p>
@@ -126,7 +128,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/composable-software-architecture/" data-id="cuidfnDMtcYzYr-uBuMGxO2Kl" data-title="组合型软件架构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/composable-software-architecture/" data-id="cuidJFhGuyARwwSsqnfl3L87Q" data-title="组合型软件架构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

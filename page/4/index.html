@@ -101,20 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>程序猿和攻城狮们天天写代码，难免碰到别人反映程序慢。我自己就碰到了许多次这样的问题。现在将一些心得记录总结一下，以便大家和未来的自己参考。总体原则是：不能无的放矢。</p>
-<p>曾经面试过一个人，问对方说如果有一天客服反馈说你编写的页面加载很慢，那你应该怎么办？对方想了想：加缓存呗。可是此时连慢的原因都还不知道呢，加缓存能管用么？不管如何，首先得知道哪里慢，然后针对慢的地方对症下药，才是解决之道。没有数据的性能调优就是耍流氓！就像这几天霾绕帝都，让人想起炒菜油烟的梗。难道所有人不炒菜雾霾就能消失？首先还是要收集数据，到底慢（mái）的主要原（chéng）因（fèn）是什么？</p>
-<h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p>十年前，那会儿还没有chrome呢。当时web页面调得没有什么问题了，然后在客户那边渲染就是很慢。看了一下数据量确实很大，于是用最原始的办法：加上alert()来人肉估计一下运行时间，然后就发现下面这段代码很慢：</p>
-<pre><code class="language-js">for (var i = 0; i 后端
-后端可以发挥的空间相对来说更大一些。缓存用好了是一剂良药，用不好就是一剂毒药。毕竟[命名和缓存失效是计算机科学里面最难应对的两件事](http://martinfowler.com/bliki/TwoHardThings.html)。前一阵子某电商的模块里，从后端获取商品极慢，然后就发现了gateway在获取商品的API里，竟然向商品服务发了几百个请求，不慢才怪呢。统计了一下，这里面至少有90%都是参数相同的重复请求，使用30秒的短缓存，便可以立即减少重复请求，提高90%的性能，这样用户的感知就非常明显了。但实际上，还是需要分析代码，为什么会有这么多的重复请求？多半还是代码写的有问题。缓存是治标之道，立竿见影，但要治本，还是需要从代码上着手，优化代码本身。还有一些可以做的，是提供合并查询的API，例如除了提供getSkuById()以外，再提供一个getSkusByIds()的方法，当然还要小心不要出现[n+1](http://stackoverflow.com/questions/97197/what-is-the-n1-selects-issue)的问题。还有一个C#里经常会碰到的性能问题，那就是过早地计算linq的实际值。Java 8的流里也有类似的可能。
-
-有时候，性能问题与需求有关系。曾经碰到过的一个需求是：用户注册的时候，要求昵称不能重复。如果重复了，推荐3个以递增数字结尾的新昵称给用户。例如，ggg被注册了，推荐ggg1、ggg2、ggg3给用户。当然还需要判断ggg1、ggg2、ggg3是否也被注册了，否则还得往后加。而验证昵称的代码因为需要访问数据库导致比较慢。有一段时间，用户很喜欢使用这个昵称：༺༻，都排到100号了。每当新用户想使用这个昵称的时候，后台都需要判断100次以上，因为༺༻1到༺༻100都被占用了。这时候就可以跟产品经理讨论讨论，是否需要推荐昵称？是否可以改变推荐昵称的方式？例如增加日期到推荐昵称里以避免重复。必要时，还可以挑战一下：有多少用户使用了我们系统推荐的昵称？如果需求实在是硬邦邦完全不能变，那只能考虑一些技术手段了，例如给数据库里用户表的昵称字段增加索引、缓存常见昵称的当前最大值、甚至动大刀子弄个昵称服务，或是备份数据库等，看看是否付出能够值回票价了。还有一次是推荐好友的功能，要求随机同城异性等级高，说不定还需要考虑年龄星座喜好呢，这些大多是不常用的字段，也滤不掉太多数据，查找起来自然很慢，这样也需要看看业务价值究竟有多大。
-
-后端不像前端那样打开浏览器就能看到性能信息，也很难通过调试的方式来看生产环境为什么慢。这个时候如果框架里有处理时间日志，就会对排除性能问题非常有帮助。如果配置了ELK或者Splunk，就可以轻松找到可疑的接口。用户模块新上线的时候，就曾经直接定位到推荐好友的API速度慢，从而找到那条缓慢的SQL。哪怕是模块正常工作期间，也能通过日志看到一些有用信息。有天晚上从日志里发现用户注册API特别慢，后来知道原来是电信/联通的问题，当天如果通过微信/微博注册的用户，由于网络不通畅，导致整个用户注册响应都有问题。如果部署在阿里云上，云抽风了也并不罕见。另外所有与外部请求有关的模块，都有潜在的性能风险。使用外部请求的模块一般都有微信/微博授权、微信/支付宝付款、SMS网关、埋点、物流/天气接口、各种云服务/CDN等等。
-</code></pre>
-
+        
+          <p class="article-more-link">
+            <a href="/performance-tuning/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/performance-tuning/" data-id="cuidxFxNGsXEPXb0zUu9i0d8n" data-title="性能调优的一些技巧总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/performance-tuning/" data-id="cuidjTOcm7zMsmghZM4EQg0_w" data-title="性能调优的一些技巧总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -155,51 +150,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Mac自带的QuickTime Player就有录屏的功能，所以平时如果录一段操作什么的很方便。但是视频嘛，终究是比较大的。如果仅仅是录制命令行的话，可以考虑本文里介绍的工具。</p>
-<h2 id="showterm"><a href="#showterm" class="headerlink" title="showterm"></a>showterm</h2><p><a target="_blank" rel="noopener" href="http://showterm.io/">showterm</a>是一个用ruby编写的开源命令行录屏工具，用起来超级简单。使用<code>gem</code>来安装：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> gem install showterm</span><br></pre></td></tr></table></figure>
-
-<p>录制更简单：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">showterm</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以自行敲入各种命令来录制了，使用<code>exit</code>或者Ctrl+D快捷键结束录制。showterm会把录制结果直接上传并给出一个网址，如：<a target="_blank" rel="noopener" href="http://showterm.io/6ccdbde054d30d825934e">http://showterm.io/6ccdbde054d30d825934e</a>，这样就能很方便地分享给朋友们啦。要想嵌入到自己的网页上也没有问题：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>效果如下：</p>
-<h2 id="TermRecord"><a href="#TermRecord" class="headerlink" title="TermRecord"></a>TermRecord</h2><p><a target="_blank" rel="noopener" href="https://github.com/theonewolf/TermRecord">TermRecord</a>是一个用python编写的开源命令行录屏工具。使用<code>pip</code>来安装：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install ttyrec</span><br><span class="line"><span class="built_in">sudo</span> easy_install pip</span><br><span class="line"><span class="built_in">sudo</span> pip install TermRecord</span><br></pre></td></tr></table></figure>
-
-<p>有别于showterm，它不会自动上传到网上，而是生成一个html文件，想要分享的话，你可以将其发送给好友。录制同样简单：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TermRecord -o ggg.html</span><br></pre></td></tr></table></figure>
-
-<p>同样使用<code>exit</code>或者Ctrl+D快捷键结束录制。要想查看录制结果，直接浏览器打开<code>ggg.html</code>就可以了。</p>
-<h2 id="asciinema"><a href="#asciinema" class="headerlink" title="asciinema"></a>asciinema</h2><p><a target="_blank" rel="noopener" href="https://asciinema.org/docs/getting-started">asciinema</a>是一个用ClojureScript编写的开源命令行录屏工具。相比上面的工具，asciinema综合了它们各自的优点，最为强大。使用<code>brew</code>来安装：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew update &amp;&amp; brew install asciinema</span><br></pre></td></tr></table></figure>
-
-<p>用<code>pip3</code>来安装也可以：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pip3 install asciinema</span><br></pre></td></tr></table></figure>
-
-<p>录制还是简单：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">asciinema rec</span><br></pre></td></tr></table></figure>
-
-<p>还是使用<code>exit</code>或者Ctrl+D快捷键结束录制。与showterm不同的是，它会在结束录制的时候提示，如果要上传的话，敲回车，这样就不至于把废品也上传了。上传之后，asciinema会给出一个网址，如：<a target="_blank" rel="noopener" href="https://asciinema.org/a/44nu2i2ieywlmqq9wx5sk5k1e">https://asciinema.org/a/44nu2i2ieywlmqq9wx5sk5k1e</a>。要想嵌入到自己的网页上也没有问题：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>效果如下：</p>
-<p>如果不想上传，可以用这条命令将其保存为一个json文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">asciinema rec ggg.json</span><br></pre></td></tr></table></figure>
-
-<p>使用以下命令可以查看录制结果：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">asciinema play ggg.json</span><br></pre></td></tr></table></figure>
-
-<p>甚至可以再次上传：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">asciinema upload ggg.json</span><br></pre></td></tr></table></figure>
-
-<p>还能通过<code>asciinema auth</code>命令并在<a target="_blank" rel="noopener" href="https://asciinema.org/login/new">asciinema</a>上注册账号来管理自己上传的文件，功能上确实是这几个工具中最强大的。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/terminal-recorder/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/terminal-recorder/" data-id="cuidegZGoA_Xb71j2f4zbR8Ix" data-title="终端录制工具推荐" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/terminal-recorder/" data-id="cuidNLzdVqciZBB_zYmLuEdk6" data-title="终端录制工具推荐" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -240,38 +199,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Domain-driven_design">Domain Driven Design</a>（DDD）是Eric Evans于2004在其同名著作里提出的概念，它指明了让软件设计满足理想需求模型的方向。但是建模、设计这种事本来就很抽象，读懂这样的大作也是需要消耗不少脑细胞。本文希望能尽量以简单加实例的方式介绍DDD里的一些常见概念。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h3 id="什么是领域"><a href="#什么是领域" class="headerlink" title="什么是领域"></a>什么是领域</h3><p>《领域驱动设计》书里写的是：用户会把软件程序应用于某个主体区域，这个区域就是软件的领域。简单来说，就认为是公司的某块业务好了。如果领域比较大，可以将其拆分为多个子域（Subdomain），子域包含核心域（Core Domain）和支撑子域（Supporting Subdomain），核心域顾名思义，是最重要的子域，我们应该把关注点集中在它上面；其余的子域都是支撑子域。支撑子域里有一类特殊的用于解决通用问题的子域，称为通用子域（Generic Subdomain），例如用户和权限等。不过这些都是相对而言的，对于消费方来说，他的支撑子域有可能就是你的核心域。个别子域可能会有交集，称为共享内核（Shared Kernel），目的是减少重复，但是仍保持两个独立的上下文。由于不同子域的开发团队可能会同时修改共享内核，所以需要小心并注意沟通。</p>
-<h3 id="要DDD做什么"><a href="#要DDD做什么" class="headerlink" title="要DDD做什么"></a>要DDD做什么</h3><p>DDD试图解决的是软件的复杂性问题，如果软件比较复杂，或者是预期会很复杂，或者是你不知道，那么都可以开始考虑DDD。否则，由于维系领域模型需要实现大量的封装和隔离，DDD会带来较大的成本。但是，DDD并不是一个笨重的开发过程，它能够和敏捷开发很好地结合起来，另外，DDD也倾向于“测试先行，逐步改进”。</p>
-<h2 id="战略建模（Strategic-Modeling）"><a href="#战略建模（Strategic-Modeling）" class="headerlink" title="战略建模（Strategic Modeling）"></a>战略建模（Strategic Modeling）</h2><h3 id="通用语言（Ubiquitous-Language）"><a href="#通用语言（Ubiquitous-Language）" class="headerlink" title="通用语言（Ubiquitous Language）"></a>通用语言（Ubiquitous Language）</h3><p>其实写软件就像是翻译，把领域上的业务需求翻译成软件的各个功能。业务需求来自领域专家（Domain Expert），程序员们需要把领域专家的语言翻译成程序。如果程序员们翻译的时候使用的是自己的语言，而领域专家使用自己的行话，导致术语不一致，就会使得沟通不顺畅，难于消化知识。所以团队需要一种通用语言来进行沟通。这样的通用语言尽量以业务语言为主，而非技术语言。一开始的通用语言可能不尽完美，但它就像是代码一样，经常需要重构。例如：“创建一个订单”就比“插入一条订单数据”更容易让领域专家明白谈话的背景。</p>
-<h3 id="限界上下文（Bounded-Context）"><a href="#限界上下文（Bounded-Context）" class="headerlink" title="限界上下文（Bounded Context）"></a>限界上下文（Bounded Context）</h3><p>通用语言里，同一个名词在不同的场景里不一定有相同的意思。比如用户，在推荐好友（可能关注年龄、性别、地域）或是浏览商品（可能关注喜好、历史购买记录）的时候有着不同的含义。所谓的不同的场景，其实就是不同的限界上下文。子域在限界上下文中完成开发。限界上下文主要用来封装通用语言和领域模型，显式地定义了领域模型的边界。不同的限界上下文，都会有一套自己的通用语言。通过这样的划分方式，来让每个限界上下文都尽量保持简单，也算是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Single_responsibility_principle">SRP</a>原则在不同粒度上的一个体现。如果不去做这样的划分，可能最终这个软件就会演变成一个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Big_ball_of_mud">大泥球</a>，或者说是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monolithic_application">单块系统</a>。尽管如此，对于比较小的业务或项目来说，可能只会有一个限界上下文。现在流行的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Microservices">微服务</a>，很大程度上就是按照限界上下文来划分服务。例如：商品上下文，订单上下文，物流上下文等。当然，如果子域很小，不见得非得微服务化。</p>
-<p>不同的限界上下文之间，通过上下文映射图（Context Map）来进行交互。上下文映射图其实就是一个简单的框图，表示限界上下文之间的的映射关系。下面这张图就是一个简单的例子：<br><img src="/img/ddd-context-map.jpg"></p>
-<p>U表示上游（Upstream）的被依赖方，D表示下游（Downstream）的依赖方。由于上下游的限界上下文模型不同，实现时，可以用RPC、Restful、消息机制等集成方式。另外，下游需要防腐层（Anticorruption Layer）来将上游的返回内容翻译为下游的领域模型。如果防腐层过多地使用了各种赋值，从而导致上下游的模型非常类似，那就需要看看是否下游过多地使用了上游的数据，从而导致自己的模型不清晰。</p>
-<h2 id="战术建模（Tactical-Modeling）"><a href="#战术建模（Tactical-Modeling）" class="headerlink" title="战术建模（Tactical Modeling）"></a>战术建模（Tactical Modeling）</h2><h3 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h3><h4 id="实体（Entity）"><a href="#实体（Entity）" class="headerlink" title="实体（Entity）"></a>实体（Entity）</h4><p>所谓领域，反映到代码里就是模型。模型分为实体和值对象两种。实体是有标识（Identity）的，两个拥有相同属性的实体不是相等的，除非它们的标识相等；而不同实体的标识不能相等。例如：某人下了两个相同的订单，里面都购买了相同的商品。这两个订单就是有标识（订单号）的两个实体，虽然内容相同，但它们是两个不同的实体。常用的标识有自增数字、Guid、自然标识（如邮箱、身份证号）等。实体具有生命周期，它们的内容可能在这期间会发生改变，但是标识是永远不会变化的。实体作为领域模型的主体，需要拥有自己的方法，方法名来自于通用语言。通过这些方法来保证自己始终是一致的状态，而非被调用者set来set去。例如：<code>people.runTo(x, y)</code>，而非<code>people.setX(x);people.setY(y);</code></p>
-<h4 id="值对象（Value-Object）"><a href="#值对象（Value-Object）" class="headerlink" title="值对象（Value Object）"></a>值对象（Value Object）</h4><p>实体用来表示领域中的一个东西，而值对象只用于描述或度量一个东西。值对象没有任何标识，只要两个值对象的属性相等，那么它们就是相等的。值对象是不可变的，如果要改变值对象的内容，那就重新创建一个值对象。值对象没有生命周期，因为它只是值而已。例如：金额（含数值和货币单位），颜色（含rgb值）等。因为不需要标识，所以它们其实比实体要简单许多。Java里的String类，就具有一个值对象的行为；C#的Struct其实就是一个值对象，不过一般还是会用Class来表示值对象。</p>
-<p>不同的领域需求可能会催生不同的建模。例如：考虑一下演出的售票系统。如果需求是对号入座，那么座位就是实体，一旦某张演出票关联了某个座位，那么这个座位就再也不能被其它的演出票所关联了。如果需求是先到先坐，那么座位就是值对象，我们只关心卖了多少张演出票，不要超过座位上限即可，而并不用关心哪个座位被哪张票所关联了。</p>
-<p>DDD的一个反模式就是拥有一堆<code>get</code>和<code>set</code>方法的贫血领域对象（Anemic Domain Object）。这样的对象只是一个数据持有器（data holder），而非我们想要的领域模型。值对象和实体一样，都需要有自己的方法。例如：金额值对象，有一个<code>Add</code>的方法，接受一个金额参数，返回一个新的值对象。</p>
-<p>实体里可以包含值对象，值对象里也可以包含实体。</p>
-<h4 id="领域服务（Domain-Service）"><a href="#领域服务（Domain-Service）" class="headerlink" title="领域服务（Domain Service）"></a>领域服务（Domain Service）</h4><p>有些操作不属于实体或者值对象，那就不用强塞给它们，创建领域服务来提供这些操作吧。留意通用语言，如果里面出现了名词，那一般就是实体或值对象；如果里面出现了动词，那通常就意味着领域服务。例如：支付，这是一个比较明显的业务操作。另外，如果有什么操作会让实体变得臃肿，也可以使用领域服务来解决。但是，不能把所有的东西都堆到领域服务里，过度使用领域服务会导致贫血对象的产生。</p>
-<p>据Eric Evans所言，设计良好的领域服务具有以下三个特征：</p>
-<ul>
-<li>操作不是实体&#x2F;值对象的一个自然的部分</li>
-<li>接口根据领域模型的其它元素定义</li>
-<li>操作无状态</li>
-</ul>
-<p>还需要注意的是，不要把领域服务和应用服务混起来了。我们在领域服务里处理业务逻辑，而并不在应用服务里处理。应用服务是领域模型的直接客户，负责处理事务、安全等操作。</p>
-<h4 id="领域事件（Domain-Event）"><a href="#领域事件（Domain-Event）" class="headerlink" title="领域事件（Domain Event）"></a>领域事件（Domain Event）</h4><p>《领域驱动设计》一书出版之后，DDD社区并没有停止前进的步伐。领域事件就是在那之后提出来的。领域事件是一个定义了领域专家所关心的事件的对象。当关心的状态由于模型行为而发生改变时，系统将发布领域事件。如果通用语言里出现了：“当……的时候，需要……”通常就意味着一个领域事件。例如：当订单完成支付时，商品需要出库。这里的订单完成支付就预示着一个OrderPaidEvent，里面持有着这个订单的标识。领域事件代表的是已经发生的事，所以命名上通常都使用过去时（如Paid）。对领域事件的处理就像是一个观察者模式，由领域事件的订阅方来决定。订阅方既可以是本地的限界上下文，也可以是外部的限界上下文。</p>
-<h4 id="模块（Module）"><a href="#模块（Module）" class="headerlink" title="模块（Module）"></a>模块（Module）</h4><p>如果领域模型发展得比较快，很难整体来讨论它，因为太大了。我们可以将模块视为Java中的包或是C#中的命名空间。将模型组织到不同的模块中，可以有效地降低领域的复杂性。模块之间应该是低耦合的，而模块内部应该是高内聚的。模块的名称应该是通用语言的组成部分，反映出领域的深层知识。</p>
-<h3 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h3><h4 id="聚合（Aggregate）"><a href="#聚合（Aggregate）" class="headerlink" title="聚合（Aggregate）"></a>聚合（Aggregate）</h4><p>聚合就是一组应该呆在一起的对象，聚合根（Aggregate Root）就是聚合在一起的基础，并提供对这个聚合的操作。聚合除了聚合根以外，还有自己的边界（boundary），即聚合里有什么。例如：一个订单可以有多个订单明细，订单明细不可能脱离订单而存在，而订单也不可能没有订单明细。这种情况下，订单和订单明细就是一个聚合，而订单就是这个聚合的聚合根，订单和订单明细就处于这个聚合的边界之内。如果要变更订单明细，我们需要通过操作聚合根订单来实现，如<code>order.changeItemCount()</code>，而非订单明细自身。另外一个例子：一名客户可以有多个订单，订单不可能脱离客户而存在，而客户却可以没有订单。这种情况下，客户和订单就是不同的两个聚合，一个聚合以客户为聚合根，另一个聚合以订单为聚合根，引用客户的标识。客户里并不引用订单的标识，这样将关联减至最少有助于简化对象的关系网。但是带来的一个麻烦就是如果要查找某位客户的所有订单，就不得不从所有的订单里查，而不能从客户这个聚合里直接获得。最后再举一个多对多的例子：一个班级可以有多名学生，学生可以脱离这个班级而存在，而班级不能没有学生，学生也不能不在班级里。这种情况下，班级和学生也是不同的两个聚合，一个聚合以班级为聚合根，引用学生的标识；另一个聚合以学生为聚合根，引用班级的标识，将多对多转换成两个一对多。</p>
-<p>聚合是持久化的一个单位，我们需要保证以聚合为单位的数据一致性。如果聚合太大，那就会导致并发修改困难，多人并发修改同一个聚合里的不同项目，结果就是只有第一个提交的人成功修改，其它人不得不重新刷新聚合才能再次修改。大聚合还会导致性能问题，因为操作实体时会将整个大聚合同时加载进内存。珍爱生命，拒绝大聚合。</p>
-<p>聚合根必须是实体而非值对象，因为它需要整体持久化，所以一定会有标识。而聚合根里的各个元素，既可能是实体，也可能是值对象。例如：一个订单（聚合根）一般会有订单明细（实体）和送货地址（值对象）。这些元素里可以有对聚合根的引用，但是不能相互引用。任何对其它元素的操作都必须通过聚合根来进行。聚合根里的标识是全局的，聚合根里的实体标识是聚合里唯一的本地标识，因为对它的访问都是通过聚合根来操作的。聚合根拥有自己独立的生命周期，其实体的生命周期从属于其所属的聚合，值对象因为只是值而已，并没有生命周期。</p>
-<h4 id="工厂（Factory）"><a href="#工厂（Factory）" class="headerlink" title="工厂（Factory）"></a>工厂（Factory）</h4><p>工厂是生命周期的开始阶段，它可以用来创建复杂的对象或是一整个聚合。复杂对象的创建是领域层的职责，但它并不属于被创建的对象自身的职责。实体和值对象的工厂不太一样，因为值对象是不可变的，所以需要工厂一次性创建一个完整的值对象出来。而实体工厂则可以选择创建之后再补充一些细节。</p>
-<h4 id="资源库（Repository）"><a href="#资源库（Repository）" class="headerlink" title="资源库（Repository）"></a>资源库（Repository）</h4><p>资源库是生命周期的结束，它封装了基础设施以提供查询和持久化聚合的操作。这样能够让我们始终聚焦于模型，而把对象的存储和访问都委托给资源库来完成。以订单和订单明细的聚合为例，因为一定是通过订单这个聚合根来获取订单明细，所以可以有订单的资源库，但是不能有订单明细的资源库。也就是说，只有聚合才拥有资源库。需要注意的是，资源库并不是数据库的封装，而是领域层与基础设施之间的桥梁。DDD关心的是领域内的模型，而并非是数据库的操作。理想的资源库对客户（而非开发者）隐藏了内部的工作细节，委托基础设施层来干那些脏活，到关系型数据库、NOSQL、甚至内存里读取和存储数据。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://book.douban.com/subject/5344973/">《领域驱动设计》</a><br><a target="_blank" rel="noopener" href="https://book.douban.com/subject/25844633/">《实现领域驱动设计》</a><br><a target="_blank" rel="noopener" href="http://www.infoq.com/cn/minibooks/domain-driven-design-quickly-new">《领域驱动设计精简版》</a> by InfoQ<br><a target="_blank" rel="noopener" href="http://devlicio.us/blogs/casey/archive/2009/02/09/domain-driven-design-a-step-by-step-guide.aspx">《Domain Driven Design: A Step by Step Guide》</a>系列</p>
-
+        
+          <p class="article-more-link">
+            <a href="/ddd/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ddd/" data-id="cuidF569M7m0ROoSDKjXRTjIE" data-title="领域驱动设计DDD" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ddd/" data-id="cuidtc5mnEb5Ng8oHlTsWej2l" data-title="领域驱动设计DDD" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -312,58 +248,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://flywaydb.org/">Flyway</a>是一个用Java编写的开源数据库版本管理工具，或者说是数据库结构变更工具，旨在帮助开发和运维更容易地管理数据库演进过程中的各个版本。它的源代码在<a target="_blank" rel="noopener" href="https://github.com/flyway/flyway">github</a>上。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在开发过程中，数据库是不断向前演进的，可以说是拥有“版本”这个概念。通常当在生产环境部署新代码的时候，会由开发或者DBA来做数据库结构变更的操作。当数据库较小，环境数量少的时候，人工操作比较有把握，直接就人肉来做结构变更了。可要是在数据库复杂、环境数量多（开发、测试、预发布、生产……）的情况下，人工处理这样的事就开始有些令人担心了。如何保证所有环境的数据库结构是一致的？如何知道当前环境的数据库是哪个状态？如何知道生产环境的一个关于数据库的hotfix是否也在预发布环境中执行了？Flyway就是用来解决这样的问题的工具。它的原理非常简单，就是在数据库中创建一张自己用的表，例如schema_version，在里面存放数据库当前的状态，以此来管理数据库的版本。Flyway提供了<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/commandline">命令行</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/api">API</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/maven">Maven</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/gradle">Gradle</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/ant">Ant</a>、<a target="_blank" rel="noopener" href="https://flywaydb.org/getstarted/firststeps/sbt">SBT</a>等各种方式，来让我们更容易将其与自己的项目结合。类似的工具还有<a target="_blank" rel="noopener" href="http://www.liquibase.org/">Liquibase</a>、<a target="_blank" rel="noopener" href="http://dbdeploy.com/">dbdeploy</a>等。</p>
-<p>本文将会用Docker来创建一个mysql的实例，用Maven来创建一个包含数据库的Java项目，并使用Flyway来进行版本管理。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Docker、Java、Maven和喜欢的IDE。我用的是<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/download/">Intellij IDEA社区版</a>。我用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动mysql容器来提供数据库服务并创建ggg数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=mysql -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7.12</span><br><span class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456 -e <span class="string">&#x27;create database ggg;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>接下来新建一个Maven工程helloFlyway：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mvn archetype:generate -B \</span><br><span class="line">        -DarchetypeGroupId=org.apache.maven.archetypes \</span><br><span class="line">        -DarchetypeArtifactId=maven-archetype-quickstart \</span><br><span class="line">        -DarchetypeVersion=1.1 \</span><br><span class="line">        -DgroupId=org.ggg.flyway \</span><br><span class="line">        -DartifactId=helloFlyway \</span><br><span class="line">        -Dversion=1.0-SNAPSHOT \</span><br><span class="line">        -Dpackage=org.ggg.flyway</span><br></pre></td></tr></table></figure>
-
-<p>在<code>helloFlyway/pom.xml</code>里加入flyway的maven插件和mysql-connector-java的依赖（别忘了根据你自己的数据库来配置jdbc）：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        </span><br><span class="line">            org.flywaydb</span><br><span class="line">            flyway-maven-plugin</span><br><span class="line">            4.0.3</span><br><span class="line">            </span><br><span class="line">                jdbc:mysql://192.168.33.88:3306/ggg</span><br><span class="line">                root</span><br><span class="line">                123456</span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">                </span><br><span class="line">                    mysql</span><br><span class="line">                    mysql-connector-java</span><br><span class="line">                    5.1.38</span><br><span class="line">                </span><br><span class="line">            </span><br><span class="line">        </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>接下来创建一个数据库版本1的文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> helloFlyway</span><br><span class="line"><span class="built_in">mkdir</span> -p src/main/resources/db/migration/</span><br><span class="line"><span class="built_in">cat</span>  src/main/resources/db/migration/V1__Create_person_table.sql</span><br><span class="line">create table PERSON (</span><br><span class="line">    ID int not null,</span><br><span class="line">    NAME varchar(100) not null</span><br><span class="line">);</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>工程创建好并用intellij导入后，应该是这样的：<br><img src="/img/flyway-new-project.jpg"></p>
-<h2 id="版本管理"><a href="#版本管理" class="headerlink" title="版本管理"></a>版本管理</h2><p>使用以下命令来运行flyway：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn flyway:migrate</span><br></pre></td></tr></table></figure>
-
-<p>出现<strong>BUILD SUCCESS</strong>就说明数据库结构变更已经完成了。我们可以登录到数据库看一看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<p>运行以下sql就可以看到flyway确实已经起作用了：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">USE ggg</span><br><span class="line"><span class="keyword">SHOW</span> TABLES;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> schema_version;</span><br></pre></td></tr></table></figure>
-
-<p>而表schema_version里面也有了一条记录。接下来再创建一个数据库版本2的文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  src/main/resources/db/migration/V2__Add_people.sql</span><br><span class="line">insert into PERSON (ID, NAME) values (1, <span class="string">&#x27;Axel&#x27;</span>);</span><br><span class="line">insert into PERSON (ID, NAME) values (2, <span class="string">&#x27;Mr. Foo&#x27;</span>);</span><br><span class="line">insert into PERSON (ID, NAME) values (3, <span class="string">&#x27;Ms. Bar&#x27;</span>);</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>再次用同一条命令来运行flyway：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn flyway:migrate</span><br></pre></td></tr></table></figure>
-
-<p>就会看到日志里显示<strong>Current version of schema <code>ggg</code>: 1</strong>和<strong>Migrating schema <code>ggg</code> to version 2 - Add people</strong>。如果我们重复运行<code>mvn flyway:migrate</code>，就会看到<strong>Schema <code>ggg</code> is up to date. No migration necessary</strong>。现在查看一下两张表：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> PERSON;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> schema_version;</span><br></pre></td></tr></table></figure>
-
-<p>PERSON表里已经有了<code>V2__Add_people.sql</code>里的三条记录，而schema_version表里，就可以看到现在的版本为2。通过这样的方式，就可以管理数据库的版本了。</p>
-<h2 id="历史数据库"><a href="#历史数据库" class="headerlink" title="历史数据库"></a>历史数据库</h2><p>如果数据库里已经有历史数据了，那就会稍微麻烦一点儿。我们来试试看，首先改造一下ggg数据库：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RENAME <span class="keyword">TABLE</span> PERSON <span class="keyword">TO</span> STUDENT;</span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> schema_version;</span><br></pre></td></tr></table></figure>
-
-<p>这样一来，数据库的版本便被清空，PERSON表也变成了STUDENT表。如果直接运行<code>mvn flyway:migrate</code>会报错：<strong>org.flywaydb.core.api.FlywayException: Found non-empty schema <code>ggg</code> without metadata table</strong>。这时候需要用到另一个命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn flyway:baseline</span><br></pre></td></tr></table></figure>
-
-<p>上面的<code>baseline</code>命令会以现在的数据库结构为基础，创建一张schema_version表，标明现在的版本是1。接着运行<code>mvn flyway:migrate</code>还会报错：<strong>Migration of schema <code>ggg</code> to version 2 - Add people failed</strong>。这是因为数据库现在是版本1，所以会忽略<code>V1__Create_person_table.sql</code>而直接执行<code>V2__Add_people.sql</code>，而<code>V2__Add_people.sql</code>依赖于<code>V1__Create_person_table.sql</code>里创建的PERSON表，所以失败了。解决的方法也很简单，改变两个sql文件的版本即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> src/main/resources/db/migration/V1__Create_person_table.sql src/main/resources/db/migration/V1_1__Create_person_table.sql</span><br><span class="line"><span class="built_in">mv</span> src/main/resources/db/migration/V2__Add_people.sql src/main/resources/db/migration/V1_2__Add_people.sql</span><br><span class="line">mvn flyway:migrate</span><br></pre></td></tr></table></figure>
-
-<p>Flyway的命名规范如下：以<code>V</code>开头，<code>.sql</code>结尾，版本号可以使用<code>.</code>或者<code>_</code>，版本号和描述之间用两个下划线<code>__</code>分开。要是执行成功，但是却看不到PERSON表，那很可能是因为schema_version表里的版本已经是一个<strong>错误的</strong>版本2了，运行repair之后再重新migrate即可：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mvn flyway:repair</span><br><span class="line">mvn flyway:migrate</span><br></pre></td></tr></table></figure>
-
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>Flyway认为<a target="_blank" rel="noopener" href="https://flywaydb.org/documentation/faq.html#downgrade">没有必要支持回滚</a>。可以通过<code>mvn flyway:info</code>命令来查看数据库的版本和和需要执行的sql脚本。通过<code>mvn flyway:clean</code>来清空数据库，这条命令对于测试很方便，但是**千万要小心生产环境！！！**此外，还有一个较常用的命令：<code>mvn flyway:validate</code>可以验证是否所有的sql都已经在数据库上运行完毕了。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/flyway/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/flyway/" data-id="cuidlbNK1XdUZPFJOrPsbNmZE" data-title="轻松上手数据库版本管理工具Flyway" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/flyway/" data-id="cuidfjyooOBHqSawh0z2NRHQP" data-title="轻松上手数据库版本管理工具Flyway" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -404,93 +297,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>作为一名天朝程序员，除了看惯了乱码之外，在日常的工作中经常会碰到编码和转义。如果能掌握这块领域的一些常识，就可以在开发和支持时游刃有余。</p>
-<h2 id="编码（encoding）"><a href="#编码（encoding）" class="headerlink" title="编码（encoding）"></a>编码（encoding）</h2><h3 id="ASCII-EASCII-ISO-8859-1"><a href="#ASCII-EASCII-ISO-8859-1" class="headerlink" title="ASCII &amp; EASCII &amp; ISO-8859-1"></a>ASCII &amp; EASCII &amp; ISO-8859-1</h3><p>要聊编码，就需要从ASCII开始。众所周知，计算机的世界里，数据都是0和1这样的二进制。用它们的组合来表示字母、数字和常用符号的最通用编码标准就是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ASCII">ASCII</a>（American Standard Code for Information Interchange，美国信息交换标准代码）。完整的ASCII编码可以从<a target="_blank" rel="noopener" href="http://www.ascii-code.com/">这里</a>找到。Mac或Linux可以用以下命令来查看所有的ASCII字符：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">man ascii</span><br></pre></td></tr></table></figure>
-
-<p>其中，<code>00000000</code>到<code>00011111</code>的前32位字符和<code>01111111</code>是控制字符，<code>00100000</code>到<code>01111110</code>之间的都是可显示字符，一个字符占8位（bit），第1位总是<code>0</code>，这样能够支持2的7次方即128个符号编码。虽然ASCII编码能搞定美国大多数的应用场景，但是对于其它发达国家的语言来说就无能为力了。于是在其上发展出了<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/EASCII">EASCII</a>（extended ASCII），通过扩展最前面的一位为<code>1</code>来提供多达256个符号编码的支持。可是这样又带来了两个问题：一来即使是256个编码，对于世界范围尤其是像中日这样的汉字国家来说还是远远不够；二来各个国家规定的EASCII编码都不一样，比如对于希腊来说EASCII表示的就是希腊字母，而对于法国来说可能就是某个带有注音符号的字母。这样的背景下，ISO（International Standard Organization，国际标准化组织）设计了<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ISO/IEC_8859">ISO&#x2F;IEC 8859</a>字符集（不包含ASCII），力图一统拉丁语系。其实现的编码表<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ISO_8859-1">ISO-8859-1</a>（包含ASCII）应用得非常广泛。</p>
-<h3 id="GB2312-GBK-GB18030-ANSI"><a href="#GB2312-GBK-GB18030-ANSI" class="headerlink" title="GB2312 &amp; GBK &amp; GB18030 &amp; ANSI"></a>GB2312 &amp; GBK &amp; GB18030 &amp; ANSI</h3><p>本节介绍的是解决EASCII带来的第一个问题的方法。对于中文来说，8位的编码远远不够，于是就会想到用两个8位来表示一个汉字。为了与ASCII码兼容，如果碰到0<del>127的字符，需要认定为ASCII编码字符。只有当两个大于127的字符连在一起时，才表示一个汉字。前一个字符称为高字节，后一个称为低字节，这样就诞生了<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/GB_2312">GB2312</a>编码。每一个双字节字符就称为一个全角字符，而单字节字符就称为半角字符。再后来，发现编码还是不够用，干脆就允许低字节也使用0</del>127的字符，反正用高字节就能判断是否是汉字，这样就诞生了<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/GBK">GBK</a>（K表示“扩展”）编码。GBK里甚至还包含了日语的假名和俄语字母。GB2312和GBK这两种编码都是单字节（表示ASCII）和双字节（表示汉字）混合使用的编码。我国最新的汉字编码国标是<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/GB_18030">GB18030</a>，这是一种类似下文UTF-8那样的变长编码。</p>
-<p>虽然中国解决了中文问题，但是世界各国都搞出了一套自己的编码系统，还是不能轻易相互转化。例如台湾用BIG5，日本用Shift-JIS。要想解决EASCII的第二个问题，还需要另寻他途。Window系统的记事本里，默认编码为ANSI，即根据系统语言的不同，而选用不同的编码。</p>
-<h3 id="Unicode-UTF-8"><a href="#Unicode-UTF-8" class="headerlink" title="Unicode &amp; UTF-8"></a>Unicode &amp; UTF-8</h3><p>本节说的是解决EASCII带来的第二个问题的方法。ISO带来了一个囊括全球所有文字的编码：Unicode。它最初规定了所有的字符（包括ASCII）都使用两个字节来表示，这个版本称为<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/UCS-2">UCS-2</a>（Universal Multiple-Octet Coded Character Set）或UTF-16。对于ASCII码来说，在它的前面加上<code>00000000</code>作为高字节即可。这样的好处是，由于高低字节可以同时包含0~256，能表示的字符数量就更多了，理论上可以达到256×256&#x3D;65536个。即使如此，也只能说是基本上够用，要囊括所有文明的文字，还需要更多的字节。目前最多支持4个字节代表一个字符，称为<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/UCS-4">UCS-4</a>或UTF-32，它的最高位规定必须为0，可以表示65536×65536÷2&#x3D;2147483648个字符（这样是不是统一银河系也够用了）。与此同时，它包含的字符集也在不断的增加，甚至收录了<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B9%AA%E6%96%87%E5%AD%97">emoji</a>（绘文字），大大增加了文字符号的表现力，看看😂🐔📸🎸🎁🌀🌤🕘，是不是增加了很多乐趣呢。</p>
-<p>Unicode就像是“书同文、车同轨”，极大地方便了各国的交流。可是它也有自身的缺点。一个问题是它与各国自身的标准不兼容（例如GB18030），但是这个问题貌似无解，因为各国的标准本来就是排斥的。另一个问题是随着Unicode标准的发展，出现了4个字节的字符。但是当设计Java的时候，是<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html#unicode">将unicode当做2个字节的定长字符来看待</a>的。这样就导致Java里需要用两个char来表示一个4字节的字符，如emoji（😂&#x3D;\uD83D\uDE02）。<a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/articles/javase/index-zh-cn-138452.html">Java平台中的增补字符</a>就是Oracle官方写来专门解决长字节Unicode的。打开链接就会看到一堆的乱码，说明编码问题还真是普遍存在并难以解决的啊。好在还有<a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/articles/javase/index-142761.html">英文版</a>可供阅读。还有一个问题就是对于英文来说，用高字节为固定值的两个字节来保存数据，就会使原来一个字节的数据量翻倍，对于传输和存储来说都是较大负担。</p>
-<p>解决上面这个问题的办法就是UTF-8。它是一种变长的编码方式。如果是ASCII码的字符，就用一个字节表示。否则就在前面增加一个高位字节（但是在8个bit之内）。这回英文符号是满意了，但是中文字符可能就会因为增加的高位字节从Unicode的占用两个字节变成UTF-8的占用三个字节。没有两全其美的事啊！这也是为什么GB2312和GBK今天仍被广泛使用的原因之一，我们也不想增加传输和存储的负担呀。</p>
-<p>如果要打开一个文本文件，首先需要知道它的编码。位于文件头的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%BD%8D%E5%85%83%E7%B5%84%E9%A0%86%E5%BA%8F%E8%A8%98%E8%99%9F">BOM</a>（Byte order mark，字节顺序标记）可以用来标记文件的编码类型。它分为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Endianness#Big-endian">BE</a>（big-endian，大端序）和<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Endianness#Little-endian">LE</a>（little-endian，小端序），指的是高字节的位置在前还是在后。但是在类Unix系统中，它很可能因为无法被程序识别而带来一系列问题。所以一般的纯文本文件还是建议保存为不带BOM形式的编码。Window系统的记事本里，如果输入<code>联通</code>保存，便会将其保存为无BOM的GB格式，再次用记事本打开此文件时，因为没有BOM信息，记事本就需要自己推断这个文件的编码是什么。显然window是上这个推断很有问题，误认为是UTF-8格式（可以从文件菜单里的“另存为”看出来）。而mac上默认的文本编辑表现还是不错的。如果用word来打开它，便可以在一系列的编码中，自行寻找合适的编码来打开。如果用记事本另存为UTF-8格式，便不会有问题。Sublime Text可以支持用许多不同的编码来打开或是保存，光是UTF系列的就不少，如下图：<br><img src="/img/sublime-text-encoding.png" alt="sublime-text-encoding"></p>
-<p>对于Java来说，内部的String编码默认为UTF-16，但如果由于用不着而觉得浪费内存的话，可以在JVM打开<code>-XX:+UseCompressedStrings</code>，就会变成ISO-8859-1了。Intellij IDEA的Preference里，有两个关于encoding的选项：<br><img src="/img/intellij-idea-encoding.jpg" alt="Intellij-IDEA-encoding"></p>
-<p>可以通过Project Encoding来指定项目的JVM里String的内部编码，默认为UTF-8。可以通过下面这两个表达式来看到，它们的编码是完全一致的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;懒&quot;</span>.getBytes()</span><br><span class="line"><span class="string">&quot;懒&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>Java里可以用Integer.toHexString来看到汉字的unicode编码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="string">&quot;\\u&quot;</span> + Integer.toHexString(<span class="string">&#x27;懒&#x27;</span>));</span><br><span class="line">System.out.println(<span class="string">&quot;\u61d2&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>通过下面的语句，可以将字节数组byte[]还原为原先的字符串。如果指定错了编码，就会看到乱码产生啦：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&quot;懒&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>), <span class="string">&quot;UTF-8&quot;</span>));  <span class="comment">// 正常</span></span><br><span class="line">System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&quot;懒&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>), <span class="string">&quot;UTF-16&quot;</span>)); <span class="comment">// 乱码:�</span></span><br><span class="line">System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&quot;懒&quot;</span>.getBytes(<span class="string">&quot;UTF-16&quot;</span>), <span class="string">&quot;UTF-8&quot;</span>)); <span class="comment">// 乱码:��a�</span></span><br></pre></td></tr></table></figure>
-
-<p>读文件、流也是一样的道理，知道了它们的编码才能正确地读取，否则只好像微软的记事本那样去猜啦。Java还提供了一个小工具<code>native2ascii</code>，可以把本地编码的文件转换为各种格式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 懒程序员 &gt; ggg.txt</span><br><span class="line">native2ascii -encoding UTF-8 ggg.txt out.txt</span><br><span class="line"><span class="built_in">cat</span> out.txt</span><br><span class="line">native2ascii -reverse -encoding UTF-8 out.txt</span><br></pre></td></tr></table></figure>
-
-<h3 id="base64-UTF-7"><a href="#base64-UTF-7" class="headerlink" title="base64 &amp; UTF-7"></a>base64 &amp; UTF-7</h3><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-hans/Base64">Base64</a>是一种在网络上传递信息时常见的编码。它相当于是一张64条记录的映射表，键从<code>000000</code>到<code>111111</code>，值就是64个不同的字符。编码时，如果原字符的bit数正好能被6整除，那就查表得到每6个bit所对应的值，合起来就是base64编码的结果。如果不能被6整除，那就在末尾用0补足。每补两个0，就在最终结果的后面加一个<code>=</code>号。所以如果一段数据以等号结尾，那十有八九就是base64编码。Mac或Linux可以用以下命令来进行base64编码及解码：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -n A | <span class="built_in">base64</span></span><br><span class="line"><span class="built_in">echo</span> -n AB | <span class="built_in">base64</span></span><br><span class="line"><span class="built_in">echo</span> -n ABC | <span class="built_in">base64</span></span><br><span class="line"><span class="built_in">echo</span> -n QQ== | <span class="built_in">base64</span> --decode</span><br><span class="line"><span class="built_in">echo</span> -n QUI= | <span class="built_in">base64</span> --decode</span><br><span class="line"><span class="built_in">echo</span> -n QUJD | <span class="built_in">base64</span> --decode</span><br></pre></td></tr></table></figure>
-
-<p>JavaScript可以用以下命令来进行base64编码及解码：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="title function_">btoa</span>(<span class="string">&quot;A&quot;</span>)</span><br><span class="line"><span class="variable language_">window</span>.<span class="title function_">atob</span>(<span class="string">&quot;QQ==&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/UTF-7">UTF-7</a>理论上也属于一种base64编码，只不过它的64行映射表不一样罢了。过去的SMTP协议仅能接受7个bit（ASCII）的字符，Unicode无法直接传输。所以通过UTF-7编码的方式，将Unicode字符转换为7个bit以内的字符。UTF-7本身并不是Unicode的标准，现在也已经由于邮件和传输都支持UTF-8而退出历史舞台了。</p>
-<p>写到这里感觉得收一下了，不然MD5、SHA什么的都要出来了。对散列、加密有兴趣的童鞋们可以参考我以前写的另一篇文章<a href="http://qinghua.github.io/certificate/">《证书的那些事儿》</a>。</p>
-<h2 id="转义（escaping）"><a href="#转义（escaping）" class="headerlink" title="转义（escaping）"></a>转义（escaping）</h2><h3 id="html-url"><a href="#html-url" class="headerlink" title="html &amp; url"></a>html &amp; url</h3><p>下面说说转义，不少人都把它与编码混而一谈，以至于它也算作编码的一部分了。从最简单的html聊起吧。在html里，如果只写上一些文本，那当我们用浏览器打开这个html时，就会完完整整地显示这些文本的内容。我们也知道，html里无论输入多少个空格，只会显示一个空格。因为在html里，把空格当成了特殊字符。在这种情况下，如果想要在html里放上空格，就需要对空格编码，也就是大家熟知的<code>&amp;nbsp;</code>。其中nbsp大名唤作Non-Breaking Space（<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%B8%8D%E6%8D%A2%E8%A1%8C%E7%A9%BA%E6%A0%BC">不换行空格</a>），除了名字以外，它也有自己的编码：<code>&amp;#160;</code>。除了空格，常见的还有代表标签的<code>&lt;</code>和<code>&gt;</code>。完整的html转义可以从<a target="_blank" rel="noopener" href="http://www.ascii.cl/htmlcodes.htm">这里</a>找到。奇怪的是这么常用的转义，js居然没有原生的函数支持。如果要转义<code>&lt;div&gt;</code>，可以使用下面这条语句来得到<code>&amp;lt;div&amp;gt;</code>：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">htmlEncode</span>(<span class="params">html</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;a&#x27;</span>).<span class="title function_">appendChild</span>(<span class="variable language_">document</span>.<span class="title function_">createTextNode</span>(html)).<span class="property">parentNode</span>.<span class="property">innerHTML</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="title function_">htmlEncode</span>(<span class="string">&#x27;&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>解码的话，这样做：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">htmlDecode</span>(<span class="params">html</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> a = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">    a.<span class="property">innerHTML</span> = html;</span><br><span class="line">    <span class="keyword">return</span> a.<span class="property">textContent</span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="title function_">htmlDecode</span>(<span class="string">&#x27;&lt;div&gt;&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>如果使用jQuery，思路一致，但是代码可以稍微短一点：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">htmlEncode</span>(<span class="params">value</span>)&#123;</span><br><span class="line">  <span class="keyword">return</span> $(<span class="string">&#x27;&#x27;</span>).<span class="title function_">text</span>(value).<span class="title function_">html</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">htmlEncode</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">htmlDecode</span>(<span class="params">value</span>)&#123;</span><br><span class="line">  <span class="keyword">return</span> $(<span class="string">&#x27;&#x27;</span>).<span class="title function_">html</span>(value).<span class="title function_">text</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">htmlDecode</span>(<span class="string">&#x27;&lt;div&gt;&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>可惜的是上面的函数并不能解决空格和<code>&amp;nbsp;</code>之间的转换。想要个万能的？也许只好使用replace一个个地慢慢替换了。</p>
-<p>想要请求一个html，需要先输入一个url。这里就涉及到了url转义。因为url里可能会有类似<code>?name=ggg</code>这样的参数，所以起码就需要对<code>?</code>和<code>=</code>进行转义。转义之后分别为<code>%3F</code>和<code>%3D</code>，这与ASCII码是相对应的。完整的url编码可以从<a target="_blank" rel="noopener" href="http://www.w3school.com.cn/tags/html_ref_urlencode.html">这里</a>找到。这回js终于有原生的函数支持了：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">encodeURI</span>(<span class="string">&#x27;http://qinghua.github.io?name=g gg&#x27;</span>);</span><br><span class="line"><span class="built_in">encodeURIComponent</span>(<span class="string">&#x27;http://qinghua.github.io?name=g gg&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>用<code>encodeURI</code>函数的网址，不会去碰<code>http://</code>，所以编码后还是一个合法的网址。而<code>encodeURIComponent</code>会将一切都进行编码，网址也就不是网址了。不过它很适合将网址作为参数来使用。解码的话，这样做：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">decodeURI</span>(<span class="string">&#x27;http://qinghua.github.io?name=g%20gg&#x27;</span>);</span><br><span class="line"><span class="built_in">decodeURIComponent</span>(<span class="string">&#x27;http%3A%2F%2Fqinghua.github.io%3Fname%3Dg%20gg&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>在Java里可以用以下语句来完成url的转义：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">URLEncoder.encode(<span class="string">&quot;懒&quot;</span>, <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">URLDecoder.decode(<span class="string">&quot;%E6%87%92&quot;</span>, <span class="string">&quot;UTF-8&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="XML-YAML-JSON-CSV"><a href="#XML-YAML-JSON-CSV" class="headerlink" title="XML &amp; YAML &amp; JSON &amp; CSV"></a>XML &amp; YAML &amp; JSON &amp; CSV</h3><p>在这些数据格式中，对xml的转义基本上跟html差不多，这里就不再赘述了。对于yaml来说，规则如下：</p>
-<ul>
-<li>在一个单引号标注的字符串中，一个单引号需要转义成两个单引号</li>
-<li>在一个双引号标注的字符串中，大部分符号都需要用反斜杠来转义</li>
-<li>如果字符串中有控制字符（如<code>\0</code>、<code>\n</code>等），需要用双引号来标注</li>
-<li>如果字符串看起来像下面的样子，需要用引号（无所谓哪种）来标注：<br><code>true</code>或<code>false</code></li>
-<li><code>null</code>或<code>~</code></li>
-<li>看起来像数字，如<code>2</code>，<code>14.9</code>，<code>12e7</code>等</li>
-<li>看起来像日期，如<code>2014-12-31</code></li>
-</ul>
-<p>完整的规则可以参考<a target="_blank" rel="noopener" href="http://www.yaml.org/spec/1.2/spec.html#id2776092">yaml规范</a>。</p>
-<p>对与json来说，需要转义的字符如下图：<br><img src="http://www.json.org/string.gif" alt="json string escape"></p>
-<p>对于csv来说，转义的规则只有两条：</p>
-<ul>
-<li>如果值里有逗号、换行或是双引号，需要用双引号来标注</li>
-<li>如果值里有双引号，需要把它转义成两个双引号<code>&quot;&quot;</code></li>
-</ul>
-<h3 id="Java-NET-JS-SQL"><a href="#Java-NET-JS-SQL" class="headerlink" title="Java &amp; .NET &amp; JS &amp; SQL"></a>Java &amp; .NET &amp; JS &amp; SQL</h3><p>对于大部分的编程语言，例如Java、.NET还有JavaScript，甚至C、GO、Ruby等等来说，通常的转义都是通过反斜杠<code>\</code>来实现的。一般都包括如下几项：</p>
-<ul>
-<li>退格: <code>\b</code></li>
-<li>换行: <code>\n</code></li>
-<li>制表符: <code>\t</code></li>
-<li>回车: <code>\r</code></li>
-<li>换页: <code>\f</code></li>
-<li>双引号: <code>\&quot;</code></li>
-<li>反斜杠: <code>\\</code></li>
-</ul>
-<p>不过C和C++支持的16进制<code>\x</code>，在java里不被支持。所以<code>\x61\xd2</code>的这个“懒”字，在java中可以通以下这两个表达式来得到真实的字符：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;\u61d2&quot;</span></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">String</span>(<span class="keyword">new</span> <span class="title class_">byte</span>[] &#123;(<span class="type">byte</span>) <span class="number">0x61</span>, (<span class="type">byte</span>) <span class="number">0xd2</span>&#125;, <span class="string">&quot;unicode&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>SQL有些不一样。它从语法层面支持模糊查询，所以即使在完全匹配中使用了<code>%</code>也不需要转义。但是代表字符串的单引号<code>&#39;</code>还是不得不转义成两个单引号<code>&#39;&#39;</code>。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>以上是关于编码和转义的一些常识，<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23374078/answer/69732605#">知乎上转的这篇回答</a>，系统地介绍了从ASCII到UTF-8，写得非常赞。平时需要编码和转义的时候，可以使用<a target="_blank" rel="noopener" href="http://www.freeformatter.com/">这个网站</a>在线转换，也挺方便的。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/encoding-and-escaping/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/encoding-and-escaping/" data-id="cuidFaKUwv13PnGRh5pMuto3b" data-title="程序员常见的编码和转义" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/encoding-and-escaping/" data-id="cuidnXUUhQ_sA1_TF6Tvn8fTN" data-title="程序员常见的编码和转义" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -531,71 +346,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>程序猿和工程狮们（还有形形色色的其他角色）的日常工作中，一定会有需要跟别人沟通的时候。因为沟通的问题认为别人sb或者被人当成sb的惨剧应该不少吧？如果有共鸣，可以读一读本文。不少企业都会请有资质的专家，为员工做类似的培训。</p>
-<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>一般来说，一开始都需要给有效沟通下一个定义。干巴巴地说，就是这样：双方或几方针对共同的话题，发出和收集有意义的信息，从而达成一致的行动或共同的认识。我的观点是：沟通就是为了达成共识而采取的行动。官方定义以文为主，行动关注于信息；而我的定义能文能武（当然并不是推荐直接上暴力哈），只要达成共识即可。</p>
-<p>沟通是有一个模型的：<br><img src="/img/communication-model.png" alt="沟通模型"></p>
-<p>信息的发送者，根据自己的理解，将信息编码成介质（文字、语音、动作等），通过传播媒介（面对面、邮件、微信）发送出去，经过对介质的解码，到了接收者的大脑里。为什么提倡面对面的沟通呢？因为沟通模型里还有一个非常重要的一环：反馈。通过面对面的沟通，可以很容易感知对方的动作、表情、情绪，从而判断对方是否正确地理解了自己想要表达的信息。而这样的反馈，是电子邮件、电话等所难以做到的。</p>
-<h2 id="行为风格"><a href="#行为风格" class="headerlink" title="行为风格"></a>行为风格</h2><p>人与人之间是很不一样的。有些话可能某些人就很受用，还有一些人无动于衷，说不定还会令其他人反感。如果能将人类行为模式分类，见人说人话，见鬼说鬼话，想必对有效沟通来说是很有用的。古希腊的希波克拉底最早以火、风、水、土为基础，分别映射到易怒、乐观、冷静和忧郁的情感上，定义了人类具有的四种基本性情。之后的许多行为理论皆以此为基础，但是主要用于专业的精神层面研究。1928年，美国心理学家<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/William_Moulton_Marston">马斯顿（William Moulton Marston）</a>出版了《常人的情绪》（Emotions of Normal People），为普通人引入了名为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/DISC_assessment">DISC</a>的性格测验方法，DISC分别表示支配（Dominance）、影响（Influence）、稳健（Steadiness）与服从（Compliance），由这4种基本因子，可以构成每个人的不同性格。DISC现在是全球广泛采用的性格测评工具之一，许多企业会用之来选择、激励与管理人才。</p>
-<p>用控制力的强弱与以人或事为主，便可以画出四个象限：<br><img src="/img/disc.png" alt="DISC"></p>
-<p>用动物来表示不同的性格，有趣并且容易记忆。它们是老虎（D）、孔雀（I）、考拉（S）、猫头鹰（C）和变色龙（啥性格都能变）。老虎是产生故事的人，孔雀是讲故事的人，考拉是听故事的人，猫头鹰是分析故事的人。需要注意的是：</p>
-<ul>
-<li>每个人都有DISC，只是占比不同</li>
-<li>没有理想的沟通风格，随心所欲级别的变色龙除外</li>
-<li>这些性格都没有好坏、对错、是非之分，不要给人贴标签</li>
-<li>不要对考拉太狠了，物极必反</li>
-</ul>
-<p>性格上面的互补很有用。一只猫头鹰完不成的事，可能另一只猫头鹰也完不成，但是孔雀可能可以轻易完成。团队、婚姻都是如此。西游记里的主角们，其实就代表了这不同的四种性格。猜猜看，谁是那种性格？对了：</p>
-<ul>
-<li>悟空：老虎，主动，果敢（妖精！吃俺老孙一棒）</li>
-<li>唐僧：猫头鹰，以理服人，尽量客观（贫僧乃东土大唐而来）</li>
-<li>八戒：孔雀，总是他去化缘，自来熟（女菩萨，也携带我和尚洗洗）</li>
-<li>沙僧：考拉，任劳任怨，没有主见（大师兄，师傅被妖怪抓走了）</li>
-</ul>
-<p>对别人的性格有所了解，沟通起来才能更加有效，事半功倍。</p>
-<h2 id="测测自己"><a href="#测测自己" class="headerlink" title="测测自己"></a>测测自己</h2><p>评完别人，可以用下面的方法来简单测评一下自己。在A表和B表的每一组句子中，圈选出一句最像自己的叙述，然后在下面记录选择的数量：</p>
-<p>A表</p>
-<ul>
-<li>我做决定通常很迅速 vs 我喜欢从容做决定</li>
-<li>我倾向于说话快速，带着感情丰富的辞藻 vs 我倾向慢条斯理说话，较少用动人心旋话语</li>
-<li>坐着没事干，会令我感到难受 vs 我很享受安静、无所事事的时光</li>
-<li>我认为自己生活型态很活跃 vs 我认为自己生活型态很低调</li>
-<li>同时身兼数职，让我感到精神焕发 vs 我比较喜欢按部就班，一次做一件事</li>
-<li>我很容易对步调慢的人失去耐心 vs 我不喜欢被催赶</li>
-<li>我会很快地告诉别人自己的想法和感受 vs 我比较保留自己的想法与感受</li>
-<li>我喜欢碰运气，尝试新鲜、不同的事物 vs 我不喜欢碰运气，喜欢用熟悉地方法做事</li>
-<li>在社交场合，我倾向于向别人自我介绍 vs 在社交场合，我会等别人来介绍我</li>
-<li>别人说话的时候，我很难去倾听 vs 别人说话的时候，我很很仔细的听</li>
-<li>我喜欢掌控 vs 我比较喜欢遵从指示，尽力支持</li>
-<li>我的反应倾向于迅速而随性 vs 我的反应比较趋向缓慢而特意安排</li>
-</ul>
-<p>A左（F - 快） <strong>__</strong> vs A右（S - 慢） <strong>__</strong></p>
-<p>B表</p>
-<ul>
-<li>我对生活持严肃态度 vs 我对生活持玩乐态度</li>
-<li>我倾向于保守自己的感觉 vs 我倾向于对别人分享自己的感觉</li>
-<li>我喜欢谈论、听取事实与数据 vs 我喜欢述说与聆听有关人物的故事</li>
-<li>我倾向于根据事实、目标与证据做决定 vs 我倾向于根据感觉、经验或人际关系做决定</li>
-<li>我对闲聊比较不感兴趣 vs 我比较有兴趣闲聊</li>
-<li>我对交往的对象有所节制 vs 我愿意发展新的人际关系，并深入了解他们</li>
-<li>一般人可能会认为我很难被了解 vs 一般人可能会认为我很容易被了解</li>
-<li>我比较喜欢独自工作 vs 我比较喜欢与别人并透过别人工作</li>
-<li>我会讨论当今时事及手中进行的工作 vs 我喜欢谈人物、故事及奇文轶事</li>
-<li>我自认是一个比较拘谨的人 vs 我自认是一个比较轻松自在的人</li>
-<li>别人把我看成一个重思考的人 vs 别人把我看成一个重感觉的人</li>
-<li>完成一件事，是我感觉最棒的时候 vs 当别人接纳我时，我感觉最好</li>
-</ul>
-<p>B左（T - 任务） <strong>__</strong> vs B右（P - 人际） <strong>__</strong></p>
-<p>做完题后，就会得到4个数，例如F8、S4、T7、P5，将FS中的较小值（S4）丢弃，TP中的较小值（P5）丢弃，就变成了F8、T7。然后就可以根据这个坐标在下图中找到自己的象限了。对于F8、T7来说，是老虎：<br><img src="/img/disc-self-accessment.png" alt="DISC自我评测"></p>
-<p>需要注意的是：</p>
-<ul>
-<li>据说它只有70%的准确性（再减20%可就是随机了）</li>
-<li>身为一只猫头鹰，真想吐个槽：题目设计还不够科学，如果两张表都是奇数，就不至于出现两个6纠结于最大值了</li>
-<li>4个6的话，除了变色龙，还真没法解释了</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/effective-communication/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/effective-communication/" data-id="cuidSeOKjZSmdqmBDfZ4cKrAE" data-title="人际风格与有效沟通实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/effective-communication/" data-id="cuidVkQmS6LKawLec6ziedafy" data-title="人际风格与有效沟通实战" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -636,90 +395,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。本文介绍了一些如何监控与管理dubbo服务。使用的工具与<a target="_blank" rel="noopener" href="http://www.cnblogs.com/yjmyzz/p/dubbo-admin-monitor-deploy.html">《dubbox 的各种管理和监管》</a>大致相同，本文更侧重于命令细节与实践。</p>
-<p>首先参考<a href="/dubbo-1">《服务治理框架dubbo上手指南》</a>，实现自己的<code>HelloService</code>服务。在此基础上运行<code>Provider.java</code>启动服务，接下来就可以开始管理工作啦。让我们来下载dubbo的源码并安装：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/alibaba/dubbo.git dubbo</span><br><span class="line"><span class="built_in">cd</span> ~/dubbo</span><br><span class="line">mvn clean install -Dmaven.test.skip</span><br></pre></td></tr></table></figure>
-
-<h2 id="telnet"><a href="#telnet" class="headerlink" title="telnet"></a>telnet</h2><p>Dubbo支持使用telnet来查看服务状态。下面让我们来试一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet localhost 19880</span><br></pre></td></tr></table></figure>
-
-<p>敲下回车便能看到<code>dubbo&gt;</code>的提示符了。以下命令可以看到服务列表、服务的方法详细信息列表和服务地址列表：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span></span><br><span class="line"><span class="built_in">ls</span> -l org.ggg.hello.service.HelloService</span><br><span class="line">ps -l</span><br></pre></td></tr></table></figure>
-
-<p>以下命令可以跟踪服务方法的调用情况：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace org.ggg.hello.service.HelloService</span><br></pre></td></tr></table></figure>
-
-<p>这时会看见光标停止住了。运行<code>Consumer.java</code>来消费服务，就可以看到跟踪结果啦。详细的命令可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo/wiki/user-guide-telnet-cmd-ref">Telnet命令参考手册</a>。若是服务端没有开启监控，使用telnet命令对查看甚至配置服务来说，是依赖最少最简便的方式。</p>
-<h2 id="简易监控中心"><a href="#简易监控中心" class="headerlink" title="简易监控中心"></a>简易监控中心</h2><p>先前安装过的dubbo项目里包含了<code>dubbo-monitor-simple</code>的包，解压之：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar zxvf dubbo-simple/dubbo-monitor-simple/target/dubbo-monitor-simple-2.5.4-SNAPSHOT-assembly.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>配置<code>dubbo.properties</code>为自己的zk服务地址：<code>192.168.33.88:2181</code>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 操作系统是Linux的话</span></span><br><span class="line">sed -i <span class="string">&quot;s/multicast:\/\/224.5.6.7:1234/zookeeper:\/\/192.168.33.88:2181/&quot;</span> dubbo-monitor-simple-2.5.4-SNAPSHOT/conf/dubbo.properties</span><br><span class="line"><span class="comment"># 操作系统是OS X的话（接下来的sed命令以OS X为例）</span></span><br><span class="line">sed -i <span class="string">&quot;&quot;</span> <span class="string">&quot;s/multicast:\/\/224.5.6.7:1234/zookeeper:\/\/192.168.33.88:2181/&quot;</span> dubbo-monitor-simple-2.5.4-SNAPSHOT/conf/dubbo.properties</span><br></pre></td></tr></table></figure>
-
-<p>简易监控中心以文件的方式记录监控数据。创建基本文件夹并运行<code>start.sh</code>启动简易监控中心：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/monitor</span><br><span class="line">dubbo-monitor-simple-2.5.4-SNAPSHOT/bin/start.sh</span><br></pre></td></tr></table></figure>
-
-<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080/</a>便能看到简易监控中心的首页了：<br><img src="/img/dubbo-monitor-simple-home.jpg"></p>
-<p>在<code>Applications</code>里可以看到我们先前启动的<code>hello-world-app</code>和<code>simple-monitor</code>自己。可见<code>simple-monitor</code>也是一个dubbo服务，把自己注册到<code>dubbo.properties</code>里指定的配置中心里去。为了接收到监控数据，需要在dubbo服务端打开监控。在<code>provider.xml</code>文件里加入下面这行配置，然后重新启动dubbo服务：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>过一会儿就能看到监控的统计信息和图标了：<br><img src="/img/dubbo-monitor-simple-service-charts.jpg"></p>
-<p>而运行<code>ls ~/monitor/</code>也能看到简易监控中心所生成的文件夹<code>charts</code>和<code>statistics</code>。如果迟迟没有生成这些信息，有一种可能是在多（虚拟）网卡的情况下，simple-monitor绑定到了错误的IP地址去了。万一真是如此，在<code>dubbo.properties</code>里增加一行<code>dubbo.protocol.host</code>的配置即可。</p>
-<p>运行<code>stop.sh</code>停止简易监控中心服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dubbo-monitor-simple-2.5.4-SNAPSHOT/bin/stop.sh</span><br></pre></td></tr></table></figure>
-
-<h2 id="管理控制台"><a href="#管理控制台" class="headerlink" title="管理控制台"></a>管理控制台</h2><p>Dubbo为服务治理提供了管理控制台。这是一个webapp，可以很轻松地运行在web容器中。经由源代码安装后便会生成<code>dubbo-admin-2.5.4-SNAPSHOT.war</code>文件，将其部署在tomcat容器中即可。这里用docker启动一个tomcat 7：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 --name=tomcat tomcat:7</span><br><span class="line">docker <span class="built_in">cp</span> dubbo-admin/target/dubbo-admin-2.5.4-SNAPSHOT.war tomcat:/usr/local/tomcat/webapps/</span><br><span class="line">docker <span class="built_in">exec</span> tomcat sed -i <span class="string">&quot;s/127.0.0.1/192.168.33.88/&quot;</span> /usr/local/tomcat/webapps/dubbo-admin-2.5.4-SNAPSHOT/WEB-INF/dubbo.properties</span><br><span class="line">docker restart tomcat</span><br></pre></td></tr></table></figure>
-
-<p>文件<code>dubbo.properties</code>里配置了zookeep的地址，所以用sed将其替换为自己的zk服务地址：<code>192.168.33.88</code>。里面还配置了root账户和guest账户的密码。默认即为<code>root</code>和<code>guest</code>。访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbo-admin-2.5.4-SNAPSHOT/">http://localhost:8080/dubbo-admin-2.5.4-SNAPSHOT/</a>并输入<code>root</code>和<code>root</code>，就能看到管理控制台的首页了：<br><img src="/img/dubbo-admin-home.jpg"></p>
-<p>输入<code>hello</code>进行查询，便能看到我们的服务了：<br><img src="/img/dubbo-admin-service-governance.jpg"></p>
-<p>可以在此页面进行各种服务治理操作。更详细的资料，请参考<a target="_blank" rel="noopener" href="http://dubbo.io/Administrator+Guide-zh.htm#AdministratorGuide-zh-%E8%BF%90%E7%BB%B4%E6%89%8B%E5%86%8C">运维手册</a>。</p>
-<p>运行以下命令删除tomcat容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f tomcat</span><br></pre></td></tr></table></figure>
-
-<h2 id="dubbo-monitor"><a href="#dubbo-monitor" class="headerlink" title="dubbo-monitor"></a>dubbo-monitor</h2><p>简易监控中心和管理控制台的页面风格看起来还停留在上个世纪。韩都衣舍提供了一个<a target="_blank" rel="noopener" href="https://github.com/handuyishe/dubbo-monitor">dubbo-monitor</a>，除了更加现代化的页面，还用数据库代替了简易监控中心写文件的方式。除了mysql，还支持<a target="_blank" rel="noopener" href="https://github.com/handuyishe/dubbo-monitor/tree/mongo">mongo</a>。那我们先来下载代码：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/handuyishe/dubbo-monitor</span><br><span class="line"><span class="built_in">cd</span> dubbo-monitor</span><br></pre></td></tr></table></figure>
-
-<p>然后启动一个mysql数据库实例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=mysql -e MYSQL_ROOT_PASSWORD=raycool -v `<span class="built_in">pwd</span>`/sql/create.sql:/create.sql mysql:5.7.12</span><br><span class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -praycool</span><br></pre></td></tr></table></figure>
-
-<p>创建数据库和表（可能需要等数据库启动一小会儿之后才能连上去）：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE dubbokeeper <span class="keyword">DEFAULT</span> <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">DEFAULT</span> <span class="keyword">COLLATE</span> utf8_general_ci;</span><br><span class="line">USE dubbokeeper;</span><br><span class="line">SOURCE <span class="operator">/</span>create.sql;</span><br><span class="line"><span class="keyword">SHOW</span> TABLES;</span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
-
-<p>修改配置文件<code>application.properties</code>并打包（目前版本中spring的引用有问题，所以也需要修改<code>pom.xml</code>）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MYSQL_IP=`docker <span class="built_in">exec</span> -it mysql hostname -i | sed <span class="string">&#x27;s/.$//&#x27;</span>`</span><br><span class="line">sed -i <span class="string">&quot;&quot;</span> -e <span class="string">&quot;s/dubbo.registry.address.*/dubbo.registry.address=zookeeper:\/\/192.168.33.88:2181/&quot;</span> -e <span class="string">&quot;s/default/<span class="variable">$&#123;MYSQL_IP&#125;</span>/&quot;</span> src/main/resources/application.properties</span><br><span class="line">sed -i <span class="string">&quot;&quot;</span> s/4.1.6.RELEASE/3.2.9.RELEASE/<span class="string">&quot; pom.xml</span></span><br><span class="line"><span class="string">mvn clean package</span></span><br></pre></td></tr></table></figure>
-
-<p>启动dubbo-monitor：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 -v `<span class="built_in">pwd</span>`/target/dubbo-monitor-x.war:/usr/local/tomcat/webapps/dubbo-monitor-x.war --name=tomcat tomcat:7</span><br></pre></td></tr></table></figure>
-
-<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbo-monitor-x/">http://localhost:8080/dubbo-monitor-x/</a>并输入<code>admin</code>和<code>admin</code>，就能看到dubbo-monitor的首页了：<br><img src="/img/dubbo-monitor-home.jpg"></p>
-<p>可以在dubbo-monitor提供的页面上监控各种数据，但由于笔者是mac配docker版tomcat的方式，监控的dubbo服务只能绑定在docker内部IP上，导致监控数据过不去（com.alibaba.dubbo.remoting.RemotingException: message can not send, because channel is closed）。真正运行的时候还是使用linux+docker（配合net&#x3D;host）或是mac+原生tomcat的方式吧。运行以下命令删除mysql和tomcat容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f mysql tomcat</span><br></pre></td></tr></table></figure>
-
-<h2 id="DubboKeeper"><a href="#DubboKeeper" class="headerlink" title="DubboKeeper"></a>DubboKeeper</h2><p>除了dubbo-monitor以外，github里还有一个社区版的<a target="_blank" rel="noopener" href="https://github.com/dubboclub/dubbokeeper">DubboKeeper</a>，功能最为强大。既提供监控功能，又提供服务治理功能。监控数据的持久化除了支持mysql和mongo，还支持lucene。现在下载代码并打包。Dubbokeeper的打包方式略有些不同，需要执行根目录里的<code>install-xxx.sh</code>脚本。这里还是以mysql为例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/dubboclub/dubbokeeper</span><br><span class="line"><span class="built_in">cd</span> dubbokeeper</span><br><span class="line">./install-mysql.sh</span><br></pre></td></tr></table></figure>
-
-<p>首先启动DubboKeeper的UI：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 8080:8080 -v `<span class="built_in">pwd</span>`/target/mysql-dubbokeeper-ui/dubbokeeper-ui-1.0.1.war:/usr/local/tomcat/webapps/dubbokeeper-ui-1.0.1.war --name=tomcat tomcat:7</span><br><span class="line">docker <span class="built_in">exec</span> tomcat sed -i <span class="string">&quot;s/localhost/192.168.33.88/&quot;</span> /usr/local/tomcat/webapps/dubbokeeper-ui-1.0.1/WEB-INF/classes/dubbo.properties</span><br><span class="line">docker restart tomcat</span><br></pre></td></tr></table></figure>
-
-<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/dubbokeeper-ui-1.0.1/index.htm#/statistics">http://localhost:8080/dubbokeeper-ui-1.0.1/index.htm#/statistics</a>，就能看到DubboKeeper的首页了：<br><img src="/img/dubbo-keeper-home.jpg"></p>
-<p>很显然在这些UI里，DubboKeeper的逼格是最高的。第二个tab就是<code>Admin</code>（管理）：<br><img src="/img/dubbo-keeper-admin.jpg"></p>
-<p>接下来就是<code>Monitor</code>（监控），不过只有启动过监控数据存储端才能使用，现在点击会报<strong>后端系统出现异常，请稍后再试</strong>的错。接下来启动数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name=mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=19890314 -v `<span class="built_in">pwd</span>`/doc/storage/mysql/sql/application.sql:/create.sql mysql:5.7.12</span><br><span class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p19890314</span><br></pre></td></tr></table></figure>
-
-<p>初始化数据库：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE dubbokeeper;</span><br><span class="line">USE dubbokeeper;</span><br><span class="line">SOURCE <span class="operator">/</span>create.sql;</span><br><span class="line"><span class="keyword">SHOW</span> TABLES;</span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
-
-<p>修改监控数据存储端的配置并启动之：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&quot;&quot;</span> -e <span class="string">&quot;s/localhost:2181/192.168.33.88:2181/&quot;</span> -e <span class="string">&quot;s/dubbo-monitor/dubbokeeper/&quot;</span> target/mysql-dubbokeeper-server/conf/dubbo-mysql.properties</span><br><span class="line"><span class="built_in">chmod</span> +x target/mysql-dubbokeeper-server/bin/start-mysql.sh</span><br><span class="line">target/mysql-dubbokeeper-server/bin/start-mysql.sh</span><br></pre></td></tr></table></figure>
-
-<p>现在就可以顺利打开监控页面了：<br><img src="/img/dubbo-keeper-monitor.jpg"></p>
-<p>DubboKeeper甚至还提供了ZooKeeper的窥视版<code>ZooPeeper</code>：<br><img src="/img/dubbo-keeper-zoopeeper.jpg"></p>
-<p>最后收尾，Ctrl+C掉监控数据存储端，并删除各个容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f mysql tomcat</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/dubbo-3/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dubbo-3/" data-id="cuid3q2EOAxyI9-ikbFmgvQ4Z" data-title="监控与管理dubbo服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dubbo-3/" data-id="cuidp6lYmjgbjcQ3sR61-1KGQ" data-title="监控与管理dubbo服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -760,20 +444,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>从开始试译到现在经过了半年多，我和马博文的译作<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26878481/">《DevOps实践》</a>终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>《DevOps实践》介绍了DevOps的起源和概览，并通过一个贯穿全书的例子，从架构开始，到代码的存储、构建、测试、部署、监控，直至流程的跟踪，推荐了许多可用的工具和可行的示范，是一本DevOps实践方面不可多得的参考书籍。</p>
-<p>《DevOps实践》面向愿意承担更大责任的开发人员和系统管理员，也很适合愿意更好地支持开发人员的运维人员。无须任何DevOps知识即可快速上手！</p>
-<p><img src="/img/practical_devops_en.jpg"><br><img src="/img/practical_devops_cn.png"></p>
-<h2 id="译者序"><a href="#译者序" class="headerlink" title="译者序"></a>译者序</h2><p>什么是DevOps？我的前同事李光磊将其译为开发自运维，他还写了篇很有意思的博客来说明：<a target="_blank" rel="noopener" href="http://liguanglei.name/blogs/2015/04/22/devops-chinese-name/">http://liguanglei.name/blogs/2015/04/22/devops-chinese-name/</a>。这个将开发和运维结合起来的词，代表了一种文化，那就是大家共同协作。狭义上的大家，指的是开发和运维，广义上，指的是所有软件生命周期里参与的角色。</p>
-<p>“共同协作”是个富有正能量的词。感觉上，随便往哪儿一套都是政治正确的。那为什么要在DevOps里着重强调呢？DevOps到底解决了什么问题？归根结底，就是提高产品质量。爱思考的你，可能心里已经有千万个提高产品质量的方案从脑海里呼啸而过。代码审查、自动化测试、持续集成、代码质量管理工具、程序员鼓励师……对对对，这些方案都能在某种程度上解决一些层次的问题。但是，产品质量的根源在哪儿呢？在于人。如果开发者对自己要做的事情不负责甚至压根儿不知道后果，怎么能指望这样的人能够生产出来高质量的代码呢？举个例子：作为开发者，我知道自己写的代码会由测试部门来进一步测试，在有进度压力的时候，我就会更倾向于去想：“那就先这么凑合吧着，反正有问题的话QA们会说的”。如果我不知道部署和维护产品是怎么一回事，我就不会主动地在产品里写上日志的代码。对于运维人员来说，由于处于软件生命周期的下游，相信对类似的场景感触更甚。DevOps能够做到的事，就是让人有这个意识：需要对产品的质量负责。DevOps能够提供一个平台或机制，让我能够从中找到所需的资源。</p>
-<p>“共同协作”也是个虚无缥缈的词。它应该如何落地呢？这就是本书想要给读者们带来的内容。在实践上，从架构开始，到代码的存储、构建、测试、部署、监控，直至流程的跟踪，本书推荐了许多可用的工具和练习，确实无愧于《DevOps实战》之名。细度全文可以有一个全局的概览并充实读者们的DevOps工具箱；而在实际场景中再查阅本书，将其当做一本各种技术的快速参考手册也不失为明智之举。本书的许多实例通过Docker启动，在紧随潮流技术的同时也简化了练习步骤，值得花些时间试试。在企业里，使用自动化和持续交付来提高代码部署频率，降低代码上线间隔。这样的指标是比较容易统计的，在让管理人员满意的同时，也能减少开发和运维的痛苦。只有让各角色都真切地感受到实惠，大家才会更加愿意从心底接受并积极参与到这一过程中。</p>
-<p>“共同协作”还是个看上去很美的词。为什么大家还不赶紧拥抱它？因为它的成本可能还挺高的。大型企业在管理上，通常权责分明，从而导致某个角色的成员都不愿意轻易踏足其它领域。流程繁琐，导致一个小小的改进也需要漫长的批复。安全性要求高，引发各种违规，进一步导致没有和其他人分享的意愿。员工操作权限管理精密，上不了网、下不了包、开不了虚拟机……这些问题，虽然不至于疾在骨髓，但起码也在肠胃了。而且，自动化测试、部署流水线等都需要比较大的成本。在看见收益和认清自己之前，可能大多数人也会像蔡桓公那样默认拒绝吧：“医之好治不病以为功”。成本最低的时候，可能就是开始写第一行产品代码的时候。话虽如此，任何时候都是实现DevOps的最佳时机，因为它的成本随企业的扩大和代码库的膨胀，一定是越来越高的。另外，完全地追求技术上的卓越而忽视成本也不是DevOps的推荐做法。读者们在阅读时，也会看到DevOps在一些状况下采取的权衡方案。</p>
-<p>你希望在一个大家敞开心胸，相互拥抱的环境里共同协作打造最好的产品，还是守着自己的一亩三分地，与人争辩这是谁的责任，抱怨人们冷漠的同时拒绝其他人的“与你无关”的要求？从本书开始，应用自己获得的知识，并尝试改造这个世界吧！</p>
-<h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><p>感谢作者Joakim Verona，本书涵盖了大量可以练习的实例，想必花了你很多的心血。<br>感谢ThoughtWorks，授人的不止是持续集成、持续交付，还有持续学习。<br>感谢林帆，没有你，我就不会有这样难忘的翻译经历。<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26670565/">《CoreOS实践之路》</a>只是你的开始，希望能看到更多的佳作问世。<br>感谢永恒的侠少，让我可以集中精力专注于翻译之上，你还为本书想了一个漂亮的副标题。<br>感谢马博文，你的经验与高效让本书的翻译可以提前完成。顺祝你的另一本译作<a target="_blank" rel="noopener" href="http://item.jd.com/11935577.html">《Scala编程实战》</a>大卖。<br>感谢小伙伴张博，你给我的初稿指出了许多宝贵意见。<br>感谢文心、瑞民、光磊，这篇译者序里也流淌着你们的汗水。<br>感谢张骏，我从你的<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26772677/">《微服务设计》</a>的代码库里获取了许多宝贵的经验与灵感。<br>感谢家人和朋友们，我永远离不开你们的支持。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/practical-devops/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/practical-devops/" data-id="cuiduE4woiHBtGcCYGcpLp26q" data-title="《DevOps实践》出版啦" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/practical-devops/" data-id="cuidEabbm36Cf3jPaufzbem8T" data-title="《DevOps实践》出版啦" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -814,42 +493,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/druid">Druid</a>传说中是Java语言中最好的数据库连接池，能够提供强大的监控和扩展功能，甚至可以基于SQL语义来<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E7%AE%80%E4%BB%8B_WallFilter">防御SQL注入攻击</a>。它与其它数据库连接池的功能对比可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%AF%B9%E6%AF%94">各种数据库连接池对比</a>，性能对比可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E5%90%84%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%B1%A0%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94%E6%B5%8B%E8%AF%95">各种连接池性能对比测试</a>。网上的一些原code.alibabatech.com的链接已经失效，文档都转移到了github上，以<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%A6%96%E9%A1%B5">wiki</a>+<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">FAQ</a>的方式提供，查起来有些混乱。下面我们来动手了解一下druid所提供的功能。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>既然是数据库连接池，首先要启动一个数据库。用docker来弄简单轻松：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -e MYSQL_ROOT_PASSWORD=123456 --net=host --name=mysql mysql:5.7.12</span><br></pre></td></tr></table></figure>
-
-<p>进入容器并连接上数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it mysql mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<p>创建用户表并插入一些初始数据：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE spike;</span><br><span class="line">USE spike;</span><br><span class="line"><span class="keyword">CREATE TABLE</span> <span class="keyword">user</span> (</span><br><span class="line">    id <span class="type">INT</span> UNSIGNED <span class="keyword">NOT NULL</span> AUTO_INCREMENT,</span><br><span class="line">    name <span class="type">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    gender TINYINT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    birthday <span class="type">TIMESTAMP</span> <span class="keyword">NOT NULL</span>,</span><br><span class="line">    <span class="keyword">PRIMARY KEY</span> (id)</span><br><span class="line">);</span><br><span class="line"><span class="keyword">INSERT INTO</span> <span class="keyword">user</span>(name, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">&#x27;ggg&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;1999-01-01&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT INTO</span> <span class="keyword">user</span>(name, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">&#x27;Loic&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2000-01-01&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT INTO</span> <span class="keyword">user</span>(name, gender, birthday) <span class="keyword">VALUES</span>(<span class="string">&#x27;Hetty&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;2001-01-01&#x27;</span>);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="keyword">user</span>;</span><br><span class="line"></span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
-
-<p>我在github上创建了一个druid的maven版测试工程，下载到本地并使用自己喜欢的IDE打开：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/qinghua/druid</span><br></pre></td></tr></table></figure>
-
-<p>然后打开<code>spring-context-dao.xml</code>文件，把数据源从<code>jdbc:mysql://192.168.33.88:3306/spike</code>替换为自己的本地数据源。</p>
-<h2 id="各种监控"><a href="#各种监控" class="headerlink" title="各种监控"></a>各种监控</h2><p>以下命令可以直接启动jetty服务器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> druid</span><br><span class="line">mvn jetty:run</span><br></pre></td></tr></table></figure>
-
-<p>打开<a target="_blank" rel="noopener" href="http://localhost:8080/hello?id=1">http://localhost:8080/hello?id=1</a>便能看见<strong>Hello ggg</strong>，这个是程序的正常功能。</p>
-<p>Druid的页面是通过在<code>web.xml</code>里配置<code>DruidStatView</code>的servlet来实现的。参数的具体配置可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_StatViewServlet%E9%85%8D%E7%BD%AE">这里</a>。打开<a target="_blank" rel="noopener" href="http://localhost:8080/druid/index.html">http://localhost:8080/druid/index.html</a>便能看见druid的首页了：<br><img src="/img/druid-index.jpg"></p>
-<p>如果刚才访问过<a target="_blank" rel="noopener" href="http://localhost:8080/hello?id=1">hello</a>，通过点击<code>数据源</code>便能查看到程序新创建的数据源。可以在IDE里打开<code>spring-context-dao.xml</code>通过<code>dataSource</code>来查看数据源的配置，参数的具体配置可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8">这里</a>。通过<code>class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;</code>来使用druid。点击<code>SQL监控</code>便能体会到druid引以为傲的强大监控功能：<br><img src="/img/druid-sql-monitor.jpg"></p>
-<p><code>SQL防火墙</code>是用来防止SQL注入的，配置可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE-wallfilter">这里</a>。还可以通过在<code>web.xml</code>加入以下配置来启用web监控，参数的具体配置可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_%E9%85%8D%E7%BD%AEWebStatFilter">这里</a>：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">DruidWebStatFilter</span><br><span class="line">com.alibaba.druid.support.http.WebStatFilter</span><br><span class="line"></span><br><span class="line">    exclusions</span><br><span class="line">    *.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">DruidWebStatFilter</span><br><span class="line">/*</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>除了监控SQL和web，druid还能监控spring的一些调用信息。可以在IDE里打开<code>spring-context-druid.xml</code>查看程序的当前配置。参数的具体配置可以参考<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_Druid%E5%92%8CSpring%E5%85%B3%E8%81%94%E7%9B%91%E6%8E%A7%E9%85%8D%E7%BD%AE">这里</a>。通过点击<code>spring监控</code>便能查看到方法的调用时间和jdbc的一些状态：<br><img src="/img/druid-spring-monitor.jpg"></p>
-<h2 id="其它功能"><a href="#其它功能" class="headerlink" title="其它功能"></a>其它功能</h2><h3 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h3><p>监控里显示的都是敏感信息，可以通过在<code>web.xml</code>里加入以下配置来启用简单的登录功能：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">DruidStatView</span><br><span class="line">com.alibaba.druid.support.http.StatViewServlet</span><br><span class="line"></span><br><span class="line">    loginUsername</span><br><span class="line">    ggg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    loginPassword</span><br><span class="line">    123456</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这样访问druid界面的时候就需要输入用户名密码啦：<br><img src="/img/druid-login.jpg"></p>
-<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><p>如果想在日志里看到执行的sql，可以根据<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_LogFilter">这里</a>的说明来配置。Druid支持多种<a target="_blank" rel="noopener" href="https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AEdruid%E5%86%85%E7%BD%AE%E7%9A%84log%E5%AE%9E%E7%8E%B0">日志组件</a>。显示执行的sql是debug级别，如果用的是log4j，可以在<code>log4j.properties</code>里这样配：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">log4j.logger.druid.sql=debug,stdout</span><br></pre></td></tr></table></figure>
-
-<p>访问<a target="_blank" rel="noopener" href="http://localhost:8080/hello?id=2">hello页面</a>，便可以看到如下日志：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;conn-10005&#125; connected</span><br><span class="line">&#123;conn-10005&#125; pool-connect</span><br><span class="line">&#123;conn-10005, pstmt-20000&#125; created. </span><br><span class="line">SELECT name FROM user WHERE <span class="built_in">id</span>=?</span><br><span class="line">&#123;conn-10005, pstmt-20000&#125; Parameters : [2]</span><br><span class="line">&#123;conn-10005, pstmt-20000&#125; Types : [INTEGER]</span><br><span class="line">&#123;conn-10005, pstmt-20000&#125; executed. 1.351044 millis. </span><br><span class="line">SELECT name FROM user WHERE <span class="built_in">id</span>=?</span><br><span class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; open</span><br><span class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; Header: [name]</span><br><span class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; Result: [Loic]</span><br><span class="line">&#123;conn-10005, pstmt-20000, rs-50000&#125; closed</span><br><span class="line">&#123;conn-10005, pstmt-20000&#125; clearParameters. </span><br><span class="line">&#123;conn-10005&#125; pool-recycle</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/alibaba_druid/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/alibaba_druid/" data-id="cuidstSlTkUV69sMMkD2G8mVD" data-title="不止于数据库连接池的Druid" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/alibaba_druid/" data-id="cuidtDNgL_hm4Y6z9tbeyFLpu" data-title="不止于数据库连接池的Druid" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -890,86 +542,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>是用Java开发的基于<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a>的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。</p>
-<p>对<a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/">Apache Solr</a>入门有兴趣的朋友请参考<a href="/solr">用容器快速上手Apache Solr</a>。</p>
-<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>关于Elasticsearch的入门知识，有一本gitbook：<a target="_blank" rel="noopener" href="https://www.gitbook.com/book/fuxiaopang/learnelasticsearch/details">《Elasticsearch 权威指南》</a>翻译得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Elasticsearch：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=es elasticsearch:2.3.5</span><br></pre></td></tr></table></figure>
-
-<p>我用的是mac，通过<code>docker-machine env default</code>命令可以看到默认的<code>default docker-machine</code>的IP地址是<code>192.168.99.100</code>，于是便可以通过<a target="_blank" rel="noopener" href="http://192.168.99.100:9200/">http://192.168.99.100:9200/</a>来从Elasticsearch获得json数据了：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;Lorvex&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cluster_name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;elasticsearch&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span> <span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;number&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2.3.5&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;build_hash&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;90f439ff60a3c0f497f91663701e64ccd01edbb4&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;build_timestamp&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;2016-07-27T10:36:52Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;build_snapshot&quot;</span> <span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;lucene_version&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;5.5.0&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tagline&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;You Know, for Search&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>也可以使用<code>_cat</code>直接在命令行获取Elasticsearch的健康状态和节点状态：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;192.168.99.100:9200/_cat/health?v&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;192.168.99.100:9200/_cat/nodes?v&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>与Solr不同，Elasticsearch只支持json格式。创建索引的过程，就是向服务器POST数据的过程：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;first_name&quot; : &quot;John&quot;,</span></span><br><span class="line"><span class="string">    &quot;last_name&quot; :  &quot;Smith&quot;,</span></span><br><span class="line"><span class="string">    &quot;age&quot; :        25,</span></span><br><span class="line"><span class="string">    &quot;about&quot; :      &quot;I love to go rock climbing&quot;,</span></span><br><span class="line"><span class="string">    &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>立刻就能得到Elasticsearch返回的结果：<strong>{“_index”:”megacorp”,”_type”:”employee”,”_id”:”AVbK2ssDm7bdYo65QJ6k”,”_version”:1,”_shards”:{“total”:2,”successful”:1,”failed”:0},”created”:true}</strong>。Url里的megacorp是索引的名字（想象成一个数据库），employee是类型的名字（想象成一张表）。返回的<code>_id</code>是Elasticsearch随机创建的一个ID，用于标识数据。</p>
-<p>可以通过以下url获取Elasticsearch的索引信息：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/_cat/indices?v&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>修改索引的话，发出PUT请求就可以了（别忘了把ID换成你自己生成的<code>_id</code>）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;first_name&quot; : &quot;Johnie&quot;,</span></span><br><span class="line"><span class="string">    &quot;last_name&quot; :  &quot;Smithreen&quot;,</span></span><br><span class="line"><span class="string">    &quot;age&quot; :        38,</span></span><br><span class="line"><span class="string">    &quot;about&quot; :      &quot;I do not love to go rock climbing&quot;,</span></span><br><span class="line"><span class="string">    &quot;interests&quot;: []</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>如果指定的ID不存在，那么PUT也会新建一条记录。删除索引的话，发出DELETE请求就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/AVbK2ssDm7bdYo65QJ6k&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>或者删除整个索引：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">&#x27;http://192.168.99.100:9200/megacorp&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>再次获取索引信息，便会看到已经没有索引了。让我们加上三条数据，以备下一节搜索使用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/1&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;first_name&quot; : &quot;John&quot;,</span></span><br><span class="line"><span class="string">    &quot;last_name&quot; :  &quot;Smith&quot;,</span></span><br><span class="line"><span class="string">    &quot;age&quot; :        25,</span></span><br><span class="line"><span class="string">    &quot;about&quot; :      &quot;I love to go rock climbing&quot;,</span></span><br><span class="line"><span class="string">    &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/2&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;first_name&quot; :  &quot;Jane&quot;,</span></span><br><span class="line"><span class="string">    &quot;last_name&quot; :   &quot;Smith&quot;,</span></span><br><span class="line"><span class="string">    &quot;age&quot; :         32,</span></span><br><span class="line"><span class="string">    &quot;about&quot; :       &quot;I like to collect rock albums&quot;,</span></span><br><span class="line"><span class="string">    &quot;interests&quot;:  [ &quot;music&quot; ]</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br><span class="line">curl -XPOST <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/3&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;first_name&quot; :  &quot;Douglas&quot;,</span></span><br><span class="line"><span class="string">    &quot;last_name&quot; :   &quot;Fir&quot;,</span></span><br><span class="line"><span class="string">    &quot;age&quot; :         35,</span></span><br><span class="line"><span class="string">    &quot;about&quot;:        &quot;I like to build cabinets&quot;,</span></span><br><span class="line"><span class="string">    &quot;interests&quot;:  [ &quot;forestry&quot; ]</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h2><h3 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h3><p>要查看刚刚创建的数据，直接get就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/1&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/2&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/3&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>全部查询改一下url就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/_search&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/_search&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="简易搜索"><a href="#简易搜索" class="headerlink" title="简易搜索"></a>简易搜索</h3><p>上面的命令都只能算查询，还不算搜索。接下来让我们尝试Elasticsearch强大的搜索功能：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search?q=last_name:Smith&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;query&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;match&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;last_name&quot; : &quot;Smith&quot;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="查询DSL"><a href="#查询DSL" class="headerlink" title="查询DSL"></a>查询DSL</h3><p>上面两条命令都是去获取<code>last_name</code>为<code>Smith</code>的数据，但是下面一条用到了<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">查询DSL</a>。这是Elasticsearch提供的DSL查询语言，可以通过它完成更加复杂的搜索。接下来除了<code>Smith</code>以外，我们还要增加30岁以上这一条件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;query&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;filtered&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;filter&quot; : &#123;</span></span><br><span class="line"><span class="string">                &quot;range&quot; : &#123;</span></span><br><span class="line"><span class="string">                    &quot;age&quot; : &#123; &quot;gt&quot; : 30 &#125; </span></span><br><span class="line"><span class="string">                &#125;</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            &quot;query&quot; : &#123;</span></span><br><span class="line"><span class="string">                &quot;match&quot; : &#123;</span></span><br><span class="line"><span class="string">                    &quot;last_name&quot; : &quot;smith&quot; </span></span><br><span class="line"><span class="string">                &#125;</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>在这里介绍一下<code>filter</code>和<code>query</code>。可以这么理解：<code>filter</code>是精确查找（想象成sql里where子句的&#x3D;、&lt;、&gt;），速度快，有缓存。<code>query</code>是模糊查找（想象成sql里where子句的like，但是能根据匹配度打分），虽然没有<code>filter</code>那么快，但是查询结果能更准确一些。业务上的查询通常都是同时使用二者，通过<code>filter</code>快速找到对象数据，再通过<code>query</code>来匹配。</p>
-<h3 id="全文搜索"><a href="#全文搜索" class="headerlink" title="全文搜索"></a>全文搜索</h3><p>接下来尝试全文搜索，从<code>about</code>的句子里查询想要的数据：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;query&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;match&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;about&quot; : &quot;rock climbing&quot;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>查到了两个结果。返回值包含了一项<code>_score</code>，既含有<code>rock</code>又含有<code>climbing</code>的数据，得分明显高于只含有<code>rock</code>的数据。理所当然的，得分高的数据排在上面。如果想要精确匹配<code>rock climbing</code>，把<code>match</code>改为<code>match_phrase</code>就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;query&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;match_phrase&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;about&quot; : &quot;rock climbing&quot;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="统计"><a href="#统计" class="headerlink" title="统计"></a>统计</h3><p>查找最受欢迎的兴趣：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  &quot;aggs&quot;: &#123;</span></span><br><span class="line"><span class="string">    &quot;all_interests&quot;: &#123;</span></span><br><span class="line"><span class="string">      &quot;terms&quot;: &#123; &quot;field&quot;: &quot;interests&quot; &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>查找每个兴趣的平均年龄：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://192.168.99.100:9200/megacorp/employee/_search&#x27;</span> -d <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;aggs&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;all_interests&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;terms&quot; : &#123; &quot;field&quot; : &quot;interests&quot; &#125;,</span></span><br><span class="line"><span class="string">            &quot;aggs&quot; : &#123;</span></span><br><span class="line"><span class="string">                &quot;avg_age&quot; : &#123;</span></span><br><span class="line"><span class="string">                    &quot;avg&quot; : &#123; &quot;field&quot; : &quot;age&quot; &#125;</span></span><br><span class="line"><span class="string">                &#125;</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>这些数据都是实时计算出来的。就像使用SQL来查询数据库一样，Elasticsearch提供了自己的DSL来让我们基于复杂的条件来搜索。<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html">这里</a>是统计功能的官方文档。</p>
-<h2 id="中文"><a href="#中文" class="headerlink" title="中文"></a>中文</h2><p>同Solr一样，要想让Elasticsearch支持中文分词，需要使用中文分词组件。这里我们还是用<a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-analysis-mmseg">mmseg插件</a>。首先下载并解压：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/medcl/elasticsearch-analysis-mmseg/releases/download/v1.9.4/elasticsearch-analysis-mmseg-1.9.4.zip</span><br><span class="line">unzip -d elasticsearch-analysis-mmseg-1.9.4 elasticsearch-analysis-mmseg-1.9.4.zip</span><br><span class="line">sed -i <span class="string">&#x27;s/2.3.4/2.3.5/&#x27;</span> elasticsearch-analysis-mmseg-1.9.4/plugin-descriptor.properties</span><br></pre></td></tr></table></figure>
-
-<p>1.9.4版的插件只支持Elasticsearch 2.3.4版，要想支持2.3.5，就需要把<code>elasticsearch.version</code>配置改为<code>2.3.5</code>。除此之外，还需要加点儿东西到Elasticsearch的配置文件里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span>  es.yml</span><br><span class="line">network.host: 0.0.0.0</span><br><span class="line">index:</span><br><span class="line">  analysis:</span><br><span class="line">    analyzer:</span><br><span class="line">      mmseg_maxword:</span><br><span class="line">        <span class="built_in">type</span>: custom</span><br><span class="line">        filter:</span><br><span class="line">        - lowercase</span><br><span class="line">        tokenizer: mmseg_maxword</span><br><span class="line">      mmseg_maxword_with_cut_letter_digi:</span><br><span class="line">        <span class="built_in">type</span>: custom</span><br><span class="line">        filter:</span><br><span class="line">        - lowercase</span><br><span class="line">        - cut_letter_digit</span><br><span class="line">        tokenizer: mmseg_maxword</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>上述配置文件的具体语法可以参考<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html">这里</a>。接下来就可以启动容器了，分别挂载配置文件和插件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f es</span><br><span class="line">docker run -d --net=host --name=es \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml \</span><br><span class="line">    -v `<span class="built_in">pwd</span>`/elasticsearch-analysis-mmseg-1.9.4/:/usr/share/elasticsearch/plugins/elasticsearch-analysis-mmseg-1.9.4/ \</span><br><span class="line">    elasticsearch:2.3.5</span><br></pre></td></tr></table></figure>
-
-<p>Elasticsearch服务启动后，就可以增加索引和<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html">映射</a>（mapping，可以理解为数据类型，有点像solr的schema），并且插入一些数据了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT http://192.168.99.100:9200/index</span><br><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/_mapping -d<span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;fulltext&quot;: &#123;</span></span><br><span class="line"><span class="string">        &quot;_all&quot;: &#123;</span></span><br><span class="line"><span class="string">            &quot;analyzer&quot;: &quot;mmseg_maxword&quot;,</span></span><br><span class="line"><span class="string">            &quot;search_analyzer&quot;: &quot;mmseg_maxword&quot;,</span></span><br><span class="line"><span class="string">            &quot;term_vector&quot;: &quot;no&quot;,</span></span><br><span class="line"><span class="string">            &quot;store&quot;: &quot;false&quot;</span></span><br><span class="line"><span class="string">        &#125;,</span></span><br><span class="line"><span class="string">        &quot;properties&quot;: &#123;</span></span><br><span class="line"><span class="string">            &quot;content&quot;: &#123;</span></span><br><span class="line"><span class="string">                &quot;type&quot;: &quot;string&quot;,</span></span><br><span class="line"><span class="string">                &quot;store&quot;: &quot;no&quot;,</span></span><br><span class="line"><span class="string">                &quot;term_vector&quot;: &quot;with_positions_offsets&quot;,</span></span><br><span class="line"><span class="string">                &quot;analyzer&quot;: &quot;mmseg_maxword&quot;,</span></span><br><span class="line"><span class="string">                &quot;search_analyzer&quot;: &quot;mmseg_maxword&quot;,</span></span><br><span class="line"><span class="string">                &quot;include_in_all&quot;: &quot;true&quot;,</span></span><br><span class="line"><span class="string">                &quot;boost&quot;: 8</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/1 -d<span class="string">&#x27;&#123;content:&quot;美国留给伊拉克的是个烂摊子吗&quot;&#125;&#x27;</span></span><br><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/2 -d<span class="string">&#x27;&#123;content:&quot;公安部：各地校车将享最高路权&quot;&#125;&#x27;</span></span><br><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/3 -d<span class="string">&#x27;&#123;content:&quot;中韩渔警冲突调查：韩警平均每天扣1艘中国渔船&quot;&#125;&#x27;</span></span><br><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/4 -d<span class="string">&#x27;&#123;content:&quot;中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>最后搜索<code>中国</code>看看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST http://192.168.99.100:9200/index/fulltext/_search  -d<span class="string">&#x27;</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    &quot;query&quot; : &#123; &quot;term&quot; : &#123; &quot;content&quot; : &quot;中国&quot; &#125;&#125;,</span></span><br><span class="line"><span class="string">    &quot;highlight&quot; : &#123;</span></span><br><span class="line"><span class="string">        &quot;pre_tags&quot; : [&quot;&quot;, &quot;&quot;],</span></span><br><span class="line"><span class="string">        &quot;post_tags&quot; : [&quot;&quot;, &quot;&quot;],</span></span><br><span class="line"><span class="string">        &quot;fields&quot; : &#123;</span></span><br><span class="line"><span class="string">            &quot;content&quot; : &#123;&#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以使用<code>_analyze</code>来查看分析的过程：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&quot;http://192.168.99.100:9200/index/_analyze?analyzer=mmseg_maxword&amp;pretty=true&quot;</span> -d <span class="string">&quot;美国留给伊拉克的是个烂摊子吗&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>可见，这句话被解析成：美国、留给、伊、拉克、的、是个、烂、摊子、吗，还不是非常完美。<code>伊拉克</code>、<code>烂摊子</code>都没有很好地识别出来。</p>
-<p>有兴趣的话，还可以重建容器，跟无中文分词的效果对比一下。除了mmseg，大神medcl还写了一个<a target="_blank" rel="noopener" href="https://github.com/medcl/elasticsearch-rtf">elasticsearch-rtf版本</a>，涵盖诸多中文分词工具，可以直接使用。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/elastic-search/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/elastic-search/" data-id="cuidofgg1fEy1bKxnf3sNRJtr" data-title="用容器快速上手Elasticsearch" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/elastic-search/" data-id="cuidCsdgnoaEUtD7-Mi9OmyKu" data-title="用容器快速上手Elasticsearch" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

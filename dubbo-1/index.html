@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/dubbo-new-project.jpg">
 <meta property="og:image" content="https://qinghua.github.io/img/dubbo-helloImpl.jpg">
 <meta property="article:published_time" content="2016-05-28T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.416Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.066Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="dubbo">
 <meta property="article:tag" content="service governance">
@@ -108,6 +108,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。它的<a target="_blank" rel="noopener" href="http://dubbo.io/">文档</a>也非常全面。本文将会大致介绍dubbo的思想，旨在快速上手自己搭建一套服务。</p>
+<span id="more"></span>
+
 <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Dubbo是当服务数量很多的时候，用来解决服务治理的问题。服务治理包括服务编排、服务路由、服务发现等一系列功能。它的<a target="_blank" rel="noopener" href="http://dubbo.io/User+Guide-zh.htm">用户指南</a>里介绍得很清楚了，这里就不再赘述了。Dubbo支持多种协议来进行远程调用，但是并不支持REST方式。当当在dubbo的基础上开发了<a target="_blank" rel="noopener" href="https://github.com/dangdangdotcom/dubbox">dubbox</a>（Dubbo eXtensions），<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">支持REST风格远程调用</a>。</p>
 <p>本文将会创建一个dubbo的服务提供者，注册到zookeeper服务注册中心，然后创建一个服务消费者，通过dubbo协议调用服务提供者的方法。<a href="/dubbo-2">下一篇文章</a>将会介绍在dubbo里使用dubbox提供的REST服务。</p>
 <h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先请自行安装Java、Maven和喜欢的IDE。我用的是<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/download/">Intellij IDEA社区版</a>。Dubbo可以使用Zookeeper来作为服务的注册中心，所以可以自行安装Zookeeper。我这里用Vagrant启动了一台已经安装过Docker的Ubuntu虚拟机，它的IP是<code>192.168.33.88</code>，可以用以下命令来直接启动Zookeeper容器来提供服务：</p>
@@ -151,7 +153,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dubbo-1/" data-id="cuidPWGwJWU0os4qn1z8gAq8b" data-title="服务治理框架dubbo上手指南" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dubbo-1/" data-id="cuidsb3KDdnaotwA7giNooe0G" data-title="服务治理框架dubbo上手指南" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

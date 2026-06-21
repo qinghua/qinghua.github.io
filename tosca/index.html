@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image003.png">
 <meta property="og:image" content="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/csprd02/TOSCA-Simple-Profile-YAML-v1.0-csprd02_files/image004.png">
 <meta property="article:published_time" content="2016-03-28T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.100Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.106Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="cloudify">
 <meta property="article:tag" content="tosca">
@@ -108,6 +108,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://www.oasis-open.org/committees/tosca/">TOSCA</a>（Topology and Orchestration Specification for Cloud Applications）是由OASIS组织制定的云应用拓扑编排规范。通俗地说，就是制定了一个标准，用来描述云平台上应用的拓扑结构。目前支持XML和YAML，Cloudiy的蓝图就是基于这个规范而来。这个规范比较庞大，本文尽量浓缩了<a target="_blank" rel="noopener" href="http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html">TOSCA的YAML版</a>前两章，以便用尽量少的时间了解尽量多的规范内容。</p>
+<span id="more"></span>
+
 <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>TOSCA的基本概念只有两个：节点（node）和关系（relationship）。节点有许多类型，可以是一台服务器，一个网络，一个计算节点等等。关系描述了节点之间是如何连接的。举个栗子：一个nodejs应用（节点）部署在（关系）名为host的主机（节点）上。节点和关系都可以通过程序来扩展和实现。</p>
 <p>目前它的开源实现有OpenStack (Heat-Translator，Tacker，Senlin)，Alien4Cloud，Cloudify等。</p>
 <h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p>首先登场的是广大程序猿和攻城狮们都喜闻乐见的Hello World，但是其实里面并没有Hello World，只是比较简单而已。先看下面这段描述文件：</p>
@@ -231,7 +233,7 @@ db:
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/tosca/" data-id="cuidg8HxMEPem5iCAcX1pv1Wv" data-title="TOSCA简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/tosca/" data-id="cuid_m0RjNM5pidZN-O5qhiHa" data-title="TOSCA简介" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

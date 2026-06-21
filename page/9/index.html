@@ -101,135 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们都知道docker支持多种存储驱动，默认在ubuntu上使用AUFS，其他Linux系统上使用devicemapper。这篇文章从零开始，用一些Linux的命令来使用这些不同的存储，包括AUFS、Device Mapper、Btrfs和Overlay。</p>
-<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p>Docker最早只是运行在Ubuntu和Debian上，使用的存储驱动是AUFS。随着Docker越来越流行，很多人都希望能把它运行在RHEL系列上。可是Linux内核和RHEL并不支持AUFS，最后红帽公司和Docker公司一起合作开发了基于Device Mapper技术的devicemapper存储驱动，这也成为Docker支持的第二款存储。由于Linux内核2.6.9就已经包含Device Mapper技术了，所以它也非常的稳定，代价是比较慢。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ZFS">ZFS</a>是被Oracle收购的Sun公司为Solaris 10开发的新一代文件系统，支持快照，克隆，<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#the-copy-on-write-strategy">写时复制</a>（CoW）等。ZFS的“Z”是最后一个字母，表示终极文件系统，不需要开发其它的文件系统了。虽然ZFS各种好，但是毕竟它的Linux版本是移植过来的，Docker官方并不推荐在生产环境上使用，除非你对ZFS相当熟悉。而且由于软件许可证不同的关系，它也无法被合并进Linux内核里。这么NB的文件系统出来后，Linux社区也有所回应。<a target="_blank" rel="noopener" href="https://btrfs.wiki.kernel.org/index.php/Main_Page">Btrfs</a>就是和ZFS比较类似的Linux原生存储系统，在Linux内核2.6.29里就包含它了。虽然Btrfs未来是要替换devicemapper的，但是目前devicemapper更安全，更稳定，更适合生产环境。所以如果不是有很经验的话，也不那么推荐在生产环境使用。<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/OverlayFS">OverlayFS</a>是类似AUFS的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/UnionFS">联合文件系统</a>，但是轻量级一些，而且还能快一点儿。更重要的是，它已经被合并到Linux内核3.18版了。虽然OverlayFS发展得很快，但是它还非常年轻，如果要上生产系统，还是要记得小心为上。Docker还支持一个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Virtual_file_system">VFS</a>驱动，它是一个中间层的抽象，底层支持ext系列，ntfs，nfs等等，对上层提供一个标准的文件操作接口，很早就被包含到Linux内核里了。但是由于它不支持写时复制，所以比较占磁盘空间，速度也慢，同样并不推荐上生产环境。</p>
-<p>说到这里，好几个存储驱动都上Linux内核了，怎么AUFS一直被拒于门外呢？AUFS是一个日本人岡島順治郎开发的，他也曾希望能把这个存储驱动提交到内核中。但是据说<a target="_blank" rel="noopener" href="http://www.programering.com/a/MTM0YDNwATQ.html">Linus Torvalds有点儿嫌弃AUFS的代码写得烂</a>……</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令启动并连接虚拟机：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
-
-<h2 id="AUFS"><a href="#AUFS" class="headerlink" title="AUFS"></a>AUFS</h2><p>AUFS是一个联合文件系统，也就是说，它是一层层垒上去的文件系统。最上层能看到的就是下层的所有系统合并后的结果。我们创建几个文件夹，layer1是最底层，result用来挂载，再搞几个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/aufs</span><br><span class="line"><span class="built_in">cd</span> ~/aufs</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> layer1 layer2 result</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file1 in layer1&quot;</span> &gt; layer1/file1</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file2 in layer1&quot;</span> &gt; layer1/file2</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file1 in layer2&quot;</span> &gt; layer2/file1</span><br></pre></td></tr></table></figure>
-
-<p>现在文件夹的层级结构看起来是酱紫的：</p>
-<p>└── aufs<br>    ├── layer1<br>    │   ├── file1    # file1 in layer1<br>    │   └── file2    # file2 in layer1<br>    ├── layer2<br>    │   └── file1    # file1 in layer2<br>    └── result</p>
-<p>然后一层层地挂载到result文件夹去（none的意思是挂载的不是设备文件），就能看到result现在有两个文件，以及它们的内容：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t aufs -o br=layer2=rw:layer1=ro none result</span><br><span class="line"></span><br><span class="line"><span class="built_in">ls</span> result</span><br><span class="line"><span class="built_in">cat</span> result/file1    <span class="comment"># file1 in layer2</span></span><br><span class="line"><span class="built_in">cat</span> result/file2    <span class="comment"># file2 in layer1</span></span><br></pre></td></tr></table></figure>
-
-<p>file1是由layer2提供的，file2是由layer1提供的，因为layer2里没有file2。如果我们在挂载后的目录写入file1~3：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file1 in result&quot;</span> &gt; result/file1</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file2 in result&quot;</span> &gt; result/file2</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;file3 in result&quot;</span> &gt; result/file3</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> layer1/file1    <span class="comment"># file1 in layer1</span></span><br><span class="line"><span class="built_in">cat</span> layer1/file2    <span class="comment"># file2 in layer1</span></span><br><span class="line"><span class="built_in">cat</span> layer2/file1    <span class="comment"># file1 in result</span></span><br><span class="line"><span class="built_in">cat</span> layer2/file2    <span class="comment"># file2 in result</span></span><br><span class="line"><span class="built_in">cat</span> layer2/file3    <span class="comment"># file3 in result</span></span><br></pre></td></tr></table></figure>
-
-<p>就会看到这些文件都是写入到layer2的。测试完成，清场~</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount result</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">rm</span> -rf aufs</span><br></pre></td></tr></table></figure>
-
-<p>想要了解更细致点的话可以参考<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/17061.html">Docker基础技术：AUFS</a>这篇文章。</p>
-<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_delete.jpg"></p>
-<p>虽然是删除文件的示例，但是也能清楚看到AUFS是怎么工作的。然后再结合docker一起看：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/aufs_layers.jpg"></p>
-<p>一切就都很清楚明了：一层层地累加所有的文件，最终加载到镜像里。</p>
-<h2 id="Device-Mapper"><a href="#Device-Mapper" class="headerlink" title="Device Mapper"></a>Device Mapper</h2><p>Device Mapper是块设备的驱动，它的写时复制是基于块而非文件的。它包含3个概念：原设备，快照和映射表，它们的关系是：原设备通过映射表映射到快照去。一个快照只能有一个原设备，而一个原设备可以映射成多个快照。快照还能作为原设备映射到其他快照中，理论上可以无限迭代。</p>
-<p>Device Mapper还提供了一种<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/device-mapper/thin-provisioning.txt">Thin-Provisioning</a>技术。它实际上就是允许存储的超卖，用以提升空间利用率。当它和快照结合起来的时候，就可以做到许多快照挂载在一个原设备上，除非某个快照发生写操作，不然不会真正给快照们分配空间。这样的原设备叫做<a target="_blank" rel="noopener" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Logical_Volume_Manager_Administration/thinprovisioned_volumes.html">Thin Volume</a>，它和快照都会由thin-pool来分配，超卖就发生在thin-pool之上。它需要两个设备用来存放实际数据和元数据。下面我们来创建两个文件，用来充当实际数据文件和元数据文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/devicemapper</span><br><span class="line"><span class="built_in">cd</span> ~/devicemapper</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> thin</span><br><span class="line"><span class="built_in">mkdir</span> snap1</span><br><span class="line"><span class="built_in">mkdir</span> snap11</span><br><span class="line"><span class="built_in">mkdir</span> snap12</span><br><span class="line"></span><br><span class="line"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=metadata.img bs=1024K count=1</span><br><span class="line"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=data.img bs=1024K count=10</span><br></pre></td></tr></table></figure>
-
-<p>文件建好了之后，用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Loop_device">Loop device</a>把它们模拟成块设备：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> losetup /dev/loop0 metadata.img</span><br><span class="line"><span class="built_in">sudo</span> losetup /dev/loop1 data.img</span><br><span class="line"><span class="built_in">sudo</span> losetup -a</span><br></pre></td></tr></table></figure>
-
-<p>然后创建thin-pool（参数的含义可以参考<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/17200.html">这篇文章</a>）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup create pool --table <span class="string">&quot;0 20480 thin-pool /dev/loop0 /dev/loop1 128 32768 1 skip_block_zeroing&quot;</span></span><br><span class="line"><span class="built_in">ls</span> /dev/mapper/    <span class="comment"># 这里就会多一个pool</span></span><br></pre></td></tr></table></figure>
-
-<p>之后创建Thin Volume并格式化：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_thin 0&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> dmsetup create thin --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 0&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> mkfs.ext4 /dev/mapper/thin</span><br><span class="line"><span class="built_in">ls</span> /dev/mapper/    <span class="comment"># 这里又会多一个thin</span></span><br></pre></td></tr></table></figure>
-
-<p>加载这个Thin Volume并往里写个文件。我的测试机器上需80秒左右才能把这个文件同步回thin-pool去。如果不等待，可能接下来的快照里就不会有这个文件；如果等待时间不足（小于30秒），可能快照里会有这个文件，但是内容为空。这个时间跟thin-pool的参数，尤其是先前创建的实际数据和元数据文件有关。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/thin thin</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo file1 in thin &gt; thin/file1&quot;</span></span><br><span class="line"><span class="built_in">sleep</span> 80s</span><br></pre></td></tr></table></figure>
-
-<p>睡饱后，给thin这个原设备添加一份快照snap1：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 1 0&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> dmsetup create snap1 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 1&quot;</span></span><br><span class="line"><span class="built_in">ls</span> /dev/mapper/    <span class="comment"># 这里又会多一个snap1</span></span><br></pre></td></tr></table></figure>
-
-<p>加载这个快照，能看见先前写的file1文件被同步过来了。再往里写个新文件。还是要保证睡眠充足：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/snap1 snap1</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l snap1</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> snap1/file1    <span class="comment"># file1 in thin</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo file2 in snap1 &gt; snap1/file2&quot;</span></span><br><span class="line"><span class="built_in">sleep</span> 80s</span><br></pre></td></tr></table></figure>
-
-<p>快照是能作为原设备映射成其他快照的，下面从snap1映射一份snap11：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 2 1&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> dmsetup create snap11 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 2&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>加载完后就能看到file1和file2都被同步过来了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/snap11 snap11</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l snap11</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> snap11/file1    <span class="comment"># file1 in thin</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> snap11/file2    <span class="comment"># file2 in snap1</span></span><br></pre></td></tr></table></figure>
-
-<p>一份原设备是可以映射成多个快照的，下面从snap1再映射一份snap12：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dmsetup message /dev/mapper/pool 0 <span class="string">&quot;create_snap 3 1&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> dmsetup create snap12 --table <span class="string">&quot;0 2048 thin /dev/mapper/pool 3&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> mount /dev/mapper/snap12 snap12</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l snap12</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> snap11/file1    <span class="comment"># file1 in thin</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> snap11/file2    <span class="comment"># file2 in snap1</span></span><br></pre></td></tr></table></figure>
-
-<p>测试完成，清场~</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount snap1</span><br><span class="line"><span class="built_in">sudo</span> umount snap11</span><br><span class="line"><span class="built_in">sudo</span> umount snap12</span><br><span class="line"><span class="built_in">sudo</span> umount thin</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> dmsetup remove snap11</span><br><span class="line"><span class="built_in">sudo</span> dmsetup remove snap12</span><br><span class="line"><span class="built_in">sudo</span> dmsetup remove snap1</span><br><span class="line"><span class="built_in">sudo</span> dmsetup remove thin</span><br><span class="line"><span class="built_in">sudo</span> dmsetup remove pool</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> losetup -d /dev/loop0</span><br><span class="line"><span class="built_in">sudo</span> losetup -d /dev/loop1</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">rm</span> -rf devicemapper</span><br></pre></td></tr></table></figure>
-
-<p>在RHEL，CentOS系列上，Docker默认使用loop-lvm，类似上文的机制（配的是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Sparse_file">稀疏文件</a>），虽然性能比本文要好，但也是堪忧。官方推荐使用<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/userguide/storagedriver/device-mapper-driver/#other-device-mapper-performance-considerations">direct-lvm</a>，也就是直接使用raw分区。<a target="_blank" rel="noopener" href="http://blog.opskumu.com/docker-storage-setup.html">这篇文章</a>介绍了如何在CentOS 7上使用direct-lvm。另外，<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/analysis-of-docker-file-system-aufs-and-devicemapper/">剖析Docker文件系统</a>对AUFS和Device Mapper有很详细的讲解。</p>
-<p>回头来看Docker官方的这幅图：<br><img src="http://farm1.staticflickr.com/703/22116692899_0471e5e160_b.jpg"></p>
-<p>一切就都很清楚明了：最底层是两个文件：数据和元数据文件。这两个文件上面是一个pool，再上面是一个原设备，然后就是一层层的快照叠加上去，直至镜像，充分共享了存储空间。</p>
-<h2 id="Btrfs"><a href="#Btrfs" class="headerlink" title="Btrfs"></a>Btrfs</h2><p>Btrfs的Btr是B-tree的意思，元数据用B树管理，比较高效。它也支持块级别的写时复制，性能也不错，对SSD有优化，但是不支持SELinux。它支持把文件系统的一部分配置为<a target="_blank" rel="noopener" href="https://btrfs.wiki.kernel.org/index.php/SysadminGuide#Subvolumes">Subvolume</a>子文件系统，父文件系统就像一个pool一样给这些子文件系统们提供底层的存储空间。这就意味着子文件系统无需关心设置各自的大小，反正背后有父文件系统撑腰。Btrfs还支持对子文件系统的快照，速度非常快，起码比Device Mapper快多了。快照在Btrfs里也是一等公民，同样也可以像Subvolume那样再快照、被加载，享受写时复制技术。</p>
-<p>要使用Btrfs，得先安装工具包：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install btrfs-tools</span><br></pre></td></tr></table></figure>
-
-<p>下面我们来创建一个文件，用Loop device把它模拟成块设备：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/btrfs</span><br><span class="line"><span class="built_in">cd</span> ~/btrfs</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> result</span><br><span class="line"></span><br><span class="line"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=data.img bs=1024K count=10</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> losetup /dev/loop0 data.img</span><br><span class="line"><span class="built_in">sudo</span> losetup -a</span><br></pre></td></tr></table></figure>
-
-<p>把这个块设备格式化成btrfs：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkfs.btrfs -f /dev/loop0</span><br><span class="line"><span class="built_in">sudo</span> mount /dev/loop0 result/</span><br></pre></td></tr></table></figure>
-
-<p>新建一个subvolumn并往里写个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume create result/origin/</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo file1 in origin &gt; result/origin/file1&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>给result&#x2F;origin这个subvolumn添加一份快照snap1，能看见先前写的file1文件被同步过来了。再往里写个新文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/origin/ result/snap1</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l result/snap1</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> result/snap1/file1    <span class="comment"># file1 in origin</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo file2 in snap1 &gt; result/snap1/file2&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>快照也像Device Mapper那样能生成其他的快照，下面从snap1生成一份snap11：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/snap1/ result/snap11</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l result/snap11</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> result/snap11/file1    <span class="comment"># file1 in origin</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> result/snap11/file2    <span class="comment"># file2 in snap1</span></span><br></pre></td></tr></table></figure>
-
-<p>也是可以生成多个快照的，下面从snap1再生成一份snap12：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume snapshot result/snap1/ result/snap12</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ls</span> -l result/snap12</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> result/snap12/file1    <span class="comment"># file1 in origin</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cat</span> result/snap12/file2    <span class="comment"># file2 in snap1</span></span><br></pre></td></tr></table></figure>
-
-<p>可以使用这个命令来查看所有快照：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs subvolume list result</span><br></pre></td></tr></table></figure>
-
-<p>可以使用这个命令来查看这个文件系统：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> btrfs filesystem show /dev/loop0</span><br></pre></td></tr></table></figure>
-
-<p>测试完成，清场~</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount result</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> losetup -d /dev/loop0</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">rm</span> -rf btrfs</span><br></pre></td></tr></table></figure>
-
-<p>我们看到它比Device Mapper更简单一些，并且速度很快，不需要sleep以待同步完成。<a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/cn/linux/l-cn-btrfs/index.html">这篇文章</a>虽然有点儿旧了，但是对Btrfs的原理讲得挺清楚的。</p>
-<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/btfs_container_layer.jpg"></p>
-<p>一切就都很清楚明了：最底层是个subvolume，再它之上层层累加快照，镜像也不例外。</p>
-<h2 id="Overlay"><a href="#Overlay" class="headerlink" title="Overlay"></a>Overlay</h2><p>最初它叫做OverlayFS，后来被合并进Linux内核的时候被改名为Overlay。它和AUFS一样都是联合文件系统。Overlay由两层文件系统组成：upper（上层）和lower（下层）。下层可以是只读的任意的Linux支持的文件系统，甚至可以是另一个Overlay，而上层一般是可读写的。所以模型上比AUFS要简单一些，这就是为什么我们会认为它更轻量级一些。</p>
-<p>用<code>uname -r</code>可以看到我们现在这个vagrant虚拟机的Linux内核版本是3.13，而内核3.18之后才支持Overlay，所以我们得先升级一下内核，否则在mount的时候会出错：<code>mount: wrong fs type, bad option, bad superblock on overlay</code>。运行以下命令来升级ubuntu 14.04的内核：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp/</span><br><span class="line"></span><br><span class="line">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-headers-3.18.0-031800-generic_3.18.0-031800.201412071935_amd64.deb</span><br><span class="line">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-headers-3.18.0-031800_3.18.0-031800.201412071935_all.deb</span><br><span class="line">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.18-vivid/linux-image-3.18.0-031800-generic_3.18.0-031800.201412071935_amd64.deb</span><br><span class="line"><span class="built_in">sudo</span> dpkg -i linux-headers-3.18.0-*.deb linux-image-3.18.0-*.deb</span><br><span class="line"><span class="built_in">sudo</span> update-grub</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> reboot</span><br></pre></td></tr></table></figure>
-
-<p>等待重启之后，重新连接进vagrant虚拟机：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
-
-<p>完成之后再用<code>uname -r</code>看一下，现在应该已经是3.18了。下面我们开搞吧：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ~/overlay</span><br><span class="line"><span class="built_in">cd</span> ~/overlay</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> lower upper work merged</span><br><span class="line"><span class="built_in">echo</span> file1 <span class="keyword">in</span> lower &gt; lower/file1</span><br><span class="line"><span class="built_in">echo</span> file2 <span class="keyword">in</span> lower &gt; lower/file2</span><br><span class="line"><span class="built_in">echo</span> file1 <span class="keyword">in</span> upper &gt; upper/file1</span><br></pre></td></tr></table></figure>
-
-<p>现在的文件层级结构看起来是酱紫的：</p>
-<p>├── lower<br>│   ├── file1   # file1 in lower<br>│   └── file2   # file2 in lower<br>├── merged<br>├── upper<br>│   └── file1   # file1 in upper<br>└── work</p>
-<p>然后我们加载merged，让它的下层是lower，上层是upper。除此之外还需要一个workdir，据说是用来<a target="_blank" rel="noopener" href="https://github.com/codelibre-net/schroot/issues/1">做一些内部文件原子性操作</a>的，必须是空文件夹：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t overlay overlay -olowerdir=lower,upperdir=upper,workdir=work merged</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> merged/file1   <span class="comment"># file1 in upper</span></span><br><span class="line"><span class="built_in">cat</span> merged/file2   <span class="comment"># file2 in lower</span></span><br></pre></td></tr></table></figure>
-
-<p>所以我们最终得到了类似AUFS一样的结果。测试完成，清场~</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount merged</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">rm</span> -rf overlay</span><br></pre></td></tr></table></figure>
-
-<p>在Linux内核3.19之后，overlay还能够支持多层lower（Multiple lower layers），这样就能更好地支持docker镜像的模型了。多层的mount命令是酱紫的：<code>mount -t overlay overlay -olowerdir=/lower1:/lower2:/lower3 /merged</code>，有兴趣的朋友可以再次升级Linux内核试试。</p>
-<p>回头来看Docker官方的这幅图：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs.jpg"></p>
-<p>很好地说明了OverlayFS驱动下容器和镜像的存储是怎么工作的，lower、upper和merged各自的关系。然后看看docker镜像：<br><img src="https://docs.docker.com/engine/userguide/storagedriver/images/overlay_constructs2.jpg"></p>
-<p>因为目前docker支持的还不是多层存储，所以在镜像里只是用硬链接来在较低层之间共享数据。今后docker应该会利用overlay的多层技术来改善镜像各层的存储。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>ZFS和VFS由于官方都不推荐上生产我们就不试了，虽然OverlayFS也不推荐，但是它毕竟代表着未来的趋势，还是值得我们看一看的。下表列出了docker所支持的存储驱动特性对比：</p>
-<p>驱动<br>联合文件系统<br>写时复制<br>内核<br>SELinux<br>上生产环境<br>速度<br>存储空间占用</p>
-<p>AUFS<br>是<br>文件级别<br>不支持<br>支持<br>推荐<br>快<br>小</p>
-<p>Device Mapper<br>不是<br>块级别<br>2.6.9<br>支持<br>有限推荐<br>慢<br>较大</p>
-<p>Btrfs<br>不是<br>块级别<br>2.6.29<br>不支持<br>有限推荐<br>较快<br>较小</p>
-<p>OverlayFS<br>是<br>文件级别<br>3.18<br>不支持<br>不推荐<br>快<br>小</p>
-<p>ZFS<br>不是<br>块级别<br>不支持<br>不支持<br>不推荐<br>较快<br>较小</p>
-<p>VFS<br>不是<br>不支持<br>2.4<br>支持<br>不推荐<br>很慢<br>大</p>
-
+        
+          <p class="article-more-link">
+            <a href="/docker-storage/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-storage/" data-id="cuidujVhljgeNSF3oGl4OI4Sf" data-title="Docker的存储是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-storage/" data-id="cuidbznH77GJxhuxwzxGPalrJ" data-title="Docker的存储是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -270,54 +150,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code># config.vm.network &quot;private_network&quot;, ip: &quot;192.168.33.10&quot;</code>，删掉前面的<code>#</code>注释，相当于给它分配一个<code>192.168.33.10</code>的IP。这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后运行以下命令启动并连接虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
-
-<h2 id="主机和容器间的网络连接"><a href="#主机和容器间的网络连接" class="headerlink" title="主机和容器间的网络连接"></a>主机和容器间的网络连接</h2><p>进入虚拟机后，在vagrant主机上运行<code>ifconfig</code>，就能看到有4个网络设备及它们的IPv4地址：</p>
-<ul>
-<li>docker0：172.17.0.1</li>
-<li>eth0：10.0.2.15</li>
-<li>eth1：192.168.33.10</li>
-<li>lo：127.0.0.1</li>
-</ul>
-<p>其中的<code>eth0</code>和<code>eth1</code>是普通的以太网卡，<code>eth1</code>就是我们解除注释的IP：<code>192.168.33.10</code>。<code>lo</code>是所谓的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Loopback">环回网卡</a>，每台机器都有。它将这台机器&#x2F;容器绑定到<code>127.0.0.1</code>的IP上，这样子就算没有真实的网卡，也能通过这个IP访问自己，对于测试来说尤其方便。最上面的<code>docker0</code>就是我们常说的网桥。怎么知道它是个网桥呢？安装<code>bridge-utils</code>的包就能看到了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install bridge-utils</span><br><span class="line">brctl show</span><br></pre></td></tr></table></figure>
-
-<p>网桥设备就好比交换机，可以和其他的网络设备相连接，就像在其他网络设备上拉根网线到这个交换机一样。那么docker怎么使用这个网桥呢，让我们来启动一个容器看看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name=ubuntu ubuntu:14.04 bash</span><br></pre></td></tr></table></figure>
-
-<p>进入容器后，运行<code>ifconfig</code>，就能够看到有2个网络设备及它们的IPv4地址：</p>
-<ul>
-<li>eth0：172.17.0.2</li>
-<li>lo：127.0.0.1</li>
-</ul>
-<p>它也有自己的<code>lo</code>，还有一块以太网卡<code>eth0</code>，目前的IP是<code>172.17.0.2</code>。使用快捷键<code>Ctrl+P</code>然后再<code>Ctrl+Q</code>，就能退出容器并保持它继续运行。在vagrant主机上运行<code>route</code>命令，可以看到类似下面这个表格：</p>
-<p>Destination<br>Gateway<br>Genmask<br>Flags<br>Metric<br>Ref<br>Use<br>Iface</p>
-<p>default<br>10.0.2.2<br>0.0.0.0<br>UG<br>0<br>0<br>0<br>eth0</p>
-<p>10.0.2.0<br>*<br>255.255.255.0<br>U<br>0<br>0<br>0<br>eth0</p>
-<p>172.17.0.0<br>*<br>255.255.0.0<br>U<br>0<br>0<br>0<br>docker0</p>
-<p>192.168.33.0<br>*<br>255.255.255.0<br>U<br>0<br>0<br>0<br>eth1</p>
-<p>这个就是vagrant主机的路由表。我们重点看一下<code>172.17.0.0</code>这一行。它的Genmask为<code>255.255.0.0</code>，就意味着<code>255.255</code>对应着的IP<code>172.17</code>是网络地址，而Genmask中<code>0.0</code>对应着的IP<code>0.0</code>是主机地址。整行的意思就是当目标地址是<code>172.17.*.*</code>的时候，匹配这条路由规则。还有一种写法是<code>172.17.0.0/16</code>。当Gateway不为<code>*</code>号时，那就会路由到Gateway去，否则就路由到Iface去。刚才我们知道新容器的IP是<code>172.17.0.2</code>，所以当vagrant主机上的某个数据包的地址是这个新容器的IP时，就会匹配这条路由规则，由docker0来接受这个数据包。如果数据包的地址都不匹配这些规则，就送到<code>default</code>那一行的<code>Gateway</code>里。</p>
-<p>那么docker0在接收数据包之后，又会送到哪里去呢？我们在vagrant主机再次运行<code>brctl show</code>，便能看到docker0这个网桥有所变化。它的<code>interfaces</code>里增加了一个<code>vethXXX</code>，在我的机器上叫<code>vethd6d3942</code>。在vagrant主机再次运行<code>ifconfig</code>，我们也能看到这一块新增的VETH虚拟网卡。实际上每启动一个容器，docker便会增加一个叫<code>vethXXX</code>的设备，并把它连接到docker0上，于是docker0就可以把收到的数据包发给这个VETH设备。VETH设备总是成对出现，一端进去的请求总会从peer也就是另一端出来，这样就能将一个namespace的数据发往另一个namespace，就像虫洞一样。那么现在这一端是<code>vethd6d3942</code>，它的另一端是哪儿呢？运行这个命令（记得把VETH设备名改成你自己主机上的设备名）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ethtool -S vethd6d3942</span><br></pre></td></tr></table></figure>
-
-<p>可以看到这个VETH设备的<code>peer_ifindex</code>是某个数字，在我的机器上是<code>5</code>。这个<a target="_blank" rel="noopener" href="http://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/28420-ifIndex-Persistence.html">ifindex</a>是一个网络接口的唯一识别编号。通过<code>docker exec -it ubuntu bash</code>进入容器里，然后运行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="built_in">link</span></span><br></pre></td></tr></table></figure>
-
-<p>可以看到<code>5: eth0</code>，原来跨越namespace跑到容器里头来啦。这就是主机上的VETH设备能跟容器内部通信的原因。每当新启动一个容器，主机就会增加一对VETH设备，把一个连接到docker0上，另一个挂载到容器内部的eth0里。</p>
-<h2 id="IP和mac地址映射"><a href="#IP和mac地址映射" class="headerlink" title="IP和mac地址映射"></a>IP和mac地址映射</h2><p>还有一个问题：每个网络设备都有自己的mac地址，通过ip怎么能找到它呢？在容器外运行这个命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arp -n</span><br></pre></td></tr></table></figure>
-
-<p>我们就能看到<code>Address</code>和<code>HWaddress</code>，它们分别对应着IP地址和mac地址，这样就匹配起来了。到容器里<code>ifconfig</code>一下，看看<code>172.17.0.2</code>的mac地址，是不是和主机<code>arp -n</code>运行结果中<code>172.17.0.2</code>那行的mac地址一样呢？</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/cn/linux/1310_xiawc_networkdevice/">Linux上的基础网络设备详解</a>，介绍了不同的网络设备工作原理。<br><a target="_blank" rel="noopener" href="http://www.oschina.net/translate/docker-network-configuration">Docker网络配置</a>，从零开始配置docker的网络。<br><a target="_blank" rel="noopener" href="http://vbird.dic.ksu.edu.tw/linux_server/0110network_basic.php">基础网络概念</a>，来自鸟哥，深入浅出地介绍了网络的基础知识。<br><a target="_blank" rel="noopener" href="http://linux.vbird.org/linux_server/0140networkcommand.php">Linux常用网络命令</a>，来自鸟哥，看完了就对茫茫的网络命令有了清晰的了解。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/docker-bridge-network/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuid_vOoag67orevwNvLbDhHB" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuiduO2c8Z2YUvv1BzcYIZiiD" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -358,35 +199,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://www.ansible.com/get-started">Ansible</a>是一个配置管理工具，可以用脚本批量操作多台机器。它的特点是非常简洁，基于<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/Secure_Shell_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)">SSH</a>，不需要安装代理。但它的缺点也很明显：效率较低，容易挂起，不那么适合大规模环境（如500台以上）。本文介绍了使用ansible管理大规模集群的几种方法。</p>
-<h2 id="增加并行进程数"><a href="#增加并行进程数" class="headerlink" title="增加并行进程数"></a>增加并行进程数</h2><p>Ansible提供一个<a target="_blank" rel="noopener" href="http://docs.ansible.com/ansible/intro_configuration.html#forks">forks</a>的属性，可以设置运行并行进程数。这个值默认比较保守，只有5个并行进程。我们可以根据自己的机器性能以及网络情况来设定，很多人使用50，也有用500以上的。如果有很多机器要管理的话，可以尝试先增加这个值，看看效果。有三个地方可以设置forks的数量：</p>
-<ul>
-<li>环境变量：<code>export ANSIBLE_FORKS=100</code></li>
-<li>ansible.cfg这个配置文件里设置：<code>forks=100</code></li>
-<li>运行ansible命令时增加参数：<code>-f 100</code></li>
-</ul>
-<p>当机器数量比较大的时候，难免会有几台机器不能正常执行。这时候ansible会有提示<code>to retry, use: --limit @/xxx/xxx.retry</code>，把它增加到上个命令的后面就好了。</p>
-<h2 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h2><p>有时候执行某个任务可能需要很长的时间，在集群规模较大的情况下慢得让人无法忍受。这时可以考虑使用<a target="_blank" rel="noopener" href="http://docs.ansible.com/ansible/playbooks_async.html">异步模式</a>。在<code>tasks</code>里增加<code>async</code>的属性，设成某个数字，比如60，意思就是这个任务最大运行时间不能超过60秒。也可以设成0，意思是不管任务运行多久，一直等待即可。如果没有指定<code>async</code>，则默认为同步模式。还可以设定<code>poll</code>，默认值为10，意思就是每隔10秒轮询查看结果。如果不需要查看结果，设为0就好了。还可以通过<code>register</code>和<code>async_status</code>设定暂时不查看结果，等需要的时候再查看。具体做法可以参考上面的<a target="_blank" rel="noopener" href="http://docs.ansible.com/ansible/playbooks_async.html">异步模式官网文档</a>，也可以看<a target="_blank" rel="noopener" href="http://www.ansible.com.cn/docs/playbooks_async.html">翻译的中文文档</a>。</p>
-<h2 id="Pull模式"><a href="#Pull模式" class="headerlink" title="Pull模式"></a>Pull模式</h2><p>有些配置管理工具比如<a target="_blank" rel="noopener" href="https://www.chef.io/chef/">Chef</a>和<a target="_blank" rel="noopener" href="https://puppetlabs.com/">Puppet</a>，是基于拉模式的。所谓拉模式，是酱紫的：</p>
-<ul>
-<li>管理员写脚本</li>
-<li>管理员上传脚本</li>
-<li>agent定时取脚本（例如每隔1分钟）</li>
-<li>agent运行新脚本</li>
-</ul>
-<p>Ansible是没有agent的，它默认基于推模式，也就是说：</p>
-<ul>
-<li>管理员写脚本</li>
-<li>管理员运行脚本</li>
-<li>ansible连接各主机运行脚本</li>
-</ul>
-<p>一般来说，拉模式能轻松应付大规模集群，因为每台机器都是自己去拉取脚本来完成任务。不过也有人用ansible的推模式管理着上千台机器。Ansible提供了<a target="_blank" rel="noopener" href="http://docs.ansible.com/ansible/playbooks_intro.html#ansible-pull">ansible-pull</a>的工具，能把它变成拉模式。官方资料不多，<a target="_blank" rel="noopener" href="https://www.stavros.io/posts/automated-large-scale-deployments-ansibles-pull-mo/">这篇文章</a>写得比较详细。大致思路是新建一个<a target="_blank" rel="noopener" href="http://git-scm.com/">git</a>的仓库，每台机器运行一个cron定时任务（扮演者agent的角色）每隔一段时间去仓库取最新脚本，然后运行之。在<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/ansible/ansible/stable-2.0/CHANGELOG.md">ansible 2.0</a>里<code>ansible-pull</code>也有若干改进。</p>
-<h2 id="多级调度"><a href="#多级调度" class="headerlink" title="多级调度"></a>多级调度</h2><p>还有一种想法是：如果一台主机的性能只能撑100<code>forks</code>，那么10台主机应该就能撑1000台机器。将这1000台机器分区，比如A区到J区。所以由一台主机分发命令给10台主机，让它们各自运行<code>ansible-playbook</code>，而每台主机根据不同的<a target="_blank" rel="noopener" href="http://docs.ansible.com/ansible/intro_inventory.html">inventory</a>或者是不同的<a target="_blank" rel="noopener" href="http://allandenot.com/devops/2015/01/16/ansible-with-multiple-inventory-files.html">limit方式</a>来控制不同区的机器并返回结果。理论上这样的多级调度是能够撑起大规模集群的，就是脚本写起来比较麻烦，需要考虑一级主机和二级主机。</p>
-<h2 id="其他参考资料"><a href="#其他参考资料" class="headerlink" title="其他参考资料"></a>其他参考资料</h2><p>说到底，如果运行得快，那么集群规模大一点也可以。<a target="_blank" rel="noopener" href="http://www.ansible.com/blog/ansible-performance-tuning">这篇文章</a>介绍了一些ansible性能调优的方法。<br><a target="_blank" rel="noopener" href="https://mackerel.io/">Mackerel</a>是一个监控平台。<a target="_blank" rel="noopener" href="http://yuuki.hatenablog.com/entry/ansible-mackerel-1000">这篇日文文章</a>介绍了使用Ansible和Mackerel API管理1000台规模集群的方法。<a target="_blank" rel="noopener" href="http://www.ansible.com/tower">Ansible tower</a>也提供了类似的可视化管理页面，官方出品，是不是更靠谱呢。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/ansible-large-scale-cluster/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ansible-large-scale-cluster/" data-id="cuiddJPOqlCs3rQOzl_gAybom" data-title="用ansible管理大规模集群" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ansible-large-scale-cluster/" data-id="cuidvKrgzNEixqL2F7HJ-vKU_" data-title="用ansible管理大规模集群" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -427,38 +248,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这是启动会议结束之后一周内发生的事。我们现在有了迭代计划，一堆的story和一堆迷茫的人。接下来怎么做开发？本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a></li>
-</ul>
-<h2 id="迭代开始"><a href="#迭代开始" class="headerlink" title="迭代开始"></a>迭代开始</h2><p>上次刚刚理清楚了各组自己的需求，但是组员们并不是都完全了解。Ken先把所有人都召集起来，告诉大家：现在需求不仅仅是BA的事情了，需求不清是开发和测试的责任，大家有义务互相协作，把需求理清楚。各个PO开始讲依赖：有没有依赖于其他组的story？有没有依赖其他人（比如整个大组只有一位安全专家，可能有些story会对这个人有依赖）？PO们讲完了，有的组可能就凭空多了几张被别的组所依赖的卡，优先级还都比较高。所以需要重新安排一下迭代。计划调整完后，各个PO依次大致地给SPO讲一下自己组第一迭代的主要功能和风险，在获得SPO的认可之后，第一个迭代的计划就算确定下来。</p>
-<p>然后就该每个组员认领story了。Ken要求每个story都要有对应的开发和测试人员，从新人开始认领。每个成员自己想学什么，想做什么，职业规划是什么，按照它们来决定自己要开发的story。这样的目的是激发每个人的潜能，提高团队的能力，而不仅仅是着眼于这个版本的交付。同样的，每个成员，都不仅仅是开发这个版本，而是开发一个产品。现实中，可能会出现胡乱挑卡的情况，比如说A卡可能很适合甲来做，但是乙是新人，抢先把卡挑走了，这时候就需要PO来与大家沟通，做决策。</p>
-<p>落实完了每个人的工作，Ken又把大家叫到一起，问：你们对按时发布有没有信心？5分就是信心指数最高，1分最低，大家一起伸手指示意。大部分人都举4或者5，也许是无所谓，也许是还没适应一个有话就应该讲出来的环境。有个别成员伸3个指头的，就需要解释一下为什么信心不足，SPO需要当场把问题解决，尽量做到所有人都信心爆棚，起码看上去得是这样。</p>
-<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>到了具体开发阶段了，怎么做呢？第二天就是一堂需求分析的课程。大家探讨一下开发和测试怎么协作，需求应该怎么分析，测试用例应该怎么写。对于一个story，开发人员需要知道怎么测，做出来的东西由谁来用，才有能力开发。Ken引入了场景树来做需求分析。举个栗子：一个<strong>买手机</strong>的story。看起来好像需求很明确，但是具体做就会有各种问题：到底对方要的是什么样的手机？所以开发前必须搞清楚，这个story的目的是什么。买手机是内容，不是目的。用5个为什么来深挖，可能就能得到这样的目的：<strong>女朋友手机坏了，让我买个新手机</strong>。然后我们可以画出这样的图：<br><img src="/img/scene-tree-1.png"></p>
-<p>第一个步骤可能就是去取款准备买手机。这个步骤可以用<strong>活动</strong>、<strong>实体</strong>、<strong>结果</strong>来建模。活动应该是动词，描述一个活动：取款。它产生了一个名词实体：人民币。校验这个实体可以得到结果，结果具有若干维度。有点晕？看图：<br><img src="/img/scene-tree-2.png"></p>
-<p>取款这个活动，产生了人民币这个实体。结果的维度是金额。取完款之后，去手机店的动作，产生了手机店这个实体。结果的维度有哪家店和日期时间。到店之后，购买手机的活动产生了手机这个实体。结果的维度有品牌、型号、价格等等。这些维度越清晰，这个需求分析的质量越好。如图：<br><img src="/img/scene-tree-3.png"></p>
-<p>有的朋友可能会问：除了最后得到新手机，是不是也得校验我取的款花了多少，那怎么体现在图里呢？这个还是看需求。如果必要的话，可以在购买完手机后増加一个计算余额的活动。</p>
-<h2 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h2><p>画完场景图之后，就能比较容易地根据实体和维度导出测试用例来。还是以买手机为例：首先验证第一个实体：人民币。画张表格如下：</p>
-<p>金额<br>预期结果<br>备注</p>
-<p>人民币<br>1000<br>OK</p>
-<p>人民币<br>0<br>NG<br>银行账户余额不足</p>
-<p>从Given、When、Then的角度上看，再加上Given，这就是一个很具体的单元测试用例。然后是手机店：</p>
-<p>哪家店<br>日期时间<br>预期结果<br>备注</p>
-<p>手机店<br>国美<br>2016&#x2F;01&#x2F;20 10:00:00<br>OK</p>
-<p>手机店<br>苏宁<br>2016&#x2F;01&#x2F;20 22:00:00<br>NG<br>下班了</p>
-<p>手机店<br>苏美<br>2016&#x2F;01&#x2F;20 10:00:00<br>NG<br>没有这家店</p>
-<p>最后是新手机：</p>
-<p>品牌<br>型号<br>价格<br>预期结果<br>备注</p>
-<p>新手机<br>小米<br>Mi Note<br>1999<br>OK</p>
-<p>新手机<br>魅族<br>MX-5<br>1799<br>NG<br>没有这个型号</p>
-<p>新手机<br>华为<br>Mate8<br>-3199<br>NG<br>价格不正确</p>
-<p>新手机<br>小魅<br>MiMX<br>999<br>NG<br>没有这个品牌</p>
-<p>从上面这几张表我们也能看出来，维度越多，测试案例也就越多，所以说需求的质量就会越高。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/waterfall-to-agile-2/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/waterfall-to-agile-2/" data-id="cuidOOjP-kDHPPXBQ0cNzDEW4" data-title="传统企业敏捷转型纪实（二）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/waterfall-to-agile-2/" data-id="cuidWEUraSu1Vpb1nS8vA-rzC" data-title="传统企业敏捷转型纪实（二）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -499,36 +297,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的集中化日志方案。日志通常是由许多文件组成，被分散地储存到不同的地方，所以需要集中化地进行日志的统计和检索。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="集中化日志架构"><a href="#集中化日志架构" class="headerlink" title="集中化日志架构"></a>集中化日志架构</h2><p><a target="_blank" rel="noopener" href="http://jasonwilder.com/blog/2013/07/16/centralized-logging-architecture/">集中化日志架构</a>包括这几个阶段：收集、传输、存储和分析，有时候也许会涉及告警。</p>
-<ul>
-<li>收集：通常以代理的形式运行在各个节点上，负责收集日志。我们希望能尽可能地实时，因为当我们重现一个bug的时候，不会愿意再等上好几分钟才能看到当时的操作日志。</li>
-<li>传输：把收集到的日志传给存储。这个阶段关注的是可靠性。万一日志丢失的话那可就麻烦了。</li>
-<li>存储：按需选择用什么形式的存储。比如要存多久时间？要不要支持扩容？找历史数据的可能性有多大？</li>
-<li>分析：不同的分析工具适用于不同的存储。这个也包含可视化的分析及报表导出等等。</li>
-<li>告警：出现错误日志的时候通知运维人员。最好还能聚合相同的错误，因为作为运维来说，实在是不想看到同一个类型的错误不停地骚扰过来。</li>
-</ul>
-<h2 id="传统日志方案"><a href="#传统日志方案" class="headerlink" title="传统日志方案"></a>传统日志方案</h2><p>商业方案<a target="_blank" rel="noopener" href="http://www.splunk.com/">splunk</a>几乎拥有市面上最丰富的功能，高可用，可扩展，安全，当然很复杂也很贵。还有一个试图成为splunk的SaaS版本<a target="_blank" rel="noopener" href="https://www.sumologic.com/">Sumo Logic</a>，包含精简的免费版和收费版。免费方案中比较著名的有Elasticsearch公司（现在叫Elastic公司）的<a target="_blank" rel="noopener" href="https://www.elastic.co/webinars/introduction-elk-stack">ELK</a>和Apache的<a target="_blank" rel="noopener" href="http://flume.apache.org/">Flume</a>+<a target="_blank" rel="noopener" href="http://kafka.apache.org/">Kafka</a>+<a target="_blank" rel="noopener" href="http://storm.apache.org/">Storm</a>。</p>
-<p>ELK是<a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elastic search</a>、<a target="_blank" rel="noopener" href="https://www.elastic.co/products/logstash">Logstash</a>和<a target="_blank" rel="noopener" href="https://www.elastic.co/products/kibana">Kibana</a>三个开源软件的组合。其中logstash可以对日志进行收集、过滤和简单处理，并将其存储到elastic search上，最终供kibana展示（和上一篇的监控很类似啊）。这套方案可以参考<a target="_blank" rel="noopener" href="http://dockone.io/article/505">新浪的实时日志架构</a>。这一本<a target="_blank" rel="noopener" href="http://kibana.logstash.es/content/">ELKstack 中文指南</a>也写得非常详细。</p>
-<p>Apache的flume扮演者类似logstash的角色来收集数据，storm可以对flume采集到的数据进行实时分析。由于数据的采集和处理速度可能不一致，因此用消息中间件kafka来作为缓冲。但是kafka不可能存储所有的日志数据，所以会用其他的存储系统来负责持久化，如同样由Apache提供的<a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r1.2.1/hdfs_design.html">HDFS</a>。这套方案可以参考<a target="_blank" rel="noopener" href="http://tech.meituan.com/mt-log-system-arch.html">美团的日志收集系统架构</a>。如果需要对分析后的结果持久化，还可以引入<a target="_blank" rel="noopener" href="https://www.mysql.com/">mysql</a>等数据库。</p>
-<h2 id="kubernetes方案"><a href="#kubernetes方案" class="headerlink" title="kubernetes方案"></a>kubernetes方案</h2><p>虽然也支持logstash，Kubernetes官方使用的是<a target="_blank" rel="noopener" href="http://www.fluentd.org/">fluentd</a>（有<a target="_blank" rel="noopener" href="http://www.tuicool.com/articles/7FzqeeI">文章</a>称logstash侧重可扩展性而fluentd侧重可靠性）。比方说我们要收集tomcat的日志，可以在tomcat的pod里增加一个<a target="_blank" rel="noopener" href="https://github.com/kubernetes/contrib/tree/master/logging/fluentd-sidecar-es">fluentd-sidecar-es</a>的辅助容器，指定tomcat容器的日志文件地址，再指定elastic search服务的位置（对于fluentd-sidecar-es这个特定容器来说，是写死在td-agent.conf文件里的），fluentd便会自行将日志文件发送给elastic search。至于kibana，只需指定elastic search的url就能用了。这是kibana的日志页面：<br><img src="/img/kibana.jpg"></p>
-<p>还可以根据日志来配置各种图表，生成很炫的Dashboard。这个是官方的<a target="_blank" rel="noopener" href="http://demo.elastic.co/packetbeat/">demo</a>：<br><img src="/img/kibana-official.jpg"></p>
-<p>如果日志不是写到文件系统，而是写到stdout或者stderr，那么kubernetes直接就可以用logs命令看到，就不需要这一整套了。但是一个复杂的web应用，通常还是有复杂的日志文件配置的。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-5/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-5/" data-id="cuiddlhXNai_57FfiyVA-3zO9" data-title="如果有10000台机器，你想怎么玩？（五）日志" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-5/" data-id="cuidTlPweHvOaQPsaRd3y_eVo" data-title="如果有10000台机器，你想怎么玩？（五）日志" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -569,30 +346,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的监控告警方案。所谓监控主要就是收集和储存主机和容器的实时数据，根据运维人员的需求展示出来的过程。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a>数据采集</h2><p><a target="_blank" rel="noopener" href="https://github.com/google/cadvisor">cAdvisor</a>由谷歌出品，可以收集主机及容器的CPU、内存、网络和存储的各项指标。它也提供了REST API以供其他程序来收集这些指标。可以很简单地用容器将它启动起来。它提供了一个页面，通过下面这幅图可以有个直观地认识：<br><img src="/img/cAdvisor.jpg"><br>kubelet集成了cAdvisor，由于kubernetes会在每个slave上启动kubelet，所以我们不用额外运行cAdvisor容器，就能够监控所有slave的主机和容器。</p>
-<p>从cAdvisor提供的漂亮页面上，我们能看到某台主机及其中的容器监控数据。但是还不够，我们想要的是整个集群的数据，而非一个个单体。这时候就轮到<a target="_blank" rel="noopener" href="https://github.com/kubernetes/heapster">heapster</a>出场了。它支持cAdvisor和kubernetes v1.0.6及后续的版本。运行heapster需要指定两个参数：一个是用https的方式启动的kubernetes api server用来收集数据，另一个是将收集到的数据储存起来的地方，以供随时查看。</p>
-<h2 id="数据存储"><a href="#数据存储" class="headerlink" title="数据存储"></a>数据存储</h2><p><a target="_blank" rel="noopener" href="https://influxdata.com/time-series-platform/influxdb/">InfluxDB</a>正是这样一个数据存储的地方。它是InfluxData公司开发的一个分布式键值<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/database-timestamp-01">时序数据库</a>，也就是说，任何数据都包含时间属性。这样可以很方便地查询到某段时间内的监控数据。举个栗子，查找5分钟前的数据：<code>WHERE time &gt; NOW() - 5m</code>。InfluxDB提供了前端页面供我们查找数据：<br><img src="/img/InfluxDB.jpg"></p>
-<p>听说InfluxDB的性能一般，如果使用中遇到坑，可以试试<a target="_blank" rel="noopener" href="http://opentsdb.net/">OpenTSDB</a>。</p>
-<h2 id="数据可视化"><a href="#数据可视化" class="headerlink" title="数据可视化"></a>数据可视化</h2><p>数据也都整合起来了，现在缺的是一个页面将这些数据显示出来。<a target="_blank" rel="noopener" href="http://grafana.org/">Grafana</a>是纯js开发的、拥有很炫页面的，你们喜欢的Darcula风格的前端。只要指定InfluxDB的url，它就可以轻易地将数据显示出来。看看这个页面：<br><img src="/img/Grafana.jpg"></p>
-<p>heapster的数据除了传送出去保存起来，也可以被<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubedash">kubedash</a>所用。它也提供了监控信息的实时聚合页面，可是由于没有地方储存，看不了历史数据：<br><img src="/img/kubedash.jpg"></p>
-<h2 id="告警"><a href="#告警" class="headerlink" title="告警"></a>告警</h2><p>InfluxData公司除了InfluxDB，还提供了一整套的<a target="_blank" rel="noopener" href="https://influxdata.com/get-started/what-is-the-tick-stack/">TICK stack</a>开源方案，其中的<a target="_blank" rel="noopener" href="https://influxdata.com/time-series-platform/kapacitor/">Kapacitor</a>正是一个我们需要的告警平台。它使用叫做<a target="_blank" rel="noopener" href="https://docs.influxdata.com/kapacitor/v0.2/tick/">TICKscript</a>的DSL，通过数据流水线来定义各种任务。通知方式除了写log、发送http请求和执行脚本，还支持<a target="_blank" rel="noopener" href="https://slack.com/">Slack</a>、<a target="_blank" rel="noopener" href="https://www.pagerduty.com/">PagerDuty</a>和<a target="_blank" rel="noopener" href="https://victorops.com/">VictorOps</a>。因为Kapacitor和InfluxDB都是InfluxData公司的产品，所以它们之间的无缝集成也是理所当然的。</p>
-<h2 id="其他解决方案"><a href="#其他解决方案" class="headerlink" title="其他解决方案"></a>其他解决方案</h2><p><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus">Prometheus</a>是一个监控系统解决方案，包含了数据采集、时序数据库、UI可视化、告警等诸多功能。它的特点是可以实现多纬度的监控，在对比不同实例的监控数据图上有优势。它还有许多的<a target="_blank" rel="noopener" href="https://prometheus.io/docs/instrumenting/exporters/">exporter</a>可以很方便地从许多第三方应用中导出数据，如Apache、AWS、Redis等，也支持Mesos、Kubernetes和Kubernetes-Mesos。可以参考<a href="/prometheus">《用容器轻松搭建Prometheus运行环境》</a>来自己搭建一个测试环境。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-4/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-4/" data-id="cuidwgqtOGxZdpHgQcre_GKRJ" data-title="如果有10000台机器，你想怎么玩？（四）监控" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-4/" data-id="cuidf2Nkb5ARRYpTBnvVBbdqD" data-title="如果有10000台机器，你想怎么玩？（四）监控" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -633,30 +395,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这是发生在某大型企业中的某个部门的事儿。他们有六七十名成员，运用瀑布开发模式，三个月发布一次内部产品。部署的过程长达一周，质量堪忧，交付日难以保证。于是请来一位很有经验的敏捷教练Ken，来帮助这个部门做敏捷转型，解决问题。本文的主要内容是在培训完敏捷的基本思想后，<a target="_blank" rel="noopener" href="http://scaledagileframework.com/pi-planning/">PI Planning</a>（启动会议）上发生的事。本系列目前有两篇：</p>
-<ul>
-<li><a href="/waterfall-to-agile-1">传统企业敏捷转型纪实（一）</a></li>
-<li><a href="/waterfall-to-agile-2">传统企业敏捷转型纪实（二）</a></li>
-</ul>
-<h2 id="团队构建"><a href="#团队构建" class="headerlink" title="团队构建"></a>团队构建</h2><p>这个部门由四个团队组成，各自主管产品的一部分。每个团队都有对交付负责的人，称为PO（Product Owner）。Ken的第一步是让所有团队选出一名SPO（Super Product Owner），来对整个产品负责。SPO不做兼职，负责解决各种问题，其最重要的任务是做决策。而对于一款探索性的产品来说，决策是没有对错之分的，只是它需要靠执行力和客户反馈来修正。PO们需要力挺SPO，充分信任SPO的决策，并以团队的执行力来保证决策的执行。所以有个PO与SPO隔空喊话效忠的过程。</p>
-<p>这个部门比较特殊的地方在于，大部分成员属于两个外包公司，其中有不少新人。大家对敏捷都没有什么概念，对要做的事也心有疑虑。有鉴于此，Ken让两个外包公司的人各选出1名leader来当<a target="_blank" rel="noopener" href="http://scaledagileframework.com/scrum-master/">SM</a>（scrum master）。如果团队成员士气低落，不管任何原因，都可以找SM沟通。如果涉及到甲方公司，便由SM来沟通PO处理。这样做的目的是让每个团队成员都有渠道摆脱自己受到的干扰，增加工作效率。团队成员也需要在团队中建立起自己的人脉，好让自己遇到问题时容易找人帮忙。SM主要负责沟通，PO带领团队前进。这样的构建适用于200~300人以下的团队。</p>
-<h2 id="了解产品"><a href="#了解产品" class="headerlink" title="了解产品"></a>了解产品</h2><p>要做好产品，首先需要让团队成员理解产品，建立共识。如果只见树木不见森林，那么人人都只是开发自己的那一亩三分地，根本无从得知自己的工作在整个产品中处于什么样的位置，那怎么能做好这个产品呢？现实中，这个产品有着非常复杂的架构，甚至没有一个人能完整地解释整个架构图。Ken建议SPO找几个资深人员，专门抽出一天时间给所有人都讲清楚架构。这很重要，如果你连孩子是男是女都不知道，怎么抚养ta？团队成员需要非常了解产品，而不仅仅是某个需求或者某个版本。要做产品，不是为了做事而做事。同时，Ken也建议所有成员都花时间在架构课之前自学其中的一些重要技术，以便让自己能够在架构课上更加清除对方究竟在讲什么。也就是预习，省的回头听不懂。</p>
-<h2 id="日程管理"><a href="#日程管理" class="headerlink" title="日程管理"></a>日程管理</h2><p>接下来用倒推法确定迭代截止日。假设产品5月底上线，需要提前一个月也就是4月底出beta版。需要3周的SIT时间，所以差不多是4月8号所有迭代完成。如果每两周一个迭代，从下周一算第一迭代开始，扣去春节，那么正好有5个迭代。如何能保证按时交付呢？需求可能发生变化，环境可能有问题，心情可能不太好影响了效率。迭代的意义在于提早发现风险。所以每个团队成员遇到问题时，需要尽快把这个问题暴露出来，否则，按时完成是不太可能的。</p>
-<h2 id="估算工作量"><a href="#估算工作量" class="headerlink" title="估算工作量"></a>估算工作量</h2><p>因为是从瀑布开发模式转过来的，所以现在每个团队手里都有一大堆需求。这里使用估点的方式来估算每个需求的工作量，转化成各个<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/User_story">User Story</a>。先找一个清晰的需求，最好半天就能开发完成，再半天测试完成。对这个story估点为1。以其为基准，其他的story与它相比较，得到其他story的估点。估的点数是在一个斐波那契数列里的：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Planning_poker">1，2，3，5，8，13，20，40，100</a>（当然后面几个不是）。例如基准story是3点，如果一个story感觉比它难上两个等级，那这个story应该是8个点。如果比它容易一个等级，那应该是2个点。如果难上4个等级呢？因为估点是个主观的过程，而且是比较不精确的。所以当差别很大的时候误差也会很大的。20，40，100这三个数虽然不是斐波那契数列，但也有它的含义。如果一个story只有一行字，谁也说不清它包含着什么，那就是100点。如果知道一部分，那就是40点。如果知道得更多，那就是20点。当然这也是非常主观且粗糙的，但是当你看到这3个数的时候自然就知道应该先把需求搞清楚。</p>
-<p>值得一提的是如果一个story估点为8，并不意味着它需要在整8天的时候做完。这个story和其他story一样，需要在最短的时间内有质量地完成。8代表着这个story的复杂度，或者说它是一个风险识别指标。如果做这个story的时候出了问题，需要开发人员尽快把这个问题暴露出来，就像上面讲的那样。而PO、SPO应该要想办法解决这个问题。如果问题超出SPO的权力，那就需要SPO的决策–可以选择不做这个story，或者只做一部分，或者绕过去。估点往往需要很长的时间。为了效率起见，当<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Business_analyst">Business Analyst</a>讲完story时，团队成员应该有意识地思考：这个story有什么业务价值？是必须要做的吗？只有必要的story才估点。估点时新人由于还不熟悉背景，可以仅旁观不参与。参与的成员们同时伸手指表示点数，如果一样就记下点数，跳到下一个story。否则，大家就需要解释为什么自己估的点数是这个数，最后由PO拍脑袋做决策。</p>
-<p>估点是个很费时，但又很重要的事情，所以先由一个团队演示几个story，其他团队观看，等大家都了解了，再由所有团队自行估点。</p>
-<h2 id="迭代计划"><a href="#迭代计划" class="headerlink" title="迭代计划"></a>迭代计划</h2><p>最后就是安排工作量了。先要确认所有人力是否可以100%地投入。资深成员可以算全职，新人算半职，资深成员但还兼其他工作安排的也算半职。假如说最后我们得到了这样的数：</p>
-<ul>
-<li>全职开发：3个</li>
-<li>半职开发：4个</li>
-<li>全职测试：1个</li>
-<li>半职测试：2个</li>
-</ul>
-<p>如果第一迭代有10个工作日，那么我们就能计算出来最大工作量：<code>(3+1)×10+(4+2)×10÷2=70</code>。由于是春节，可能请假会比较多，扣去请假天数，也许得到60点。然后是打折，由各组PO和SPO商量，得到一个折扣。这个折扣可能是：我们组对外部环境依赖很多，第一迭代刚开始效率会很低，春节假期效率不高，团队成员都是单身需要相亲无心干活等等等等。比如说第一迭代打个7折，就能得到合理工作量：<code>60×7=42</code>。由此，我们就得到最大工作量和合理工作量。算出各个迭代的工作量，把它们写在显眼处。最后将先前估好点的story按优先级及依赖顺序往里安排，点数到合理工作量即可。至此，一个看似合理的、由团队成员做出的计划便产生了。项目启动会议完成。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/waterfall-to-agile-1/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/waterfall-to-agile-1/" data-id="cuid8Tl4R8Coz_nF68tBQNXAu" data-title="传统企业敏捷转型纪实（一）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/waterfall-to-agile-1/" data-id="cuidcseNj2aLl6h3acbsseh58" data-title="传统企业敏捷转型纪实（一）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -697,98 +444,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication.html">MySQL复制技术</a>可以异步地将主数据库的数据同步到从数据库。根据设置可以复制所有数据库、指定数据库甚至可以指定表。本文的主要内容是怎样用docker从零开始搭建mysql主从复制环境，支持binary logging方式和GTIDs方式。</p>
-<p>MySQL 5.7支持多种复制方法。<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto.html">传统的方法</a>是master使用binary logging，slave复制并重放日志中的事件。<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html">另一种方法</a>是利用GTIDs（global transaction identifiers）将所有未执行的事务在slave重放。</p>
-<h2 id="binary-logging方式"><a href="#binary-logging方式" class="headerlink" title="binary logging方式"></a>binary logging方式</h2><p>接下来先用传统的方法试一下。使用<a target="_blank" rel="noopener" href="https://hub.docker.com/r/library/mysql/">MySQL 5.7镜像</a>，将<code>/etc/mysql/conf.d/</code>复制到主机，然后修改配置：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -e MYSQL_ROOT_PASSWORD=123456 --name=mysql mysql:5.7</span><br><span class="line">docker <span class="built_in">cp</span> mysql:/etc/mysql/my.cnf my.cnf</span><br></pre></td></tr></table></figure>
-
-<p>master的配置在<code>my.cnf</code>文件中是这样的，改完后另存为<code>/vagrant/mysql/mymaster.cnf</code>：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">log-bin</span>=mysql-bin <span class="comment"># 使用binary logging，mysql-bin是log文件名的前缀</span></span><br><span class="line"><span class="attr">server-id</span>=<span class="number">1</span>       <span class="comment"># 唯一服务器ID，非0整数，不能和其他服务器的server-id重复</span></span><br></pre></td></tr></table></figure>
-
-<p>slave的配置就更简单了，改完后另存为<code>/vagrant/mysql/myslave.cnf</code>：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">server-id</span>=<span class="number">2</span>       <span class="comment"># 唯一服务器ID，非0整数，不能和其他服务器的server-id重复</span></span><br></pre></td></tr></table></figure>
-
-<p>slave没有必要非得用binary logging，但是如果用了，除了binary logging带来的好处以外，还能使这个slave成为其他slave的master。现在我们重新启动mysql master和slave：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f mysql</span><br><span class="line">docker run -d \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:5.7</span><br><span class="line">docker run -d \</span><br><span class="line">  --name=slave \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:5.7</span><br></pre></td></tr></table></figure>
-
-<p>在master创建一个复制用的用户：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">&#x27;repl&#x27;</span>@<span class="string">&#x27;%&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;123456&#x27;</span>;       <span class="comment">-- &#x27;%&#x27;意味着所有的终端都可以用这个用户登录</span></span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>,REPLICATION SLAVE <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;repl&#x27;</span>@<span class="string">&#x27;%&#x27;</span>; <span class="comment">-- SELECT权限是为了让repl可以读取到数据，生产环境建议创建另一个用户</span></span><br></pre></td></tr></table></figure>
-
-<p>在slave用新创建的用户连接master（记得把MASTER_HOST改为自己的主机IP）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CHANGE MASTER <span class="keyword">TO</span> MASTER_HOST<span class="operator">=</span><span class="string">&#x27;192.168.33.32&#x27;</span>, MASTER_USER<span class="operator">=</span><span class="string">&#x27;repl&#x27;</span>, MASTER_PASSWORD<span class="operator">=</span><span class="string">&#x27;123456&#x27;</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE;</span><br><span class="line"><span class="keyword">SHOW</span> SLAVE STATUS\G       <span class="comment">-- \G用来代替&quot;;&quot;，能把查询结果按键值的方式显示</span></span><br></pre></td></tr></table></figure>
-
-<p>如果一切正常，应该在<code>Last_Error</code>中能看到<code>Can&#39;t create database &#39;mysql&#39;</code>的错误。这是因为slave也是像master一样正常地启动，mysql数据库已经被创建了，所以不能再将master的mysql数据库同步过来。有4种解决办法：</p>
-<ul>
-<li>通过在slave上运行SQL来跳过这个复制操作的方式来实现。在slave上运行：</li>
-</ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">STOP SLAVE;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> SQL_SLAVE_SKIP_COUNTER <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE;</span><br><span class="line"><span class="keyword">SHOW</span> SLAVE STATUS\G</span><br></pre></td></tr></table></figure>
-
-<p> 不出意外的话，上面的错误应该已经换成了其他错误（例如：<code>Duplicate entry &#39;row_evaluate_cost&#39; for key &#39;PRIMARY&#39;</code>），都是跟mysql这个数据库有关。反复运行上面的SQL直至错误消失。</p>
-<ul>
-<li>通过在slave上面配置log文件名及位置的方式来实现。在master上运行：</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it master mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FLUSH TABLES <span class="keyword">WITH</span> READ LOCK; <span class="comment">--防止有人对master做更新操作使Position持续变化，先锁表</span></span><br><span class="line"><span class="keyword">SHOW</span> MASTER STATUS\G</span><br></pre></td></tr></table></figure>
-
-<p> 可以看到<code>File: mysql-bin.000003</code>和<code>Position: 154</code>这样的行。删掉这个旧的slave并重新启动一个新的容器，然后运行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f slave</span><br><span class="line">docker run -d \</span><br><span class="line">  --name=slave \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:5.7</span><br><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">STOP SLAVE;</span><br><span class="line">CHANGE MASTER <span class="keyword">TO</span> MASTER_HOST<span class="operator">=</span><span class="string">&#x27;192.168.33.32&#x27;</span>, MASTER_USER<span class="operator">=</span><span class="string">&#x27;repl&#x27;</span>, MASTER_PASSWORD<span class="operator">=</span><span class="string">&#x27;123456&#x27;</span>, MASTER_LOG_FILE<span class="operator">=</span><span class="string">&#x27;mysql-bin.000003&#x27;</span>, MASTER_LOG_POS<span class="operator">=</span><span class="number">154</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE;</span><br><span class="line"><span class="keyword">SHOW</span> SLAVE STATUS\G</span><br></pre></td></tr></table></figure>
-
-<p> 我们将会看到<code>Slave_IO_Running: Yes</code>和<code>Slave_SQL_Running: Yes</code>。这两项说明我们的slave已经成功启动了。如果先前锁了master的表，记得在master上运行<code>UNLOCK TABLES;</code>来恢复。</p>
-<ul>
-<li>通过不记录<code>mysql</code>数据库binary logging的方式来实现。既然<code>mysql</code>不在binary logging里，那它也无法被同步到slave上。在<code>/vagrant/mysql/mymaster.cnf</code>里增加一个参数，如果有多个数据库，可以复制多行：</li>
-</ul>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">binlog-ignore-db</span>=mysql</span><br></pre></td></tr></table></figure>
-
-<p> 删除master和slave容器然后再重新创建之：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f master</span><br><span class="line">docker <span class="built_in">rm</span> -f slave</span><br><span class="line">docker run -d \</span><br><span class="line">  --net=host \</span><br><span class="line">  --name=master \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v /vagrant/mysql/mymaster.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:5.7</span><br><span class="line">docker run -d \</span><br><span class="line">  --name=slave \</span><br><span class="line">  -e MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  -v /vagrant/mysql/myslave.cnf:/etc/mysql/my.cnf \</span><br><span class="line">  mysql:5.7</span><br></pre></td></tr></table></figure>
-
-<p> 然后根据上文所述在master创建一个复制用的用户并在slave用新创建的用户连接master，最后观察<code>Slave_IO_Running</code>和<code>Slave_SQL_Running</code>。</p>
-<ul>
-<li>通过不复制<code>mysql</code>数据库binary logging的方式来实现。这种方式很类似上面一种方法，只不过配置在slave端而非master端而已。在<code>/vagrant/mysql/myslave.cnf</code>里增加一个参数，删除master和slave容器然后再重新创建之：</li>
-</ul>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">replicate-ignore-db</span>=mysql</span><br></pre></td></tr></table></figure>
-
-<p> 其余操作同方法3。</p>
-<p>既然slave已经成功启动了，我们便可以测试一下。看看在master上创建一个新数据库是否能同步到slave上：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> master mysql -uroot -p123456 -e <span class="string">&quot;CREATE DATABASE ggg&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> slave mysql -uroot -p123456 -e <span class="string">&quot;SHOW DATABASES&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="GTIDs方式"><a href="#GTIDs方式" class="headerlink" title="GTIDs方式"></a>GTIDs方式</h2><p>下面介绍一下GTIDs方式的主从复制方法。需要修改<code>/vagrant/mysql/mymaster.cnf</code>：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">log-bin</span>=mysql-bin</span><br><span class="line"><span class="attr">server-id</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">gtid-mode</span>=<span class="literal">on</span></span><br><span class="line"><span class="attr">enforce-gtid-consistency</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<p>还需要修改<code>/vagrant/mysql/myslave.cnf</code>（MySQL 5.7.4及之前的版本还需要开启log-bin）：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">server-id</span>=<span class="number">2</span></span><br><span class="line"><span class="attr">replicate-ignore-db</span>=mysql</span><br><span class="line"><span class="attr">gtid-mode</span>=<span class="literal">on</span></span><br><span class="line"><span class="attr">enforce-gtid-consistency</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<p>启动容器，创建复制的用户都和上面一样，在slave增加<code>MASTER_AUTO_POSITION</code>参数来连接master（记得把MASTER_HOST改为自己的主机IP）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it slave mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CHANGE MASTER <span class="keyword">TO</span> MASTER_HOST<span class="operator">=</span><span class="string">&#x27;192.168.33.32&#x27;</span>, MASTER_USER<span class="operator">=</span><span class="string">&#x27;repl&#x27;</span>, MASTER_PASSWORD<span class="operator">=</span><span class="string">&#x27;123456&#x27;</span>, MASTER_AUTO_POSITION<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE;</span><br><span class="line"><span class="keyword">SHOW</span> SLAVE STATUS\G</span><br></pre></td></tr></table></figure>
-
-<p>搞定！这样就不需要用到<code>MASTER_LOG_FILE</code>和<code>MASTER_LOG_POS</code>了，省事儿啊。在<code>START SLAVE</code>之前master的其它更新也都会被同步到slave。</p>
-<h2 id="其他技巧"><a href="#其他技巧" class="headerlink" title="其他技巧"></a>其他技巧</h2><p>最后再介绍一些实用技巧：</p>
-<ul>
-<li>如果master已经有数据了，怎么新增slave：可以先把master的数据导入到slave，再启动slave。具体可以参考<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-setup-slaves.html#replication-howto-existingdata">这里</a>。</li>
-<li>如果已经有主从复制了，怎么增加slave：思路同上，不过不需要使用master的数据，直接用已有的slave数据就可以了。不需要停止master，新slave使用新的<code>server-id</code>。具体可以参考<a target="_blank" rel="noopener" href="http://dev.mysql.com/doc/refman/5.7/en/replication-howto-additionalslaves.html">这里</a>。</li>
-<li>slave设置只读操作：在<code>/vagrant/mysql/myslave.cnf</code>里增加参数即可。</li>
-</ul>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">read-only</span>=<span class="number">1</span>       <span class="comment"># 除非有SUPER权限，否则只读</span></span><br><span class="line"><span class="attr">super-read-only</span>=<span class="number">1</span> <span class="comment"># SUPER权限也是只读</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>前面介绍的都是主从，如果需要slave也能同步到master就要设置主主复制：也就是说反过来再做一遍。</p>
-</li>
-<li><p>当slave比较多得时候，master的负载可能会成为问题。可以用主从多级复制：以slave为master来再引入新的slave。</p>
-</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/mysql-replication/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mysql-replication/" data-id="cuidrLIK_JGTW4E0f-RRMVR3Q" data-title="基于docker的MySQL主从复制（replication）" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mysql-replication/" data-id="cuid45mDylGAogxC5bA6Ep1qn" data-title="基于docker的MySQL主从复制（replication）" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -829,26 +493,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的持久化问题。如果我用容器跑一个数据库，比如mysql，我关心的是数据保存在哪里。这样万一这个容器发生意外，起码我的数据还在，还可以东山再起。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<p>为了方便部署和升级，我们目前把mesos slave跑在容器里。如果我有一个网络存储比如nfs，ceph之类的，当我命令k8s给我跑一个mysql pod，存储挂载到ceph上的时候，k8s就会先找一个mesos slave，让它挂载远端的ceph。由于mesos slave是在容器里，所以挂载点也在这个容器里，姑且把这个路径叫做<code>/tmp/mesos/slaves/20160105-xxx</code>。然后mysql容器也启动了，挂载了<code>/tmp/mesos/slaves/20160105-xxx</code>–可惜的是这个路径是主机的路径，并不是mesos slave容器里的路径，所以它并不能把数据同步到远端的ceph存储去。持久化失败。</p>
-<p>有三种方案可以解决持久化的问题。第一个方案：如果我们要继续使用容器化的mesos slave，有一个办法是提前在主机上挂载远端存储。这样的话，mysql容器就可以配置成hostPath的方式，直接挂载这个主机路径，这样就能把数据同步到远端去。这么做是可行的，但是也有不少缺点。首先，因为不知道mysql容器会在哪台机器上运行，所以不得不在所有的机器上都预加载，这样做就失去了动态性，可能引发更多的问题。其次，不是所有类型的存储都可以被很多机器加载。比如ceph的rbd存储就(最好)只能被一台机器加载。还有，何时卸载？如何卸载？存储太多的时候如何管理？这些都是问题。另一个办法是使用kubernetes的<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/docs/user-guide/container-environment.md#container-hooks">container hook</a>。目前支持<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/api-reference/v1/definitions/#_v1_lifecycle">postStart和preStop</a>两个时点。可惜mesos slave容器里的mount并不能为外部所用。直接在mysql容器去做mount理论能行，但是需要主机的root权限，或者是hook挂上http请求去外部挂载，不管怎样都相当于重新自己来一套，并不划算。</p>
-<p>第二个方案：还是容器化的mesos slave，但是使用<a target="_blank" rel="noopener" href="https://hub.docker.com/r/mesosphere/mesos-slave-dind/">docker in docker</a>。这种容器方案会把mysql容器运行在mesos slave容器里面，而不像第一种那样把它运行在与mesos slave并列的主机级别。所以mysql使用的存储自然而然就落到了mesos slave容器里面，而这个路径正是加载了远端ceph的地方。这个方案相对来说在操作上也挺简单，仅仅是换个mesos slave dind的镜像而已。它的缺点也正是由于新容器会运行在mesos slave dind容器里，从而导致这个主容器里面可能同时运行许多个从容器，这样就有点儿把容器当虚拟机的意思了，不是最佳实践。另外在实际操作上还出现了新的问题：比如kubernetes使用rbd方式作为volumn的时候，mesos slave会尝试将一个rbd镜像映射成一个设备<code>/dev/rbd1</code>。这个设备就会跑到主机上而非mesos slave dind容器里，从而使我们不得不将主机的<code>/dev</code>也挂载到mesos slave dind容器里。而这样的操作又会带来更多的问题：比如容器删除时提示<code>device or resource busy</code>，从而无法轻易释放<code>/var/lib/docker/aufs</code>的磁盘资源等等。鉴于继续前行可能会碰到更多更深的坑，我们主动放弃了这个方案，但它的前途也有可能是光明的。</p>
-<p>第三个方案：放弃mesos slave的容器化。回顾问题的根源，一切的一切都是因为引入mesos slave的容器造成的。如果把mesos slave还原成系统进程，那么这一堆存储问题都将不复存在。我们仍然有其他手段来实现mesos slave部署和升级的便利性，如自动化脚本、数据用容器等。虽然这样可能引入更大的部署工作量，但这可能是针对这个问题来说更加正统的解决方案。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-3/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-3/" data-id="cuidZdEhvcDW3hXH9YOr8KG19" data-title="如果有10000台机器，你想怎么玩？（三）持久化" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-3/" data-id="cuid9NocPu2QiB-8GCVGS4_zI" data-title="如果有10000台机器，你想怎么玩？（三）持久化" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -889,58 +542,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://ceph.com/">Ceph</a>是一个高性能的PB级分布式文件系统。它能够在一个系统中提供对象存储、块存储和文件存储。本文的主要内容是怎样用docker从零开始搭建ceph环境，并分别以cephfs和rbd的方式加载它。</p>
-<p>这是ceph的模块架构图：<br><img src="http://docs.ceph.com/docs/master/_images/stack.png"><br>最底层的RADOS提供了对象存储的功能，是ceph的根基所在。所有的其他功能都是在RADOS之上构建的。LIBRADOS看名字就能猜到，它提供了一系列语言的接口，可以直接访问RADOS。RADOSGW基于LIBRADOS实现了REST的接口并兼容S3和Swift。RBD也基于LIBRADOS提供了块存储。最后是CEPH FS直接基于RADOS实现了文件存储系统。想要详细了解它的朋友可以看看<a target="_blank" rel="noopener" href="http://www.wzxue.com/why-ceph-and-how-to-use-ceph/">这篇文章</a>，把ceph介绍得很清楚。笔者的另一篇文章《通过RADOSGW提供ceph的S3和Swift接口》](&#x2F;ceph-radosgw)介绍了RADOSGW的使用方法。</p>
-<h2 id="cephfs方式"><a href="#cephfs方式" class="headerlink" title="cephfs方式"></a>cephfs方式</h2><p>Talk is cheap，让我们来看看如何用最简单的方式来搭建一个ceph环境吧。Ceph提供了一个<a target="_blank" rel="noopener" href="https://hub.docker.com/r/ceph/demo/">deph&#x2F;demo</a>的docker镜像来给我们做实验，注意<strong>别在产品环境用它（THIS CONTAINER IS NOT RECOMMENDED FOR PRODUCTION USAGE）</strong>。只要装好了docker，跑起来是很容易的：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host -v /etc/ceph:/etc/ceph -e MON_IP=192.168.0.20 -e CEPH_NETWORK=192.168.0.0/24 --name=ceph ceph/demo</span><br></pre></td></tr></table></figure>
-
-<p>上面的<code>MON_IP</code>可以填写运行这个镜像的机器IP，<code>CEPH_NETWORK</code>填写允许访问这个ceph的IP范围。启动之后，由于挂载了宿主机的<code>/etc/ceph</code>，这个文件夹里面会生成几个配置文件。其中有一个叫<code>ceph.client.admin.keyring</code>的文件里面有一个<code>key</code>，作为cephfs加载的时候认证会用到。</p>
-<p>直接作为cephfs来加载就是一句话的事情：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t ceph -o name=admin,secret=AEAq5XtW5SLsARBAAh6kwpBmGVVjUwPQmZeuik== 192.168.0.20:/ /mnt/cephfs</span><br></pre></td></tr></table></figure>
-
-<p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
-<h2 id="rbd方式"><a href="#rbd方式" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a target="_blank" rel="noopener" href="http://docs.ceph.com/docs/master/rados/operations/pools/">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure>
-
-<p>准备工作做完了，我们首先创建一个名为ggg的pool：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg 128</span><br></pre></td></tr></table></figure>
-
-<p>128代表<a target="_blank" rel="noopener" href="http://docs.ceph.com/docs/master/rados/operations/placement-groups/">placement-group</a>的数量。每个pg都是一个虚拟节点，将自己的数据存在不同的位置。这样一旦存储挂了，pg就会选择新的存储，从而保证了自动高可用。运行这个命令就可以看到现在系统中的所有pool：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd lspools</span><br></pre></td></tr></table></figure>
-
-<p>然后在ggg这个pool里创建一个名为qqq的image：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size 1024</span><br></pre></td></tr></table></figure>
-
-<p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph&#x2F;demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rbd <span class="built_in">ls</span> ggg</span><br><span class="line">rbd info ggg/qqq</span><br></pre></td></tr></table></figure>
-
-<p>接下来要把qqq image映射到块设备中，可能需要root权限：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rbd map ggg/qqq</span><br></pre></td></tr></table></figure>
-
-<p>运行这个命令就可以看到映射到哪个设备去了，我的是<code>/dev/rbd1</code>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd showmapped</span><br></pre></td></tr></table></figure>
-
-<p>格式化之：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">sudo</span> mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">ls</span> /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure>
-
-<h2 id="还原环境"><a href="#还原环境" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">sudo</span> rbd unmap /dev/rbd1</span><br><span class="line">rbd <span class="built_in">rm</span> ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure>
-
-<p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
-<p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure>
-
-<p>最后删掉ceph容器（如果你愿意，还有ceph&#x2F;demo镜像），就当一切都没有发生过：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure>
-
-<p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/ceph-demo/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ceph-demo/" data-id="cuid5VGolq_zy0R7rYB3s-2A-" data-title="用容器轻松搭建ceph实验环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ceph-demo/" data-id="cuidU7XYHVg-b0H9a491hqRxd" data-title="用容器轻松搭建ceph实验环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

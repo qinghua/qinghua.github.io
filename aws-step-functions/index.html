@@ -24,7 +24,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v2.png">
 <meta property="og:image" content="https://qinghua.github.io/img/aws-sf-CrawAmazonPrice-v3.png">
 <meta property="article:published_time" content="2018-12-15T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.394Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.053Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="aws">
 <meta name="twitter:card" content="summary">
@@ -112,6 +112,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问<a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/free/">AWS</a>来试用。</p>
+<span id="more"></span>
+
 <h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>首先假定一个场景：我需要定期抓取亚马逊某商品的价格，并通知自己。传统的实现方式就是写一个爬虫，然后在服务器上cron一下就好了。虽然能使，但是一旦考虑到灵活性（商品应该可定制，通知手段应该灵活）、高可用（服务器挂了也不应该影响到业务）、可视化（提供易于使用的界面，以看当前和历史的执行情况）、可监控（看当前的执行情况、出错了需要通知开发者）等，那就费时费力了。好在AWS给我们提供了一系列的服务，允许我们像Linux的管道那样把服务简单、灵活地拼接起来，从而实现需求。</p>
 <h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><h3 id="服务介绍"><a href="#服务介绍" class="headerlink" title="服务介绍"></a>服务介绍</h3><p>首先简单介绍一下在这个工作流中我们会涉及到的AWS服务：<br><strong>Step Functions</strong>：用于可视化管理工作流。是本文的核心。<br><strong>SNS</strong>：通知服务，只要给主题（Topic）发消息，主题的订阅者（Subscription）就会通过订阅的渠道（如邮件、短信等）收到消息。<br><strong>Lambda</strong>：无需服务器即可运行代码的计算服务，免去了管理服务器的烦恼。只有在程序运行的时候才收费。<br><strong>CloudWatch</strong>：监控或触发AWS资源的服务。在本文中我们姑且把它当做一个cron服务。</p>
 <h3 id="Step-Functions"><a href="#Step-Functions" class="headerlink" title="Step Functions"></a>Step Functions</h3><p>对于本文的需求来说，最简单明了的工作流即是下图：<br><img src="/img/aws-sf-CrawAmazonPrice-v1.png"></p>
@@ -156,7 +158,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/aws-step-functions/" data-id="cuidhKdtX4o7A4W_DwBr8B4S7" data-title="用AWS创建工作流" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/aws-step-functions/" data-id="cuidAfJ84vBjhVRi5-sc46Y_s" data-title="用AWS创建工作流" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

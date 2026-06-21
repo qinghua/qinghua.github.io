@@ -17,7 +17,7 @@
 <meta property="og:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文从零开始搭建一个kubernetes集群。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-03-22T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.443Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.086Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="flannel">
@@ -106,6 +106,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文从零开始搭建一个kubernetes集群。</p>
+<span id="more"></span>
+
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
 
@@ -186,7 +188,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-installation/" data-id="cuidTzK0G37hFzyPxL7uSyFxc" data-title="轻松搭建Kubernetes 1.2版运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-installation/" data-id="cuidM94dXhTxgGaoB3SQ7j6Bl" data-title="轻松搭建Kubernetes 1.2版运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

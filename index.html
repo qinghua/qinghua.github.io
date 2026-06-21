@@ -110,7 +110,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/async-standup-in-ai-era/" data-id="cuidDjZHAq9RdKXe89ULqLYwt" data-title="AI时代的站会：从同步到异步" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/async-standup-in-ai-era/" data-id="cuid39zRDbXtHCGavgpFnQ9tI" data-title="AI时代的站会：从同步到异步" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -160,7 +160,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ai-programming-maturity-model/" data-id="cuidtYWYT8e3T7zTj6IhNT21j" data-title="AI编程成熟度模型：从3倍到10倍的路径" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ai-programming-maturity-model/" data-id="cuidVYMefiNH2Jal5tK7oH21F" data-title="AI编程成熟度模型：从3倍到10倍的路径" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -201,51 +201,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>AWS提供了一系列易于使用的服务，其中的Step Functions可以用于创建工作流。本文主要介绍了Step Functions的使用并顺带介绍了其它几个相应的AWS服务。此外，亚马逊提供了为期一年的免费账户，可以访问<a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/free/">AWS</a>来试用。</p>
-<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>首先假定一个场景：我需要定期抓取亚马逊某商品的价格，并通知自己。传统的实现方式就是写一个爬虫，然后在服务器上cron一下就好了。虽然能使，但是一旦考虑到灵活性（商品应该可定制，通知手段应该灵活）、高可用（服务器挂了也不应该影响到业务）、可视化（提供易于使用的界面，以看当前和历史的执行情况）、可监控（看当前的执行情况、出错了需要通知开发者）等，那就费时费力了。好在AWS给我们提供了一系列的服务，允许我们像Linux的管道那样把服务简单、灵活地拼接起来，从而实现需求。</p>
-<h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><h3 id="服务介绍"><a href="#服务介绍" class="headerlink" title="服务介绍"></a>服务介绍</h3><p>首先简单介绍一下在这个工作流中我们会涉及到的AWS服务：<br><strong>Step Functions</strong>：用于可视化管理工作流。是本文的核心。<br><strong>SNS</strong>：通知服务，只要给主题（Topic）发消息，主题的订阅者（Subscription）就会通过订阅的渠道（如邮件、短信等）收到消息。<br><strong>Lambda</strong>：无需服务器即可运行代码的计算服务，免去了管理服务器的烦恼。只有在程序运行的时候才收费。<br><strong>CloudWatch</strong>：监控或触发AWS资源的服务。在本文中我们姑且把它当做一个cron服务。</p>
-<h3 id="Step-Functions"><a href="#Step-Functions" class="headerlink" title="Step Functions"></a>Step Functions</h3><p>对于本文的需求来说，最简单明了的工作流即是下图：<br><img src="/img/aws-sf-CrawAmazonPrice-v1.png"></p>
-<p>非常直观，一眼就能看出来它会先抓取亚马逊的价格，然后通知自己。对于Step Functions来说，这张流程图的代码很简洁：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;StartAt&quot;</span><span class="punctuation">:</span> <span class="string">&quot;CrawAmazonPrice&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;States&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;CrawAmazonPrice&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Task&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Next&quot;</span><span class="punctuation">:</span> <span class="string">&quot;NotifyMe&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;NotifyMe&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Task&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:states:::sns:publish&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Parameters&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Message.$&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.body&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;TopicArn&quot;</span><span class="punctuation">:</span> <span class="string">&quot;arn:aws:sns:us-east-1:XXX_ACCOUNT_ID_XXX:PriceDown&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;End&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Lambda"><a href="#Lambda" class="headerlink" title="Lambda"></a>Lambda</h3><p>上面的<code>CrawAmazonPrice</code>指定了<code>Resource</code>是一个名为<code>CrawAmazonPrice</code>的AWS Lambda函数，而<code>NotifyMe</code>则指定了一个名为<code>PriceDown</code>的SNS主题。对这个主题感兴趣的用户（比如说，我）可以用期待的方式（邮件、短信等）订阅它。所以这个流程就是：开始-&gt;CrawAmazonPrice（Lambda）-&gt;NotifyMe（SNS）-&gt;结束。</p>
-<p>为了简便起见，我们可以直接通过AWS界面实现<code>CrawAmazonPrice</code>的Lambda函数。直接新建一个Python 3.7的脚本即可：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">lambda_handler</span>(<span class="params">event, context</span>):</span><br><span class="line">    req = request.Request(<span class="string">&#x27;http://www.amazon.cn/dp/B07FNP8DX4&#x27;</span>)</span><br><span class="line">    req.add_header(<span class="string">&#x27;User-Agent&#x27;</span>, <span class="string">&#x27;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102&#x27;</span>)</span><br><span class="line">    response = request.urlopen(req)</span><br><span class="line">    html = response.read().decode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">    price = re.search(<span class="string">&#x27;data-asin-price=\&quot;(.+?)\&quot;&#x27;</span>, html).group(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&#x27;statusCode&#x27;</span>: <span class="number">200</span>,</span><br><span class="line">        <span class="string">&#x27;body&#x27;</span>: json.dumps(price)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/img/aws-lambda-CrawAmazonPrice.png"></p>
-<h3 id="SNS"><a href="#SNS" class="headerlink" title="SNS"></a>SNS</h3><p>SNS就更简单了，创建一个名为<code>PriceDown</code>的新主题，然后为它创建一个协议为<code>Email</code>的订阅，填入自己的邮箱地址，便会收到AWS给这个邮箱发送的确认订阅邮件。点击邮件中的链接，即可完成订阅。要是日后有其他人对这个主题也感兴趣，增加一个订阅即可。<br><img src="/img/aws-sns-PriceDown.png"></p>
-<h3 id="CloudWatch"><a href="#CloudWatch" class="headerlink" title="CloudWatch"></a>CloudWatch</h3><p>剩下的事情就是创建一个CloudWatch，来定期触发这个Step Functions。直接通过AWS界面创建一个规则（Rule），固定频率为每天，将目标设置为上面的Step Function工作流，取个名字如<code>DailyLookUpPrice</code>就可以啦！<br><img src="/img/aws-cw-DailyLookUpPrice.png"></p>
-<h3 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h3><p>每次当CloudWatch被触发时，都会在Step Functions中留下自己的足迹。<br><img src="/img/aws-sf-CrawAmazonPrice-execution.png"></p>
-<p>由上图可以看到，每个状态的进入和退出都清晰可见，非常方便。</p>
-<h2 id="需求变更"><a href="#需求变更" class="headerlink" title="需求变更"></a>需求变更</h2><p>假如我们只想在价格低的时候通知自己，除了修改Lambda中定义的代码以外，还可以增加一个Task，以便增强灵活性。例如，公司内部有一个最低价格的服务，但是无法被公司外部（如AWS）调用到。即便如此，Step Functions也可以支持这种应用场景。在任何可以调用公司服务的地方写一段代码，这段代码作为一个活动（Activity）来轮询Step Functions，当执行到该Task时，该代码就被运行，调用公司内部的服务。AWS的实现也很简单，首先新增一个名为<code>EnsureLowestPrice</code>的活动，然后在Step Function的JSON中增加一个Task，并修改<code>CrawAmazonPrice</code>，使其<code>Next</code>指向<code>EnsureLowestPrice</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;EnsureLowestPrice&quot;: &#123;</span><br><span class="line">  &quot;Type&quot;: &quot;Task&quot;,</span><br><span class="line">  &quot;Resource&quot;: &quot;arn:aws:states:us-east-1:XXX_ACCOUNT_ID_XXX:activity:EnsureLowestPrice&quot;,</span><br><span class="line">  &quot;Next&quot;: &quot;NotifyMe&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这回的Task就不是Lambda啦，而是自己运行在随意机器上的代码。以Java为例，可以参考<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/step-functions/latest/dg/tutorial-creating-activity-state-machine.html">AWS官方文档</a>来实现。</p>
-<p>“价格低于最低价”的服务，在这里只是一个表示内部服务的示例罢了。当然，如果真要实现一个类似的服务，用AWS的DynamoDB甚至S3可以很方便地实现。</p>
-<p>假如需要并行查询多种商品价格，Step Functions也能轻易支持：<br><img src="/img/aws-sf-CrawAmazonPrice-v2.png"></p>
-<p>并行的代码如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&quot;CrawAmazonPrice&quot;: &#123;</span><br><span class="line">  &quot;Type&quot;: &quot;Parallel&quot;,</span><br><span class="line">  &quot;Next&quot;: &quot;EnsureLowestPrice&quot;,</span><br><span class="line">  &quot;Branches&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;StartAt&quot;: &quot;CrawPrice1&quot;,</span><br><span class="line">      &quot;States&quot;: &#123;</span><br><span class="line">        &quot;CrawPrice1&quot;: &#123;</span><br><span class="line">          &quot;Type&quot;: &quot;Task&quot;,</span><br><span class="line">          &quot;Resource&quot;: &quot;arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice&quot;,</span><br><span class="line">          &quot;End&quot;: true</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;StartAt&quot;: &quot;CrawPrice2&quot;,</span><br><span class="line">      &quot;States&quot;: &#123;</span><br><span class="line">        &quot;CrawPrice2&quot;: &#123;</span><br><span class="line">          &quot;Type&quot;: &quot;Task&quot;,</span><br><span class="line">          &quot;Resource&quot;: &quot;arn:aws:lambda:us-east-1:XXX_ACCOUNT_ID_XXX:function:CrawAmazonPrice&quot;,</span><br><span class="line">          &quot;End&quot;: true</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于<code>Branches</code>及<code>States</code>的灵活性，再复杂的工作流也不在话下。</p>
-<h2 id="进阶功能"><a href="#进阶功能" class="headerlink" title="进阶功能"></a>进阶功能</h2><h3 id="超时"><a href="#超时" class="headerlink" title="超时"></a>超时</h3><p>如果代码出现死循环之类的问题，可能会导致工作流无法继续流动下去。这时可以通过给该状态设置超时<code>TimeoutSeconds</code>以使之到时退出。合理地设置这个值需要考虑某个状态可能需要运行的时间、是否有人工步骤等。默认的<code>TimeoutSeconds</code>为99999999。</p>
-<h3 id="心跳"><a href="#心跳" class="headerlink" title="心跳"></a>心跳</h3><p>如果程序可能运行数个小时，也许你难以知道现在的状态是运行中，还是程序挂掉了。这时可以通过设置心跳<code>HeartbeatSeconds</code>来使Step Functions知道当前的运行状况，以便及时把挂掉了（没有心跳了）的任务分发给其它节点。当然为了这个功能，程序中需要增加相对应的逻辑（定期发送心跳）。</p>
-<h3 id="重试"><a href="#重试" class="headerlink" title="重试"></a>重试</h3><p>有时候程序出错，可能只需要重试一下就好了。这时我们可以使用Step Functions提供的重试<code>Retry</code>机制。如以下程序所示：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;Retry&quot; : [</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;ErrorEquals&quot;: [ &quot;States.TaskFailed&quot;, &quot;States.Timeout&quot; ],</span><br><span class="line">    &quot;IntervalSeconds&quot;: 600,</span><br><span class="line">    &quot;MaxAttempts&quot;: 3</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<p><code>Retry</code>是一个集合，所以可以为不同的错误定义不同的重试机制。</p>
-<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>如果重试还是不行，那还有一个招式就是异常处理机制<code>Catch</code>。它与重试类似，可以为不同的错误定义不同的状态流向:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&quot;Catch&quot;: [</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;ErrorEquals&quot;: [ &quot;States.ALL&quot; ],</span><br><span class="line">    &quot;Next&quot;: &quot;NotifyError&quot;</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<p>在上面的代码里，只要出错了（并且重试也没有成功），就跳转到<code>NotifyError</code>的状态，可以通过SNS通知订阅者了。</p>
-<h3 id="错误状态"><a href="#错误状态" class="headerlink" title="错误状态"></a>错误状态</h3><p>在异常处理中由于跳转到了<code>NotifyError</code>，并且通知成功，反而倒让这个工作流从异常变成正常了。想让工作流失败，只需在<code>NotifyError</code>的后面接一步简单的<code>FailExecution</code>状态就可以了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&quot;FailExecution&quot;: &#123;</span><br><span class="line">  &quot;Type&quot;: &quot;Fail&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="最终工作流"><a href="#最终工作流" class="headerlink" title="最终工作流"></a>最终工作流</h3><p><img src="/img/aws-sf-CrawAmazonPrice-v3.png"></p>
-<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>最求完美，永无止境。例如，这些服务我们现在都是在AWS界面上点来点去的，其实这些人工操作可以通过<code>CloudFormation</code>来变成自动化的脚本。如此，便可以实现我们的基础设施即代码，做到一键部署了。另外，随着需求的演化，如果要更新Step Functions的工作流，还可能需要考虑到对其进行版本管理。还有，当处理活动的节点数较多时，如果能够把某次执行的机器名输出到工作流中，也有助于错误排查。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/aws-step-functions/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/aws-step-functions/" data-id="cuidhKdtX4o7A4W_DwBr8B4S7" data-title="用AWS创建工作流" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/aws-step-functions/" data-id="cuidAfJ84vBjhVRi5-sc46Y_s" data-title="用AWS创建工作流" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -286,21 +250,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>前一阵子经常看到各种文章说以后人工智能如何如何强大，人类各种失业，要么凄惨，要么极乐，软件开发也无法幸免。那么开挂后未来的软件开发究竟会如何演进？其实我们可以借助传统制造业来推演一下。</p>
-<h2 id="过去"><a href="#过去" class="headerlink" title="过去"></a>过去</h2><p>软件开发和制造业在一定程度上是有相似性的。只不过制造业的历史更悠久、经历更丰富，它的革命总是更早地发生，这就足够让我们有所参照了。</p>
-<p>传统制造业的原始阶段呢，最初都是以个体或家庭为单位，把整个产品都制造出来，比如毛皮，斧子等，没有统一标准，但是凑活都能用。哪一天不保暖或者不锋利了，那就再缝一缝或者磨一磨。软件开发的原始阶段呢，一开始都是单枪匹马，搞出来一个程序，凑活就能用。哪天出了个新情况，那就在原来的基础上改巴改巴，争取无需大改就能对付过去。</p>
-<p>过了这个原始阶段，随着需求的演进，我们需要的产品更加地精细了。传统的制造方式难以为继，分工合作成为主流。每个人并不都会制造一个大整体，那也不现实；但是可以制造一个个符合标准的零件，最终将它们拼接成一个复杂的整体。而软件开发呢，也发展到了另一个阶段：一个人或一个小团队已经难以对复杂的单体系统进行开发维护的工作了，那就需要引入模块化或者是微服务化，降低各个组件的复杂度，以便可以更容易地让人掌握。市场上也有许多符合标准的开源及收费的包或服务，可在软件开发过程中使用。从这个角度上说，其实程序员们也都是流水线上的工人，只不过制造的是软件罢了。但是注意，传统的开发方式并没有消亡，因为还是会源源不断地冒出需求，人家就要一个斧子，干嘛组件化那么麻烦？能用就行了。就像现在还有许多的个体软件开发者，各自拥有一些框架，要建站？单枪匹马几百元就能搞定！</p>
-<h2 id="现在"><a href="#现在" class="headerlink" title="现在"></a>现在</h2><p>到了现在这个阶段，制造业迎来的就是机器人时代。2011年，富士康就提出了十年内的“百万机器人计划”，计划投入百万台机器人到生产线上，以取代部分工人，解决用工荒的问题。而现在的软件业呢，也喜迎人工智能时代，各种AI加入软件，不跟它沾点儿边还真不好意思跟别的程序员打招呼。机器人能把高效地把最容易重复的部分完成，也能在高危环境中大展身手。人工智能呢，现阶段也是把容易重复或是根据经验估计的部分逐步取代。有时候软件开发人员也会问问自己，未来我会不会被AI所取代？</p>
-<h2 id="未来"><a href="#未来" class="headerlink" title="未来"></a>未来</h2><p>不可否认，未来机器人会取代相当一部分人类。但与此同时，机器人也解放了人类，可以让他们创造新的工作类型。无法胜任的人类，会被残酷地淘汰掉，也许会演变为暴乱、战争……本文就不讨论这些了。而AI也将解放出许多软件工程师，这事是注定的，虽然那一天的到来还比较遥远。而那些专业知识不精、无法持续学习的程序员们，也将被AI的洪流无情碾轧。那未来的程序员们如何与AI共处呢？</p>
-<h3 id="合作"><a href="#合作" class="headerlink" title="合作"></a>合作</h3><p>现在的机器人时代，一些生产线的机器人并非是“替代”人类生产，而是“协助”。在软件开发中，写个小工具或利用现有的工具来辅助自己开发是最正常不过的事情了，跟AI还扯不上关系。但与此同时，AI辅助程序员编程，也已经开始萌芽——<a target="_blank" rel="noopener" href="https://kite.com/">Kite</a>了解一下？</p>
-<p>现在的教育平台，就如雨后春笋般地冒出来。孩子就读的小学，各科的老师们已经推荐了不下五款的app用来辅助学习。这些教育平台会降低老师的重要性吗？并不。事实上老师们正在用这些app提高教学效率。这正是一个典型的双赢合作啊。未来的软件工程师也可以轻松地在更加智能的AI的配合下，完成可视化的设计、模板代码、用户手册等。</p>
-<h3 id="创新"><a href="#创新" class="headerlink" title="创新"></a>创新</h3><p>在制造业中，工厂里的机器人取代了劳动力，但是也产生了相当多的数据，需要许多人来分析和监控这些数据，还需要许多人来维护这些机器人。这是由于机器人存在而被人们创造出来的新岗位啊，尽管新岗位的数量远远小于原先的岗位数量。未来的AI可以使用多种方法来迅速实现各种需求，而软件工程师们可能更多负责评审、验证、监控这些程序的运行，当然还要编写、改进那些真正干活儿的AI，就像维护机器人一样。虽然说当人工智能强大到可以自我进化的时候，也许就不需要人类了，可是离那一天还早着呢。</p>
-<h3 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h3><p>“合并”在这里的语境看起来有点儿吓人。现在的制造业中，已经出现了一些外骨骼机器人，在军事上也有一些可佩戴单兵装备还在研发中。而未来更可能会出现半机器人时代，也就是说，你身体的任何一个部位，都可以被机器替换，从而获得更快的奔跑速度、更大的力量、增强的感官等等。当你的大脑中的某个部分被AI替换时，也许你会拥有永不遗忘的记忆，极快的计算速度，各种知识信手拈来……这时候的软件工程师，也许舒舒服服地躺在海边，随便想一想，便能迅速获得一堆代码及所需的环境，甚至AI已经帮你自动测试完毕了。我们所剩下的，也许就只有思考了。</p>
-<h3 id="斗争"><a href="#斗争" class="headerlink" title="斗争"></a>斗争</h3><p>想想《黑客帝国》……我是一个乐观派，这么黑暗的话题还是不要展开了。未来也许是：与AI斗，其乐无穷？</p>
-
+        
+          <p class="article-more-link">
+            <a href="/future-software-development/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/future-software-development/" data-id="cuidX6ni1NUOTcD5V67t0i9Dy" data-title="未来的软件开发什么样" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/future-software-development/" data-id="cuidWyfzjEJfL2pa4QzdjHH8e" data-title="未来的软件开发什么样" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -341,74 +299,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>还在用着Java 8吗？09月26日Oracle的长期支持版Java 11已经出炉，将一直支持到2026年9月。对广大的程序员们来说，从Java 9~11，日常的编码都有什么变化呢？一起来看看吧。</p>
-<h2 id="var关键字"><a href="#var关键字" class="headerlink" title="var关键字"></a>var关键字</h2><p>Java 10引进了<code>var</code>关键字来指代任意类型，让它朝C#又迈进了一步。以下是两个例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">abc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> character : abc) &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>var</code>并不仅仅能类型推断，它还能完成以前做不到的事——引用匿名类的变量：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">o</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>() &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">&#125;;</span><br><span class="line">System.out.println(o.a);</span><br></pre></td></tr></table></figure>
-
-<p>在所有可能的地方都用上<code>var</code>也许并不是一个好实践。一种做法是：如果后面的表达式一眼就能看出来是啥类型，我们就用<code>var</code>；否则，就还是老老实实地写声明，一眼扫过就能明白的代码更具可读性。</p>
-<p>更详细的用法请参考<a target="_blank" rel="noopener" href="https://developer.oracle.com/java/jdk-10-local-variable-type-inference">Oracle官方文档</a>。Java 11更是<a target="_blank" rel="noopener" href="https://bugs.java.com/view_bug.do?bug_id=JDK-8193259">允许对lambda的参数使用<code>var</code></a>。</p>
-<h2 id="集合字面量"><a href="#集合字面量" class="headerlink" title="集合字面量"></a>集合字面量</h2><p>一直以来我们都是老老实实地用以下这些方法来初始化一个已知的不可变集合：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这样挺方便，就是语义上稍欠优雅</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc1</span> <span class="operator">=</span> Arrays.asList(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这样构建的是Collection，可以传入可变集合</span></span><br><span class="line"><span class="type">Collection</span> <span class="variable">abc2</span> <span class="operator">=</span> Collections.unmodifiableCollection(abc1);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更优雅的Guava方案</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc3</span> <span class="operator">=</span> ImmutableList.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>可变集合：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 最基本的方法，就是有点长，令人不爽</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc4</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">abc4.add(<span class="string">&quot;A&quot;</span>);</span><br><span class="line">abc4.add(<span class="string">&quot;B&quot;</span>);</span><br><span class="line">abc4.add(<span class="string">&quot;C&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造函数</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc5</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(Arrays.asList(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名内部类</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc6</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;()&#123;&#123; add(<span class="string">&quot;A&quot;</span>);add(<span class="string">&quot;B&quot;</span>);add(<span class="string">&quot;C&quot;</span>); &#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 利用Java 8的Stream</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc7</span> <span class="operator">=</span> Stream.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>).collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更优雅的Guava方案</span></span><br><span class="line"><span class="type">List</span> <span class="variable">abc8</span> <span class="operator">=</span> Lists.newArrayList(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>对于不可变集合，Java 9引入了集合的工厂方法<code>of</code>，这回终于可以用上原装的了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">abc1</span> <span class="operator">=</span> List.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>);</span><br><span class="line"><span class="type">Set</span> <span class="variable">abc2</span> <span class="operator">=</span> Set.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>);</span><br><span class="line"><span class="type">Map</span> <span class="variable">abc3</span> <span class="operator">=</span> Map.of(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>, <span class="string">&quot;B&quot;</span>, <span class="number">2</span>, <span class="string">&quot;C&quot;</span>, <span class="number">3</span>);</span><br><span class="line"><span class="type">Map</span> <span class="variable">abc4</span> <span class="operator">=</span> Map.ofEntries(Map.entry(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>),</span><br><span class="line">                                          Map.entry(<span class="string">&quot;B&quot;</span>, <span class="number">2</span>),</span><br><span class="line">                                          Map.entry(<span class="string">&quot;C&quot;</span>, <span class="number">3</span>));</span><br></pre></td></tr></table></figure>
-
-<p>值得注意的是，<code>List</code>不允许通过<code>of</code>传入<code>null</code>，<code>Map</code>不允许传入相同的键。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List.of(<span class="string">&quot;A&quot;</span>, <span class="literal">null</span>); <span class="comment">// NullPointerException</span></span><br><span class="line">Map.of(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>, <span class="string">&quot;A&quot;</span>, <span class="number">2</span>); <span class="comment">// IllegalArgumentException: duplicate key: A</span></span><br></pre></td></tr></table></figure>
-
-<p>Java 10引入了<code>copyOf</code>方法，也能方便地从可变集合中创建出不可变集合：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">abcMutable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(List.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>))</span><br><span class="line"><span class="type">var</span> <span class="variable">abcImmutable</span> <span class="operator">=</span> List.copyOf(abcMutable);</span><br></pre></td></tr></table></figure>
-
-<p>Java 10还在<code>Collectors</code>类中增加了<code>toUnmodifiableList</code>&#x2F;<code>toUnmodifiableMap</code>&#x2F;<code>toUnmodifiableSet</code>方法，可以直接从<code>Stream</code>创建一个不可变集合：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span> <span class="variable">abc</span> <span class="operator">=</span> Stream.of(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>).collect(Collectors.toUnmodifiableList());</span><br></pre></td></tr></table></figure>
-
-<h2 id="Deprecated"><a href="#Deprecated" class="headerlink" title="Deprecated"></a>Deprecated</h2><p>这个相对简单，就是给<code>@Deprecated</code>注解增加了两个字段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Deprecated(since=&quot;1.1&quot;, forRemoval = true)</span></span><br></pre></td></tr></table></figure>
-
-<p>前者表示从哪个版本起不建议使用，后者表示未来是否会将其删除。</p>
-<h2 id="接口的private方法"><a href="#接口的private方法" class="headerlink" title="接口的private方法"></a>接口的private方法</h2><p>从Java 8起，允许给接口增加<code>default</code>方法。从Java 9起，接口又增加了一项能力：可以定义<code>private</code>方法了。示例如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">bark</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;bowwow&quot;</span>);</span><br><span class="line">        wagTail();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">walk</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;walk&quot;</span>);</span><br><span class="line">        wagTail();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">wagTail</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;wag&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>既然如此，它跟抽象类还有什么区别吗？接口的优势就是允许子类实现多个接口，而抽象类因为可以拥有可变字段（接口的字段是<code>final</code>的）而更为强大。我们在接口定义方法时，也应当让其尽可能简洁。</p>
-<h2 id="Optional的新方法"><a href="#Optional的新方法" class="headerlink" title="Optional的新方法"></a>Optional的新方法</h2><p>从Java 9起，<code>Optional</code>终于可以通过<code>stream()</code>方法返回一个<code>Stream</code>了，这样它就可以用上<code>Stream</code>提供的许多API了。原来只能这么做：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Optional</span> <span class="variable">optional</span> <span class="operator">=</span> Optional.of(<span class="string">&quot;ggg&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// java 8</span></span><br><span class="line"><span class="type">Stream</span> <span class="variable">texts</span> <span class="operator">=</span> optional.map(Stream::of).orElseGet(Stream::empty);</span><br><span class="line"></span><br><span class="line"><span class="comment">// java 9</span></span><br><span class="line"><span class="type">Stream</span> <span class="variable">texts</span> <span class="operator">=</span> optional.stream();</span><br></pre></td></tr></table></figure>
-
-<p>另一个可以耍耍的方法是<code>ifPresentOrElse</code>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// java 8</span></span><br><span class="line"><span class="keyword">if</span> (optional.isPresent()) &#123;</span><br><span class="line">    System.out.print(optional.get());</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    System.out.println();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// java 9</span></span><br><span class="line">optional.ifPresentOrElse(System.out::print, System.out::println);</span><br></pre></td></tr></table></figure>
-
-<p>Java 9还新增了一个方法<code>or</code>，与原来的<code>orElse</code>类似，但是返回的是一个<code>Optional</code>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// java 8</span></span><br><span class="line"><span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> optional.orElse(<span class="string">&quot;n/a&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// java 9</span></span><br><span class="line"><span class="type">Optional</span> <span class="variable">name</span> <span class="operator">=</span> optional.or(() -&gt; Optional.of(<span class="string">&quot;n/a&quot;</span>));</span><br></pre></td></tr></table></figure>
-
-<h2 id="HttpClient"><a href="#HttpClient" class="headerlink" title="HttpClient"></a>HttpClient</h2><p>Java 11引进了HttpClient，http请求变得简单了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">HttpClient</span> <span class="variable">client</span> <span class="operator">=</span> HttpClient.newHttpClient();</span><br><span class="line"><span class="type">HttpRequest</span> <span class="variable">request</span> <span class="operator">=</span> HttpRequest.newBuilder().uri(URI.create(uri)).build();</span><br><span class="line"><span class="type">HttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> client.send(request, HttpResponse.BodyHandlers.ofString());</span><br><span class="line"></span><br><span class="line">System.out.println(response.body());</span><br></pre></td></tr></table></figure>
-
-<p>异步也很简单，返回一个<code>CompletableFuture</code>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">HttpClient</span> <span class="variable">client</span> <span class="operator">=</span> HttpClient.newHttpClient();</span><br><span class="line"><span class="type">HttpRequest</span> <span class="variable">request</span> <span class="operator">=</span> HttpRequest.newBuilder().uri(URI.create(uri)).build();</span><br><span class="line"><span class="type">CompletableFuture</span> <span class="variable">futureResponse</span> <span class="operator">=</span> client.sendAsync(request, HttpResponse.BodyHandlers.ofString())</span><br><span class="line">        .thenApply(HttpResponse::body)</span><br><span class="line">        .thenAccept(System.out::println);</span><br><span class="line"></span><br><span class="line">futureResponse.get();</span><br></pre></td></tr></table></figure>
-
-<p>原生的<code>HttpURLConnection</code>可以抛弃了。Apache的<code>HttpClient</code>也许也可以雪藏了。</p>
-<h2 id="可过期的CompletableFuture"><a href="#可过期的CompletableFuture" class="headerlink" title="可过期的CompletableFuture"></a>可过期的CompletableFuture</h2><p>上一小节中，我们可以得到一个<code>CompletableFuture</code>。从Java 9起，它可以设置过期时间了。可以把上面的<code>futureResponse.get()</code>替换如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CompletableFuture</span> <span class="variable">timeoutFuture</span> <span class="operator">=</span> futureResponse.orTimeout(<span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">timeoutFuture.get();</span><br></pre></td></tr></table></figure>
-
-<p>如果没有在设置的时间内获得结果，便会抛出<code>java.util.concurrent.ExecutionException: java.util.concurrent.TimeoutException</code>。如果想在过期时不抛异常而是设一个默认值，可以这样做：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CompletableFuture</span> <span class="variable">futureResponse</span> <span class="operator">=</span> client.sendAsync(request, HttpResponse.BodyHandlers.ofString())</span><br><span class="line">        .thenApply(HttpResponse::body)</span><br><span class="line"><span class="type">CompletableFuture</span> <span class="variable">timeoutFuture</span> <span class="operator">=</span> futureResponse.completeOnTimeout(<span class="string">&quot;default value&quot;</span>, <span class="number">1</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">timeoutFuture.get();</span><br></pre></td></tr></table></figure>
-
-<h2 id="Process-API"><a href="#Process-API" class="headerlink" title="Process API"></a>Process API</h2><p>Process API是元老级的API了，但是功能一直不够完整，无法获取进程的PID、用户、命令等。Java 9引入了<code>ProcessHandle</code>，可以查询进程，甚至允许在进程退出时执行方法。它提供了获取当前进程的<code>current</code>方法，以及获取全部进程的<code>allProcesses</code>方法。用法如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Optional</span> <span class="variable">currentUser</span> <span class="operator">=</span> ProcessHandle.current().info().user();</span><br><span class="line">ProcessHandle.allProcesses()</span><br><span class="line">        .filter(p -&gt; p.info().user().equals(currentUser))</span><br><span class="line">        .forEach(p -&gt; System.out.println(String.valueOf(p.pid()) + <span class="string">&quot; &quot;</span> + p.info().command()));</span><br></pre></td></tr></table></figure>
-
-<p>如果在Mac中打开了一个<code>TextEdit</code>，便可以看到类似这样的输出结果：<strong>1234 Optional[&#x2F;Applications&#x2F;TextEdit.app&#x2F;Contents&#x2F;MacOS&#x2F;TextEdit]</strong>。Windows的话可以打开<code>notepad.exe</code>，也能看到：<strong>1234 Optional[C:\Windows\System32\notepad.exe]</strong>。可以用以下方法在该进程退出时打印一些信息：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Optional</span> <span class="variable">optionalProcessHandle</span> <span class="operator">=</span> ProcessHandle.of(<span class="number">1234</span>);</span><br><span class="line"><span class="type">CompletableFuture</span> <span class="variable">future</span> <span class="operator">=</span> optionalProcessHandle.get()</span><br><span class="line">        .onExit().thenAccept(x -&gt; System.out.println(x.pid()));</span><br><span class="line">future.get();</span><br></pre></td></tr></table></figure>
-
-<p>甚至还能用<code>optionalProcessHandle.get().destroy()</code>来摧毁进程。如此这般，Java外部打开的<code>TextEdit</code>或<code>notepad.exe</code>都会被退出。由于其它用户的进程无法使用<code>ProcessHandle.of</code>来获取，所以只能杀掉自己的进程。对安全方面感兴趣的话可以参考一下<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/11/core/process-api1.html#GUID-FB7E1852-6C0F-4681-8B35-E2F1ABF483D5">官方文档</a>。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/java-11/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/java-11/" data-id="cuidSQR8DqvoPWsSxKU4nXc88" data-title="Java 11时代，这些编程习惯可以改一改了" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/java-11/" data-id="cuid92R5nxcQ0QzSXE3XdYa-K" data-title="Java 11时代，这些编程习惯可以改一改了" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -449,27 +348,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>可以把手稿变成html的<a target="_blank" rel="noopener" href="https://sketch2code.azurewebsites.net/">Sketch 2 Code</a>出世了，这是微软在<a target="_blank" rel="noopener" href="https://github.com/Microsoft/ailab">GitHub上的C#开源代码</a>。听说它能够把前端都凉掉？我很兴奋地尝了尝鲜，写下了这篇小文。咱们来看看它有没有传说中的那么高大上。</p>
-<p>官网上放出来的示例当然是最佳了：<br><img src="/img/sketch-2-code-official.png"></p>
-<p>能有这样的效果那是相当的不错呀，布局、文字、图像都识别得很不错，但也并非完美：</p>
-<ul>
-<li>布局：PRODUCT CATALOG变成了竖排，搜索按钮也没有对齐</li>
-<li>文字：三幅画下面的第一个PRODUCT识别成了RODUCT，最后一个3变成了S。$19.5左边多了一个8</li>
-<li>图像：原图上明明有三个段落嘛，html变成了两个</li>
-</ul>
-<p>那我自己画一幅，用网站提供的TAKE A PICTURE功能上传试试：<br><img src="/img/sketch-2-code-1st-try.png"></p>
-<p>这是什么鬼？敢情什么都没识别出来？是我的画风太清奇了吗？不死心，同一幅图再拍一次：<br><img src="/img/sketch-2-code-2nd-try.png"></p>
-<p>这次有限地成功了，看来位置、方向、大小、光影上的一点点细微差别，也会很大地影响最终的结果。后来又试了几次，最完美的识别也就是上面这幅图了，要我是草图设计师，用这玩意儿还是挺跟它较劲的。倒是处理速度还挺快，几秒之内就能搞定。</p>
-<p>接下来试一试中文：<br><img src="/img/sketch-2-code-chinese-try.png"></p>
-<p>果然是不支持中文呀。从下图中我们能看到，尽管中文都能够识别成Lable，但确实对中文的OCR无能为力。<br><img src="/img/sketch-2-code-chinese-analysis.png"></p>
-<p>再试试横线本，看来背景的横线是可以被过滤掉的：<br><img src="/img/sketch-2-code-lines-try.png"></p>
-<p>最后试着参考GitHub的注册首页画一幅手稿：<br><img src="/img/sketch-2-code-github-try.png"></p>
-<p>上面的html是试过几遍之后最好的解析了。生成的html代码中引用了bootstrap的css，所以网页看上去还比较顺眼。但是格式有点乱，有一些连续空行、缩进等问题。不过这些问题相信都很容易解决。最大的问题是目前的实用程度还不太高。想要让前端变凉，数据量应该还不太够（大家多多上传草图吧），而且还应该有不少工作能做。希望它能早日实用化，让前端们投入到更有意义的工作中去。</p>
-<p>最终结论：未来很美好，但是现在的实用性还有待提高。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/sketch2code/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/sketch2code/" data-id="cuidPcr4IAKXkgeULByiBKIv9" data-title="手稿秒变html的Sketch 2 Code" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/sketch2code/" data-id="cuidU6fWv-iCrBWD32nxCAC-F" data-title="手稿秒变html的Sketch 2 Code" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -510,29 +397,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>以前玩游戏的时候，总是希望在高手后面看他怎么操作，以提高自己的水平。当时悟出了一个道理：菜鸟看老鸟，只觉得每一步都顺理成章。但是菜鸟自己上时，老鸟却是看得频频摇头。今天这个标题讲的就是这么个理所当然的架构，源于我的同事对当前系统的思考。</p>
-<h2 id="单体系统→微服务→平台"><a href="#单体系统→微服务→平台" class="headerlink" title="单体系统→微服务→平台"></a>单体系统→微服务→平台</h2><p>随着IT的不断发展，软件能解决的问题越来越多也越来越大。在大型软件开发中，人们发现要与一大坨代码共舞变得越来越困难，于是微服务架构兴起并持续火热，许多单体系统也纷纷挤上风口随之演进，不管是新服务单提出去还是老服务逐步拆分，总之他们都渐渐走到分布式系统的大道上了。服务的数量上去了，便带来了一个问题：你的服务跟别人的服务应该如何集成呢？最简单粗暴直截了当的做法就是直接调用。但是这样缺少定制化支持。对方有什么，你可能就只能凑合着用什么。要不，就得等对方把你的需求排上档期。</p>
-<p>总这样不行呀，缺胳膊少腿的服务和只能傻傻等待着跟不上节奏的服务没法儿工作呀。为了满足不同客户的多方面需求，服务的平台化就成了一个自然而然的选择。作为平台方，不止提供服务，而且提供客户在平台上的定制化功能，客户成为了平台的租户。一般来说，租户需要在平台那边写点儿为自己的需求而定制的代码或是DSL，以便支持自己的业务场景。</p>
-<p>如果你是一个平台的所有者，如何才能让别人在你的平台上顺利安营扎寨，而你无需提供太多的支持工作呢？</p>
-<h2 id="构建组合型平台"><a href="#构建组合型平台" class="headerlink" title="构建组合型平台"></a>构建组合型平台</h2><p>首先要问自己一下，你的平台，也就是你拥有的服务，面向的客户是什么人呢？从技术维度上来说，无非是这几类：</p>
-<ul>
-<li>非技术人员：你的服务只对非技术人员开放，对方想要的是一个大而全的系统，而不希望在不同的服务间来回奔波。以操作系统为例的话，那就是需要一个Windows。</li>
-<li>技术人员：你的服务只对技术人员开放，对方想要的是更加灵活，别人的烂代码不要影响到自己的代码。Unix&#x2F;Linux就是一个典型的例子。</li>
-<li>混合型人员：你的服务对技术人员及非技术人员开放，大家各取所需，当然对你的要求也比较高了。举个例子就是OSX。</li>
-</ul>
-<p>出于简单起见，我们先考虑前两种类型。实际情况是，第一类其实就是许多第二类的聚合。你可能有许多微服务，但是作为网关的微服务其实数量不多。这样，我们便把要解决的大部分平台问题归类于对技术人员开放的服务了。第三类的混合型也很类似。其实对于微服务来说，我根本不在乎对方的实现方式、架构方式，能提供稳定的服务就可以了。但是，一旦它是个平台，并且我需要在其上定制代码，那我也就不得不关心一下了。还是先分两个类：</p>
-<ul>
-<li>非组合型软件架构：平台代码和租户代码的耦合比较紧，类比的话，就是EJB。平台升级很可能需要租户代码一起改。于是，能不升级就不升级，因为租户很多，升级可能会很繁琐。</li>
-<li>组合型软件架构：可能由多种服务组成，对于每种服务而言，SRP是最重要的事，把一件简单的事情做好。其实“简单”是相对而言的，不管内部有多复杂，但是开放出去的接口，或者是允许租户在其中实现的能力，都应该只专注于一件事情。举个例子，亚马逊AWS的S3。作为使用者而言，还是非常简单的。虽然程序员们都知道要维护这样一个服务其实是相当复杂的。这些服务之间是松耦合的，像Linux的管道一样，灵活组合，对外提供平台的能力。</li>
-</ul>
-<p>如果一个租户的代码挂掉了，从而影响到其他的租户甚至是你的平台，那这个平台就是很有问题的。这句话看起来理所当然，但确实有不少所谓的平台并不是这样设计的。在这种情况下，租户要往这个平台提交代码，就需要接受平台的代码审查，以免待提交的代码影响到其他人。而平台方就不得不耗费人力审查代码、部署代码，当租户的数量多起来时，平台根本就无法提供足够的可伸缩性，势必需要排优先级。于是各种抱怨就纷至沓来，自己的技术人员也苦不堪言。所以，我们希望租户拥有对自己代码的审查和部署的所有权，不希望当租户代码变化时需要平台人员人力审核。</p>
-<p>如果你需要开发一个平台，如何能够做到让租户之间不相互影响呢？最佳的租户隔离方式是向租户提供服务级别的隔离。一个租户服务的倒掉不至于影响到其他租户的服务，只是影响已损坏服务的分支业务自己而已（自己的代码挂掉，当然自己承担喽）。如果由于某些原因无法为所有租户都提供服务级别的隔离，那么也可以尝试进程级别的隔离，例如Docker。一个损坏的进程在许多情况下都不太至于影响到平台为其他租户进程提供的服务。如果很不幸的是不得不与租户在同一个进程里，那么起码还可以用DSL来限制租户的能力，让租户的代码不能有太大的破坏性。要是租户也能用平台的语言，还在同一个进程中，那么搞砸平台的服务只是时间问题罢了。</p>
-<p>在DevOps的光茫照耀下，我们当然要提倡自动化，这是平台和租户双方的责任。平台提供的是从代码提交到部署测试环境乃至生产环境的自动化能力，而租户需要实现的是自动化测试。一个典型的应用场景就是：平台上的租户代码提交，触发了该租户的持续交付流水线，于是在测试环境上自动部署平台的租户代码，接下来运行租户自己实现的自动化测试，一旦通过，租户便可以决定是否要在平台的生产环境上自动部署这次提交的代码。</p>
-<p>最后，作为平台，提供的是能力。不要强迫租户使用你的能力，而要提供稳定的服务，让租户心甘情愿地使用你的能力。向Unix那样，把一个个稳定的服务组合起来，以提供整体的服务；同时，允许租户自由替换其中的某些服务以实现灵活性。能做到这一点的平台就相当成熟了。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/composable-software-architecture/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/composable-software-architecture/" data-id="cuidfnDMtcYzYr-uBuMGxO2Kl" data-title="组合型软件架构" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/composable-software-architecture/" data-id="cuidJFhGuyARwwSsqnfl3L87Q" data-title="组合型软件架构" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -573,61 +446,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://javers.org/">JaVers</a>是一个轻量级的对象比较&#x2F;审计框架，非常易于使用。当前的JaVers版本3是用Java 8编写的，只能运行在JRE 8或以上版本。2.9.2是最后一个和Java 7兼容的版本。源代码<a target="_blank" rel="noopener" href="https://github.com/javers/javers">在此</a>。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>如果你需要实时比较生产环境的处理结果和备份环境的处理结果，或是在新系统中重放生产环境的请求，或者像代码一样对对象进行版本管理，那么JaVers就可以成为你的好朋友。它不仅可以比较对象，也可以将比较结果存储在数据库中以便审计。审计是这样的一种需求：</p>
-<blockquote>
-<p>作为用户，我希望知道谁改变了状态，<br>是什么时候改变的，以及原先的状态是什么。</p>
-</blockquote>
-<p>本文仅关注于比较部分，对审计部分就不具体展开了。</p>
-<h2 id="快速一览"><a href="#快速一览" class="headerlink" title="快速一览"></a>快速一览</h2><p>新建Maven工程，往pom.xml中增加dependency，最后的pom.xml看起来就像这样：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">4.0.0</span><br><span class="line"></span><br><span class="line">org.ggg.javers</span><br><span class="line">helloJaVers</span><br><span class="line">1.0-SNAPSHOT</span><br><span class="line"></span><br><span class="line">helloJaVers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">    org.javers</span><br><span class="line">    javers-core</span><br><span class="line">    3.9.6</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    com.google.guava</span><br><span class="line">    guava</span><br><span class="line">    25.0-jre</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    org.projectlombok</span><br><span class="line">    lombok</span><br><span class="line">    1.16.20</span><br><span class="line">    provided</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>假设我们有一个名为<code>Staff</code>的POJO如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Staff</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> Double height;</span><br><span class="line">    <span class="keyword">private</span> BigDecimal salary;</span><br><span class="line">    <span class="keyword">private</span> Staff manager;</span><br><span class="line">    <span class="keyword">private</span> List hobbies;</span><br><span class="line">    <span class="keyword">private</span> Map phones;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在<code>main</code>函数中如下编写：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Staff</span> <span class="variable">tommy</span> <span class="operator">=</span> Staff.builder()</span><br><span class="line">                   .name(<span class="string">&quot;Tommy&quot;</span>)</span><br><span class="line">                   .age(<span class="number">18</span>)</span><br><span class="line">                   .height(<span class="number">180d</span>)</span><br><span class="line">                   .salary(<span class="keyword">new</span> <span class="title class_">BigDecimal</span>(<span class="string">&quot;10000&quot;</span>))</span><br><span class="line">                   .hobbies(Lists.newArrayList(<span class="string">&quot;film&quot;</span>, <span class="string">&quot;game&quot;</span>))</span><br><span class="line">                   .phones(ImmutableMap.of(<span class="string">&quot;home&quot;</span>, <span class="string">&quot;1234&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;4321&quot;</span>))</span><br><span class="line">                   .manager(Staff.builder().name(<span class="string">&quot;ok&quot;</span>).build())</span><br><span class="line">                   .build();</span><br><span class="line"><span class="type">Staff</span> <span class="variable">ggg</span> <span class="operator">=</span> Staff.builder()</span><br><span class="line">                 .name(<span class="string">&quot;ggg&quot;</span>)</span><br><span class="line">                 .age(<span class="number">17</span>)</span><br><span class="line">                 .height(<span class="number">180.000000001d</span>)</span><br><span class="line">                 .hobbies(Lists.newArrayList(<span class="string">&quot;game&quot;</span>, <span class="string">&quot;music&quot;</span>, <span class="string">&quot;travel&quot;</span>))</span><br><span class="line">                 .phones(ImmutableMap.of(<span class="string">&quot;mobile&quot;</span>, <span class="string">&quot;4321&quot;</span>, <span class="string">&quot;home&quot;</span>, <span class="string">&quot;1235&quot;</span>))</span><br><span class="line">                 .manager(Staff.builder().name(<span class="string">&quot;ok&quot;</span>).build())</span><br><span class="line">                 .build();</span><br><span class="line"></span><br><span class="line"><span class="type">Javers</span> <span class="variable">javers</span> <span class="operator">=</span> JaversBuilder.javers().build();</span><br><span class="line"><span class="type">Diff</span> <span class="variable">diff</span> <span class="operator">=</span> javers.compare(tommy, ggg);</span><br><span class="line">System.out.println(diff);</span><br></pre></td></tr></table></figure>
-
-<p>即可得到以下输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Diff:</span><br><span class="line">* changes on org.ggg.javers.Staff/ :</span><br><span class="line">  - &amp;apos;age&amp;apos; changed from &amp;apos;18&amp;apos; to &amp;apos;17&amp;apos;</span><br><span class="line">  - &amp;apos;height&amp;apos; changed from &amp;apos;180.0&amp;apos; to &amp;apos;180.000000001&amp;apos;</span><br><span class="line">  - &amp;apos;hobbies&amp;apos; collection changes :</span><br><span class="line">    0. &amp;apos;film&amp;apos; changed to &amp;apos;game&amp;apos;</span><br><span class="line">    1. &amp;apos;game&amp;apos; changed to &amp;apos;music&amp;apos;</span><br><span class="line">    2. &amp;apos;travel&amp;apos; added</span><br><span class="line">  - &amp;apos;name&amp;apos; changed from &amp;apos;Tommy&amp;apos; to &amp;apos;ggg&amp;apos;</span><br><span class="line">  - &amp;apos;phones&amp;apos; map changes :</span><br><span class="line">    &amp;apos;home&amp;apos; -&gt; &amp;apos;1234&amp;apos; changed to &amp;apos;1235&amp;apos;</span><br><span class="line">    &amp;apos;mobile&amp;apos; -&gt; &amp;apos;4321&amp;apos; added</span><br><span class="line">    &amp;apos;office&amp;apos; -&gt; &amp;apos;4321&amp;apos; removed</span><br><span class="line">  - &amp;apos;salary&amp;apos; changed from &amp;apos;10000&amp;apos; to &amp;apos;&amp;apos;</span><br></pre></td></tr></table></figure>
-
-<p>大部分的代码都是我们创建对象所用的，可见JaVers非常易于使用。</p>
-<h2 id="对象类型"><a href="#对象类型" class="headerlink" title="对象类型"></a>对象类型</h2><p>根据DDD，JaVers把要比较的对象分为三种类型：实体（Entity）、值对象（Value Object）和值（Value）。每种类型都有不同的比较方法。值最简单，就是看它们是否是<code>Object.equals()</code>的。实体和值对象都是按属性依次比较。它们俩的区别是实体拥有标识（Entity Id），而值对象并没有。标识不同的实体就会被认为是不同的对象，从而不再继续比较其余的字段。从DDD的角度上严格来说值对象不能单独存在，需要依附于实体。好在JaVers并不教条，值对象也可以用来单独比较。上面的代码其实就是把Staff对象当作值对象来比较。如果我们在<code>Staff</code>类中，给<code>name</code>添加一个<code>@Id</code>的注解（所有的注解都在<code>org.javers.core.metamodel.annotation</code>包里），那么比较结果就会不同：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Diff:</span><br><span class="line">* new object: org.ggg.javers.Staff/ggg</span><br><span class="line">* object removed: org.ggg.javers.Staff/Tommy</span><br></pre></td></tr></table></figure>
-
-<p>只有当<code>name</code>属性相同的时候，这两个对象才会被当成同一实体，从而依次比较其余属性。如果没有权限修改实体以增加<code>@Id</code>注解，也可以用这样的方法来注册，效果相同：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Javers</span> <span class="variable">javers</span> <span class="operator">=</span> JaversBuilder.javers()</span><br><span class="line">                             .registerEntity(<span class="keyword">new</span> <span class="title class_">EntityDefinition</span>(Staff.class, <span class="string">&quot;name&quot;</span>))</span><br><span class="line">                             .build();</span><br></pre></td></tr></table></figure>
-
-<p>如果<code>registerEntity</code>的属性和<code>@Id</code>注解都存在，那么以<code>registerEntity</code>所注册的属性为准。</p>
-<p>JaVers完全兼容<a target="_blank" rel="noopener" href="http://www.groovy-lang.org/">Groovy</a>，可以参考其<a target="_blank" rel="noopener" href="https://javers.org/documentation/diff-examples/#groovy-diff-example">文档</a>来了解用例。</p>
-<h2 id="自定义比较方式"><a href="#自定义比较方式" class="headerlink" title="自定义比较方式"></a>自定义比较方式</h2><h3 id="忽略属性"><a href="#忽略属性" class="headerlink" title="忽略属性"></a>忽略属性</h3><p>从业务上说，有些属性新、旧系统本来就不一样，或者是不关心，这时候我们可以在比较中“忽略”这些属性。如果有权限修改要比较的对象类，可以简单地在属性上面增加一个<code>@DiffIgnores</code>，比较的时候就会将其忽略。<code>@DiffIgnores</code>相当于黑名单，<code>@DiffInclude</code>起到了白名单的效果。如果没有修改类的权限，那么也可以用这样的方法来注册，效果相同：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Javers</span> <span class="variable">javers</span> <span class="operator">=</span> JaversBuilder.javers()</span><br><span class="line">                             .registerValueObject(<span class="keyword">new</span> <span class="title class_">ValueObjectDefinition</span>(Staff.class, Lists.newArrayList(<span class="string">&quot;hobbies&quot;</span>, <span class="string">&quot;phones&quot;</span>)))</span><br><span class="line">                             .build();</span><br></pre></td></tr></table></figure>
-
-<p>这里我们注册的是个值对象ValueObject，与上一个例子的实体Entity的区别就是有没有标识属性。</p>
-<h3 id="比较算法"><a href="#比较算法" class="headerlink" title="比较算法"></a>比较算法</h3><p>一开始细心的读者们就可能注意到了，<code>Lists.newArrayList(&quot;film&quot;, &quot;game&quot;)</code>和<code>Lists.newArrayList(&quot;game&quot;, &quot;music&quot;, &quot;travel&quot;)</code>的比较结果居然是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- &amp;apos;hobbies&amp;apos; collection changes :</span><br><span class="line">  0. &amp;apos;film&amp;apos; changed to &amp;apos;game&amp;apos;</span><br><span class="line">  1. &amp;apos;game&amp;apos; changed to &amp;apos;music&amp;apos;</span><br><span class="line">  2. &amp;apos;travel&amp;apos; added</span><br></pre></td></tr></table></figure>
-
-<p>这当然也是可以配置的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Javers</span> <span class="variable">javers</span> <span class="operator">=</span> JaversBuilder.javers()</span><br><span class="line">                             .withListCompareAlgorithm(ListCompareAlgorithm.LEVENSHTEIN_DISTANCE)</span><br><span class="line">                             .build();</span><br></pre></td></tr></table></figure>
-
-<p>这样的话，结果就变成了：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- &amp;apos;hobbies&amp;apos; collection changes :</span><br><span class="line">  2. &amp;apos;travel&amp;apos; added</span><br><span class="line">  1. &amp;apos;music&amp;apos; added</span><br><span class="line">  0. &amp;apos;film&amp;apos; removed</span><br></pre></td></tr></table></figure>
-
-<p>值得注意的是，这种算法在列表元素过多的时候可能会影响性能。</p>
-<h3 id="定制比较"><a href="#定制比较" class="headerlink" title="定制比较"></a>定制比较</h3><p>我们可以注册自定义的比较器，例如，如果在业务上认为两个<code>Double</code>类型的<code>1.000000001</code>和<code>1</code>相等，这时候我们可以注册一个如下的类：</p>
-<pre><code class="language-java">public class CustomDoubleIgnorePrecisionComparator implements CustomPropertyComparator {
-
-    private static final double DELTA = 0.00001;
-
-    public ValueChange compare(final Double left, final Double right, final GlobalId affectedId, final Property property) {
-        final double diff = Math.abs(left - right);
-        if (diff 关联字段比较
-关联字段就是说，如果几个字段之间有关联，我们就认为它们一样。比如说我们虚构一个需求：对于一个拥有`int x`和`int y`的`Rectangle`类来说，如果`x * y`也就是面积相等，我们就认为它们相等。在这种情况下，JaVers似乎并没有原生提供关联字段比较的办法。有一种办法是新建一个包装类，比如说`RectangleWrapper`，里面有一个`Rectangle rectangle`和一个`int area`字段，分别赋值为要比较的对象和其`x * y`。注册`Javers`的时候，把`Rectangle`类的`x`和`y`忽略即可。如果有更复杂的需求，例如当面积不同时需要报`x`和`y`不同而不是`area`不同，那也可以通过生成多个`Javers`对象，并多次调用来解决。`Javers#compare`方法返回的是一个`Diff`对象，从中可以很方便地查看某些字段是否存在变化。就是要多写点代码咯。
-</code></pre>
-
+        
+          <p class="article-more-link">
+            <a href="/javers/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/javers/" data-id="cuidL8gvQGp1Y9voPoU13TmBp" data-title="用JaVers比较对象" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/javers/" data-id="cuidiG7rvmyLRz0y6ULo6qatA" data-title="用JaVers比较对象" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -668,55 +495,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们经常听到以客户为中心，可是说来容易做来难。“地球上最以客户为中心的公司”亚马逊是怎么做的呢？这可不是喊喊口号就完事了，逆向工作法（Working Backwards）了解一下？</p>
-<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>Working backwards原本的意思是，从最终要解决的事情开始，每次回退一步，直到最初。</p>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://mathgeekmama.com/problem-solving-by-working-backwards/">Working backwards is to start with the final solution and work back one step at a time to get to the beginning.</a></p>
-</blockquote>
-<p>在亚马逊，这个概念变得更加具体，成为了如何实现“以客户为中心”的一系列过程。它的产出是三份材料：</p>
-<ul>
-<li>新闻稿（Press Release，PR）：通过用户的语言描述一个想法，如产品、服务或功能</li>
-<li>常见问题解答（Frequently Asked Questions，FAQs）：用户和参与方可能会问的问题</li>
-<li>视觉资料（Visuals）：形式多样，有助于大家沟通想法</li>
-</ul>
-<p>这三份材料在产品的生命周期中，随着一次次的迭代而不断地演进。在<a href="/working-backwards/#%E5%87%86%E5%A4%87%E6%96%87%E6%A1%A3">准备文档</a>一节中，我们会更详细地介绍它们。</p>
-<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>为什么要使用逆向工作法？简单来说，因为要“以客户为中心”。逆向工作法是一种行之有效的方法，能够把重点放在客户真正关心的问题上，进而交付用户体验极佳的产品。它是亚马逊成功的关键。</p>
-<p>逆向工作法的最终目标就是取悦用户。没错，取悦用户能够带来巨大的价值。对亚马逊来说，它力争成为地球上最以客户为中心的公司，与逆向工作法天然契合。如果你的愿景并非如此，那也不妨看看人家是怎么做的。不过你也需要知道，逆向工作法需要很大的工作量，但是它号称可以节省更多的未来工作量。</p>
-<h2 id="怎么做"><a href="#怎么做" class="headerlink" title="怎么做"></a>怎么做</h2><h3 id="了解用户"><a href="#了解用户" class="headerlink" title="了解用户"></a>了解用户</h3><p>一开始其实跟<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%85%A6%E5%8A%9B%E6%BF%80%E7%9B%AA%E6%B3%95">头脑风暴法（Brainstorming）</a>很像，在打破时间、预算、资源（含技术）等限制的情况下，尽可能发散地提出各种想法。比如Kindle的首要设计理念，就是让用户感觉不到它的存在，从而能够专心读书。它连音乐播放器都没有！之后，亚马逊花了三年时间打造无线和电子屏技术，才推出了这一革命性产品。</p>
-<p>你知道你的用户究竟是什么人吗？有一个很典型的答案：所有人都是我的潜在用户。这话倒是没错，但是这个答案对深入了解用户并没有太大的帮助。考虑一些特定用户的情况，如上班族、网络不好的用户、残疾人等等。思考其面对的问题，他们想要的是什么？问问自己，时间、地点和用户的现状会怎样影响其需求？让最终用户受益，是让参与方各个团队通力合作的基础。以后的团队合作开发中，如果大家有分歧，这正是一个大家达成一致的关键。</p>
-<p>如果不知道用户要的究竟是什么，那你很可能就是在浪费时间。用户想要的可能是需求，也可能是方案，一定要搞清楚。这两者之间的区别可能非常小。如果你不知道这到底是需求还是方案，那就问问自己：为什么用户需要它？这个问题的答案有可能就是需求。汽车大王福特有一句名言：“如果我当年去问顾客他们想要什么，他们肯定会告诉我：一匹更快的马。这就是典型的方案，而不是需求。如果不考虑用户的需求而直接转向方案，那很可能就会痛失一个改善用户体验的机会。</p>
-<blockquote>
-<p>“If I had asked people what they wanted, they would have said faster horses.” ― Henry Ford</p>
-</blockquote>
-<p>需求有时会表现为痛点。例如，用户说他总是不知道中午应该上哪儿吃饭去。那么用户的需求是什么？一个帮他做决定的人？点评网站？外卖app？还是一个骰子？这些都是方案，用户的需求其实只是希望让决定中午上哪儿吃饭这件事变得非常简单自然。</p>
-<p>如果你能回答关于用户的这五个问题，那这一步就差不多了：</p>
-<ul>
-<li>谁是你的用户？</li>
-<li>他遇到了什么问题？</li>
-<li>他的核心诉求是什么？可能有许多的诉求，但我们只挑一个最核心的需求。</li>
-<li>你怎么知道他想要的是什么？搜集数据，让数据说话。</li>
-<li>用户体验应该是怎么样的？这个主要是通过视觉资料来展示，我们将在下面的<a href="/working-backwards/#%E8%A7%86%E8%A7%89%E8%B5%84%E6%96%99">视觉资料</a>一节中再详细探讨。</li>
-</ul>
-<h3 id="准备文档"><a href="#准备文档" class="headerlink" title="准备文档"></a>准备文档</h3><h4 id="新闻稿"><a href="#新闻稿" class="headerlink" title="新闻稿"></a>新闻稿</h4><p>虽然这里说的新闻稿是内部人员写的内部文档，但是看起来应该跟即将公开发布的新闻稿差不多。市场人员几乎无需修改便可以直接使用。想象用户正在看这篇新闻稿的心理活动，避免使用行业术语，因为用户很可能并不了解这些术语。</p>
-<p>写好新闻稿需要花时间，也需要重复地练习。多向别人要反馈吧！今天的一点点改进可能会节省未来花在上面的大量时间。一份好的新闻稿描述了你的想法是什么，以及为什么要这样做。一般一页纸就够了，不要长篇大论。避免模棱两可的词（weasel words），如一些，许多，经常，可能，显然，一般，等等等等。用数据来代替它们吧。</p>
-<p>这里有一些关键内容：</p>
-<ul>
-<li>用户心声（Customer Testimonial）：先写这个部分。虽然它是虚构的，但是要设身处地地为用户着想，以增加可信度。</li>
-<li>问题&#x2F;机会（Problem&#x2F;Opportunity）：描述一个问题或机会，别夸大。可以这样开头：“用户们以前只能…”</li>
-<li>方案（Solution）：描述能够使用户受益的观点。可以这样开头：“现在，用户们可以…”</li>
-<li>标题（Headline）：最后写的部分，要求简短有力。</li>
-</ul>
-<p>请注意，所有的文档都不是固定不变的，它们是一直演进的。把最重要的内容放在第一段。保证其他人哪怕只看了第一段也能对你的想法有所了解。想一想<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Elevator_pitch">电梯游说（Elevator pitch）</a>，怎样在很短的时间内表达出你的想法？写文档像写代码一样，要尽量简单。</p>
-<h4 id="常见问题解答"><a href="#常见问题解答" class="headerlink" title="常见问题解答"></a>常见问题解答</h4><p>新闻稿描写了愿景，而FAQ提供更详细的说明。FAQ包含了两个部分：客户会问的问题以及内部参与方会问的问题。关于前者，你需要站在客户的角度上，思考其究竟会问出什么样的问题。例如，我怎么参与进去呢？有了问题我应该找谁呢？我要花钱吗？要像回答真正的客户一样来回答这些问题。关于后者，那就是你的老大、兄弟团队或是投资人应该会问的问题。例如，为什么能够提高用户体验呢？如何验证项目是否成功呢？为什么现在是推行的最佳时期？执行计划是什么？越是常见的问题，放在越上面。</p>
-<p>别害怕尖锐的问题，都写上吧。比如说什么问题你最不希望被人问到？有没有你还没找到答案的问题？为什么要这样做，而不是那样做？别藏着掖着，都亮出来吧。这样别人才能更容易地看到这个想法的亮点和痛点。对于暂时还是无解的问题，那就诚实地写下：“我不知道。我还在通过XXX来寻找答案”。在寻求反馈的时候，其他人说不定就能够解决这个问题。但是如果不写，我们不但失去了解决它的机会，而且增加了未来的风险。</p>
-<h4 id="视觉资料"><a href="#视觉资料" class="headerlink" title="视觉资料"></a>视觉资料</h4><p>视觉资料包括但不限于：白板、<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Storyboard">分镜（Storyboard）</a>、<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24536517">用户体验历程图（Customer Journey Map）</a>、<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Website_wireframe">线框图（Wireframe）</a>、<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31609683">高保真UI（High-Fidelity UI）</a>、技术架构图（Technical Architecture Diagram）等等。分镜是一系列草图的组合，能够呈现端到端的用户体验。到了后期，还可以引入技术架构图等来描述一个复杂的系统。不用拘泥于形式，任何有助于表达的东西都是我们的工具。</p>
-<p>视觉资料可以让我们对用户体验有一个直观的认识。可以的话，让设计师尽早参与吧。一开始手绘即可，不需要那么高保真。不然大家的讨论容易集中在页面风格上，而不是客户体验上。高保真图是随着迭代的更替和讨论的深入而慢慢成型的。选择保真度有一个小窍门：保真度应该跟你的想法成熟度相匹配。越不成型的想法应该采用的视觉资料就应该越低保真。草图是最简单有效的开始。别怕画得难看，它能帮你加深对自己想法的认识。记住，画得好看与否并不是关键，清晰地表达你的想法才是。</p>
-<h3 id="提供反馈"><a href="#提供反馈" class="headerlink" title="提供反馈"></a>提供反馈</h3><p>许多会议一开始都是先花个两三盏茶左右的时间来阅读新闻稿和FAQ。与更多取决于演讲者个人魅力的PPT不同，阅读可以让所有人都处在同一起跑线上。提供反馈时，最好直来直往，别拐弯抹角。如果你有些地方看不明白，尽管说出来。别因为自己跟对方的关系而束手束脚，我们对事不对人。另外在这个时候，我们更多地关注在想法本身，而较少对语法错误、错别字挑刺，这一点与代码审查略有不同。代码审查啥都挑，但要是低级错误太多是要打回去重写的。</p>
-<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>我们先前说过，做好这些事情需要时间练习。如果你一时想不出什么点子，上文提过的中午上哪儿吃饭的问题应该怎么解决？亲爱的读者，你有什么想法吗？</p>
-
+        
+          <p class="article-more-link">
+            <a href="/working-backwards/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/working-backwards/" data-id="cuidxiXTqrrnJ9C7a_NkgrmL1" data-title="逆向工作法" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/working-backwards/" data-id="cuid8jXk6caJAq2jT_ooMRV5E" data-title="逆向工作法" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -757,73 +544,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>本文介绍了<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>的一些相对不那么广为人知，但是又很实用的调试功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是<code>2018.1</code>社区版，快捷键是<code>Mac OS X</code>。本文的兄弟篇是<a href="/intellij-idea-utilities">挖掘IntelliJ IDEA的实用功能</a>。</p>
-<h2 id="断点"><a href="#断点" class="headerlink" title="断点"></a>断点</h2><h3 id="断点类型"><a href="#断点类型" class="headerlink" title="断点类型"></a>断点类型</h3><p>一般来说调试时，我们都是在代码行上鼠标一点，然后运行测试，遇断点所在的行即停，这就是所谓的行断点。IDEA支持以下几种断点类型：</p>
-<ul>
-<li>行断点（Line Breakpoints）：就是我们最经常用的方式。</li>
-<li>方法断点（Method Breakpoints）：如果你看到代码调用了一个接口，但不知道具体会跑在哪个实现上，便可以在接口上设置断点，这样不管哪个子类运行到这个方法都会停下来。</li>
-<li>异常断点（Exception Breakpoints）：可以在<strong>Run</strong> -&gt; <strong>View Breakpoints</strong>中的<strong>Java Exception Breakpoints</strong>里添加异常的具体类型。这样的话，程序中一旦发生了这种异常马上就会停下来。</li>
-<li>字段断点（Field Watchpoints）：可以设置在字段上，这样读写字段都可以触发。需要注意的是，默认只有写才会停下，想要让读取时也停下，需要右击断点，在<strong>Watch</strong>的<strong>Field access</strong>上打勾才行。</li>
-</ul>
-<h3 id="条件断点"><a href="#条件断点" class="headerlink" title="条件断点"></a>条件断点</h3><p>断点是可以设置条件的，这样便可以只在关心的时候停下来。比如说循环里处理一堆字符串，但是只关心特定的字符串，那条件断点便可以派上用场。按住Shift键设置断点，或是右击断点之后选择<strong>More</strong>来打开以下界面：<br><img src="/img/idea-debug-conditional-breakpoint.jpg"></p>
-<p>上图就是设置条件断点的界面，直接在<strong>Condition</strong>里输入条件即可，如<code>&quot;ggg&quot;.equals(name)</code>。需要注意的是，<strong>Suspend</strong>默认是没有打勾的，必须勾选上才能让程序暂停。另外，辛辛苦苦设置的特定断点，是可以拖拽到别的地方去的，这样就省的到处敲来敲去的了。还有一个小技巧是按住Alt的同时设置断点，可以让断点仅停一次便自动消失。在设置临时断点时有点用。</p>
-<h3 id="无断点暂停"><a href="#无断点暂停" class="headerlink" title="无断点暂停"></a>无断点暂停</h3><p>如果在很长的循环时不知道程序运行到哪里了，可以在调试时点击调试窗口上的<strong>Pause Program</strong>，这样程序便能在当前执行的地方暂停。另外，运行到光标（Run to cursor）也可以在没有设置断点的时候让程序运行到光标所在行时暂停。</p>
-<h2 id="调试技巧"><a href="#调试技巧" class="headerlink" title="调试技巧"></a>调试技巧</h2><p>下面介绍一些调试的小技巧。</p>
-<h3 id="智能进入（Smart-step-into）"><a href="#智能进入（Smart-step-into）" class="headerlink" title="智能进入（Smart step into）"></a>智能进入（Smart step into）</h3><p>当调试程序运行到类似这样的句子时，如果你想看的是<code>actor.action</code>方法，那么进入这个方法就相对麻烦一些。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">actor.action(actionProvider.provide(action.getName()));</span><br></pre></td></tr></table></figure>
-
-<p>这时可以使用调试窗口上的智能进入，程序会弹出一个对话框，我们选择需要的调用处即可。算是一个提升调试效率的小技巧。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e286">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e286</a></p>
-<h3 id="表达式评估（Evaluate-expression）"><a href="#表达式评估（Evaluate-expression）" class="headerlink" title="表达式评估（Evaluate expression）"></a>表达式评估（Evaluate expression）</h3><p>这应该是大部分人都知道的技巧了，可以通过表达式评估来重新赋值当前的变量，以便让程序运行到其它的分支去。当然也可以在<strong>Variables</strong>窗口中，右击想要改变的变量，选择<strong>Set Value</strong>。不过表达式评估里可以轻松增加新变量、动态import新类库等，功能更加强大。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/evaluating-expressions.html">https://www.jetbrains.com/help/idea/evaluating-expressions.html</a></p>
-<h3 id="远程调试（Remote-debug）"><a href="#远程调试（Remote-debug）" class="headerlink" title="远程调试（Remote debug）"></a>远程调试（Remote debug）</h3><p>如果运行的实例在其它机器（或者虚拟机、docker）上，只要实例设置了以下参数，就可以通过远程调试连接到<code>8000</code>端口进行调试。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,<span class="built_in">suspend</span>=y</span><br></pre></td></tr></table></figure>
-
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e408">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e408</a></p>
-<p>对于IDEA来说，只需要在<strong>Run</strong> -&gt; <strong>Edit Configuration</strong>里，增加一个<strong>Remote</strong>，设置主机<strong>Host</strong>和端口<strong>Port</strong>，然后调试它即可。</p>
-<h3 id="弃栈帧（Drop-frame）"><a href="#弃栈帧（Drop-frame）" class="headerlink" title="弃栈帧（Drop frame）"></a>弃栈帧（Drop frame）</h3><p>Visual Studio好的一点是调试时可以拖拽当前执行的位置，方便反复查看。虽然IDEA没有这样的功能，但是它可以使用弃栈帧来把当前调用栈的第一栈帧丢弃掉，相当于重新开始当前调试的方法。使用方法也算简单，在要丢弃的栈帧上右击，选择<strong>Drop Frame</strong>即可。或者直接单击调试窗口的<strong>Drop Frame</strong>按钮。不过需要注意的是，如果对象在子方法运行时发生了变化，是不会再变回去的。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/debugging-code.html#d181035e308">https://www.jetbrains.com/help/idea/debugging-code.html#d181035e308</a></p>
-<h3 id="强制抛异常（Throw-an-exception）："><a href="#强制抛异常（Throw-an-exception）：" class="headerlink" title="强制抛异常（Throw an exception）："></a>强制抛异常（Throw an exception）：</h3><p>这是IDEA 2018年加入的新功能，可以直接在调试中抛出指定的异常。使用方法跟上面的弃栈帧类似，右击栈帧并选择<strong>Throw Exception</strong>，然后输入如下代码即可：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>()</span><br></pre></td></tr></table></figure>
-
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#throw_exception">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#throw_exception</a></p>
-<h3 id="强制返回（Force-return）："><a href="#强制返回（Force-return）：" class="headerlink" title="强制返回（Force return）："></a>强制返回（Force return）：</h3><p>这是IDEA2015版时增加的功能，类似上面的手动抛异常，只不过是返回一个指定值罢了。使用方法跟上面也都类似，右击栈帧并选择<strong>Force Return</strong>，然后输入要返回的值即可。如果是<code>void</code>的方法那就更简单了，连返回值都不用输。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html</a></p>
-<h3 id="自动载入变化代码（Reload-changes）"><a href="#自动载入变化代码（Reload-changes）" class="headerlink" title="自动载入变化代码（Reload changes）"></a>自动载入变化代码（Reload changes）</h3><p>利用Java虚拟机提供的HotSwap功能，我们可以做到一边调试一边改代码。只要在修改完代码之后，点击<strong>Run</strong> -&gt; <strong>Reload Changed Classes</strong>即可。不过HotSwap有一些限制，例如不支持static的字段和方法等。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes</a></p>
-<h3 id="显示方法返回值（Show-method-return-values）"><a href="#显示方法返回值（Show-method-return-values）" class="headerlink" title="显示方法返回值（Show method return values）"></a>显示方法返回值（Show method return values）</h3><p>调试窗口里的<strong>Settings</strong> -&gt; <strong>Show Method Return Values</strong>开关可以显示方法的返回值。例如以下方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">double</span> <span class="title function_">random</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Math.random();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>只要在<code>return</code>上设断点然后<strong>Step Over</strong>，或者在方法内部的任何地方设断点然后<strong>Step Out</strong>一下，便可以在调用处的变量窗口看到一个类似于这样的值：<code>Test.random() = 0.28735657504865864</code>。在这个方法调用没有赋值给变量时（如<code>if (random() &lt; 10)</code>）还挺有用的。</p>
-<h3 id="调试流（Trace-Current-Stream-Chain）"><a href="#调试流（Trace-Current-Stream-Chain）" class="headerlink" title="调试流（Trace Current Stream Chain）"></a>调试流（Trace Current Stream Chain）</h3><p>前面说了Visual Studio的好，但是它调试时不能看lambda的值也真是挺恶心的，据说2015版以后开始支持有限的lambda了。IDEA在这方面就做的非常到位。Java 8带来的Stream里面到底是什么，有时候很难知道。通过IDEA提供的这个功能，我们可以很轻松地看到流在各个步骤之间的变化。如下图：<br><img src="/img/idea-debug-lambda.jpg"></p>
-<p>展平模式（Flat Mode）更是提供了全局的视角：<br><img src="/img/idea-debug-lambda-flat-mode.jpg"></p>
-<p>使用这个功能也非常简单，当程序在lambda表达式的任意处停下时，单击调试窗口的<strong>Trace Current Stream Chain</strong>按钮即可。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html">https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html</a></p>
-<h3 id="调试内存泄漏（Memory-View）"><a href="#调试内存泄漏（Memory-View）" class="headerlink" title="调试内存泄漏（Memory View）"></a>调试内存泄漏（Memory View）</h3><p>内存泄漏是一个比较头疼的问题，好在IDEA提供了内存分析工具，只要单击调试窗口右上角的<strong>Restore ‘Memory’ View</strong>就能看到内存窗口，然后点击其中的<strong>Click to load the classes list</strong>就能看到当前内存的对象分布情况。然后可以据此分析到底是哪个类的对象数量看起来有问题。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html">https://www.jetbrains.com/help/idea/analyze-objects-in-the-jvm-heap.html</a></p>
-<h3 id="调试lombok"><a href="#调试lombok" class="headerlink" title="调试lombok"></a>调试lombok</h3><p>如果只是想暂停一下set或get方法，可以使用字段断点，只不过可能会在调试中报错：<strong>Source code does not match the bytecode</strong>，但它能够工作。</p>
-<p>如果想设断点的是<code>toString</code>、<code>hashCode</code>等方法，可以在注解上设置断点，也可以在调试时使用：<strong>Refactor</strong> -&gt; <strong>Delombok</strong>并选择相对应的注解，然后再使用上文介绍的HotSwap功能，就可以生成代码并按需调试了。最后别忘记把代码恢复回来。</p>
-<h3 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h3><p>调试异步、线程、死锁、活锁等高级功能，官网上面有详细的教程，可以在用到时参考。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html">https://www.jetbrains.com/help/idea/tutorial-java-debugging-deep-dive.html</a></p>
-<h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><p>功能熟悉了以后，熟练使用快捷键能够大幅提高效率。以下是笔者调试时经常使用的快捷键：</p>
-<ul>
-<li>F7：进入调用的方法</li>
-<li>F8：单步运行</li>
-<li>F9：继续运行</li>
-<li>Shift+F7：智能进入调用的方法</li>
-<li>Shift+F8：跳出当前方法</li>
-<li>Alt+F8：表达式评估</li>
-<li>Alt+F9：运行到光标</li>
-<li>Ctrl+Shift+F9：调试当前光标所在方法或类</li>
-<li>Ctrl+Shift+F10：运行当前光标所在方法或类</li>
-<li>Shift+F9：调试上次运行的测试</li>
-<li>Shift+F10：运行上次运行的测试</li>
-<li>Command+Shift+T：切换测试和实现</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/intellij-idea-debug/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-debug/" data-id="cuidXU42vYP3Io-94CpKcjxbD" data-title="挖掘IntelliJ IDEA的调试功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-debug/" data-id="cuidSGNC0ekNzbug_KiQmNX1L" data-title="挖掘IntelliJ IDEA的调试功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

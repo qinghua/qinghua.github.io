@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://qinghua.github.io/img/mysql-drop-and-run.jpg">
 <meta property="article:published_time" content="2017-02-02T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.935Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.051Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="soft skill">
 <meta name="twitter:card" content="summary">
@@ -106,6 +106,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>运维不好当啊。上个月<a target="_blank" rel="noopener" href="http://hs.blizzard.cn/articles/16/8565">炉石传说数据库故障导致数据损坏</a>刚刚补偿完毕，这两天又出了个<a target="_blank" rel="noopener" href="http://www.oschina.net/news/81473/gitlab-com-down">GitLab误删生产数据库</a>。本文聊聊尽量避免生产事故的一些方法。</p>
+<span id="more"></span>
+
 <p>我看到<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s/kTA24o0opEk51Q-RNNWPKg">圈内讨论</a>里有人说，重要系统维护的时候必须两个人一起干活，一个做另外一个在旁边看。这有点儿像是结对编程的思路。我觉得两个人一起固然会好一点，但从结对的实际经验来看，一来可能导致效率更低，二来两个人一起也不能保证不会出问题。大部分情况下这两个人的水平并不是一致的，水平高的人操作，容易导致另一个人只是干看着；而水平低的人操作，反而增加了误操作的几率，需要水平高的人紧盯着。</p>
 <p>还有人说，改造一下<code>rm -rf</code>，让它只能删空目录，我觉得这是一个不错的点子。由于人总是可能会出错，所以由一个机制来保证（法制而非人治），效果应该更加理想。不过这种办法也有几个问题存在。一是所有的机器都需要替换并保持<code>rm</code>命令，二是操作的时候还是不免会稍微降低效率，三是误操作一般是在低意识的时候发生，<code>rm</code>的报错，固然有可能会警醒操作者，但也有可能在惯性思维的引导下使操作者直接调用重命名后的老<code>rm</code>。还有其它的办法吗？</p>
 <p>我也来抛砖引玉一个：如果从数据库同步上着手呢？只要是关于删除数据库、数据表（数据记录单谈，视需求而定）的操作，都创建新库来备份旧数据而非直接删除。缺点一是需要修改同步工具的代码，工作难度比较大；二是需要定期清理同步数据库。</p>
@@ -115,7 +117,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/avoid-production-accident/" data-id="cuideWRdyWcT28X4K6Jdu58-c" data-title="如何尽量避免生产事故" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/avoid-production-accident/" data-id="cuidbK_RoqjtDeUNidfA3vScd" data-title="如何尽量避免生产事故" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

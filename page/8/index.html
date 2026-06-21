@@ -101,94 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>写<a href="/sed">sed</a>不写awk真是对强迫症的我的一种折磨啊。这次重温一下Linux&#x2F;Unix下另一个也很老（还是比我老）的文本处理神器：awk（名字来源于三个创始人的姓的首字母）。Linux下的<a target="_blank" rel="noopener" href="http://www.delorie.com/gnu/docs/gawk/gawk_3.html">gawk</a>是awk的GNU实现。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。</p>
-<p>假设我们有一个不合法格式的csv文件如下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csv</span><br><span class="line">Country Name Age</span><br><span class="line">US Gavo 35</span><br><span class="line">US Jane 21</span><br><span class="line">US Bill 25</span><br><span class="line">China Jimmy 42</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><h3 id="查询列"><a href="#查询列" class="headerlink" title="查询列"></a>查询列</h3><p>最基本的用法就是过滤出某列来：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>其中的大括号表示一个动作，<code>print</code>就是一个打印的动作。<code>$1</code>代表第1列，<code>$0</code>代表所有列。所以以下的命令也很好理解：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print $3&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;print $0&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;print $1 $2&#125;&#x27;</span> staff.csv       <span class="comment"># 中间的字符不管用</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print $1&quot; &quot;$1&#125;&#x27;</span> staff.csv     <span class="comment"># 加引号才生效</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print NR FS NF&#125;&#x27;</span> staff.csv    <span class="comment"># NR代表行号，FS代表分隔符，NF代表列数</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print $(NF-1)&#125;&#x27;</span> staff.csv     <span class="comment"># 支持计算，加上$代表列内容</span></span><br></pre></td></tr></table></figure>
-
-<p>我们可以把这个不合法的csv文件变得合法：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print $1&quot;,&quot;$2&quot;,&quot;$3 &gt; &quot;staff.csv&quot;&#125;&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>注意这里awk的语法：写文件是在大括号里面，而不是外面。当然外面也是可以的，只要别和<code>staff.csv</code>重名就好。</p>
-<h3 id="分隔符"><a href="#分隔符" class="headerlink" title="分隔符"></a>分隔符</h3><p>现在再来一次<code>awk &#39;{print $1}&#39; staff.csv</code>，就会发现awk无视逗号，把一整行都当成第一列了。可以用以下命令指定分隔符：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">awk -F<span class="string">&quot;,&quot;</span> <span class="string">&#x27;&#123;print $1,$2&#125;&#x27;</span> staff.csv             <span class="comment"># -F必须写在前面，双引号可以省略，变成-F,</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print $1,$2&#125;&#x27;</span> FS=<span class="string">&quot;,&quot;</span> staff.csv            <span class="comment"># FS必须写在后面，双引号可以省略，变成FS=,</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print $1,$2&#125;&#x27;</span> FS=<span class="string">&quot;,&quot;</span> OFS=<span class="string">&quot;:&quot;</span> staff.csv    <span class="comment"># OFS指定输出分隔符</span></span><br></pre></td></tr></table></figure>
-
-<p>上面最后一个命令中，虽然OFS指定了输出分隔符，但是需要在<code>$1</code>和<code>$2</code>中间加上这个分隔符才能生效。另外，有时候省略双引号会出错的，比如对于<code>|</code>这个符号来说，有“或者”的意思，可能有歧义，所以还是加上双引号比较稳妥。</p>
-<h3 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h3><p>awk支持丰富的条件语法以及正则表达式匹配：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;NR==1&#123;print $3&#125;&#x27;</span> FS=, staff.csv                     <span class="comment"># 打印第1行第3列</span></span><br><span class="line">awk <span class="string">&#x27;NR!=1&#123;print $3&#125;&#x27;</span> FS=, staff.csv                     <span class="comment"># 打印所有行的第3列，除了第1行</span></span><br><span class="line">awk <span class="string">&#x27;/Gavo/&#123;print $3&#125;&#x27;</span> FS=, staff.csv                    <span class="comment"># 打印Gavo的Age</span></span><br><span class="line">awk <span class="string">&#x27;/Gavo|Jane/&#123;print $0&#125;&#x27;</span> FS=, staff.csv               <span class="comment"># 打印Gavo或Jane的记录</span></span><br><span class="line">awk <span class="string">&#x27;$3&gt;40&#123;print $0&#125;&#x27;</span> FS=, staff.csv                     <span class="comment"># 打印40岁以上的记录，注意这里表头也按字符串来比较了</span></span><br><span class="line">awk <span class="string">&#x27;/Gavo/ || $3&gt;40&#123;print $0&#125;&#x27;</span> FS=, staff.csv           <span class="comment"># 打印Gavo或40岁以上的记录</span></span><br><span class="line">awk <span class="string">&#x27;$1 ~ /US/&#123;print $0&#125;&#x27;</span> FS=, staff.csv                 <span class="comment"># 打印第1列为US的所有记录</span></span><br><span class="line">awk <span class="string">&#x27;$3 ~ /^2/&#123;print $0&#125;&#x27;</span> FS=, staff.csv                 <span class="comment"># 打印第三列以2开头的所有记录，即所有二十多岁的记录</span></span><br><span class="line">awk <span class="string">&#x27;/Gavo/&#123;print $0&#125;/Jane/&#123;print $2&#125;&#x27;</span> FS=, staff.csv    <span class="comment"># 打印Gavo的整行记录并打印Jane的第二列</span></span><br></pre></td></tr></table></figure>
-
-<p>还支持在动作里写更复杂的条件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;if (NR==1) print $0;&#125;&#123;print $2&#125;&#x27;</span> FS=, staff.csv    <span class="comment"># 打印第1行和所有行的第2列</span></span><br><span class="line">awk <span class="string">&#x27;c=(NR==1)&#123;print $0&#125; !c&#123;print $2&#125;&#x27;</span> FS=, staff.csv    <span class="comment"># 简易版的if else，把条件赋值给变量c</span></span><br><span class="line">awk <span class="string">&#x27;(NR==1)&#123;print $0;next&#125;&#123;print $2&#125;&#x27;</span> FS=, staff.csv    <span class="comment"># next的意思是跳过后面的命令（print $2）</span></span><br><span class="line">awk <span class="string">&#x27;&#123;r=(NR==1)?$0:$2; print r&#125;&#x27;</span> FS=, staff.csv          <span class="comment"># 三目赋值运算符</span></span><br></pre></td></tr></table></figure>
-
-<p>以上命令的后三条的效果是一样的。下面是大招：条件表达式的这一套全齐了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;if (NR==1) &#123;print $1;&#125; else if (NR==2) &#123;print $2&#125; else &#123;print $3&#125;&#125;&#x27;</span> FS=, staff.csv</span><br></pre></td></tr></table></figure>
-
-<h2 id="传参"><a href="#传参" class="headerlink" title="传参"></a>传参</h2><p>为了命令简单起见，我们再把csv文件换成最早那个但是去掉表头：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csv</span><br><span class="line">US Gavo 35</span><br><span class="line">US Jane 21</span><br><span class="line">US Bill 25</span><br><span class="line">China Jimmy 42</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h3 id="入参"><a href="#入参" class="headerlink" title="入参"></a>入参</h3><p>过了一年，要把所有人的Age都加上一岁：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print $3&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;print $3+1&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>如果这个一岁是个变量，那就这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">age=1</span><br><span class="line">awk -v value=<span class="variable">$age</span> <span class="string">&#x27;&#123;print $3+value&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;print $3+value&#125;&#x27;</span> value=<span class="variable">$age</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>如果这个一岁是个环境变量，那就这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> AGE=1</span><br><span class="line">awk <span class="string">&#x27;&#123;print $3+ENVIRON[&quot;AGE&quot;]&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h3 id="出参"><a href="#出参" class="headerlink" title="出参"></a>出参</h3><p>如果我们想拿到Jane和Bill的Age，怎么做呢？</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">value=`awk <span class="string">&#x27;&#123;if($2==&quot;Jane&quot;)print &quot;jane_age=&quot;$3;if($2==&quot;Bill&quot;)print &quot;bill_age=&quot;$3&#125;&#x27;</span> staff.csv`</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$value</span></span><br><span class="line"><span class="built_in">eval</span> <span class="variable">$value</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$jane_age</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$bill_age</span></span><br></pre></td></tr></table></figure>
-
-<p>这个方案的思路是在<code>awk</code>里拼命令，然后出来执行。</p>
-<h2 id="统计"><a href="#统计" class="headerlink" title="统计"></a>统计</h2><h3 id="求和"><a href="#求和" class="headerlink" title="求和"></a>求和</h3><p>求所有人的年龄总和：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;s+=$3&#125;END&#123;print s&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;s+=$3;print $2&quot;:&quot;$3&#125;END&#123;print &quot;SUM:&quot;s&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h3 id="求平均"><a href="#求平均" class="headerlink" title="求平均"></a>求平均</h3><p>下一个命令可以求平均值，也就是求和之后除以行数NR：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;a+=$3&#125;END&#123;print a/NR&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>如果没有<code>END</code>，awk会在每处理一行之后打印一次。</p>
-<h3 id="去重"><a href="#去重" class="headerlink" title="去重"></a>去重</h3><p>查看所有的国家，去除重复项目：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;a[$1];&#125;END&#123;for (i in a)print i&#125;&#x27;</span> staff.csv</span><br><span class="line">awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> staff.csv | <span class="built_in">uniq</span>                   <span class="comment"># 用这个多简单</span></span><br></pre></td></tr></table></figure>
-
-<p>上面第一个命令比较复杂：<code>a[$1]</code>是awk的数组（其实是字典），<code>a[&quot;US&quot;]=1</code>意味着在a的数组里，<code>&quot;US&quot;</code>的值为1。在这里并没有用到它的值，而是利用了字典的键不能重复的原理。后面有一个<code>for</code>循环，把字典的键都打印出来。如果要打印值，用<code>a[i]</code>就好了。比如下面这个打印每个国家的总年龄：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;a[$1]+=$3;&#125;END&#123;for (i in a)print a[i]&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h2 id="文件处理"><a href="#文件处理" class="headerlink" title="文件处理"></a>文件处理</h2><h3 id="分割文件"><a href="#分割文件" class="headerlink" title="分割文件"></a>分割文件</h3><p>还是以上面那个文件为例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csv</span><br><span class="line">US Gavo 35</span><br><span class="line">US Jane 21</span><br><span class="line">US Bill 25</span><br><span class="line">China Jimmy 42</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>将不同国家的记录写到不同文件中：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;print &gt; $1&quot;.csv&quot;&#125;&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line"><span class="built_in">cat</span> China.csv</span><br><span class="line"><span class="built_in">cat</span> US.csv</span><br></pre></td></tr></table></figure>
-
-<p>这回看起来好简单啊。<code>print</code>默认打印出整行，所以可以省略<code>$0</code>。<br>每两行写一个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;NR%2==1&#123;f=++i&quot;.csv&quot;;&#125;&#123;print &gt; f&#125;&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line"><span class="built_in">cat</span> 1.csv</span><br><span class="line"><span class="built_in">cat</span> 2.csv</span><br></pre></td></tr></table></figure>
-
-<p>把多余文件删掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> !(staff.csv)</span><br><span class="line"><span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="増删改列"><a href="#増删改列" class="headerlink" title="増删改列"></a>増删改列</h3><p>先看下面这个命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;$1=++i FS $1&#125;1&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>它在每行的前面增加了行号。关于<code>$1=++i FS $1</code>，以第一行为例：<code>++i</code>为1，<code>FS</code>为分隔符，<code>$1</code>为第一列，这三项结合起来赋值给前面的<code>$1</code>，所以第一列就变成了<code>1 US</code>。后面的<code>1</code>代表<code>True</code>，是整行打印的意思，也可以用<code>{print $0}</code>来代替。所以：</p>
-<pre><code class="language-sh">awk &#39;{$(NF+1)=++i}1&#39; staff.csv                        # 最后一列加一列
-awk &#39;{$(NF+1)=++i FS NF}1&#39; staff.csv                  # 最后一列加两列
-awk &#39;{$NF=++i FS $NF}1&#39; staff.csv                     # 倒数第二列加一列
-awk &#39;{$2=toupper($2)}1&#39; staff.csv                     # Name列变大写，tolower就是变小写
-awk &#39;{$2=substr($2,0,3)}1&#39; staff.csv                  # Name列截前3个字符
-awk &#39;{$2=&quot;&quot;}1&#39; staff.csv                              # 清空Name列
-awk &#39;{NF=2}1&#39; staff.csv                               # 删除最后一列
-awk &#39;{for(i=1;i参考资料
-The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk-sed.html)含有大量的例子和解释，非常容易上手，本文就是以其为基础整理而成。
-酷壳的[AWK 简明教程](http://coolshell.cn/articles/9070.html)很适合入门。
-当然还有最全面的[官方文档](http://www.gnu.org/software/gawk/manual/gawk.html)。
-</code></pre>
-
+        
+          <p class="article-more-link">
+            <a href="/awk/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/awk/" data-id="cuid8qTEIm5bKVWa6jtqfLIR9" data-title="看例子学awk" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/awk/" data-id="cuidpq-cQ9wTI0pj9nS8GkBJm" data-title="看例子学awk" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -229,113 +150,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。</p>
-<p>假设我们有一个csv文件如下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csv</span><br><span class="line">Gavo,35</span><br><span class="line">Jane,21</span><br><span class="line">Bill,25</span><br><span class="line">Jimmy,42</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><h3 id="在文件头-尾增加一行"><a href="#在文件头-尾增加一行" class="headerlink" title="在文件头&#x2F;尾增加一行"></a>在文件头&#x2F;尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1i Name,Age&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2a Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>要是想在文件尾增加一行的话，用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;$a Hetty,29&#x27;</span> staff.csv    <span class="comment"># 指定行内容</span></span><br><span class="line">sed $<span class="string">&#x27;$a \\\n&#x27;</span> staff.csv       <span class="comment"># 增加空行</span></span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
-<h3 id="在匹配的地方增加一行"><a href="#在匹配的地方增加一行" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i \ \ Hetty,29&#x27;</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">&#x27;/21/i Hetty,29&#x27;</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">&#x27;/J/i Hetty,29&#x27;</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure>
-
-<p>下面这个命令可以在Gavo后面增加两行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/a Hetty,29\nEmma,45&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h2 id="删"><a href="#删" class="headerlink" title="删"></a>删</h2><h3 id="删除特定行"><a href="#删除特定行" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1d&#x27;</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">&#x27;$d&#x27;</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">&#x27;/Jane/d&#x27;</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">&#x27;/21/d&#x27;</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">&#x27;/J/d&#x27;</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="删除关联行"><a href="#删除关联行" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;d;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>N</code>就是下一行（next line）的意思。如果不想删除Gavo这行，用这个命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;s/\n.*//;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>相当于匹配了两行也就是<code>Gavo,35\nJane,21</code>之后，再把<code>\n</code>之后的所有文本替换成空白，即删除。替换的命令在下面的<a href="/sed/#u6539">改</a>中会详细介绍。</p>
-<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><h3 id="所有行头-尾增加项目"><a href="#所有行头-尾增加项目" class="headerlink" title="所有行头&#x2F;尾增加项目"></a>所有行头&#x2F;尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/^/China,/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>s</code>表示替换（substitute），<code>^</code>表示开头，相对应的<code>$</code>表示结尾。</p>
-<h3 id="所有行修改项目"><a href="#所有行修改项目" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/China/US/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/,[A-Z][a-z]*/&amp;-dev/&#x27;</span> staff.csv</span><br><span class="line">sed -r <span class="string">&#x27;s/(,.*),/\1-dev,/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
-<h3 id="正则替换"><a href="#正则替换" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[^,]+/&quot;&amp;&quot;/g&#x27;</span> staff.csv</span><br><span class="line">sed -e <span class="string">&#x27;s/^\|$/&quot;/g&#x27;</span> -e <span class="string">&#x27;s/,/&quot;,&quot;/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。如果不想用正则的方式，只想做完全匹配的字符串替换，可以用<code>perl</code>，例如：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[name]/ggg/g&#x27;</span> 全局替换</span><br><span class="line">把所有的`l`改成`L`：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">sed <span class="string">&#x27;s/l/L/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
-<p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g; s/m/M/g&#x27;</span> staff.csv</span><br><span class="line">sed -e <span class="string">&#x27;s/l/L/g&#x27;</span> -e <span class="string">&#x27;s/m/M/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h3 id="大小写替换"><a href="#大小写替换" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/.*/\L&amp;/&#x27;</span> staff.csv</span><br><span class="line">sed <span class="string">&#x27;s/.*/\U&amp;/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p><code>\L</code>就是全部小写（lowercase），<code>\U</code>就是全部大写（uppercase）。<code>&amp;</code>在上文有提到，表示匹配上的内容。</p>
-<h3 id="修改指定行"><a href="#修改指定行" class="headerlink" title="修改指定行"></a>修改指定行</h3><p>现在表头的第一列也成了US，把它改成Country：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1s/US/Country/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>把第2行到4行的US替换成China：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2,4s/US/China/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>把第3行整行替换掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;3s/.*/China,Hetty,29/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<h3 id="删除所有符号"><a href="#删除所有符号" class="headerlink" title="删除所有符号"></a>删除所有符号</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/[[:punct:]]//g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p><code>[[:punct:]]</code>是正则表达式中预先定义的子字符类（character classes），代表所有的标点符号。sed支持的<a target="_blank" rel="noopener" href="http://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html">子字符类</a>如下：</p>
-<ul>
-<li>[:alnum:]：[0-9A-Za-z]</li>
-<li>[:alpha:]：[A-Za-z]</li>
-<li>[:blank:]：空格和TAB</li>
-<li>[:cntrl:]：控制字符（Control characters），ASCII码为000~037和177 (DEL)</li>
-<li>[:digit:]：[0-9]</li>
-<li>[:graph:]：[:alnum:]和[:punct:]</li>
-<li>[:lower:]：[a-z]</li>
-<li>[:print:]：[:alnum:]、[:punct:]和空格</li>
-<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . &#x2F; : ; &lt; &#x3D; &gt; ? @ [ \ ] ^ _ &#96; { | } ~</li>
-<li>[:space:]：[:blank:]和回车、换行等</li>
-<li>[:upper:]：[A-Z]</li>
-<li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
-</ul>
-<h3 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h3><p>如果想用变量里的值来代替，可以这么写（注意是双引号而不是单引号了）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">name=ggg</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$name</span></span><br><span class="line"></span><br><span class="line">sed -r <span class="string">&quot;s/name/<span class="variable">$&#123;name&#125;</span>/g&quot;</span> 查</span><br><span class="line"></span><br><span class="line"><span class="comment">### 查看特定行</span></span><br><span class="line">查（<span class="built_in">print</span>）也和[増](/sed/#u589E)很类似，区别是把`i`或`a`换成`p`即可：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">sed <span class="string">&#x27;1p&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1p&#x27;</span> staff.csv         <span class="comment"># 查看第一行</span></span><br><span class="line">sed -n <span class="string">&#x27;$p&#x27;</span> staff.csv         <span class="comment"># 查看最后一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/Jane/p&#x27;</span> staff.csv    <span class="comment"># 查看包含Jane的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21/p&#x27;</span> staff.csv      <span class="comment"># 查看包含21的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/J/p&#x27;</span> staff.csv       <span class="comment"># 查看包含J的两行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21$/p&#x27;</span> staff.csv     <span class="comment"># 查看以21结尾的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21/!p&#x27;</span> staff.csv     <span class="comment"># 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure>
-
-<p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
-<h3 id="查看行范围"><a href="#查看行范围" class="headerlink" title="查看行范围"></a>查看行范围</h3><p>如果想要查看直到匹配某条记录，用下面这条命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/q&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1,/Jane/p&#x27;</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">&#x27;/Gavo/,/Jane/p&#x27;</span> staff.csv    <span class="comment"># 从匹配Gavo的记录开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">&#x27;/Jane/,$p&#x27;</span> staff.csv         <span class="comment"># 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="查看奇-偶数行"><a href="#查看奇-偶数行" class="headerlink" title="查看奇&#x2F;偶数行"></a>查看奇&#x2F;偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;n;d&#x27;</span> staff.csv       <span class="comment"># 奇数行</span></span><br><span class="line">sed <span class="string">&#x27;1d;n;d&#x27;</span> staff.csv    <span class="comment"># 偶数行</span></span><br></pre></td></tr></table></figure>
-
-<p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
-<h3 id="从单行中查找"><a href="#从单行中查找" class="headerlink" title="从单行中查找"></a>从单行中查找</h3><p>比如想从<strong>I am 18 years old</strong>里查找18这个年龄，可以这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am 18 years old&quot;</span> | sed -n <span class="string">&quot;s/I am \(.*\) years old/\1/p&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>这里<code>\1</code>代表第一个被匹配上的内容也就是<code>\(.*\)</code>。发挥想象力：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am 18 years old&quot;</span> | sed -n <span class="string">&quot;s/I am \(.*\) \(.*\) old/\2: \1/p&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>The UNIX School 里的<a target="_blank" rel="noopener" href="http://www.theunixschool.com/p/awk-sed.html">awk and sed tutorials</a>含有大量的例子和解释，非常容易上手，本文就是以其为基础整理而成。<br>酷壳的<a target="_blank" rel="noopener" href="http://coolshell.cn/articles/9104.html">sed 简明教程</a>很适合入门。<br>当然还有最全面的<a target="_blank" rel="noopener" href="http://www.gnu.org/software/sed/manual/sed.html">官方文档</a>。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/sed/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/sed/" data-id="cuidL-cFA8RMyTrcSQrDW-wgB" data-title="看例子学sed" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/sed/" data-id="cuidhG_H4lndUDM8mgl0Aat_u" data-title="看例子学sed" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -376,76 +199,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://saltstack.com/">SaltStack</a>简称salt，是一个配置管理工具，类似<a target="_blank" rel="noopener" href="http://www.ansible.com/get-started">Ansible</a>、<a target="_blank" rel="noopener" href="https://www.chef.io/chef/">Chef</a>和<a target="_blank" rel="noopener" href="https://puppetlabs.com/">Puppet</a>，可以用脚本批量操作多台机器。SaltStack运行得很快，可以很容易管理上万台服务器，还有<a target="_blank" rel="noopener" href="http://docs.saltstack.cn/zh_CN/latest/">部分中文文档</a>。它分为服务器（master）和客户端（minion），服务器也是一个客户端。<a target="_blank" rel="noopener" href="http://ohmystack.com/articles/salt-1-basic/">Salt (1) 入门</a>是个不错的参考教程。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init ubuntu/trusty64</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;ubuntu/trusty64&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>minion1</strong>和<strong>minion2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，其中minion2安装CentOS，其它安装Ubuntu。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;master&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;master&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;minion1&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;minion1&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;minion2&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.box = <span class="string">&quot;bento/centos-7.1&quot;</span></span><br><span class="line">  host.vm.hostname = <span class="string">&quot;minion2&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>改好之后，分别在三个终端运行以下命令启动并连接三台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion1</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh minion2</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>首先在master的虚拟机上安装salt-master和salt-minion，注意master自己也是一个minion：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | <span class="built_in">sudo</span> apt-key add -</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main&#x27; &gt;&gt; /etc/apt/sources.list&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y salt-minion</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y salt-master</span><br></pre></td></tr></table></figure>
-
-<p>然后在minion上安装salt-minion，这次salt-master就没有必要了，Ubuntu和CentOS的安装方法不太一样：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub | <span class="built_in">sudo</span> apt-key add -</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main&#x27; &gt;&gt; /etc/apt/sources.list&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y salt-minion</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rpm --import https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat /etc/yum.repos.d/saltstack.repo</span></span><br><span class="line"><span class="string">[saltstack-repo]</span></span><br><span class="line"><span class="string">name=SaltStack repo for RHEL/CentOS 7</span></span><br><span class="line"><span class="string">baseurl=https://repo.saltstack.com/yum/redhat/7/x86_64/latest</span></span><br><span class="line"><span class="string">enabled=1</span></span><br><span class="line"><span class="string">gpgcheck=1</span></span><br><span class="line"><span class="string">gpgkey=https://repo.saltstack.com/yum/redhat/7/x86_64/latest/SALTSTACK-GPG-KEY.pub</span></span><br><span class="line"><span class="string">EOF&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> yum clean expire-cache</span><br><span class="line"><span class="built_in">sudo</span> yum update</span><br><span class="line"><span class="built_in">sudo</span> yum install -y salt-minion</span><br></pre></td></tr></table></figure>
-
-<p>默认安装好的minion会自动试图连接到名为salt的master去，所以我们得配置一下，然后重新启动salt-minion服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&quot;s/#master: salt/master: 192.168.33.17/&quot;</span> /etc/salt/minion</span><br><span class="line"><span class="built_in">sudo</span> service salt-minion restart</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&quot;s/#master: salt/master: 192.168.33.17/&quot;</span> /etc/salt/minion</span><br><span class="line"><span class="built_in">sudo</span> systemctl start salt-minion</span><br></pre></td></tr></table></figure>
-
-<p>随便在哪台虚拟机上运行<code>sudo tail -1 /var/log/salt/minion</code>，如果看到错误消息<strong>The Salt Master has cached the public key for this node</strong>，那就说明前面的安装都是顺利的—这是因为第一次运行的时候，需要建立互信。Salt维护着一个互信列表，在master上运行<code>sudo salt-key</code>可以看到这个表，现在应该是这样子的：<br><strong>Accepted Keys:</strong><br><strong>Denied Keys:</strong><br><strong>Unaccepted Keys:</strong><br>master<br>minion1<br>minion2<br><strong>Rejected Keys:</strong></p>
-<p>从上表可以看出，互信列表里的记录有<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/cli/salt-key.html#description">四种状态</a>：</p>
-<ul>
-<li>Unaccepted：待处理</li>
-<li>Accepted：互信</li>
-<li>Rejected：运维人员运行命令拒绝</li>
-<li>Denied：master自动拒绝（比如ID重复等）</li>
-</ul>
-<p>现在所有的minion包括master自己都是处于Unaccepted的状态。运行以下命令就可以把它们都加入到Accepted：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt-key --accept=master --<span class="built_in">yes</span></span><br><span class="line"><span class="built_in">sudo</span> salt-key --accept=minion1 --<span class="built_in">yes</span></span><br><span class="line"><span class="built_in">sudo</span> salt-key --accept=minion2 --<span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
-
-<p>如果minion太多了，也可以用<code>sudo salt-key --accept-all --yes</code>来全部accept。忽略<code>--yes</code>可以让我们手动确认所有的Unaccepted记录。再次运行<code>sudo salt-key</code>，确认所有的minion都已经加入到Accepted Keys里了，安装步骤就此完成。</p>
-<p>小贴士：可以用<code>sudo salt-key --reject=minion2</code>来把minion2加入到Rejected列表中。用<code>sudo salt-key --include-all --accept-all</code>来把Rejected列表中的minion再加到Accepted中来。</p>
-<h2 id="运行命令"><a href="#运行命令" class="headerlink" title="运行命令"></a>运行命令</h2><h3 id="salt"><a href="#salt" class="headerlink" title="salt"></a>salt</h3><p>安装完成之后，在master上运行<code>sudo salt &#39;*&#39; test.ping</code>可以看到各minion是否能联通。其中的*****代表<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/targeting/index.html">目标（target）</a>，这里即是所有的minion（master现在也是一个minion），<strong>test.ping</strong>称为<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/">执行模块（execution module）</a>，也就是需要在目标上调用的方法。<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/all/index.html">这个列表</a>里记载了所有的原生执行模块。我们来尝试一下其中的<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.cmdmod.html#module-salt.modules.cmdmod">cmdmod</a>模块：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt minion1 cmd.run <span class="string">&#x27;ifconfig&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>这就相当于在minion1上直接运行ifconfig了。</p>
-<h3 id="salt-call"><a href="#salt-call" class="headerlink" title="salt-call"></a>salt-call</h3><p>Salt还提供了一个<code>salt-call</code>命令，它只能在本机执行，所以无需输入目标。在master上运行<code>sudo salt-call cmd.run &#39;hostname&#39;</code>，效果相当于直接本地运行命令。有所不同的是，它相当于运行在salt的机制上。Salt需要两个端口来运行：通过<a target="_blank" rel="noopener" href="http://zeromq.org/">ZeroMQ</a>在4505发消息，4506用来接收结果，所有的minion都会订阅4505端口。也就是说，运行这条命令使用了这两个端口。配合上<code>--log-level=debug</code>的参数，使得<code>salt-call</code>非常适用于调试。运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt-call --log-level=debug disk.usage</span><br></pre></td></tr></table></figure>
-
-<p>从打印出来的调试信息，我们能看到原来<strong>disk.usage</strong>模块用的是<code>df -P</code>命令。</p>
-<h3 id="salt-run"><a href="#salt-run" class="headerlink" title="salt-run"></a>salt-run</h3><p>最后再介绍一个<code>salt-run</code>命令。我们简单地试一试在master上运行<code>sudo salt-run manage.up</code>，这个manage.up是个runner，在这里它的作用类似于test.ping模块，也是查看所有minion的状态，但是不需要指定目标即可使用。它一般分为几个步骤，一个步骤内并行执行，步骤之间串行执行。比如先部署好数据库（步骤A）再部署应用服务器（步骤B）。<code>salt-run</code>运行的命令称为runner，<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/runners/all/index.html">这个列表</a>里记载了所有的原生runner。</p>
-<h2 id="指定目标"><a href="#指定目标" class="headerlink" title="指定目标"></a>指定目标</h2><p>Salt支持多种方式来指定目标，简单尝试一下就知道啦。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;minion*&#x27;</span> test.ping                      <span class="comment"># 通配符，以&quot;minion&quot;开头的minion</span></span><br><span class="line"><span class="built_in">sudo</span> salt -L <span class="string">&#x27;minion1,minion2&#x27;</span> test.ping           <span class="comment"># 列表，minion1和minion2</span></span><br><span class="line"><span class="built_in">sudo</span> salt -E <span class="string">&#x27;minion(1|2)&#x27;</span> test.ping               <span class="comment"># 正则表达式，minion1或minion2</span></span><br><span class="line"><span class="built_in">sudo</span> salt -S <span class="string">&#x27;192.168.33.19&#x27;</span> test.ping             <span class="comment"># IP，minion2</span></span><br><span class="line"><span class="built_in">sudo</span> salt -G <span class="string">&#x27;os:Ubuntu&#x27;</span> test.ping                 <span class="comment"># Grains，操作系统为Ubuntu</span></span><br><span class="line"><span class="built_in">sudo</span> salt -C <span class="string">&#x27;minion* and G@os:Ubuntu&#x27;</span> test.ping   <span class="comment"># 组合，以&quot;minion&quot;开头的minion并且操作系统为Ubuntu</span></span><br><span class="line"><span class="built_in">sudo</span> salt -C <span class="string">&#x27;master or G@os:CentOS&#x27;</span> test.ping     <span class="comment"># 组合，master或操作系统为CentOS（不区分大小写）</span></span><br><span class="line"><span class="built_in">sudo</span> salt -I <span class="string">&#x27;region:cn&#x27;</span> test.ping                 <span class="comment"># Pillar，region为cn的minion</span></span><br></pre></td></tr></table></figure>
-
-<p>其中的<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/targeting/grains.html">Grains</a>是minion的属性，包含机器名、IP、操作系统、CPU等多种信息。可以运行<code>sudo salt &#39;*&#39; grains.items</code>来查看所有的grains数据。那<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/pillar/index.html">Pillar</a>又是什么鬼？简言之，Pillar是存放在master的变量，Grains是minion自己的常量。上面的命令中，Pillar这行应该会报错：<strong>No minions matched the target</strong>，这是因为我们没有在master上加Pillar的缘故。Pillar文件为yaml格式，默认存放在<code>/srv/pillar</code>里。由于pillar只会加密传送给指定的minion，所以可以存放密码等敏感信息。我们来加两个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/pillar/top.sls</span></span><br><span class="line"><span class="string">base:</span></span><br><span class="line"><span class="string">  &#x27;*&#x27;:</span></span><br><span class="line"><span class="string">    - default</span></span><br><span class="line"><span class="string">EOF&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;echo &#x27;region: cn&#x27; &gt; /srv/pillar/default.sls&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>首先创建的<code>top.sls</code>是一个默认的入口文件，它表示所有minion都适用<code>default.sls</code>文件。而<code>default.sls</code>里指定了变量。运行以下的命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;*&#x27;</span> pillar.items            <span class="comment"># 生成、分发、查看现在的pillar。用pillar.raw可以仅查看当前值</span></span><br><span class="line"><span class="built_in">sudo</span> salt -I <span class="string">&#x27;region:cn&#x27;</span> test.ping    <span class="comment"># 再次运行test.ping，以pillar为目标</span></span><br></pre></td></tr></table></figure>
-
-<p>就能看到现在已经不报错了，所有的minion都是目标。</p>
-<h2 id="维持状态（State）"><a href="#维持状态（State）" class="headerlink" title="维持状态（State）"></a>维持状态（State）</h2><p>Salt提供了<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/topics/tutorials/starting_states.html">state</a>（点开一看，设计哲学是“简单，简单，简单”。大家都知道重要的事情说三遍）的方式让我们维持所有minion的状态一致。我们来加两个文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/salt/top.sls</span></span><br><span class="line"><span class="string">base:</span></span><br><span class="line"><span class="string">  &#x27;*&#x27;:</span></span><br><span class="line"><span class="string">    - default</span></span><br><span class="line"><span class="string">EOF&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&quot;cat  /srv/salt/default.sls</span></span><br><span class="line"><span class="string">/tmp/ggg:</span></span><br><span class="line"><span class="string">  file.directory:</span></span><br><span class="line"><span class="string">    - makedirs: True</span></span><br><span class="line"><span class="string">EOF&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>如同pillar，首先创建的<code>top.sls</code>是一个默认的入口文件，<code>default.sls</code>里指定了这个状态需要有<code>/tmp/ggg</code>这个文件夹。接下来让我们来运行它：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;master&#x27;</span> state.show_sls default    <span class="comment"># 检查并显示default的state</span></span><br><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;master&#x27;</span> state.sls default         <span class="comment"># 运行default的state</span></span><br><span class="line"><span class="built_in">ls</span> /tmp                                      <span class="comment"># 能够看到ggg文件夹已经创建好了</span></span><br><span class="line"><span class="built_in">sudo</span> salt <span class="string">&#x27;master&#x27;</span> state.sls default         <span class="comment"># 再次运行default的state</span></span><br><span class="line"><span class="built_in">ls</span> /tmp                                      <span class="comment"># 运行几次都一样，维持状态</span></span><br></pre></td></tr></table></figure>
-
-<p>State可以说是salt的核心功能。它通过yaml格式的数据文件sls（<strong>S</strong>a<strong>L</strong>t <strong>S</strong>tate file）确保了一个系统应该是什么状态的。<a target="_blank" rel="noopener" href="https://docs.saltstack.com/en/latest/ref/states/all/">这个列表</a>里记载了所有可用的状态。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/saltstack/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/saltstack/" data-id="cuid4rsKcStd6rbDU-RW96JDs" data-title="SaltStack环境安装及入门" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/saltstack/" data-id="cuidqRTiQ4gjDVSZWH7Hf-UAC" data-title="SaltStack环境安装及入门" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -486,32 +248,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>如果我们在marathon上部署了一个tomcat服务并希望它能暴露给外网，应该怎么做呢？<a target="_blank" rel="noopener" href="https://github.com/QubitProducts/bamboo">Bamboo</a>提供了一个非常方便运行的办法帮我们做到这一点。它集成了HAproxy，当marathon检测到应用挂掉并重启应用时，bamboo能够检测到并更新HAproxy的配置文件，然后自动重启HAproxy，从而无须人工干预便能持续不断地对外提供服务。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，但是用下面这个命令来启动marathon。它相比原来的命令多了一个<code>--event_subscriber http_callback</code>的参数，如果不配置，便不能实现HAproxy动态加载服务的功能。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.15.0 \</span><br><span class="line">    --master zk://192.168.33.18:2181/mesos \</span><br><span class="line">    --zk zk://192.168.33.18:2181/marathon \</span><br><span class="line">    --event_subscriber http_callback</span><br></pre></td></tr></table></figure>
-
-<p>现在启动Bamboo镜像，在里面指定marathon的地址：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    -p 8000:8000 \</span><br><span class="line">    -p 80:80 \</span><br><span class="line">    --name=bam \</span><br><span class="line">    -e MARATHON_ENDPOINT=http://192.168.33.18:8080 \</span><br><span class="line">    -e BAMBOO_ENDPOINT=http://192.168.33.18:8000 \</span><br><span class="line">    -e BAMBOO_ZK_HOST=192.168.33.18:2181 \</span><br><span class="line">    -e BAMBOO_ZK_PATH=/bamboo \</span><br><span class="line">    -e BIND=<span class="string">&quot;:8000&quot;</span> \</span><br><span class="line">    -e CONFIG_PATH=<span class="string">&quot;config/production.example.json&quot;</span> \</span><br><span class="line">    -e BAMBOO_DOCKER_AUTO_HOST=<span class="literal">true</span> \</span><br><span class="line">    gregory90/bamboo:0.2.11</span><br></pre></td></tr></table></figure>
-
-<p>在浏览器打开<code>http://192.168.33.18:8000/</code>应该能看到下图：<br><img src="/img/bamboo.png"></p>
-<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>现在让我们用marathon来启动一个tomcat服务。在任意一台机器上运行以下命令，把创建tomcat服务的请求发送给marathon的REST api：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://192.168.33.18:8080/v2/apps \</span><br><span class="line">    -H <span class="string">&quot;Content-type: application/json&quot;</span> \</span><br><span class="line">    -d <span class="string">&#x27;&#123;&quot;cpus&quot;:0.5,&quot;mem&quot;:200,&quot;disk&quot;:0,&quot;instances&quot;:1,&quot;id&quot;:&quot;tomcat&quot;, </span></span><br><span class="line"><span class="string">    &quot;container&quot;:&#123;&quot;docker&quot;:&#123;&quot;image&quot;:&quot;tomcat&quot;,&quot;network&quot;:&quot;BRIDGE&quot;,&quot;portMappings&quot;: </span></span><br><span class="line"><span class="string">    [&#123;&quot;containerPort&quot;:8080,&quot;hostPort&quot;:0,&quot;servicePort&quot;:0,&quot;protocol&quot;:&quot;tcp&quot;&#125;]&#125;&#125;&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>分别刷新marathon和bamboo，就能看到它们各自多了个tomcat的服务。点击bamboo页面上的**&#x2F;tomcat<strong>记录最右边的加号按钮，在</strong>acl<strong>里输入<code>path_beg -i /</code>（表示运行在根目录上，有兴趣的话可以参考HAproxy的<a target="_blank" rel="noopener" href="http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#7">ACL语法</a>），然后点击</strong>Create**按钮：<br><img src="/img/bamboo-tomcat.png"></p>
-<p>顺利的话，打开<code>http://192.168.33.18/</code>应该能看到tomcat出现啦：<br><img src="/img/tomcat.jpg"></p>
-<p>这个时候，在marathon的页面上点击tomcat这行记录，便会到tomcat application页面里。如下图选中当前的tomcat实例，点击<strong>Kill</strong>按钮：<br><img src="/img/marathon-application-tomcat.png"></p>
-<p>稍等几秒，就会看到tomcat的服务运行地址从<code>192.168.33.19:31071</code>变成了<code>192.168.33.19:31571</code>，端口因机而异。再回去刷新tomcat的<code>http://192.168.33.18/</code>页面，是不是仍然提供服务呢？如果你手快，应该能看到<strong>503 Service Unavailable</strong>，那就多刷新两下 ：） 到slave虚拟机上用命令删除tomcat容器，再观察一下，是不是一样的效果呢？</p>
-<h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><p>Marathon官方还支持其它<a target="_blank" rel="noopener" href="https://mesosphere.github.io/marathon/docs/service-discovery-load-balancing">三种服务发现的方法</a>：</p>
-<ul>
-<li>Mesos-DNS：Mesosphere公司提供的DNS产品，不仅适用于marathon，而且适用于其它Mesos Framework。</li>
-<li>Marathon-lb：感觉上跟k8s的<a target="_blank" rel="noopener" href="http://kubernetes.io/v1.1/docs/user-guide/services.html#type-nodeport">NodePort</a>有点像，不过它像Bamboo那样包含了HAproxy。</li>
-<li>haproxy-marathon-bridge：现在已经不推荐了。需要在每个slave上安装HAproxy，定时更新HAproxy的配置文件。</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/marathon-bamboo/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/marathon-bamboo/" data-id="cuid6INZwsxjDLw1ypv14NpTo" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/marathon-bamboo/" data-id="cuidK8Xst_wC03mOuA7ZeoRtU" data-title="用容器轻松搭建Bamboo来提供Marathon的对外服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -552,133 +297,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://docs.docker.com/swarm/">Docker Swarm</a>是官方发布的集群容器管理工具。它的特点是：比较轻量级，无缝支持标准的docker API。<a target="_blank" rel="noopener" href="http://blog.daocloud.io/swarm_analysis_part1/">深入浅出Swarm</a>一文很清晰地讲解了它的架构和命令。本文从零开始搭建并管理一个swarm集群。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配三台虚拟机，一台叫做<strong>manager</strong>，它的IP是<strong>192.168.33.17</strong>；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;manager&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;manager&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.17&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;node1&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node1&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;node2&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;node2&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在三个终端运行以下命令启动并连接三台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh manager</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node1</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh node2</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>想要让swarm管理node，首先得让docker daemon支持TCP。在三台虚拟机上运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /etc/docker/key.json    <span class="comment"># 免得我们用vagrant生成的docker id都一样，删掉了重启docker服务会自动生成一个新的</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>接下来，我们用最简单的静态节点列表方式来启动swarm环境。把node1和node2的节点信息都写到参数里即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p 2376:2375 swarm:1.1.0 manage nodes://192.168.33.18:2375,192.168.33.19:2375</span><br></pre></td></tr></table></figure>
-
-<p>2376是我随便设的一个端口，可以改成2375外的其他可用端口，因为2375已经被docker daemon占用了。可以Ctrl+C后，用下面这个命令查看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> netstat -tulnp | grep 2375</span><br></pre></td></tr></table></figure>
-
-<p>随便在哪台机器运行以下命令就能看到这个集群的信息和节点信息。这里的2376就是上面随便设出来的2376：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 info</span><br></pre></td></tr></table></figure>
-
-<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>Swarm的环境已经搭建完成，现在我们可以用swarm来运行容器了。随便在哪台机器运行以下命令来创建一个busybox容器：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 run -d busybox <span class="built_in">sleep</span> 3000</span><br></pre></td></tr></table></figure>
-
-<p>可能一开始的时候有点儿慢，这是因为需要下载镜像的缘故。如果等不及，就到两个node里分别先把镜像下载下来：<code>docker pull busybox</code>。之所以说无缝支持docker API，那是因为swarm里能运行所有的docker命令。跑一下<code>docker -H tcp://192.168.33.17:2376 ps</code>就能看到一个busybox的容器已经启动起来了。容器的<strong>NAMES</strong>属性里有node的信息，所以不需要分别在两个node运行<code>docker ps</code>就能看到这个busybox的容器在哪个node运行。之后，再运行3次上面的命令，共创建4个busybox的容器，就能看到它们被均匀分配到两个node上了。这是因为swarm默认的调度策略所致。目前swarm支持<a target="_blank" rel="noopener" href="https://docs.docker.com/swarm/scheduler/strategy/">三种调度策略</a>：</p>
-<ul>
-<li>spread：默认，swarm会把任务分配到目前运行的容器数量最少的node上去。这里说的容器数量包括已经停止的容器。</li>
-<li>binpack：把任务分配到目前最大负荷的node上去。目的是把其他机器的资源留给将来可能要运行的大容器。</li>
-<li>random：随机分配。</li>
-</ul>
-<p>如果看到的容器分配不均匀，那很可能是存在着非运行中的容器，可以用<code>docker ps -a</code>看一下。如果想要修改调度策略，可以在manager启动的时候指定<code>--strategy</code>参数，比如修改成binpack：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f `docker ps -aq`</span><br><span class="line">docker run -t -p 2376:2375 swarm:1.1.0 manage nodes://192.168.33.18:2375,192.168.33.19:2375 --strategy binpack</span><br></pre></td></tr></table></figure>
-
-<p>这回再试试启动4个新的busybox，是不是都跑到同一个node上去了？Swarm的过滤器功能还允许我们指定让容器运行在哪个node上。目前，<a target="_blank" rel="noopener" href="https://docs.docker.com/swarm/scheduler/filter/">swarm支持如下的过滤器</a>：</p>
-<ul>
-<li><p>node过滤器<br>constraint：限制新任务只能在label符合的node上执行</p>
-</li>
-<li><p>health：限制新任务只能在“健康”的node上执行</p>
-</li>
-<li><p>容器过滤器<br>affinity：使新任务在已运行某个名字或label的容器，或者有某个镜像的node上执行</p>
-</li>
-<li><p>dependency：使新任务在有依赖（–volumes-from&#x3D;dependency、–link&#x3D;dependency:alias或–net&#x3D;container:dependency）的node上执行</p>
-</li>
-<li><p>port：使新任务在某个端口可用的node上执行</p>
-</li>
-</ul>
-<p>可以在manager启动的时候指定<code>--filter</code>参数来启用过滤器功能。我们先来试验一下constraint。由于Label是docker daemon的属性，所以我们又要修改<code>/etc/default/docker</code>并重启docker daemon。假设node1为ssd，node2为普通disk：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f `docker ps -aq`</span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;$d&#x27;</span> /etc/default/docker    <span class="comment"># 删掉最后一行，因为要加新的label</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --label storage=ssd\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f `docker ps -aq`</span><br><span class="line"><span class="built_in">sudo</span> sed -i <span class="string">&#x27;$d&#x27;</span> /etc/default/docker    <span class="comment"># 删掉最后一行，因为要加新的label</span></span><br><span class="line"><span class="built_in">sudo</span> sh -c <span class="string">&#x27;echo DOCKER_OPTS=\&quot;-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --label storage=disk\&quot; &gt;&gt; /etc/default/docker&#x27;</span></span><br><span class="line"><span class="built_in">sudo</span> service docker restart</span><br></pre></td></tr></table></figure>
-
-<p>随便在哪台机器运行以下命令，看看两个node是不是分别多出来<code>storage==ssd</code>和<code>storage==disk</code>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 info</span><br></pre></td></tr></table></figure>
-
-<p>如果不是，就重启一下manager的swarm容器。然后就可以指定<code>storage=ssd</code>的node运行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 run -d -e constraint:storage==ssd busybox <span class="built_in">sleep</span> 3000</span><br></pre></td></tr></table></figure>
-
-<p>随便再创建几个容器玩玩，再换<code>constraint:storage==disk</code>试试看。熟悉之后，我们再试验一下affinity：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 run -d -e constraint:storage==disk --name=bb busybox <span class="built_in">sleep</span> 3000</span><br></pre></td></tr></table></figure>
-
-<p>要的就是<strong>bb</strong>这个名字。然后运行以下命令让新容器运行在有bb容器的node上，也就是node2：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 run -d -e affinity:container==bb busybox <span class="built_in">sleep</span> 3000</span><br></pre></td></tr></table></figure>
-
-<p>在node2上运行<code>docker ps</code>应该能看到新容器已经启动起来了。如果constraint和affinity冲突会怎样呢？试试看：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 run -d  -e affinity:container==bb -e constraint:storage==ssd busybox <span class="built_in">sleep</span> 3000</span><br></pre></td></tr></table></figure>
-
-<p>不出意外的话，应该能看见<strong>unable to find a node that satisfies storage&#x3D;&#x3D;ssd</strong>的错误消息了吧。</p>
-<h2 id="主机发现"><a href="#主机发现" class="headerlink" title="主机发现"></a>主机发现</h2><p>Swarm共支持下面<a target="_blank" rel="noopener" href="https://docs.docker.com/swarm/discovery/">几种主机发现方式</a>：</p>
-<ul>
-<li><p>分布式键值存储<br>Consul 0.5.1或更高版本</p>
-</li>
-<li><p>Etcd 2.0或更高版本</p>
-</li>
-<li><p>ZooKeeper 3.4.5或更高版本</p>
-</li>
-<li><p>静态方式<br>文件</p>
-</li>
-<li><p>节点列表</p>
-</li>
-<li><p>Docker Hub</p>
-</li>
-</ul>
-<p>我们刚才<a href="/docker-swarm/#u642D_u5EFA_u73AF_u5883">搭建环境</a>用到的是静态的节点列表方式，现在我们再试试其它几种方式。</p>
-<h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><p>先从简单的开始。文件的主机发现方式和节点列表很类似，它们都是静态的。首先把node的信息都写到一个临时文件<code>/tmp/cluster</code>里，然后让swamp容器管理这个文件即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 192.168.33.[18:19]:2375 &gt; /tmp/cluster</span><br><span class="line">docker run -t -p 2376:2375 -v /tmp/cluster:/tmp/cluster swarm:1.1.0 manage file:///tmp/cluster</span><br></pre></td></tr></table></figure>
-
-<p>随便选台虚拟机检查一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 info</span><br></pre></td></tr></table></figure>
-
-<p>是不是有换汤不换药的感觉？</p>
-<h3 id="ZooKeeper"><a href="#ZooKeeper" class="headerlink" title="ZooKeeper"></a>ZooKeeper</h3><p>接下来试验一下ZooKeeper。先在manager上启动一个ZooKeeper的服务：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    -e MYID=1 \</span><br><span class="line">    -e SERVERS=192.168.33.18 \</span><br><span class="line">    mesoscloud/zookeeper:3.4.6-ubuntu-14.04</span><br></pre></td></tr></table></figure>
-
-<p>然后运行swarm manager：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p 2376:2375 swarm:1.1.0 manage zk://192.168.33.17:2181/swarm</span><br></pre></td></tr></table></figure>
-
-<p>由于这回不像文件和节点列表方式那样静态，我们需要把两个node加入到集群里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d swarm:1.1.0 <span class="built_in">join</span> --addr=192.168.33.18:2375 zk://192.168.33.17:2181/swarm</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d swarm:1.1.0 <span class="built_in">join</span> --addr=192.168.33.19:2375 zk://192.168.33.17:2181/swarm</span><br></pre></td></tr></table></figure>
-
-<p>随便选台虚拟机检查一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 info    <span class="comment"># 由于是动态加载，可能需要等待半分钟左右才能看见node</span></span><br></pre></td></tr></table></figure>
-
-<p>Consul和Etcd也都很类似，这里就不一一列举了。</p>
-<h3 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h3><p>Docker Hub的主机发现方式，就是在docker hub上使用发现服务来生成一个唯一的集群ID（别在生产环境上这么干！）。Docker hub会为我们保留大概一个星期。在任意一台机器上运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> swarm:1.1.0 create</span><br></pre></td></tr></table></figure>
-
-<p>然后我们就能看见上面的命令生成了一个字符串，这就是我们的集群ID。在我的机器上是这样的：<code>3137ebf83d771f1db06bf4eab7ccc73b</code>。我大天朝的网络，有时候会出现<strong>TLS handshake timeout</strong>，那就再运行一次吧。</p>
-<p>这时候可以把manager启动起来了，别忘了替换成你自己的token：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -t -p 2376:2375 swarm:1.1.0 manage token://3137ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure>
-
-<p>然后可以在两个node上分别运行以下命令，启动swarm的代理并加入到集群中，别忘了替换成你自己的token：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d swarm:1.1.0 <span class="built_in">join</span> --addr=192.168.33.18:2375 token://3137ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d swarm:1.1.0 <span class="built_in">join</span> --addr=192.168.33.19:2375 token://3137ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure>
-
-<p>随便选台虚拟机检查一下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker -H tcp://192.168.33.17:2376 info    <span class="comment"># 可能比较慢，下面那条命令更快</span></span><br><span class="line">docker run --<span class="built_in">rm</span> swarm:1.1.0 list token://3137ebf83d771f1db06bf4eab7ccc73b</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/docker-swarm/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-swarm/" data-id="cuidh_W-LtM7bfIWMz0wTP3uL" data-title="轻松搭建Docker Swarm运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-swarm/" data-id="cuidI1zSziVnyTQ3kb6Yg1kcA" data-title="轻松搭建Docker Swarm运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -719,54 +346,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
-<p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ch \</span><br><span class="line">    mesosphere/chronos:chronos-2.4.0-0.1.20150828104228.ubuntu1404-mesos-0.27.0-0.2.190.ubuntu1404 \</span><br><span class="line">    usr/bin/chronos \</span><br><span class="line">    --master zk://192.168.33.18:2181/mesos \</span><br><span class="line">    --zk_hosts zk://192.168.33.18:2181/marathon \</span><br><span class="line">    --cluster_name ggg</span><br></pre></td></tr></table></figure>
-
-<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg"></p>
-<h2 id="运行作业"><a href="#运行作业" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
-<ul>
-<li>NAME：test</li>
-<li>COMMAND：docker run -d busybox sleep 30</li>
-<li>SCHEDULE P：T1M</li>
-</ul>
-<p>如下图所示：<br><img src="/img/chronos-run-job.jpg"></p>
-<p>点击<strong>Create</strong>按钮，立刻就能看见有一个名为<strong>test</strong>的作业正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为根据我们设置的T1M，1分钟之后，chronos就会帮助再重新启动一次作业。另外还可以在slave的虚拟机上用<code>docker ps -a</code>看到busybox容器已经启动起来了。</p>
-<p><em>T1M的意思是：1分钟之后。1M的意思是：1个月之后。1Y2M3DT4H5M6S的意思是：1年2月3天4小时5分钟6秒之后。</em></p>
-<h2 id="管理作业"><a href="#管理作业" class="headerlink" title="管理作业"></a>管理作业</h2><p>新建作业的窗口里还有一个<strong>Other settings</strong>的链接，是可以在里面设置一些高级功能的，比如说CPU、内存和磁盘，默认是0.1、128MB和256MB，还能设置作业优先级、运行方式等。已经生成的作业也可以再次修改、强制运行、复制和删除。作业也可以是一次性的，只要把SCHEDULE R设成0就可以了，记得同时调整一下时间T哦。</p>
-<p>作业直接还可以指定依赖。我们再创建一个如下作业：</p>
-<ul>
-<li>NAME：test2</li>
-<li>COMMAND：date &gt;&gt; &#x2F;tmp&#x2F;test.txt</li>
-<li>PARENTS: test</li>
-</ul>
-<p>这回我们并没有设置SCHEDULE，而是设置了一个PARENTS为<strong>test</strong>，它的意思就是当test运行成功时，运行这个test2的作业。等1分钟，test作业再次运行后，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到当前时间已经被写进<code>/tmp/test.txt</code>文件中，test2作业也被成功运行了。</p>
-<p>我们再创建第三个作业：</p>
-<ul>
-<li>NAME：test3</li>
-<li>COMMAND：echo “hello world” &gt;&gt; &#x2F;tmp&#x2F;test.txt</li>
-<li>PARENTS: test, test2</li>
-</ul>
-<p>这次test3依赖于test和test2，那么它们之间是“或”还是“和”的关系呢？我们强制运行一次test，在slave虚拟机上运行<code>docker exec ms1 cat /tmp/test.txt</code>就能看到增加了一行日期和一行hello world。强制运行一次test2，却只增加了一行日期而没有增加hello world。由此推断，只有当test2和test全部被执行后，才会执行一次test3。那如果我们要“或”的关系怎么办呢？首先把test3的PARENTS修改为test，记得作业是有一个复制功能的吧？再复制一份test3把它的PARENTS设成test2就好啦。</p>
-<p>最后介绍一下那个<strong>Graph</strong>按钮，它可以显示一幅图来表示作业之间的依赖关系。对于我们的示例来说，这图应该是长这样的：<br><img src="/img/chronos-graph.png"></p>
-<p>对于一个非常复杂的作业系统来说，这样的图能让我们很容易找到并分析作业间的依赖关系，从而采取优化措施。许多持续集成系统也都能提供类似的依赖图供管理员决策。</p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
-<li>这个版本的chronos页面上有一些bug，会导致有时候侧面的作业详细信息栏显示有问题，刷新一下整个页面或者尝试多点击几次左边的作业表就好了。</li>
-<li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
-<li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;parents&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;test&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test4&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;echo test4 &gt;&gt; /tmp/test.txt&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后运行以下命令来发送请求给chronos：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://192.168.33.18:8080/scheduler/dependency -d @test4.json -H <span class="string">&quot;Content-type: application/json&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>刷新chronos的页面就能看见这个作业在跑啦。想要删掉它？当然没问题：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://192.168.33.18:8080/scheduler/job/test4 -H <span class="string">&quot;Content-type: application/json&quot;</span></span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/mesos-chronos/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidYrIFSz3WsyMUAgEriuL9R" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidgeDnhXpwXINh-kL6rsU5O" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -807,64 +395,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。<a target="_blank" rel="noopener" href="https://mesosphere.github.io/marathon/">Marathon</a>是Framework的一种，被设计来支持长时间运行的服务。本文尝试从零开始用docker搭建Mesos和Marathon的运行环境，并用此环境长时间运行docker容器。</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
-
-<p>里面应该有一句<code>config.vm.box = &quot;minimum/ubuntu-trusty64-docker&quot;</code>，在它的下面添加如下几行代码，相当于给它分配两台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.18</strong>；另一台叫做<strong>slave</strong>，它的IP是<strong>192.168.33.19</strong>。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config.vm.define <span class="string">&quot;master&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;master&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.18&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">config.vm.define <span class="string">&quot;slave&quot;</span> <span class="keyword">do</span> |<span class="params"> host </span>|</span><br><span class="line">  host.vm.hostname = <span class="string">&quot;slave&quot;</span></span><br><span class="line">  host.vm.network <span class="string">&quot;private_network&quot;</span>, <span class="symbol">ip:</span> <span class="string">&quot;192.168.33.19&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<p>这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后分别在两个终端运行以下命令启动并连接两台虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh master</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant ssh slave</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>在master的虚拟机上启动zookeeper：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=zk \</span><br><span class="line">    -e MYID=1 \</span><br><span class="line">    -e SERVERS=192.168.33.18 \</span><br><span class="line">    mesoscloud/zookeeper:3.4.6-ubuntu-14.04</span><br></pre></td></tr></table></figure>
-
-<p>可以用<code>docker ps</code>看到名为zk的容器已经启动起来了。有兴趣的话，可以用下面的命令验证：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it zk zkCli.sh -server 127.0.0.1:2181</span><br></pre></td></tr></table></figure>
-
-<p>这里就不详细介绍zookeeper的命令了，<code>ls /</code>可以查看根节点，<code>help</code>可以查看所有命令，<code>quit</code>退出客户端。</p>
-<p>接下来在master的虚拟机上启动mesos master：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=mm \</span><br><span class="line">    -e MESOS_HOSTNAME=192.168.33.18 \</span><br><span class="line">    -e MESOS_IP=192.168.33.18 \</span><br><span class="line">    -e MESOS_ZK=zk://192.168.33.18:2181/mesos \</span><br><span class="line">    -e MESOS_QUORUM=1 \</span><br><span class="line">    -e MESOS_LOG_DIR=/var/log/mesos \</span><br><span class="line">    mesoscloud/mesos-master:0.24.1-ubuntu-14.04</span><br></pre></td></tr></table></figure>
-
-<p>顺利的话，打开<code>http://192.168.33.18:5050/</code>应该能看到下图：<br><img src="/img/mesos-master-init.png"></p>
-<p>然后在slave的虚拟机上启动mesos slave：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --pid=host \</span><br><span class="line">    --privileged=<span class="literal">true</span> \</span><br><span class="line">    --name=ms1 \</span><br><span class="line">    -v /usr/bin/docker:/usr/bin/docker \</span><br><span class="line">    -v /dev:/dev \</span><br><span class="line">    -v /usr/lib/x86_64-linux-gnu/libapparmor.so.1:/usr/lib/x86_64-linux-gnu/libapparmor.so.1:ro \</span><br><span class="line">    -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">    -v /var/log/mesos:/var/log/mesos \</span><br><span class="line">    -v /tmp/mesos:/tmp/mesos \</span><br><span class="line">    -e MESOS_HOSTNAME=192.168.33.19 \</span><br><span class="line">    -e MESOS_IP=192.168.33.19 \</span><br><span class="line">    -e MESOS_MASTER=zk://192.168.33.18:2181/mesos \</span><br><span class="line">    -e MESOS_CONTAINERIZERS=docker,mesos \</span><br><span class="line">    mesoscloud/mesos-slave:0.24.1-ubuntu-14.04</span><br></pre></td></tr></table></figure>
-
-<p>点击mesos页面上的<strong>Slaves</strong>应该能看到下图，这说明slave节点已经关联到mesos master了：<br><img src="/img/mesos-slaves.png"></p>
-<p>最后在master的虚拟机上启动marathon：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ma \</span><br><span class="line">    mesosphere/marathon:v0.15.0 \</span><br><span class="line">    --master zk://192.168.33.18:2181/mesos \</span><br><span class="line">    --zk zk://192.168.33.18:2181/marathon</span><br></pre></td></tr></table></figure>
-
-<p>点击mesos页面上的<strong>Frameworks</strong>应该能看到下图，这说明marathon已经作为一个framework关联到mesos master了：<br><img src="/img/mesos-frameworks.png"></p>
-<p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下marathon：<br><img src="/img/marathon.png"></p>
-<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>在marathon的页面上，点击<strong>Create Application</strong>按钮，然后填入如下参数：</p>
-<ul>
-<li>ID：test</li>
-<li>Command：sleep 30</li>
-<li>Image：busybox</li>
-</ul>
-<p>如下图所示：<br><img src="/img/marathon-run-docker.png"></p>
-<p>点击**+ Create<strong>按钮，不一会儿，就能看见有一个名为</strong>test**的应用程序正在运行。同时，在mesos的主页上也能看到有一个任务运行起来了。如果手慢一点或者喝了杯茶，还能看见有几个任务已经是完成的状态了，这是因为我们只让这个容器<code>sleep 30</code>存活30秒钟，如果容器自己停止了，marathon就会帮助再重新启动一个。另外还可以在slave的虚拟机上用<code>docker ps</code>看到busybox容器已经启动起来了。</p>
-<h2 id="管理应用"><a href="#管理应用" class="headerlink" title="管理应用"></a>管理应用</h2><p>Marathon也能很方便地对容器进行扩缩容。当容器启动起来后，在<strong>Health</strong>栏里会有一个**…**的按钮，按下按钮如下图所示：<br><img src="/img/marathon-actions.png"></p>
-<p>里面的<strong>Scale</strong>按钮提供了一个比较易用的方法，让我们能轻易地改变容器的数量。可以试试在弹出的界面上填2，然后点击<strong>Scale Application</strong>按钮，就会看到<strong>Running Instances</strong>很快就变成了<strong>2 of 2</strong>，点击这一行，就能看到这两个实例的状态，还可以分别下载它们的日志。同时，在mesos的主页上也能看到又多了一个运行中的任务。另外，在slave的虚拟机上用<code>docker ps</code>也能看到2个busybox的容器实例。</p>
-<p>除了扩缩容，还能重新启动应用、暂停应用（实际上就是把它缩容为0个实例）和删除应用等。另外，在test这个Application的Configuration页上，还支持修改这个Application的启动参数。比如还可以在这里设置基于TCP、HTTP或者命令的健康检查，设置环境变量等多种操作。如下图所示：<br><img src="/img/marathon-edit-configuration.png"></p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
-<li>如果第一次运行一个比较大的镜像，可能需要比较长的下载时间。在这种情况下，需要往mesos master的启动参数里增加<code>-e MESOS_EXECUTOR_REGISTRATION_TIMEOUT=10mins</code>，否则可能会报timeout的错误，默认是1分钟。还得在marathon的启动参数里增加<code>--task_launch_timeout=600000</code>，默认为300000毫秒，即5分钟。</li>
-<li>如果一个容器老是启动不起来，可能是分配给它的资源太少。可以在marathon新建应用的窗口里指定分配给此应用的CPU和内存，默认是0.1和16MB。但是不要超过mesos slave能提供的资源哦。</li>
-<li>如果你是坚定不移的命令行狂人，可以用<code>curl</code>来发送一个http请求来运行容器。还是用上面的<strong>test</strong>来举例子，先随便在哪台机器找个路径生成一个<code>test.json</code>文件，内容如下：</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cmd&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sleep 30&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cpus&quot;</span><span class="punctuation">:</span> <span class="number">0.1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;mem&quot;</span><span class="punctuation">:</span> <span class="number">16.0</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;container&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DOCKER&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;volumes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;docker&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span><span class="punctuation">:</span> <span class="string">&quot;busybox&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;privileged&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;parameters&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;forcePullImage&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后运行以下命令来发送请求给marathon：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://192.168.33.18:8080/v2/apps -d @test.json -H <span class="string">&quot;Content-type: application/json&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>打开marathon的页面就能看见这个应用在跑啦。想要删掉它？当然没问题：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X DELETE http://192.168.33.18:8080/v2/apps/test -H <span class="string">&quot;Content-type: application/json&quot;</span></span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/mesos-marathon/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mesos-marathon/" data-id="cuiduFRrjWgfwe7MTbQSxqtXt" data-title="用容器轻松搭建Marathon运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mesos-marathon/" data-id="cuid4lmkVxLI7F0E5DMq5lmTw" data-title="用容器轻松搭建Marathon运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -905,34 +444,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>除了官方的Docker Hub，Docker也提供了Docker Registry来让大家搭建自己的私有镜像库。虽然它提供了<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/api.md#user-content-detail">删除的API</a>，但是不好用。为什么小小的删除功能没弄好呢？我们该怎么办？</p>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>有很多人抱怨说<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/issues/1183">Docker Registry的删除功能并不会真正地释放空间</a>。虽然官方提供了API，但那些都是软删除（soft delete），只是把二进制和镜像的关系解除罢了，并不是真正的删除。真正的删除有那么困难吗？</p>
-<p>目前docker官方提供了如下3个软删除的方法：</p>
-<ul>
-<li><code>DELETE:/v2//manifests/</code>：这个API是软删除一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md">清单（manifest）</a>，但是真正占用存储空间的层还在。</li>
-<li><code>DELETE:/v2//blobs/</code>：这个API类似上面那个，只不过它要软删除的对象是层（layer）罢了。</li>
-<li><code>DELETE:/v2//blobs/uploads/</code>：这个只是取消掉另一个上传的进程罢了。</li>
-</ul>
-<h2 id="难点"><a href="#难点" class="headerlink" title="[难点"></a>[难点</h2><p>为了删除不需要的数据，腾出磁盘空间，我们希望有删除功能。但是如果一个不健全的删除功能不小心把有用的数据给删了，那还不如没有这个功能呢。在这个逻辑前提下，docker团队选择了不删除数据。除此之外，还有一个考虑：删除功能是需要很大工作量的。大家知道程序员们的价格是比较高的，以相对便宜的磁盘空间为代价，在眼下先节省这笔人工费开销，并把它投入到更有价值的地方去，不是更有意义么。</p>
-<p>那为什么删除功能需要很大的工作量呢？这是因为删除有一个大坑。首先我们来看一下存储模型：所有的数据都被存放到VFS之上，它提供了最终一致性，但是可能需要较长时间才能达到一致。再看镜像的数据结构：一个docker镜像包含了3个概念：标签（tag）、清单（manifest）和层（layer）。标签被关联到清单上，而清单则被关联到层上，就像下图一样：<br><img src="/img/docker-image.jpg"></p>
-<p>其实单说删除本身其实是比较容易的事情，就像现在的垃圾收集算法一样。一个是根搜索法，从根节点开始计算，若某对象不可达，则表明不被用到，可删之。在docker镜像中并没有“根层”的概念，所以需要循环所有的清单来看是否有哪些层不被用到。还有一个是引用计数法，它为每一个对象添加一个引用计数器，为0则表明不被用到。实现起来比较简单，但是很难删除掉循环引用。在docker镜像中，因为它是一个有向无环图（DAG）](<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes)%EF%BC%8C%E6%89%80%E4%BB%A5%E5%B9%B6%E4%B8%8D%E4%BC%9A%E6%9C%89%E2%80%9C%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E2%80%9D%EF%BC%8C%E6%AD%A3%E6%98%AF%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E7%9A%84%E6%9E%81%E4%BD%B3%E6%96%B9%E6%A1%88%E4%B9%8B%E4%B8%80%E3%80%82%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E5%A4%A7%E5%9D%91%E5%9C%A8%E5%93%AA%E9%87%8C%E5%91%A2%EF%BC%9F%E9%97%AE%E9%A2%98%E5%9C%A8%E4%BA%8E%E5%B9%B6%E5%8F%91%E3%80%82%E6%83%B3%E8%B1%A1%E4%B8%80%E4%B8%8B%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%9C%A8%E5%88%A0%E9%99%A4%E6%9F%90%E5%B1%82%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E6%9C%89%E5%8F%A6%E5%A4%96%E4%B8%80%E4%B8%AApush%E7%9A%84%E7%BA%BF%E7%A8%8B%E8%AF%AF%E8%AE%A4%E4%B8%BA%E6%AD%A4%E5%B1%82%E5%B7%B2%E7%BB%8F%E5%AD%98%E5%9C%A8%EF%BC%8C%E5%B0%B1%E4%BC%9A%E5%9C%A8%E5%88%A0%E9%99%A4%E4%B9%8B%E5%90%8E%E5%AF%BC%E8%87%B4%E7%AC%AC%E4%BA%8C%E4%B8%AA%E7%BA%BF%E7%A8%8Bpush%E7%9A%84%E9%95%9C%E5%83%8F%E4%B8%8D%E8%83%BD%E6%AD%A3%E5%B8%B8%E5%B7%A5%E4%BD%9C%E3%80%82">https://github.com/docker/distribution/blob/master/ROADMAP.md#deletes)，所以并不会有“循环引用”，正是解决这个问题的极佳方案之一。那么这个大坑在哪里呢？问题在于并发。想象一下，如果在删除某层的过程中，有另外一个push的线程误认为此层已经存在，就会在删除之后导致第二个线程push的镜像不能正常工作。</a></p>
-<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>目前docker官方有几个数据删除的方案（但是还没有实现）：</p>
-<ul>
-<li>引用计数法：如上文所述是垃圾收集算法的一种。需要维护引用计数器，对于已经存在着的docker registry来说需要数据迁移。</li>
-<li>全局锁：引入GC线程来做删除。删除的时候不能写入。实现简单，但是影响性能。</li>
-<li>新老代：也是引入GC线程来做删除。将存储分为年轻年老两代，GC线程删除某一代的时候允许同时写入另一代。避免了全局锁的性能问题但是实现起来比较麻烦。</li>
-<li>数据库：引入一个数据库，用事务来解决并发的问题。</li>
-</ul>
-<p>如果你等不及docker官方的实现，并且对自己的私有库的控制力比较强，不需要考虑并发，可以使用<a target="_blank" rel="noopener" href="https://github.com/burnettk/delete-docker-registry-image">这个脚本</a>来彻底删除，记得先把registry停掉，或者是设置为<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-read-only-mode">只读模式</a>以避免并发哦。设置一个cron任务，每天凌晨停止服务一小段时间，然后运行脚本，再启动服务就好了。</p>
-<p>如果你也认为磁盘空间是比较廉价的，那么使用软删除，也就是上文介绍的官方删除API应该能够符合需求。虽然磁盘空间并没有真正地释放出来，但是删除之后镜像真的就不能再被pull下来了。记得要把<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/configuration.md#user-content-delete">delete的设置</a>打开，否则会得到<code>The operation is unsupported</code>的异常信息。</p>
-<p>如果不想使用那些感觉上奇奇怪怪的脚本，还有一个选择是设置两套docker registry，比较稳定的镜像版本放在其中一个库里，不稳定的开发版放另一个库里。每天凌晨把不稳定的版本库清空。这样的话就不会让稳定的版本库的磁盘消耗增长太快，但是也增加了一些管理的难度。没有两全其美的事啊。</p>
-<p>写完这篇博客后不久，一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/blob/master/docs/gc.md">gc</a>的commit被合并到了主干，有望在docker registry的2.4版本提供官方的删除功能。不过，它跟上面脚本的思路类似，也需要停止服务或者设置只读模式，并不能完美解决这个问题。抛开解决方案，就删除功能而言，我在测试过程中也发现了一个<a target="_blank" rel="noopener" href="https://github.com/docker/distribution/issues/1548">缺陷</a>，需要使用docker 1.10版和registry 2.3版才能解决。</p>
-<h2 id="v1-vs-v2"><a href="#v1-vs-v2" class="headerlink" title="v1 vs v2"></a>v1 vs v2</h2><p>Docker Registry的老版本v1是用python写的，源码在<a target="_blank" rel="noopener" href="https://github.com/docker/docker-registry">这里</a>。新版本v2是用go写的，源码在<a target="_blank" rel="noopener" href="https://github.com/docker/distribution">这里</a>。它们的模型略有变化。老版本v1是个链表，A层链接到B层，B层链接到C层，层层组织起来一个镜像，每一层的ID都是随机生成的。这样一来浪费空间，不能实现层存储的共享，二来有安全隐患，如果不停地提交，会造成ID冲突概率提升。但也正因如此，删除的时候完全没有顾忌，真是成也萧何败也萧何啊。新版本v2的ID是对内容进行sha256哈希之后的结果，所以相同内容的层ID一定是相同的，很好地解决了v1的问题，就是删除功能需要仔细地设计才能实现。除此之外还有鉴权等其他改动，有兴趣的话可以参考<a target="_blank" rel="noopener" href="http://www.csdn.net/article/2015-09-09/2825651">这篇文章</a>。</p>
-<p>题外话：有些人看英文容易把registry和repository搞混。在docker的领域内，repository就是相同名字镜像的集合，比如tomcat的docker repository。而registry就是提供repository服务的系统，比如Docker Hub或者是自己使用Docker Registry安装的私有库等。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/docker-registry-delete/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-registry-delete/" data-id="cuidfDQXYvfJGLNIFffGGiWY4" data-title="删除Docker Registry里的镜像怎么那么难" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-registry-delete/" data-id="cuidllnfVLkutO7aS1UFNiI5y" data-title="删除Docker Registry里的镜像怎么那么难" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -973,51 +493,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的生命周期管理，包括pod、job、node等对象。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="健康检查"><a href="#健康检查" class="headerlink" title="健康检查"></a>健康检查</h2><p>一个pod在运行中，难免出现容器还好好地跑着，但是却不正常工作的情况。Kubernetes的做法是引入定时<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/pod-states/#container-probes">健康检查</a>，如果健康检查失败，就把这个容器杀掉，然后kubelet就会重新启动一个容器来代替它。目前支持两种健康检查的机制：</p>
-<ul>
-<li><code>LivenessProbe</code>：如果健康检查失败，就把这个容器杀掉，然后kubelet根据预先设置的<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/pod-states/#restartpolicy">重启规则</a>来决定怎么处理：啥也不干、挂了才重启或者总是重启。</li>
-<li><code>ReadinessProbe</code>：如果健康检查失败，这个pod的IP地址将会从endpoints里移除，所以相当于屏蔽这个pod提供的服务而不是将它杀掉。</li>
-</ul>
-<p>那健康检查怎么做呢？可以是一段脚本，返回非0就代表错误；可以说一个http请求，返回200~400之间代表成功；还可以是一个tcp端口，打开即算成功。可以通过设置kubelet的参数<code>--sync-frequency</code>来设置健康检查的间隔时间。还可以在设置probe的时候指定健康检查的超时时间和第一次健康检查的延时（从容器启动完毕开始）。</p>
-<h2 id="钩子（hook）"><a href="#钩子（hook）" class="headerlink" title="钩子（hook）"></a>钩子（hook）</h2><p>有时候我们需要在pod启动完成或者快要关闭的时候做点儿事情。做的事情可以是执行脚本或者发出http请求，越轻量级越好。Kubernetes提供了两个<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/container-environment/#container-hooks">钩子</a>来做这样的事：</p>
-<ul>
-<li>postStart：当一个容器被创建成功的时候</li>
-<li>preStop：当一个容器即将被关闭的时候</li>
-</ul>
-<p>钩子的设计理念是“宁滥毋缺”，所以某些情况下它是有可能被执行多次的，设计自己的钩子时需要考虑这样的情况，尽量使操作“无状态”。</p>
-<h2 id="一次性任务"><a href="#一次性任务" class="headerlink" title="一次性任务"></a>一次性任务</h2><p>Kubernetes除了支持服务，也支持一次性任务<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/jobs/">Job</a>。这个概念在Kubernetes 1.1版中已经有了，<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/wiki/Release-1.2">1.2版</a>才算开发完成。因为一次性任务结束以后还重启没有意义，所以它不支持“总是重启”的重启规则。Job有三种类型：</p>
-<ul>
-<li>非并行：就是启动一个pod，当pod成功结束了就算是job完成了</li>
-<li>固定数量并行：并行启动固定数量个pod，每个pod都成功结束了就算是job完成了</li>
-<li>工作队列并行：行启动多个pod，其中一个pod成功结束了，其他pod就开始停止运行。当全部pod都停止了就算是job完成了</li>
-</ul>
-<p>其实我们当然也能不使用job这个概念而直接启动一个pod来完成我们的一次性任务。可是如果pod运行过程中那个node要是挂掉了那就糟糕了。对了，rc不就是来保证pod总是有实例在运行的机制吗？那么为啥我们还需要job这个概念呢？原来rc是为永不停止的pod设计的，而job是为需要停止的pod设计的，就这么简单。</p>
-<h2 id="扩容缩容"><a href="#扩容缩容" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>虚拟机级别上，Mesos也能轻松做到动态增删slave，从而为kubernetes提供更多的offer；与此同时，kubernetes也支持动态增删节点。容器级别上，Kubernetes的replication controller可以很容易地对pod进行扩缩容。此外，Kubernetes 1.2版正式支持<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/horizontal-pod-autoscaler/">HPA</a>。大致来说，就是根据CPU的使用率来自动扩缩容。由于获取CPU使用率需要用到heapster，所以必须部署它。</p>
-<p>值得一提的是，Kubernetes在删除pod的时候并不会把容器删除，是出于可能需要在以后查看日志的<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/issues/1148">考虑</a>。</p>
-<h2 id="滚动升级"><a href="#滚动升级" class="headerlink" title="滚动升级"></a>滚动升级</h2><p>Kubernetes的replication controller还支持滚动升级（<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/replication-controller/#rolling-updates">rolling update</a>）。当我们想用新版本的镜像来代替已经部署的旧容器的时候，这个特性能用类似蓝绿部署的方式帮我们轻易升级。这个方式是：创建一个副本数为1的rc并关联到新pod，逐渐增加它的副本数并减少旧rc的副本数，最终完全替代。讲起来挺生涩，其实很简单：举个栗子，有一个既存服务来自于3个pod，我们希望用新的pod来代替旧的。这是现在的情况：<br><img src="/img/rolling-update-1.png"></p>
-<p>Kubernetes启动了一个新的rc，它有一个新的pod，并关联到服务上去。<br><img src="/img/rolling-update-2.png"></p>
-<p>然后停掉一个旧的pod，保持这个服务的pod总数还是3个：<br><img src="/img/rolling-update-3.png"></p>
-<p>继续增加新pod：<br><img src="/img/rolling-update-4.png"></p>
-<p>继续停掉旧pod：<br><img src="/img/rolling-update-5.png"></p>
-<p>增加新pod：<br><img src="/img/rolling-update-6.png"></p>
-<p>停掉旧pod，再把没用了的旧rc也删掉：<br><img src="/img/rolling-update-7.png"></p>
-<p>这样新服务就起来了！中间的替换速度是可以由我们设定的，还支持回滚。在<a target="_blank" rel="noopener" href="http://kubernetes.io/docs/user-guide/update-demo/">这里</a>有一个例子可供参考。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-7/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-7/" data-id="cuidc6QP65d1fgyXp3NG9_4vf" data-title="如果有10000台机器，你想怎么玩？（七）生命周期" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-7/" data-id="cuidqZmVePfjXPG163yhgkke2" data-title="如果有10000台机器，你想怎么玩？（七）生命周期" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1058,40 +542,15 @@ The UNIX School 里的[awk and sed tutorials](http://www.theunixschool.com/p/awk
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这次聊聊mesos+k8s的性能。纯粹的kubernetes v1.1可以支持250个节点，但是一跟mesos结合起来，由于需要等待、接受资源邀约等行为，确实会更慢一些。</p>
-<ul>
-<li><a href="/kubernetes-in-mesos-1">如果有10000台机器，你想怎么玩？（一）概述</a></li>
-<li><a href="/kubernetes-in-mesos-2">如果有10000台机器，你想怎么玩？（二）高可用</a></li>
-<li><a href="/kubernetes-in-mesos-3">如果有10000台机器，你想怎么玩？（三）持久化</a></li>
-<li><a href="/kubernetes-in-mesos-4">如果有10000台机器，你想怎么玩？（四）监控</a></li>
-<li><a href="/kubernetes-in-mesos-5">如果有10000台机器，你想怎么玩？（五）日志</a></li>
-<li><a href="/kubernetes-in-mesos-6">如果有10000台机器，你想怎么玩？（六）性能</a></li>
-<li><a href="/kubernetes-in-mesos-7">如果有10000台机器，你想怎么玩？（七）生命周期</a></li>
-<li><a href="/kubernetes-in-mesos-8">如果有10000台机器，你想怎么玩？（八）网络</a></li>
-<li><a href="/kubernetes-in-mesos-9">如果有10000台机器，你想怎么玩？（九）安全性</a></li>
-</ul>
-<h2 id="关于性能"><a href="#关于性能" class="headerlink" title="关于性能"></a>关于性能</h2><p>有一篇很知名的<a target="_blank" rel="noopener" href="http://blog.kubernetes.io/2015/09/kubernetes-performance-measurements-and.html">kubernetes性能测试文章</a>，提到了不少性能测试的考量、结果和计划，也有<a target="_blank" rel="noopener" href="http://dockone.io/article/677">中文译文</a>。相信看完后对kubernetes自身的性能会有一些感性认识。</p>
-<p>Kubernetes v1.0仅仅支持100个节点，kubernetes v1.1已经可以支持250个节点了。官方也希望能<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/multi-cluster.md#user-content-selecting-the-right-number-of-clusters">在2016年初支持1000个节点</a>。Kubernetes还提供了一个性能测试工具<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/docs/devel/kubemark-guide.md">Kubemark</a>。它由真实的master和虚拟的空节点组成，默认跑在<a target="_blank" rel="noopener" href="https://cloud.google.com/container-engine/">GCE</a>上，这样不需要大量机器便可以进行性能测试了。</p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>根据<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/docs/admin/cluster-large.md">kubernetes大集群</a>这篇文章的描述，1.1版本支持最大250个节点，每个节点30个pod，每个pod 1~2个容器。当使用50台以上的节点时，最好用单独的etcd来存储事件。可以在kubernetes的api server启动参数里配置类似<code>--etcd-servers-overrides=/events#http://192.168.33.11:4001</code>这样的值来分离事件etcd。</p>
-<p>如果想尽可能的模拟生产环境，所以在测试环境中使用kubernetes自身的系统插件（如DNS、Heapster、ElasticSearch等）时，也需要注意由于集群规模的增大，默认的插件资源有可能不够，从而导致OOM最终使插件不停地挂掉重启。可以通过配置resources的limit来增大插件的内存供给。</p>
-<p>Docker的性能方面，由于Ubuntu的docker存储驱动默认使用AUFS，速度比Device Mapper快上不少。所以如果用CentOS来做node，会明显感觉容器的启动删除都比较慢。网上也有<a target="_blank" rel="noopener" href="https://www.linux-toys.com/?p=374">文章</a>指出这点，笔者测试的感觉与之相符。</p>
-<h2 id="性能调优"><a href="#性能调优" class="headerlink" title="性能调优"></a>性能调优</h2><h3 id="Mesos-Kubernetes"><a href="#Mesos-Kubernetes" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos的资源分配现在是酱紫的：</p>
-<ul>
-<li>slave告诉master自己有什么资源</li>
-<li>master把这个资源包装成offer发送给framework（这里是kubernetes）</li>
-<li>framework接受或拒绝</li>
-<li>若是framework接受了，让slave运行任务<br><img src="/img/mesos-architecture.jpg"></li>
-</ul>
-<p>有一点需要注意的是mesos master并不是一收到slave的资源便把它发送给framework的。想象一下如果有1000台机器的话，那offer的发送频率得是什么样子。Mesos master是每隔一段时间发送一次。它的启动参数里有一个<code>--allocation_interval</code>，它决定了这个间隔时间，默认为1秒。当有多个slave的时候，有可能master在前一秒告诉framework有10份offer，后一秒又告诉说现在有15份（有些被拒绝的offer回来了，有些新slave能提供新offer，有些被接受了，但是还有余裕…）。</p>
-<p>Mesos+Kubernetes的<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/issues.md#scheduling">分配算法</a>现在还很原始：一个offer只会运行一个pod。所以如果请求启动的大量的pod的时候，就需要很多个offer来运行这些pod。为了提高性能，一个办法是在一个offer里安排多个pods，这个是kubernetes的未来计划，现在还不是我们的菜。另一个办法是提高mesos master的offer频率。虽然把<code>--allocation_interval</code>调低可以增加offer发送频率，但是如果offer回流得很慢，那又有什么意义呢。所以kubernetes的scheduler处理得越久，offer的流动性就越差，pod的启动速度就越慢。接着往下走，如何提高scheduler的处理速度呢？最简单的处理办法：换高配！4C8G的虚拟机撑死能扛住250台mesos slave。软件上就还得靠优化scheduler的流程了。另外，mesos master由于要不断发offer出去，还要处理被接受或拒绝的offer，也需要比较强的配置，但是kubernetes master的配置影响力更大，需要相对更好的配置。</p>
-<p>Mesos+Kubernetes的scheduler还支持一些细粒度的性能调优，有兴趣的朋友可以去<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/contrib/mesos/docs/scheduler.md#user-content-tuning">看一看</a>。</p>
-<h3 id="纯kubernetes"><a href="#纯kubernetes" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes会简单一些，它的scheduler支持一个参数<code>--bind-pods-qps</code>，这个值决定每秒启动的pod数，默认为50。可以根据机器和网络性能相对应地调节。</p>
-<h2 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h2><h3 id="Mesos-Kubernetes-1"><a href="#Mesos-Kubernetes-1" class="headerlink" title="Mesos+Kubernetes"></a>Mesos+Kubernetes</h3><p>Mesos+Kubernetes的情况下，100台mesos slave的情况下，启动100个pod需要将近50秒。由上可知，由于offer是比较均匀的，pod的创建时间基本上也是均匀的。这就意味着启动500个pod需要将近250秒。而且，pod还是比较平均地分布在所有slave上的。删除pod的话，因为无关offer，所以就不是线性关系了。100个pod需要10~15秒，如果一口气删得多一些，需要的时间会比线性增加的时间少一些。250台mesos slave的情况下，基本上kubernetes就带不动了，api server的cpu占用率很高。</p>
-<h3 id="纯kubernetes-1"><a href="#纯kubernetes-1" class="headerlink" title="纯kubernetes"></a>纯kubernetes</h3><p>不带mesos玩儿的kubernetes在100台节点的情况下，速度要快得多：启动100个pod仅需10秒左右，1000个约80秒。如果分配超过3000的pod，就会出现部分pod起不来的情况。笔者试验了4000个pod，有280个起不来。250台节点的时候也没有什么压力，性能上比Mesos+Kubernetes好了不止一星半点。现在kubernetes 1.2版已经发布，支持1000个node不成问题。就是…如果按本文的标题来说，10000台机器，还是得建10个kubernetes集群才行呀。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/kubernetes-in-mesos-6/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-6/" data-id="cuidxbLx6o7C4CFctNKJIQJ3I" data-title="如果有10000台机器，你想怎么玩？（六）性能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-in-mesos-6/" data-id="cuidmgdyYIJE9QyOwAtOFRMPD" data-title="如果有10000台机器，你想怎么玩？（六）性能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

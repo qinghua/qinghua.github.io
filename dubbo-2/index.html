@@ -17,7 +17,7 @@
 <meta property="og:description" content="Dubbo是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。当当在dubbo的基础上开发了dubbox（Dubbo eXtensions），支持REST风格远程调用。本文在服务治理框架dubbo上手指南的基础上使用dubbox提供的REST服务。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-06-05T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.418Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.067Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="dubbo">
 <meta property="article:tag" content="dubbox">
@@ -107,6 +107,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://github.com/alibaba/dubbo">Dubbo</a>是阿里多年前开源的一套服务治理框架，在众多互联网企业里应用广泛。当当在dubbo的基础上开发了<a target="_blank" rel="noopener" href="https://github.com/dangdangdotcom/dubbox">dubbox</a>（Dubbo eXtensions），<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">支持REST风格远程调用</a>。本文在<a href="/dubbo-1">服务治理框架dubbo上手指南</a>的基础上使用dubbox提供的REST服务。</p>
+<span id="more"></span>
+
 <p>首先参考<a href="/dubbo-1">服务治理框架dubbo上手指南</a>，实现自己的dubbo服务。在此基础上，让我们来看看<a target="_blank" rel="noopener" href="http://dangdangdotcom.github.io/dubbox/rest.html">在Dubbo中开发REST风格的远程调用</a>。REST的优势就不多说了，本文关注的是快速搭建环境。</p>
 <p>光看dubbox的官方文档稍微有一点儿坑，因为它对于maven依赖的描述基本没有。Dubbo本身的维护已经不太活跃了，最新的版本是<code>2.5.4-SNAPSHOT</code>。当当接下了维护的重任，目前的最新版是<code>dubbox-2.8.4</code>，其实groupId和artifactId还是原来的不变，只是版本号有变化罢了。所以首先让我们来升级一下依赖，在<code>helloImpl</code>的<code>pom.xml</code>里升级dubbo：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">com.alibaba</span><br><span class="line">dubbo</span><br><span class="line">2.8.4</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        spring-expression</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">        spring-beans</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">        spring-aop</span><br><span class="line">        org.springframework</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
@@ -129,7 +131,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/dubbo-2/" data-id="cuidBumVNb7XO3nSmnQGb8HO9" data-title="使用dubbox为dubbo提供REST服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/dubbo-2/" data-id="cuidy_E2VS4T0osBNL01Aa2My" data-title="使用dubbox为dubbo提供REST服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

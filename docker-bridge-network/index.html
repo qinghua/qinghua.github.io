@@ -17,7 +17,7 @@
 <meta property="og:description" content="我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-01-26T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.407Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.062Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="network">
@@ -105,6 +105,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。</p>
+<span id="more"></span>
+
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
 
@@ -152,7 +154,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuid_vOoag67orevwNvLbDhHB" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuiduO2c8Z2YUvv1BzcYIZiiD" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

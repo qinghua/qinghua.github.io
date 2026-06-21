@@ -17,7 +17,7 @@
 <meta property="og:description" content="Elasticsearch是用Java开发的基于Apache Lucene的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。 对Apache Solr入门有兴趣的朋友请参考用容器快速上手Apache Solr。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-08-28T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.421Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.069Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="elasticsearch">
 <meta name="twitter:card" content="summary">
@@ -104,6 +104,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a>是用Java开发的基于<a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a>的一个近乎实时的分布式搜索分析引擎。维基百科、Stack Overflow、GitHub等都采用它来作为全文搜索引擎。本文旨在用docker来快速入门并尝试Elasticsearch提供的基本功能。</p>
+<span id="more"></span>
+
 <p>对<a target="_blank" rel="noopener" href="http://lucene.apache.org/solr/">Apache Solr</a>入门有兴趣的朋友请参考<a href="/solr">用容器快速上手Apache Solr</a>。</p>
 <h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>关于Elasticsearch的入门知识，有一本gitbook：<a target="_blank" rel="noopener" href="https://www.gitbook.com/book/fuxiaopang/learnelasticsearch/details">《Elasticsearch 权威指南》</a>翻译得不错。本文关心的是实际操作，所以这就开始吧。通过docker，一条命令就可以直接启动Elasticsearch：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=es elasticsearch:2.3.5</span><br></pre></td></tr></table></figure>
@@ -183,7 +185,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/elastic-search/" data-id="cuidofgg1fEy1bKxnf3sNRJtr" data-title="用容器快速上手Elasticsearch" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/elastic-search/" data-id="cuidCsdgnoaEUtD7-Mi9OmyKu" data-title="用容器快速上手Elasticsearch" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

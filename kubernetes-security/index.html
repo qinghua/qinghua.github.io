@@ -17,7 +17,7 @@
 <meta property="og:description" content="Kubernetes简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考《如果有10000台机器，你想怎么玩？》系列文章。本文介绍kubernetes的安全性配置。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-04-29T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.445Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.087Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="kubernetes">
@@ -105,6 +105,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://kubernetes.io/docs/whatisk8s/">Kubernetes</a>简称k8s，是谷歌于2014年开始主导的开源项目，提供了以容器为中心的部署、伸缩和运维平台。截止目前它的最新版本为1.2。搭建环境之前建议先了解一下kubernetes的相关知识，可以参考<a href="/kubernetes-in-mesos-1">《如果有10000台机器，你想怎么玩？》</a>系列文章。本文介绍kubernetes的安全性配置。</p>
+<span id="more"></span>
+
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先需要搭建kubernetes集群环境，可以参考<a href="/kubernetes-installation">《轻松搭建Kubernetes 1.2版运行环境》</a>来安装自己的kubernetes集群，运行到flannel配置完成即可。接下来的api server等设置的参数可以参考本文。</p>
 <p>结果应该是有三台虚拟机，一台叫做<strong>master</strong>，它的IP是<strong>192.168.33.17</strong>，运行着k8s的api server、controller manager和scheduler；另两台叫做<strong>node1</strong>和<strong>node2</strong>，它们的IP分别是<strong>192.168.33.18</strong>和<strong>192.168.33.19</strong>，运行着k8s的kubelet和kube-proxy，当做k8s的两个节点。</p>
 <h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>最简单的方式就是通过基于CSV的基本认证。首先需要创建api server的基本认证文件：</p>
@@ -189,7 +191,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/kubernetes-security/" data-id="cuidadZ5874NYRxcviN91Kr6A" data-title="轻松了解Kubernetes认证功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/kubernetes-security/" data-id="cuidtmZuQu9dN8xAcyBt0ZwCe" data-title="轻松了解Kubernetes认证功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

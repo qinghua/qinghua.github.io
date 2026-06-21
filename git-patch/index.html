@@ -17,7 +17,7 @@
 <meta property="og:description" content="上篇博文介绍了JGit，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2017-09-12T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.426Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.073Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="JGit">
 <meta property="article:tag" content="git">
@@ -105,6 +105,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>上篇博文介绍了<a href="/jgit">JGit</a>，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。</p>
+<span id="more"></span>
+
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我希望在项目中能够实现这样的功能：用户发送一个request，服务器就帮用户生成代码并生成一个commit到用户本地的git中，但是这不太可能，因为用户的环境并不是服务器的环境。进一步的方案是直接在服务器端clone git仓库（或是维持一份最新代码），服务器本地生成commit并push，这样做会有一些安全方面需要考虑的因素。我采用的是退一步的方案，即让服务器生成一个patch文件并上传到<a target="_blank" rel="noopener" href="https://aws.amazon.com/s3/">S3</a>，以便用户稍后下载并apply到本地。</p>
 <h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><h3 id="api-command"><a href="#api-command" class="headerlink" title="api command"></a>api command</h3><p>打开JGit的<a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit/tree/master/org.eclipse.jgit/src/org/eclipse/jgit/api">api包</a>一看，各种git命令应有尽有，如apply、cherry-pick等。但惟独没有format-patch命令。网上一搜，甚少有人有这样的需求或问题，只有<a target="_blank" rel="noopener" href="http://www.codeaffine.com/2016/06/16/jgit-diff/">这篇文章</a>比较靠谱，但是它介绍的侧重于diff而非生成patch。</p>
 <h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><p>还是得找找patch相关的代码。源代码搜遍也就这个<a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit/blob/master/org.eclipse.jgit/src/org/eclipse/jgit/patch/Patch.java">Patch.java</a>应该是patch文件的JGit模型，但是读完后发现，它只能把patch文件映射成这个模型，并不能反向从模型序列化为patch文件。</p>
@@ -146,7 +148,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/git-patch/" data-id="cuidqFfKGSL9fJ9EEetii922y" data-title="用JGit生成patch文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/git-patch/" data-id="cuidYfQaD8fhoaqEVPsnTtI6C" data-title="用JGit生成patch文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

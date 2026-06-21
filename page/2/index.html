@@ -101,56 +101,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>俗话说“文无第一，武无第二”，软件开发归类于“文”，还是“武”？这个问题本身就有争议。想痛快地吵上一吵吗？进来看看吧。</p>
-<h2 id="大家都来吵"><a href="#大家都来吵" class="headerlink" title="大家都来吵"></a>大家都来吵</h2><p>软件涉及到的领域太广，以至于程序员之间、程序之间很多时候难分伯仲。你可能也经常会听见一些牛逼的程序员们互相吵来吵去，很多时候并不是自己拥有一个完美的解决方案，而是觉得对方的解决方案在特定情况下不好。当然没有十全十美的方案。举个简单的例子，我们奉行的DRY（Don’t Repeat Yourself）原则，要求我们不要WET（Write Everything Twice或者We Enjoy Typing）。可即便是这么通用的原则，也可以被质疑：这样就失去了两边各自变化的能力了。听起来似乎有些道理，但是回头想想，两边各自变化的可能性有多大？这样的可能性在每个人的眼中是不一样的。因为大家的背景不一样，也许某人知道更多的未来需求，也许某人预见业务增长将会很快，也许某人曾经在这上面吃过亏……不一而足。</p>
-<p>像DRY这样，但是更加令人难以决断的例子还有很多，列了一些常见的如下：</p>
-<ul>
-<li><strong>缩进用空格还是TAB？</strong><br><a target="_blank" rel="noopener" href="https://stackoverflow.blog/2017/06/15/developers-use-spaces-make-money-use-tabs/">据说用空格的程序员收入比用TAB的多</a>，你还打算继续用TAB吗？</li>
-<li><strong>Java的变量名要不要默认加final？</strong><br>加上去是有它的好处，但是很烦不是吗？它的价值是否能抵过你的烦恼？这有一个<a target="_blank" rel="noopener" href="http://www.javapractices.com/topic/TopicAction.do?Id=23">最佳实践</a>，但是否应该采用？</li>
-<li><strong>应该测试先行地去TDD，还是补上单元测试就好了？</strong><br>测试驱动开发当然是<a target="_blank" rel="noopener" href="http://www.extremeprogramming.org/rules/testfirst.html">测试先行</a>，但现实中往往有许多不容易写第一个测试的情况。怎么破？</li>
-<li><strong>要不要写注释？</strong><br><a target="_blank" rel="noopener" href="https://refactoring.guru/smells/comments">重构</a>告诉我们注释很可能是坏味道，应该先尝试重构以让注释变得多余。但就有极端人士认为<a target="_blank" rel="noopener" href="https://softwareengineering.stackexchange.com/questions/1/comments-are-a-code-smell">所有代码中的注释都是多余</a>的。我们的观点呢？</li>
-<li><strong>用不用设计模式？</strong><br>你有没有这样的经历，学完设计模式以后，编程时总想着套到什么地方去？到底应该何时用、怎么用、用多少？</li>
-<li><strong>要不要尽量内联（inline）？</strong><br>有一种编程风格是尽量inline所有的变量，除非很不好懂，需要用变量名来解释。例如：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String name = someService.getName();</span><br><span class="line">String result = otherService.getResult(name);</span><br><span class="line">return result;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>需要重构为：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">return otherService.getResult(someService.getName());</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>因为比较简洁嘛。我原来也倾向于使用这种风格。但是新团队的风格是尽量抽变量，理由是方便调试。比如一行中要是出错了呢？调试时要是想知道返回值呢？当然可以查看<code>otherService.getResult(someService.getName())</code>，但是这个操作要是不幂等呢？似乎也有几分道理。</p>
-<ul>
-<li><strong>要不要用Java 8的Lambda？</strong><br>曾经有人对我说，最好别用Lambda，因为会的员工不多，不好维护。站在他当时的立场上看，这个理由确实成立。但如果总是这样，新技术岂不是永远都上不了台了？</li>
-<li><strong>用异常还是返回值来处理验证逻辑？</strong><br>这也是个比较经典的问题，原来认为<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/299068/how-slow-are-java-exceptions">异常影响性能</a>，但随着时代的演进，我们更倾向于<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/4670987/why-is-it-better-to-throw-an-exception-rather-than-return-an-error-code">使用异常</a>了。当然<a target="_blank" rel="noopener" href="https://softwareengineering.stackexchange.com/questions/184654/ive-been-told-that-exceptions-should-only-be-used-in-exceptional-cases-how-do">争论还在继续</a>。</li>
-<li><strong>代码覆盖率要不要100%？</strong><br>追求100％的代码覆盖率究竟有没有意义？上80％可能比较轻松，但是最后的20％可能需要付出额外80％的劳动，值得不值得？那么，<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/90002/what-is-a-reasonable-code-coverage-for-unit-tests-and-why">代码覆盖率设置为多少比较合理</a>?</li>
-<li><strong>要不要结对编程？</strong><br>一人工作一人看，结对编程效率低。但是结对的关键不是效率，而是质量。这又涉及到下面这个问题：</li>
-<li><strong>如何衡量软件质量？</strong><br>代码行数、代码覆盖率、缺陷率、圈复杂度……但是它们足够吗？应该如何看待这些值？换个问题，如何衡量软件复杂性？这个问题又涉及到下面的问题：</li>
-<li><strong>如何衡量程序员的KPI？</strong><br><a target="_blank" rel="noopener" href="https://softwareengineering.stackexchange.com/questions/26596/metric-by-which-to-hold-developers-accountable">这很难</a>。只能参考而无绝对。</li>
-<li><strong>软件该如何收费？</strong><br>虽然现在看起来有点而离谱，但是很早以前曾经任职的公司确实是按行数收费的，行数＝编写的代码行数＋自动生成的代码×系数（如20％）。更加透明一点的是按工时收费。</li>
-<li><strong>可以不用QA吗？</strong><br>曾任职的公司开展过一场“去QA化”运动，现在也不提了。这里的<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19666055/answer/13399364">回答</a>很有意思。</li>
-<li><strong>是否把修复CI当做第一优先级的事情？</strong><br>这是测试别人是不是了解CI的三个问题之一。当然修复CI的优先级很高。但是有多高呢？我们在实践中是根据具体情况有所取舍的。线上生产环境的问题，才是第一优先级的事情。甚至就连上面这句话有时也不成立。</li>
-<li><strong>要不要代码审查？如何审查？</strong><br>大部分人还是认同代码审查的，但是审查方式可以有很多种。最直接的是团队成员都围着电脑看代码，让一个没参与的人来讲解。但是可能费时很多，而且不是所有人都能进入状态，有的人喜欢一起看，有的人喜欢单独看。有一种方式是工具的支持，可以进行一对一的审查，这个可以挖个坑单写一片文章了。</li>
-<li><strong>要不要鼓励项目中使用多种技术，比如多种测试框架，版本管理工具等？</strong><br>这里存在着工作效率与提升技能之间的小冲突。使用已经用过的技术当然开发起来更快，但是也是去了尝新的机会，或者说是乐趣。而过量的技术运用到一个项目中，也会带来沉重的负担。</li>
-<li><strong>PHP是不是世界上最好的语言？</strong><br>我还是不评论了吧，免得挨揍。</li>
-</ul>
-<h2 id="底线还得有"><a href="#底线还得有" class="headerlink" title="底线还得有"></a>底线还得有</h2><p>对于永远稳定不会变化的需求（尽管很少，但这样的需求确实存在）而言，软件开发也许就能够分出高下来。举个例子：一个确定不会被重用的小工具。在这种情况下，可以适用的原则是：<strong>越快越好</strong>。我们甚至可以适当允许一些bug的存在，因为修复它们所需的时间可能大于手动修复运行结果所需的时间。另外，永远稳定不会变化的需求真的就永远不会变化吗？未必。但是在开发的某个时间点上，它确实是被认为是永远不会再变化的了。唯一不变的是变化本身。</p>
-<p>曾经有同事去印度当了几个月的程序员讲师，回来后告诉我，在回答学员们的问题时，讲师们说得最多的就是这句话：“It depends.”。这基本上是一个放之四海而皆准的原则：<strong>具体情况具体分析</strong>。那是不是所有的问题都直接无脑地“具体情况具体分析”就完了？当然可以，但这是一种思想上的懒，不是我这“懒程序员”的“懒”。因为这句话对解决问题并不能有太多实质上的帮助嘛。关键是，我们还得就着“具体情况”来“分析”。所以，我们可以在其上再构建一些原则，来覆盖特定的情况。</p>
-<p>比如说设计模式，它是对特定问题的特定解决方案。不要一股脑儿就往上套，好的经验是在发现坏味道以后，重构到设计模式，甚至是重构了一半，就已经消除掉坏味道了。原则：<strong>越简单越好</strong>。<br>比如说final，它并不能带来明显可观的价值，所以应该以大多数人的习惯为先。原则：<strong>贴近大多数人的习惯</strong>。<br>比如说lambda，明显它是更加先进的生产力，所以上面的原则就不适用了，应该以先进的生产力为先。原则：<strong>采用先进的生产力</strong>。<br>比如说代码覆盖率，高覆盖率自然是好，但是值得吗？比如Java可能就很难做到100％，但JS就能轻松一些。原则：<strong>采用性价比高的方案</strong>。<br>从“代码审查”中我们也可以看到，每个人都是不一样的，我在<a href="/effective-communication">人际风格与有效沟通实战</a>中也曾提到不同风格的人。原则：<strong>因人而异</strong>。<br>从“尽量内联”、“异常或返回值”中我们也可以看到，应该保持开放的心态来调整各原则。原则：<strong>原则需要与时俱进</strong>。<br>比如说要不要写注释，大多数情况下，组织得当的方法名、变量名已经能够说明问题了，这时的注释就显得多余。但偶尔还是需要介绍一块代码的来龙去脉，这时的注释就是必要的。原则：<strong>具体情况具体分析</strong>。</p>
-<p>我们现在已经有了好几条原则了：</p>
-<ul>
-<li><strong>越快越好</strong></li>
-<li><strong>越简单越好</strong></li>
-<li><strong>贴近大多数人的习惯</strong></li>
-<li><strong>采用先进的生产力</strong></li>
-<li><strong>采用性价比高的方案</strong></li>
-<li><strong>因人而异</strong></li>
-<li><strong>原则需要与时俱进</strong></li>
-<li><strong>具体情况具体分析</strong></li>
-</ul>
-<p>有些原则可能在特定的情况下是冲突的，需要自己思考究竟哪条原则更加符合现实情况。在适当的时候使用适当的原则（就像设计模式一样），而不是拿着锤子看见啥都像钉子（也像设计模式一样）。另外，需求是变化的，我们的原则也不必一成不变。有句话说“规则是用来打破的”。我想说的是，在充分理解规则之后，再来决定是不是打破它，并承担相应的后果。或者，考虑是不是用更高级的规则（如“具体情况具体分析”）来约束它，或是用更低级的规则来覆盖它吧。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/it-depends/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/it-depends/" data-id="cuidPj86f71HAZDbx3rM0k5Vo" data-title="软件开发有没有高下" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/it-depends/" data-id="cuidmQSjaeRkow90qFQCoiNvN" data-title="软件开发有没有高下" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -191,47 +150,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>本文介绍了<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>的一些相对不那么广为人知的实用功能。希望能让你的IDE发挥出最大的功效！本文使用的IDEA版本是<code>2017.2.6</code>社区版，快捷键是<code>Mac OS X</code>。本文的兄弟篇是<a href="/intellij-idea-debug">挖掘IntelliJ IDEA的调试功能</a>。</p>
-<h2 id="多重选择"><a href="#多重选择" class="headerlink" title="多重选择"></a>多重选择</h2><p>Sublime Text有一个非常好用的功能，就是可以选择多个光标，允许一起编辑。IDEA也向其学习，提供了类似的功能。只要按住<strong>Alt+Shift</strong>时，用鼠标点击其它位置即可。还可以通过<strong>Ctrl+G</strong>选择下一个相同的字符串，或是<strong>Ctrl+Command+G</strong>选择所有相同的字符串。如下图：<br><img src="/img/idea-multiple-selections.png"></p>
-<p>还有一个功能是纵向选择，可以通过<strong>Command+Shift+8</strong>来开关。之后的效果如下：<br><img src="/img/idea-column-selection.png"></p>
-<p>有一个注意事项就是，多重选择的时候不要用IDE自带的重构功能。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/editor-basics.html#editor_lines_code_blocks">https://www.jetbrains.com/help/idea/editor-basics.html#editor_lines_code_blocks</a></p>
-<h2 id="文件比较器"><a href="#文件比较器" class="headerlink" title="文件比较器"></a>文件比较器</h2><p>比较两个项目中的文件很简单，选中这两个文件，然后<strong>Command+D</strong>就可以了。JAR文件、文件夹也能够进行比较：<br><img src="/img/idea-compare-folders.png"></p>
-<p>如果只有一个文件在项目中，那就选中它，然后<strong>Command+D</strong>，再从对话框中打开项目外的文件即可。如果另一个文件在剪贴板，那就打开项目中的文件，然后右击编辑器选择<strong>Compare with Clipboard</strong>即可。</p>
-<p>如果两个文件都不在项目中……那好歹复制一个进去呗。</p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/comparing-files.html">https://www.jetbrains.com/help/idea/comparing-files.html</a></p>
-<h2 id="正则校验器"><a href="#正则校验器" class="headerlink" title="正则校验器"></a>正则校验器</h2><p>如果你写了个（或搜了个）炫酷的正则表达式，除了单元测试，IDEA也提供了简便的测试方式。比如对于如下代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Pattern</span> <span class="variable">EMAIL_PATTERN</span> <span class="operator">=</span> Pattern.compile(<span class="string">&quot;^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]&#123;2,5&#125;)$&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>在正则的字符串中按下<strong>Alt+Enter</strong>，选择<strong>Check RegExp</strong>，然后填入想校验的字符串即可：<br><img src="/img/idea-check-regexp.png"></p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/regular-expression-syntax-reference.html#tips-tricks">https://www.jetbrains.com/help/idea/regular-expression-syntax-reference.html#tips-tricks</a></p>
-<h2 id="Emmet"><a href="#Emmet" class="headerlink" title="Emmet"></a>Emmet</h2><p>还在写这样的html吗？早就out了……</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>只要输入<code>table#users&gt;tr.user&gt;td*3</code>然后按下<strong>TAB</strong>就行了。能自动生成的，我们就不自己写。不过这个功能只在后缀名为<code>html</code>或<code>xml</code>的文件编辑器中生效，所以创建一个html文件然后再试试吧。</p>
-<p>这里有一张Emmet的语法表：<a target="_blank" rel="noopener" href="https://docs.emmet.io/cheat-sheet/">https://docs.emmet.io/cheat-sheet/</a></p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/emmet.html">https://www.jetbrains.com/help/idea/emmet.html</a></p>
-<h2 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h2><p>如果你看到这样的代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">getMessage</span><span class="params">(String name, <span class="type">int</span> age)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> name + <span class="string">&quot; is &quot;</span> + age + <span class="string">&quot; years old.&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>就会忍不住想把它变成这样的话：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>().append(name)</span><br><span class="line">                          .append(<span class="string">&quot; is &quot;</span>)</span><br><span class="line">                          .append(age)</span><br><span class="line">                          .append(<span class="string">&quot; years old.&quot;</span>)</span><br><span class="line">                          .toString();</span><br></pre></td></tr></table></figure>
-
-<p>只要在等号后面的语句中按下<strong>Alt+Enter</strong>，选择<strong>Replace ‘+’ with ‘StringBuilder.append()’<strong>即可。也可以选择</strong>Replace ‘+’ with ‘String.format()’</strong>，来把它变成这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> String.format(<span class="string">&quot;%s is %d years old.&quot;</span>, name, age);</span><br></pre></td></tr></table></figure>
-
-<p>所以当你准备拼接字符串了，考虑这个功能吧，比自己慢慢写要顺手多了。其实<strong>Alt+Enter</strong>这个万能快捷键在不同的代码下支持许多不同的功能，没事在代码上随便敲一敲，你会发现惊喜的。</p>
-<h2 id="本地历史"><a href="#本地历史" class="headerlink" title="本地历史"></a>本地历史</h2><p>通过<strong>VCS</strong>菜单中，<strong>Local History</strong>的<strong>Show History</strong>，可以打开当前文件的本地修改历史。如果某个版本你并没有提交过，只是在本地曾经改过，但是又改掉了，就可以利用这个功能将其找回。甚至还可以针对字段、方法、文件夹、乃至整个项目来查看。所以保存量是比较大的，IDEA默认就保留五个工作日的本地历史，有一周一般来说也就够了吧。这个值也能通过传给JVM的参数<code>localHistory.daysToKeep</code>来修改。如果因为磁盘不够等原因不想要，也可以把它设置为0。<br><img src="/img/idea-local-history.png"></p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/local-history.html">https://www.jetbrains.com/help/idea/local-history.html</a></p>
-<h2 id="测试覆盖率"><a href="#测试覆盖率" class="headerlink" title="测试覆盖率"></a>测试覆盖率</h2><p>通过<strong>Run</strong>菜单里的<strong>Run ‘xxxTest’ with Coverage</strong>，可以在运行测试时顺便跑出测试覆盖率。通过<strong>Analyze</strong>菜单里的<strong>Show Coverage Data</strong>，可以查看覆盖率的大致情况。而通过<strong>Generate Coverage Report</strong>，可以生成测试报告，在报告里可以看到具体的每一行是否运行过。这是覆盖率数据：<br><img src="/img/idea-coverage-data.png"></p>
-<p>这是测试报告：<br><img src="/img/idea-coverage-report.png"></p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html">https://www.jetbrains.com/help/idea/viewing-code-coverage-results.html</a></p>
-<h2 id="生产力指南"><a href="#生产力指南" class="headerlink" title="生产力指南"></a>生产力指南</h2><p>点击<strong>Help</strong>菜单里的<strong>Productivity Guide</strong>，就能看到一张大表，记录着各功能的使用情况。注意一下使用频率低的，了解一下从未使用过的，很快就能成为Intellij IDEA的砖家了。<br><img src="/img/idea-productivity-guide.png"></p>
-<p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/productivity-guide.html">https://www.jetbrains.com/help/idea/productivity-guide.html</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/intellij-idea-utilities/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-utilities/" data-id="cuidzpxgxBSB3t8Crt5ikHRLV" data-title="挖掘IntelliJ IDEA的实用功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-utilities/" data-id="cuid9eosB_K0Iw34jtYZZvUuf" data-title="挖掘IntelliJ IDEA的实用功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -272,59 +199,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好<a target="_blank" rel="noopener" href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a>这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的<a target="_blank" rel="noopener" href="https://www.jetbrains.com/products.html">JET BRAINS全家桶</a>已经是如此齐备时。</p>
-<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p>废话不多说，在环境准备好的情况下，假设我们来测试驱动开发一个计算一天有多少个小时的API。参见以下的两分半小视频：</p>
-<p>要是视频不清晰或看不到，就直接到<a target="_blank" rel="noopener" href="https://v.qq.com/x/page/s0545lt9r2e.html">腾讯视频</a>中看720P吧。</p>
-<p>如何才能做到”敲最少的键，编最多的码“呢？除了掌握技巧之外，就是多练习实践了。以下就是技巧的内容。</p>
-<h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先把环境准备一下。只要有<code>src</code>和<code>test</code>即可。我自己是一个默认的Maven新项目，在<code>pom</code>中引用了<code>junit</code>。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"></span><br><span class="line">4.0.0</span><br><span class="line"></span><br><span class="line">org.ggg</span><br><span class="line">ggg</span><br><span class="line">1.0-SNAPSHOT</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        junit</span><br><span class="line">        junit</span><br><span class="line">        4.12</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>专业版的IDEA支持项目模板，如果你对默认的模板不满意，项目模板能够节省你的一部分操作。</p>
-<h2 id="步骤分解"><a href="#步骤分解" class="headerlink" title="步骤分解"></a>步骤分解</h2><ul>
-<li>快捷键：在<code>test/java</code>中用快捷键<strong>Ctrl+N</strong>生成文件。</li>
-<li>文件模版：选择的<code>JUnit</code>正是我事先创建好的文件模板，内容见下文的“功能简介”。这里的一个小诀窍是先按下<strong>u</strong>，可以过滤掉不需要的模板。</li>
-<li>输入：输入<code>HoursCalculatorTest</code>并回车，测试文件就此生成。</li>
-<li>代码自动生成：移动光标到合适位置，用快捷键<strong>Ctrl+N</strong>自动生成<strong>Test Method</strong>。</li>
-<li>输入：将测试方法命名为<code>should_get_24_hours_for_1_day</code>。</li>
-<li>输入：这里需要新建一个测试目标，即<code>new HoursCalculator()</code>。</li>
-<li>快捷键：因为<code>HoursCalculator</code>类还不存在，所以会报错，用快捷键<strong>F2</strong>移动到下一个错误处，再用快捷键<strong>Alt+Enter</strong>自动修复错误，选择<strong>Create class ‘HoursCalculator’</strong>。</li>
-<li>代码自动生成：输入<code>org.ggg</code>自动生成<code>HoursCalculator</code>类。</li>
-<li>快捷键：<strong>Ctrl+Tab</strong>回到上一个文件即我们的测试类。<strong>Command+Alt+V</strong>将<code>new HoursCalculator()</code>抽取为一个变量<code>hoursCalculator</code>，<strong>Command+Shift+Enter</strong>结束本行，将光标跳至下一行开头。</li>
-<li>输入：输入<code>int hoursByDay = hoursCalculator.getHoursByDay(1)</code>来获取计算结果。小诀窍是只要输入<code>hc</code>，IDEA就会提示<code>hoursCalculator</code>。</li>
-<li>代码自动生成：还是<strong>Alt+Enter</strong>自动修复错误，选择<strong>Create method ‘getHoursByDay’</strong>，便能在<code>HoursCalculator</code>类中自动生成<code>getHoursByDay</code>方法。</li>
-<li>输入：一路回车，可以把参数名改为<code>days</code>。</li>
-<li>快捷键：还是<strong>Ctrl+Tab</strong>回到测试类，然后<strong>Command+Shift+Enter</strong>结束本行（分号会自动补齐）。</li>
-<li>输入：输入<code>assertEquals(24,hoursByDay)</code>，还是<strong>Command+Shift+Enter</strong>结束本行（还会调整格式）。</li>
-<li>快捷键：<strong>Ctrl+Shift+F10</strong>运行测试，红了。用<strong>Ctrl+Tab</strong>回到<code>HoursCalculator</code>类准备修改实现。</li>
-<li>输入：把返回值从<code>0</code>改为<code>24</code>。</li>
-<li>快捷键：<strong>Shift+F10</strong>运行上个测试，这回绿了。用<strong>Ctrl+Tab</strong>回到我们的测试类，准备编写下一个测试。</li>
-<li>活动模板：将光标移动到合适的位置，输入<strong>test</strong>和<strong>TAB</strong>键。可以看到生成了另一个测试方法。当然我们在此也可以用上面的“代码自动生成”，这里不过是用了另一种方法而已。<code>test</code>是我事先创建好的活动模板，内容见下文的“功能简介”。</li>
-<li>输入：将方法命名为<code>should_get_48_hours_for_2_days</code>。之后按照类似上文的方式，实现并执行测试，红了。令方法返回<code>24 * day</code>并再次执行测试，绿了。移动光标到测试方法之外，执行全部测试，都绿了，保证后一个实现不会破坏前一个实现。</li>
-<li>快捷键：现在是tdd的重构阶段。<code>24</code>是一个magic number，所以我们要用<strong>Command+Alt+C</strong>将其变成一个常量，如<code>hoursInDay</code>。不过常量应该还是大写的蛇式比较符合惯例，于是可以<strong>Shift+F6</strong>改名。</li>
-<li>插件：我事先安装了<strong>string-manipulation</strong>插件，所以可以直接使用快捷键<strong>Alt+M</strong>并选择<strong>4. To SCREAMING_SNAKE_CASE</strong>将变量改名为<code>HOURS_IN_DAY</code>。其实现在版本的IDEA已经会在快捷键改名时提示<code>HOURS_IN_DAY</code>了，但是插件支持的功能更加丰富一些，并且也能在编辑非java文件时使用。</li>
-<li>快捷键：用<strong>Shift+F10</strong>运行上次运行的全部测试，依然是绿的。</li>
-<li>快捷键：测试文件还不在包中，用<strong>F6</strong>将其移入<code>org.ggg</code>中。还可以用<strong>Command+Alt+O</strong>来优化import部分。</li>
-<li>快捷键：再次用<strong>Shift+F10</strong>运行测试，依然是绿的，重构完成。</li>
-</ul>
-<h2 id="用到的IDE功能简介"><a href="#用到的IDE功能简介" class="headerlink" title="用到的IDE功能简介"></a>用到的IDE功能简介</h2><h3 id="快捷键（Shortcuts）"><a href="#快捷键（Shortcuts）" class="headerlink" title="快捷键（Shortcuts）"></a>快捷键（<a target="_blank" rel="noopener" href="https://resources.jetbrains.com/storage/products/intellij-idea/docs/IntelliJIDEA_ReferenceCard.pdf">Shortcuts</a>）</h3><p>我用的是<strong>Mac OS X</strong>的Keymap。常用的快捷键要牢记，很多时候它决定了程序员的效率如何。JET BRAINS的各种语言的IDE快捷键都比较类似，花点精力记住它决不会吃亏。</p>
-<h3 id="文件模板（File-Templates）"><a href="#文件模板（File-Templates）" class="headerlink" title="文件模板（File Templates）"></a>文件模板（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/file-and-code-templates.html">File Templates</a>）</h3><p>顾名思义，文件模板即是新建文件时使用到的模板。我们在上面的步骤中使用的<code>JUnit</code>活动模板如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#if ($&#123;PACKAGE_NAME&#125; &amp;&amp; $&#123;PACKAGE_NAME&#125; != &quot;&quot;)package $&#123;PACKAGE_NAME&#125;;#end</span><br><span class="line"></span><br><span class="line">import org.junit.Test;</span><br><span class="line"></span><br><span class="line">import static org.junit.Assert.*;</span><br><span class="line">#parse(&quot;File Header.java&quot;)</span><br><span class="line">public class $&#123;NAME&#125; &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>它的语法基于<a target="_blank" rel="noopener" href="http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction">Apache Velocity</a>，支持变量，如<code>${PACKAGE_NAME}</code>表示包名，<code>${NAME}</code>表示用户输入的名称，等等。</p>
-<p>可以通过在<strong>Preferences</strong>中搜索<strong>File and Code Templates</strong>，来创建或修改文件模板。也可以在一开始<strong>Ctrl+N</strong>时选择<strong>Edit File Templates…</strong>。</p>
-<h3 id="活动模板（Live-Templates）"><a href="#活动模板（Live-Templates）" class="headerlink" title="活动模板（Live Templates）"></a>活动模板（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/live-templates.html">Live Templates</a>）</h3><p>活动模板与文件模板类似，但它不需要新建文件，可以在文件的任何地方激活，只需要输入名字后加一个<strong>TAB</strong>即可。我们在上面的步骤中使用的<code>test</code>活动模板如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> $NAME$() &#123;</span><br><span class="line">    $END$</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其中的<code>$END$</code>表示最后光标会出现在哪里。在此，表示光标最后会出现在方法体内，以便于继续编写实现。</p>
-<p>可以通过在<strong>Preferences</strong>中搜索<strong>Live Templates</strong>，来创建或修改活动模板。</p>
-<h3 id="代码自动生成（Generating-Code）"><a href="#代码自动生成（Generating-Code）" class="headerlink" title="代码自动生成（Generating Code）"></a>代码自动生成（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/generating-code.html">Generating Code</a>）</h3><p>有许多常用的代码，例如getter、setter、constructor、equals&amp;hashCode等等，IDEA都能够通过这个功能帮助自动生成。</p>
-<p>我们在上面的步骤中使用了<strong>Ctrl+N</strong>生成了junit的测试方法，用<strong>Alt+Enter</strong>通过修复错误的方式来生成类和方法。</p>
-<h3 id="插件（Plugins）"><a href="#插件（Plugins）" class="headerlink" title="插件（Plugins）"></a>插件（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/managing-plugins.html">Plugins</a>）</h3><p>IDEA支持<a target="_blank" rel="noopener" href="https://plugins.jetbrains.com/idea_ce">许多插件</a>。插件的功能强大，能够做到从修改字符串到语言级别的支持。比如我们用的版本控制系统VCS就是用插件的方式开发的。</p>
-<p>我们在上面的步骤中使用了<a target="_blank" rel="noopener" href="https://plugins.jetbrains.com/plugin/2162-string-manipulation"><strong>string-manipulation</strong>插件</a>。安装完插件，别忘了重启IntelliJ IDEA。你也可以<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/creating-a-project-for-plugin-development.html">编写自己的插件</a>。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/type-less-code-more/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/type-less-code-more/" data-id="cuidR8L4KK9IYWazhzXdgLU1r" data-title="敲最少的键，编最多的码" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/type-less-code-more/" data-id="cuidwDV6SEbdw9JrwasLbcS-A" data-title="敲最少的键，编最多的码" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -365,24 +248,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8A%80%E6%9C%AF%E8%B4%9F%E5%80%BA">技术债</a>是一个借用了财务债的绝妙隐喻（<a target="_blank" rel="noopener" href="http://www.extremeprogramming.org/rules/metaphor.html">极限编程XP的实践</a>之一），表示当我们为了短期利益（如按时完成开发），而在技术上对软件的长期质量进行的妥协。它一般用于项目管理，但其实也广泛地存在于各个地方，比如每个人的身上。</p>
-<h2 id="项目的技术债"><a href="#项目的技术债" class="headerlink" title="项目的技术债"></a>项目的技术债</h2><p>技术债的起源和后果、解决方式等，网上一搜一大把，我这里就不再赘述了。这里总结一点常见的误区：</p>
-<ul>
-<li>技术债是邪恶的：这里借用维基百科的一小段话：“第一次发布代码，就好比借了一笔钱。只要通过不断重写来偿还债务，小额负债可以加速开发。但久未偿还债务会引发危险。复用马马虎虎的代码，类似于负债的利息”。健康的债务是好事，谁买房子不贷款（土豪请随意）？</li>
-<li>技术债必须偿还：有时候你写一段小程序，只希望尽快跑起来看看，然后将之抛弃。程序由于没有重构，而充斥着各种反模式（它们都是技术债！）。我自己就写了不少，用毕即弃。这里面的债……反正我自己是没有兴趣也没有时间偿还。有些项目的代码，你知道永远也不会有人会动（当然这个很主观，并且取决于你的经验），或者是很快就要完蛋的，我也倾向于先不还这个债，真的到了出现万一的时候，那就再还吧。还债是有成本的，如果感觉还债成本将要上升，也许就应该还这个债了。有没有一种lazy的感觉？</li>
-<li>开发新功能优先于偿还技术债：这是一个it depends的问题，谁高谁低取决于对债和利息的判断及不同角色间的博弈。如果利息趋近于零，当然可以先不考虑还债；如果新功能的投资预期带来大把的收益，当然可以先开发新功能。</li>
-<li>技术债可以避免：如果这样的话，只要没有新功能，就永远不必发新版本了。没有完美的人，没有完美的程序。别想躲开它，想想怎么处理它。</li>
-</ul>
-<h2 id="个人的技术债"><a href="#个人的技术债" class="headerlink" title="个人的技术债"></a>个人的技术债</h2><p>Martin Fowler把<a target="_blank" rel="noopener" href="https://martinfowler.com/bliki/TechnicalDebt.html">技术债</a>分为<a target="_blank" rel="noopener" href="https://martinfowler.com/bliki/TechnicalDebtQuadrant.html">四个象限</a>，如下图所示：<br><img src="/img/tech-debt-quadrant.png"></p>
-<p>项目在不断前进，做项目的人也是不断前进的。项目需要还债来让自己运转良好，人不也一样需要还债让自己进步吗？参考上图，我也画了张个人的技术债四象限，如下图所示：<br><img src="/img/personal-tech-debt-quadrant.png"></p>
-<p>这四个象限不都是技术债的源头吗？下面我们来具体分析一下每一个象限：</p>
-<p><strong>有意的－慎重的：清理</strong>。例如，我知道项目上需要用到drools，它对未来的项目可能会很有用，可惜当时没条件深入学习。又或者项目上用到了JJTree，它有些过时了，以后也基本用不上，不需要浪费时间在这上面。这是两个不同的例子，因为你是有意地做出了选择，所以凭你的经验来决定吧，是否应该把它放到你的个人技术债上。<br><strong>有意的－草率的：思考</strong>。例如，当时工作太忙，虽然知道docker能够解决这个问题，但没时间去学，至于项目嘛，凑合能用就好了。现在回头想想，还能凑合吗？因为草率，所以需要思考；因为有意，所以还要选择。是否放入你的个人技术债，你自己决定吧。<br><strong>无心的－慎重的：复盘</strong>。例如，当时不知道其实AWS可以满足项目的需求，但是现在知道了，很可能用AWS可以节省一大部分的开发和运维成本，但也可能有坑。在这种情况下，我们可以做一次复盘，如果项目再来一遍应该怎样？把收获到的经验用到下一个项目中吧。<br><strong>无心的－草率的：求知</strong>。例如，我并不知道前端技术大爆炸有那么多的框架可选，现在我也不太了解，反正有活儿我就上JQuery。用一句绕口的话总结就是：不知道自己不知道什么。如果是这样，那么就应该先高层次地了解一下背景知识，起码让自己不至于抓瞎吧。之后再慢慢将自己的知识体系建立起来。</p>
-<p>接下来就该给你的债排优先级，用<a target="_blank" rel="noopener" href="http://wiki.mbalib.com/wiki/%E6%97%B6%E9%97%B4%E2%80%9C%E5%9B%9B%E8%B1%A1%E9%99%90%E2%80%9D%E6%B3%95">时间“四象限”法</a>，XY轴分别是重要性和紧急性。重要又紧急的债先还；重要不紧急的债可以制定计划；紧急但不重要的，不值得投入大把的时间，够用就好；不重要不紧急的就尽量放弃吧，除非这个债是你的兴趣爱好之所在。</p>
-<p>2017年已经远离，是不是在收获了许多成果的同时，也留下了一些遗憾？2018年的余额也已充值完毕，去年（说不定去了好几年呢）欠下的债，该考虑怎么还一还了吧？</p>
-
+        
+          <p class="article-more-link">
+            <a href="/personal-tech-debt/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/personal-tech-debt/" data-id="cuidbHIgb_WkqRZfZgJTR_8XQ" data-title="个人的技术债" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/personal-tech-debt/" data-id="cuidbTrxW-aB-8d6J7LDY2-6H" data-title="个人的技术债" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -423,19 +297,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>从2017年年初到年底，我的新译作<a target="_blank" rel="noopener" href="https://book.douban.com/subject/27594722/">《Java函数式编程》</a>终于出版啦。这里简要地介绍一下本书，并放篇我为此书所作的译者序，安利一下。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>《Java函数式编程》并不是一本关于Java的书，而是一本关于函数式编程的书。作者由浅入深地介绍了函数式编程的思维方式，并引导读者通过易于掌握的例子、练习和图表来学习和巩固函数式编程的基本原则和最佳实践。读者甚至可以在阅读的同时编写出自己的函数式类库！</p>
-<p>与<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26346017/">《Java 8函数式编程》</a>相比（这是一本Java 8的函数式用法的入门佳作），本书侧重的是函数式的思维与实践，而非是Java 8的语法。如果你是一位看完基础语法书后喜欢接着看“Effective”系列的程序员，那么本书就有几分类似于“Effective”版，只不过它讲的是函数式而非是Java 8的“Effective”。语言容易过时或被淘汰，但是思想永存。</p>
-<p><img src="/img/functional_programming_in_java_en.jpg"><br><img src="/img/functional_programming_in_java_cn.jpg"></p>
-<h2 id="译者序"><a href="#译者序" class="headerlink" title="译者序"></a>译者序</h2><p>有幸受邀翻译本书。初见书名，心中不免有几分疑虑，难道又是一本教你怎么使用Java 8 lambda来函数式编程的书吗？翻了几页，方觉自己大误。本书其实意在如何从零开始，逐步理清函数式编程的思维方式并编写基础类库，不仅授之以鱼，而且授之以渔。只不过由于Java的受众实在太广，所以才使用这门语言罢了。</p>
-<p>函数式编程有一个至关重要的前提，那就是函数的输出只能取决于函数的参数（我们会在书中看到生成随机数的例子）。初看上去似乎与Java这门面向对象的语言不搭。但语言只是工具而已，正如你也可以在Haskell中编写命令式风格的代码。在一个不太复杂、甚至非并发的常规Java系统中，由于程序内部状态的改变，多次调用同一个方法的返回值很可能是不一样的，更不用说所带来的副作用了。函数式编程中，确定的输入决定了确定的输出，就意味着只要参数对了，结果一定在预期中。也就是说，函数式编程没有无法重现的bug。在这样的前提下，单元测试相对容易实现，而且能极大地增强你的信心。（想想你对目前所在项目的单元测试有多大的信心？）许多个这样的函数复合起来，在不改变信心的同时能够提供更多更强大的功能，进而带来更大的收益，如无状态的线程安全、必要时才计算的惰性求值、加快多次执行速度的记忆化等等。</p>
-<p>传统的命令式编程是计算机硬件的抽象，源自图灵机，其实就是外部输入、内部状态、对外部的输出以及对内部状态的改变。函数式编程源自λ演算，即将变量和函数替换为或值表达式并根据运算符计算。函数式编程相比命令式编程代码更简洁、可读性更强，这是因为它的思维方式更倾向于描述要什么，而不是怎么做。所以学习过程反而更加自然，并且不需要多么高深的数学基础。可是我们也知道，软件开发没有银弹。新的方法论也会带来新的问题，需要运用新知识来解决。幸运的是，新知识的坑已经有人帮你踩过了，高阶函数、偏应用函数、复合函数、柯里化、闭包……软件开发从来不缺术语。幸好它们并非高不可攀，作者将会在第二章中扫清你的疑虑，并在后续章节中挑战惰性求值、记忆化、状态处理、应用作用还有actor等更高级的技术。你说Monad？作者才不告诉你它究竟是什么，但是看完本书你自然就领悟了。</p>
-<p>函数式编程不是万能药。它有自己擅长的领域，也有自己的弱项。函数式编程是级别更高的抽象。高级别抽象带来的收益就是易读、好写，可是有些低级别的事情（如果你真的需要的话）可能就不容易完成。函数式编程没有副作用，导致无法完成输入&#x2F;输出操作。尽管如此，你也会在本书中看到一些解决办法。函数式编程没有变量，因此无法改变循环的终止条件，故而没有循环，严重依赖于用递归来抽象循环。在某些情况下可能会影响性能，所以你还会在本书中看到一些性能与情怀之间的权衡。绝大部分的编程最佳实践都是针对某个特定的场景而言的。因此脱离业务场景直接讨论技术并不可取。拥有函数式编程的思维，你就拥有了解决问题的另一种选择，但是条条大路通罗马，千万别钻牛角尖。程序是对现实世界的建模，“不要让世界适应你的模型。让你的模型适应世界。”</p>
-<h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><p>感谢作者Pierre-Yves Saumont，不仅写了这样一本令程序员们受益匪浅的书，而且耗费精力维护本书的后续重构，还耐心地回答我对书中的疑问，使我有机会提高中文版的翻译质量。<br>感谢永恒的侠少和刘舫，让我可以集中精力专注于翻译之上，并让本书得以出版。<br>感谢瑞民，虽然世事变幻莫测，但是你始终扮演了非常重要的角色。<br>感谢家人和朋友们，我永远离不开你们的鼓励和支持。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/functional-programming-in-java/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/functional-programming-in-java/" data-id="cuidOhLW15sZfhjFzJ7Lj9iD-" data-title="《Java函数式编程》出版啦" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/functional-programming-in-java/" data-id="cuidywsUCUo2xMtVOdn0ZfFi-" data-title="《Java函数式编程》出版啦" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -476,22 +346,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>坚持更新“懒程序员改变世界”的博客已经两年了，近期准备和老友办一个“懒程序员笔记”的订阅号，既然都是“懒程序员”的主题，那就围绕着它写点儿什么吧。<br><img src="/img/lazy-programmer-notes-qrcode.png"></p>
-<p>有一篇文章叫<a target="_blank" rel="noopener" href="http://www.jiemian.com/article/427711.html">《世界是由懒人创造的》</a>（真的是马云分享的吗？），大致意思就是懒人推动了世界的发展。因为懒，才能创造出一堆的发明，来让我们的生活更方便。当然了，文章弥漫着浓浓的调侃氛围。赞赏、批判这篇文章的人都有不少，至于我的观点嘛，想必从本文的标题中也能看出一二。但是请别忘记，原文最后也写了：“要懒出风格，懒出境界”。</p>
-<p>在程序员的世界中，偷懒尤其重要。懒得造轮子？网上大把大把的开源库等着你试用。不想稍微改点代码就从头到位测一遍？那就用自动化测试吧。不想每次部署的时候手忙脚乱？那就上持续交付。不想每次总跟客户扯皮？那就搞敏捷，把客户变成团队的一员。不想让开发和运维互斗？那就拥抱DevOps，大家都在一条船上。可以说，“偷懒”是技术进步的原动力。有些人喜欢说“痛点驱动”，其实它们是一回事，因为没法儿偷懒，所以很“痛”啊。程序员们也非常厌恶重复性的劳动，例如填写工时、定期发送邮件、给别人权限、教新人如何配置环境等等等等。</p>
-<p>可是光靠偷懒能够解决问题吗？要是你不想做那么无聊的事情，但是又没有解决的办法，如何才能推动世界进步呢？有道是“创新靠懒，实现靠勤”。唯有学习和思考不能偷懒。你有一个工具箱，你懒，那就用工具箱里的工具来让你懒得其所。可如果你的工具箱是空的，你怎么偷懒啊？有些人看上去非常的勤奋，整天忙个不停，似乎非常充实。但是，偶尔夜深失眠的时候，可能内心也会感觉到一阵恐慌吧。因为忙碌占据了他全部的时间，而真正需要的沉淀、思考、总结的时间基本没有。这样的人只是用勤奋来自欺欺人，掩盖自己懒得思考的本质。有个词叫“低品质勤奋者”很好地涵盖了这一类人。我也曾是其中一员，现在还不时会偷懒，但我已经知道了，不要“用身体的勤奋掩盖思想的懒惰”。</p>
-<p>偷懒节省出来的时间都上哪儿去了？学习、思考、与家人相伴。偶尔的放纵没什么关系，但是主旋律还是要保持清醒的大脑，经常使其运转，如果大脑平时不怎么动，可能在关键时刻也就转不动了。如何开始恢复大脑的正常运转？从每天给自己留点独处的时间，深度思考一下今天做了什么有意义的事情，怎样还能做得更好开始吧。一定要坚持，无论刮风下雨，生病加班，因为以我自己的经验来看，一旦破例，很容易便会再次破例，从而使曾经的坚持迅速土崩瓦解。但是可以根据当天的状况灵活控制时间。写文章也是一种有效的思考总结的方法，在此也推荐给大家。试试看，只要走出第一步，总能找到一条适合自己的路。</p>
-<p>最后让我们来膜拜一下著名的懒程序员们吧。</p>
-<ul>
-<li>Nihad Abbasov在<a target="_blank" rel="noopener" href="https://github.com/NARKOZ/hacker-scripts">github</a>上分享了一个项目，里面包含了一堆的脚本，包括加班时给太太发短信、宿醉时给自己请假、根据自己从工位走到咖啡机的用时来煮咖啡……</li>
-<li>Etherable在<a target="_blank" rel="noopener" href="https://workplace.stackexchange.com/questions/93696/is-it-unethical-for-me-to-not-tell-my-employer-i-ve-automated-my-job">StackExchange</a>上表示，他偷偷写了一段程序，使它十分钟就能完成过去一个人月才能完成的工作。而自己每周改改规范、发发邮件什么的只需一两个小时就够了。于是在程序员中掀起了一场道德辩论，究竟应不应该告诉老板？</li>
-<li><a target="_blank" rel="noopener" href="http://money.163.com/13/0117/08/8LDJ5PPO00252V0H.html">美最懒程序员不干活 支付1&#x2F;5薪水工作全外包中国</a>。这样的懒程序员，虽然不是本文提倡的类型，但也懒出了风格，堪称跨界人才。</li>
-<li>阿里的4位程序员，懒得跟大家抢购月饼，写了段js脚本，<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/50600301">结果</a>大家都知道了……</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/lazy-programmer/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/lazy-programmer/" data-id="cuid-FkeaRhiRvRuH3Tm0HEWW" data-title="懒程序员笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/lazy-programmer/" data-id="cuid13wbEr198yH69O4VyTkwH" data-title="懒程序员笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -532,52 +395,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>最近方才了解到，原来可以通过SSH以配置SOCKS代理的方式，不用开VPN便能够科学上网，于是便搜集了一些SSH的用法，以供未来参考。</p>
-<h2 id="无密码登录"><a href="#无密码登录" class="headerlink" title="无密码登录"></a>无密码登录</h2><p>只要把自己的公钥保存在远程主机上就可以了，如果本机尚未生成公私钥对（可以通过<code>ls ~/.ssh</code>查看是否存在以<code>pub</code>为扩展名的文件），可以通过<code>ssh-keygen</code>生成一个。之后把这个<code>pub</code>文件的内容全部复制到远程主机上的<code>~/.ssh/authorized_keys</code>中就能够实现无密码登录了。复制的过程也可以用以下命令实现：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id user@remote.host.name</span><br></pre></td></tr></table></figure>
-
-<p>Mac上默认没有<code>ssh-copy-id</code>，可以通过以下命令安装：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install ssh-copy-id</span><br></pre></td></tr></table></figure>
-
-<h2 id="远程执行命令"><a href="#远程执行命令" class="headerlink" title="远程执行命令"></a>远程执行命令</h2><p>配置完无密码登录后，在远程主机上执行命令很简单，只要在最后面加一个字符串即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh remote.host.name <span class="string">&quot;hostname&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>如果命令很长，是个脚本，那就这么搞：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;ls\necho ggg&quot;</span> &gt; cmd.txt</span><br><span class="line"></span><br><span class="line">ssh remote.host.name <span class="string">&quot;`cat cmd.txt`&quot;</span></span><br><span class="line">ssh remote.host.name SSH隧道</span><br><span class="line"></span><br><span class="line"><span class="comment">### 配置SOCKS代理</span></span><br><span class="line">超级简单：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">ssh -D 9999 remote.host.name</span><br></pre></td></tr></table></figure>
-
-<p>这样便可以通过如下系统设置通过远程主机上网了（以mac为例）：<br><img src="/img/mac_proxy.jpg"></p>
-<p>浏览器代理也是一样（以chrome插件SwitchyOmega为例）：<br><img src="/img/switchy_omega.jpg"></p>
-<h3 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h3><p>如果你想让本地经由remote1访问remote2，可以这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 9999:remote2.host.name:80 remote1.host.name</span><br></pre></td></tr></table></figure>
-
-<p><code>-L</code>后面的参数，表示<strong>本地端口:目标主机：目标主机端口</strong>，也就是说，往本地9999端口发出去的请求，会经由remote1传给remote2的80端口。为什么我们会需要这样的东东呢？原因可能有几种：</p>
-<ul>
-<li>本地访问不了remote2（或remote2的指定端口），但是本地可以访问remote1，并且remote1可以访问remote2。如果公司的网络分为几块，互相之间操作有限制，可能就需要一些remote1作为跳板／堡垒机（bastion）来做这样的脏活儿。</li>
-<li>被邪恶的防火墙挡住了去路的时候。</li>
-<li>希望能够比较安全的时候。</li>
-<li>有时候目标机器由于安全原因或其它原因，某个端口只能开放给自己。这时候就可以将remote1和remote2合而为一。例如，当Java调试所用的5050端口不对外开放时，就可以用以下命令让IDE在localhost的5050端口进行调试：</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 5050:localhost:5050 remote.host.name</span><br></pre></td></tr></table></figure>
-
-<p>中间的localhost是相对remote.host.name而言的，也就是它自己。</p>
-<h3 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h3><p>在你的本地可以连通远程主机remote1和另一台远程主机remote2，而它们俩不能相互访问的情况下，如果你想让remote1能够访问remote2，就可以这么做：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -R 9999:remote2.host.name:80 remote1.host.name</span><br></pre></td></tr></table></figure>
-
-<p>这样的话，remote1的本地用户便可以便可以通过你的9999端口，访问remote2的80端口了。相当于你把自己变成了一台堡垒机！如果你有权限在其它机器上运行远程端口转发的命令，那你也可以把它变成堡垒机，把你自己的客户机变成remote1了。</p>
-<h2 id="复制文件"><a href="#复制文件" class="headerlink" title="复制文件"></a>复制文件</h2><p>SSH当然是可以用来复制文件的：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> file | ssh -e none remote-host <span class="string">&quot;cat &gt; file&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>其中的参数<code>-e none</code>，表示不转义任何字符。SSH默认会通过<code>~</code>来转义一些控制语句。</p>
-<p>但是既然我们有<code>scp</code>，还用<code>ssh</code>图个什么，用专业工具吧。</p>
-<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>可以用<a target="_blank" rel="noopener" href="https://github.com/libfuse/sshfs">sshfs</a>来将远程的文件系统通过SFTP加载到本地。对于mac而言，可以用<a target="_blank" rel="noopener" href="https://osxfuse.github.io/">FUSE for macOS</a>来实现。我还没有那样的需求，没试过，据说比较简单。有兴趣的读者可以自行尝试。</p>
-<h2 id="其它环境"><a href="#其它环境" class="headerlink" title="其它环境"></a>其它环境</h2><h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>Windows的话，你可以就得试试<a target="_blank" rel="noopener" href="http://www.putty.org/">Putty</a>了。</p>
-<h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><p>用手机和平板来运维？你值得拥有！<br><a target="_blank" rel="noopener" href="https://juicessh.com/">JuiceSSH</a>的基本功能时免费的，但是要想端口转发什么的就得收费了。用户体验很不错。<br><a target="_blank" rel="noopener" href="https://play.google.com/store/apps/details?id=org.connectbot">ConnectBot</a>是完全免费的。</p>
-<h3 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h3><p><a target="_blank" rel="noopener" href="https://itunes.apple.com/us/app/prompt-2/id917437289?mt=8">Prompt</a>都说好，收费。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="http://matt.might.net/articles/ssh-hacks/">SSH: More than secure shell</a><br><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html">SSH原理与运用（二）：远程操作与端口转发</a><br><a target="_blank" rel="noopener" href="https://blog.urfix.com/25-ssh-commands-tricks/">25 Best SSH Commands &#x2F; Tricks</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/ssh-tricks/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ssh-tricks/" data-id="cuidgpinYWt3kTpTheiN66Kyg" data-title="SSH妙用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ssh-tricks/" data-id="cuida3yDz5AtXITT36dImieSg" data-title="SSH妙用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -618,43 +444,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p><a target="_blank" rel="noopener" href="http://tampermonkey.net/">Tampermonkey</a>是一个<a target="_blank" rel="noopener" href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en">浏览器插件</a>，可以在网页上嵌入自己编写的js脚本，支持除IE以外的大部分浏览器。还有一个更早的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Greasemonkey">Greasemonkey</a>（油猴）功能类似，可惜它只适用于<a target="_blank" rel="noopener" href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/">Firefox</a>。Tampermonkey的源代码在<a target="_blank" rel="noopener" href="https://github.com/Tampermonkey/tampermonkey">Github</a>上。</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>原理其实很简单，就是在宿主页面载入完毕后，运行自己的js脚本罢了，从而实现对浏览器渲染后的html进行改变。除了让你浏览的网页更加个性化以外，还能为你提供一键解决实际问题的需求，例如隐藏广告、自动签到薅羊毛、抢票、每天&#x2F;每周在网页上填写考勤表等。</p>
-<p>Tampermonkey不仅允许使用这些脚本，并且可以编写、管理及同步。安装步骤与一般的插件无异。安装好后，下面拿一个例子练手。</p>
-<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>我们试试在<a target="_blank" rel="noopener" href="https://www.baidu.com/">百度</a>上增加“Google一下”的按钮。首先单击插件图标，点击“添加新脚本”，于是便进入了Tampermonkey的编辑器。上面的几行注释就是Tampermonkey自己的语法，保存了一些元数据，包括脚本的名字、版本、在满足什么规则的网页上生效等。我们把<code>@match</code>的内容修改为<code>https://www.baidu.com/*</code>，这样便能在百度域名下的所有网页中生效啦。</p>
-<p>打开百度，可以看到“百度一下”的按钮：<code>id=&quot;su&quot;</code>，我们将“Google一下”插入到其后即可。在<code>// Your code here...</code>后面编写如下js代码：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">&#x27;#su&#x27;</span>).<span class="title function_">after</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">googleIt</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title function_">alert</span>(<span class="string">&#x27;google&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>保存并刷新百度，顺利地看到了灰色的“Google一下”。这说明我们的脚本起作用了。在插件图标的位置上页显示了一个红色的<code>1</code>，说明当前网页上的生效脚本数量为1。但是点击“Google一下”什么也没有弹出。在控制台上可以看到出错了：<strong>Uncaught ReferenceError: googleIt is not defined</strong>。这是因为所有代码都是<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/16704209/onclick-added-with-tampermonkey-is-not-calling-the-function">作为一个字符串被<code>eval</code></a>的，所以应该使用动态的方式：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">&#x27;#su&#x27;</span>).<span class="title function_">after</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">$(<span class="string">&quot;#google&quot;</span>).<span class="title function_">click</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title function_">googleIt</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>这回点击按钮就能够正常工作了！我们现在要做的，就是把<code>alert</code>替换为打开Google页面即可：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">googleIt</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> searchText = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;#kw&#x27;</span>).<span class="property">value</span>;</span><br><span class="line">    location.<span class="property">href</span> = <span class="title function_">getGoogleUrl</span>(searchText);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getGoogleUrl</span>(<span class="params">searchText</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;https://www.google.com/search?q=&#x27;</span> + searchText;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>短短几行代码，就搞定了。Tampermonkey内置了一些对象与函数，可以让我们很方便地实现一些功能，如打开新窗口可以使用<code>GM_openInTab</code>：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">googleIt</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> searchText = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;#kw&#x27;</span>).<span class="property">value</span>;</span><br><span class="line">    <span class="title function_">GM_openInTab</span>(<span class="title function_">getGoogleUrl</span>(searchText), <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>第二个参数可以决定当前的焦点是老窗口还是新窗口。在使用内置函数之前，需要先<code>@grant</code>一下，如：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @grant        GM_openInTab</span></span><br></pre></td></tr></table></figure>
-
-<p>否则无法生效。更多的内置函数可以在<a target="_blank" rel="noopener" href="http://tampermonkey.net/documentation.php">官方文档</a>中查看。</p>
-<p>我们新写的代码并不会直接出现在控制台中，如果需要调试，可以在代码中增加<code>debugger;</code>，这样运行时就能自动停在这一行了。百度主页有引用jQuery，所以我们可以直接在代码中使用<code>$</code>。如果需要的页面上没有jQuery，那么可以通过这行命令引入：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//      @include https://code.jquery.com/jquery-3.2.1.min.js</span></span><br></pre></td></tr></table></figure>
-
-<p>完整的代码如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ==UserScript==</span></span><br><span class="line"><span class="comment">// @name         Google on baidu</span></span><br><span class="line"><span class="comment">// @namespace    http://tampermonkey.net/</span></span><br><span class="line"><span class="comment">// @version      0.1</span></span><br><span class="line"><span class="comment">// @description  Google it!</span></span><br><span class="line"><span class="comment">// @author       ggg</span></span><br><span class="line"><span class="comment">// @match        https://www.baidu.com/*</span></span><br><span class="line"><span class="comment">// @grant        GM_openInTab</span></span><br><span class="line"><span class="comment">// ==/UserScript==</span></span><br><span class="line"></span><br><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="string">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    $(<span class="string">&#x27;#su&#x27;</span>).<span class="title function_">after</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    $(<span class="string">&quot;#google&quot;</span>).<span class="title function_">click</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="title function_">googleIt</span>();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">googleIt</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> searchText = $(<span class="string">&#x27;#kw&#x27;</span>).<span class="title function_">val</span>();</span><br><span class="line">        <span class="title function_">GM_openInTab</span>(<span class="title function_">getGoogleUrl</span>(searchText), <span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">getGoogleUrl</span>(<span class="params">searchText</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;https://www.google.com/search?q=&#x27;</span> + searchText;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
-
-<p>不过这种做法存在两个问题：</p>
-<ul>
-<li>如果宿主网页变化，脚本需要随之变化。这也没办法，谁叫我们依赖它呢。好在宿主网页没事也不会经常变化。</li>
-<li>“Google一下”的按钮会比原生的“百度一下”延迟一些才出来，体验上稍微差一些。毕竟相对而言我们的脚本只是二等公民。</li>
-</ul>
-<p>但是获益的巨大几乎可以让我们完全无视这些缺陷。</p>
-<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><p>脚本也是代码，也有自己的版本，也能被多人所共享使用。只要它在因特网上的url以<code>.user.js</code>结尾，即可轻易分享给其他人。上面的这个例子我就放到了<a target="_blank" rel="noopener" href="https://github.com/qinghua/tamperMonkeyScript/raw/master/googleit.user.js">Github</a>中。分享出去的时候，如果对方安装了tampermonkey，就可以看到脚本的安装界面了。更多的共享脚本可以单击插件图标，点击“获取新脚本”，或是参考<a target="_blank" rel="noopener" href="https://tampermonkey.net/scripts.php">这里</a>来获得。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/tampermonkey/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/tampermonkey/" data-id="cuidlUYZ_aEcR_p4pgDwmZ7CX" data-title="用Tampermonkey实现自动化网页操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/tampermonkey/" data-id="cuidBrXhfwtG_deSuqcItu7bv" data-title="用Tampermonkey实现自动化网页操作" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -695,38 +493,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>这段逻辑是代码还是数据，对我来说从来都不曾是个问题，直到遇上了这么一个项目。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>一般来说，我们写程序，都是连同测试代码一起提交，至少也是一起代码审查。有一个关于收费的项目，偏偏反其道而行之。这个项目的一些背景如下：</p>
-<ul>
-<li>收费的逻辑通过DSL配置在代码库中。</li>
-<li>对于这些逻辑，没有单元测试，但是有集成测试。</li>
-<li>集成测试里面包含了request与response，在测试的时候回放request并比较response是否匹配。</li>
-<li>集成测试是json文件，放在S3上。</li>
-</ul>
-<p>如果有一个对费率的修改，那么程序员除了往代码库中提交修改后的DSL，还会往S3更新json测试文件。这就带来了几个问题：</p>
-<ul>
-<li>代码审查者只能看到代码库的变动，除非再去S3上看测试数据，不然并不知道这段DSL的测试情况。而在S3上看测试数据相对比较繁琐，这样的机制可以说是鼓励代码审查者不去看测试数据。</li>
-<li>没有版本管理（或者说由于S3与代码库的版本管理机制差别较大），导致这些测试不容易追踪，也不容易查看历史记录。</li>
-<li>持续集成通过与否依赖于S3的数据。所以集成测试失败时，不一定能在解决时复原到失败时的状态。</li>
-<li>DEV提交代码和更新测试数据这两步变成了一个原子操作，需要一起完成，至少在代码提交后、CI上运行集成测试之前更新S3。而在提交代码前更新S3又有破坏别人正在运行测试的风险。</li>
-</ul>
-<p>那么，为什么这个项目会选用这样的方案呢？原来，在设计的时候是这么考虑的：费率修改的需求来自于产品经理，希望测试数据能够由PM们提供。所以将会开发一个面向PM们的小系统，后台就是这个S3数据，这样的话到时候修改费率，就增加了一层来自需求方的保障。如果测试数据来自于代码库，那就很难通过页面来修改并提交代码库了。初衷还是不错的，但是仔细推敲下来，DEV自己的测试哪儿去了？这样运转起来后，是不是只会养成DEV把测试推给PM的习惯？</p>
-<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>我觉得这里面有一个误区，就是把DEV自己的测试和PM的测试混为一谈了。实际上应该将它们分开来。为什么呢？DEV自己的测试其实本来就应该是代码的一部分，应该保存在代码库中。而PM的测试其实是对程序员测试的补充，也应该算是代码的一部分，如果能够放在代码库中固然是好，但是我们也不能对所有的PM们都抱有提交代码这样不切实际的期望，所以在这种情况下，S3算是一个权衡的方案。而CI上应该有两步，其一是DEV的测试，其二是PM的测试（在PM修改测试数据的小系统还没上线之前，可以暂不配置这个测试）。它们之间是顺序执行还是并发执行倒是无关紧要。但这样也有不尽如人意的地方：</p>
-<ul>
-<li>修改代码需要DEV和PM同时协作，最好一起修改，否则CI会红。但这正是DevOps运动所提倡的，不是么？</li>
-<li>背景一节介绍的一些缺点在PM的测试中仍然存在。PM修改测试数据的小系统需要更加完善的版本管理和审计。这部分的开销可能还不小。</li>
-</ul>
-<p>顺便提一句，传统的PM测试数据是由DEV提供一个CSV格式，让PM填完之后由DEV添加到代码库中。在忽略DEV和PM的用户体验的情况下，这也是一个可行的方案。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到底什么样的逻辑应该进代码库，什么样的逻辑应该持久化呢？其实我们应该把逻辑区分为程序、配置和数据。</p>
-<p>程序：<br>在代码库中，提供服务的主要功能。对其的修改通常都是改bug或是引入新功能。</p>
-<p>配置：<br>在配置服务器中，但是配置的默认值很可能是在代码库中。经常需要修改，修改其值可以让程序表现出不同的处理逻辑。需要易于修改。</p>
-<p>数据：<br>在持久化存储（一般是数据库）中，因用户而异，数量可能会比较大。随用户的操作而变化。需要有备份机制。</p>
-<p>反推到上文所说：“收费的逻辑通过DSL配置在代码库中”。这段逻辑，也许应该是配置而非程序，因为它会经常需要修改。收费记录毋庸置疑，一定是数据了。从逻辑分类的角度上出发，你是否会发现其实自己现在的代码库中包含了太多的配置？</p>
-<p>另外，虽然代码库似乎也可以用于配置或数据，但是最好还是别这么干，这里有一篇<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/20151158/using-git-repository-as-a-database-backend">stack overflow的问答</a>，解释得挺清楚的。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/code-or-data/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/code-or-data/" data-id="cuidxLOiQKUC5xr0Uh-SfvF0A" data-title="代码还是数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/code-or-data/" data-id="cuidCW0l6oVUmUf64RpJ_wXyM" data-title="代码还是数据" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -767,48 +542,15 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>上篇博文介绍了<a href="/jgit">JGit</a>，之后就开始做项目了。遇到的第一个问题是如何用JGit生成patch文件。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我希望在项目中能够实现这样的功能：用户发送一个request，服务器就帮用户生成代码并生成一个commit到用户本地的git中，但是这不太可能，因为用户的环境并不是服务器的环境。进一步的方案是直接在服务器端clone git仓库（或是维持一份最新代码），服务器本地生成commit并push，这样做会有一些安全方面需要考虑的因素。我采用的是退一步的方案，即让服务器生成一个patch文件并上传到<a target="_blank" rel="noopener" href="https://aws.amazon.com/s3/">S3</a>，以便用户稍后下载并apply到本地。</p>
-<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><h3 id="api-command"><a href="#api-command" class="headerlink" title="api command"></a>api command</h3><p>打开JGit的<a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit/tree/master/org.eclipse.jgit/src/org/eclipse/jgit/api">api包</a>一看，各种git命令应有尽有，如apply、cherry-pick等。但惟独没有format-patch命令。网上一搜，甚少有人有这样的需求或问题，只有<a target="_blank" rel="noopener" href="http://www.codeaffine.com/2016/06/16/jgit-diff/">这篇文章</a>比较靠谱，但是它介绍的侧重于diff而非生成patch。</p>
-<h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><p>还是得找找patch相关的代码。源代码搜遍也就这个<a target="_blank" rel="noopener" href="https://github.com/eclipse/jgit/blob/master/org.eclipse.jgit/src/org/eclipse/jgit/patch/Patch.java">Patch.java</a>应该是patch文件的JGit模型，但是读完后发现，它只能把patch文件映射成这个模型，并不能反向从模型序列化为patch文件。</p>
-<h3 id="DiffFormatter-DiffEntry"><a href="#DiffFormatter-DiffEntry" class="headerlink" title="DiffFormatter &#x2F; DiffEntry"></a>DiffFormatter &#x2F; DiffEntry</h3><p>DiffCommand其实上还是调用的DiffFormatter和DiffEntry，所以看看这俩是否能够支持什么样的参数，来生成patch文件呢？可惜还是无果。DiffFormatter的API也不太直观，不容易理解。但是它能够做一些diff commit这样的事情。</p>
-<h3 id="diff"><a href="#diff" class="headerlink" title="diff"></a>diff</h3><p>走投无路之际，在<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-format-patch">git-format-patch</a>上看到，这个命令其实是用来生成<strong>用邮件发送</strong>的patch文件。难怪patch文件的前几行看起来有From，有Subject什么的，也许它们不是必须的？那就可以试试把diff的结果当作patch直接写入文件。</p>
-<h2 id="动手时间"><a href="#动手时间" class="headerlink" title="动手时间"></a>动手时间</h2><p>首先创建一个git环境，a、b、c三个文件用来测试改删增：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /tmp/ggg</span><br><span class="line"><span class="built_in">cd</span> /tmp/ggg</span><br><span class="line">git init</span><br><span class="line"><span class="built_in">echo</span> line a1 &gt; a.txt</span><br><span class="line"><span class="built_in">echo</span> line a2 &gt;&gt; a.txt</span><br><span class="line"><span class="built_in">echo</span> line b1 &gt; b.txt</span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;first commit wiht a.txt and b.txt&quot;</span></span><br><span class="line"><span class="built_in">echo</span> line a3 &gt;&gt; a.txt</span><br><span class="line"><span class="built_in">echo</span> line c1 &gt; c.txt</span><br><span class="line"><span class="built_in">rm</span> b.txt</span><br><span class="line">git diff</span><br></pre></td></tr></table></figure>
-
-<p>运行完成后就能看到diff文件的内容了：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/a.txt b/a.txt</span><br><span class="line">index 7a3d45f..c723fac 100644</span><br><span class="line">--- a/a.txt</span><br><span class="line">+++ b/a.txt</span><br><span class="line">@@ -1,2 +1,3 @@</span><br><span class="line"> line a1</span><br><span class="line"> line a2</span><br><span class="line">+line a3</span><br><span class="line">diff --git a/b.txt b/b.txt</span><br><span class="line">deleted file mode 100644</span><br><span class="line">index b45d9fa..0000000</span><br><span class="line">--- a/b.txt</span><br><span class="line">+++ /dev/null</span><br><span class="line">@@ -1 +0,0 @@</span><br><span class="line">-line b1</span><br></pre></td></tr></table></figure>
-
-<p>在程序中，如此这般运行git diff命令：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Git</span> <span class="variable">git</span> <span class="operator">=</span> Git.init().setDirectory(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/ggg&quot;</span>)).call();</span><br><span class="line">git.diff().setOutputStream(System.out).call();</span><br></pre></td></tr></table></figure>
-
-<p>发现JGit的diff和Git的diff还是不太一样的。JGit的diff包含了新增文件的信息：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/a.txt b/a.txt</span><br><span class="line">index 7a3d45f..c723fac 100644</span><br><span class="line">--- a/a.txt</span><br><span class="line">+++ b/a.txt</span><br><span class="line">@@ -1,2 +1,3 @@</span><br><span class="line"> line a1</span><br><span class="line"> line a2</span><br><span class="line">+line a3</span><br><span class="line">diff --git a/b.txt b/b.txt</span><br><span class="line">deleted file mode 100644</span><br><span class="line">index b45d9fa..0000000</span><br><span class="line">--- a/b.txt</span><br><span class="line">+++ /dev/null</span><br><span class="line">@@ -1 +0,0 @@</span><br><span class="line">-line b1</span><br><span class="line">diff --git a/c.txt b/c.txt</span><br><span class="line">new file mode 100644</span><br><span class="line">index 0000000..8e37e08</span><br><span class="line">--- /dev/null</span><br><span class="line">+++ b/c.txt</span><br><span class="line">@@ -0,0 +1 @@</span><br><span class="line">+line c1</span><br></pre></td></tr></table></figure>
-
-<p>这就非常合适了。只要证明它能够被作为patch导入到git中即可。首先修改代码输出到文件：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">File</span> <span class="variable">patch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/jgit.patch&quot;</span>);</span><br><span class="line"><span class="type">Git</span> <span class="variable">git</span> <span class="operator">=</span> Git.init().setDirectory(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/ggg&quot;</span>)).call();</span><br><span class="line"><span class="keyword">try</span> (<span class="type">OutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(patch)) &#123;</span><br><span class="line">    git.diff().setOutputStream(outputStream).call();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后清空修改过的文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /tmp/ggg</span><br><span class="line">git checkout .</span><br><span class="line">git clean -<span class="built_in">df</span></span><br><span class="line">git status</span><br></pre></td></tr></table></figure>
-
-<p>现在尝试apply patch：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git apply /tmp/jgit.patch</span><br><span class="line">git status</span><br></pre></td></tr></table></figure>
-
-<p>果然成功了。在不考虑冲突的情况下，看起来这一招还是管用的。但是由于缺失了commit的信息，所以运行<code>git am /tmp/jgit.patch</code>就会报错：*Patch format detection failed.*有没有办法解决这个问题呢？当然了。我们现在知道了patch只不过是多了一些邮件信息罢了，那我们自己就可以生成。在<code>try</code>内增加如下代码，模拟<code>git format-patch</code>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">    outputStream.write(<span class="string">&quot;From: GGG \n&quot;</span>.getBytes());</span><br><span class="line">    outputStream.write(<span class="string">&quot;Date: Tue, 12 Sep 2017 20:16:10 +0800\n&quot;</span>.getBytes());</span><br><span class="line">    outputStream.write(<span class="string">&quot;Subject: [PATCH] ggg is not here. Turn left and ask JGit\n&quot;</span>.getBytes());</span><br><span class="line">    outputStream.write(<span class="string">&quot;\n---\n\n&quot;</span>.getBytes());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行一下，然后尝试使用<code>git am</code>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git am /tmp/jgit.patch</span><br><span class="line">git <span class="built_in">log</span></span><br><span class="line">git show HEAD</span><br></pre></td></tr></table></figure>
-
-<p>果然可以直接生成commit。Mission Complete!</p>
-<h2 id="patch-diff"><a href="#patch-diff" class="headerlink" title="patch &amp; diff"></a>patch &amp; diff</h2><p>其实Linux已经提供了一个<code>patch</code>命令，无需git即可直接应用patch文件：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git reset HEAD^ --hard</span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">patch  diff.patch</span><br><span class="line"><span class="built_in">cat</span> diff.patch</span><br></pre></td></tr></table></figure>
-
-<p>这两个命令网上的教程不少，有兴趣的话可以自行搜索阅读。最后还是把环境恢复：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /tmp/ggg /tmp/jgit.patch</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/git-patch/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/git-patch/" data-id="cuidqFfKGSL9fJ9EEetii922y" data-title="用JGit生成patch文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/git-patch/" data-id="cuidYfQaD8fhoaqEVPsnTtI6C" data-title="用JGit生成patch文件" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

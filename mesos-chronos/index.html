@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/chronos-run-job.jpg">
 <meta property="og:image" content="https://qinghua.github.io/img/chronos-graph.png">
 <meta property="article:published_time" content="2016-02-15T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.447Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.089Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="chronos">
 <meta property="article:tag" content="mesos">
@@ -109,6 +109,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>Apache Mesos把自己定位成一个数据中心操作系统，它能管理上万台的从机（slave）。Framework相当于这个操作系统的应用程序，每当应用程序需要执行，Framework就会在Mesos中选择一台有合适资源（cpu、内存等）的从机来运行。Chronos是Framework的一种，被Airbnb公司设计用来代替cron执行作业。本文尝试从零开始用docker搭建Mesos和Chronos的运行环境，并用此环境运行作业。</p>
+<span id="more"></span>
+
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
 <h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
 <p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：</p>
@@ -156,7 +158,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidYrIFSz3WsyMUAgEriuL9R" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidgeDnhXpwXINh-kL6rsU5O" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

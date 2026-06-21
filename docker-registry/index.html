@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://qinghua.github.io/img/docker-registry-web.png">
 <meta property="article:published_time" content="2016-03-06T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:36:48.410Z">
+<meta property="article:modified_time" content="2026-06-21T04:43:10.064Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="docker registry">
@@ -107,6 +107,8 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>我们知道Docker官方提供了一个公有的registry叫做Docker Hub。但是企业内部可能有些镜像还是不方便放到公网上去，所以docker也提供了registry镜像来让需要的人自己搭建私有仓库。本文从零开始搭建Docker Registry的运行环境，并添加用户界面和认证功能。</p>
+<span id="more"></span>
+
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
 
@@ -173,7 +175,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-registry/" data-id="cuiduuKlWfQ2iGE7ZZg8H4ibb" data-title="轻松搭建Docker Registry运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-registry/" data-id="cuidV9tb9PVjRhZAhkOjGAUhy" data-title="轻松搭建Docker Registry运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
