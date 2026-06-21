@@ -17,7 +17,7 @@
 <meta property="og:description" content="这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇看例子学awk。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-02-26T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.080Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.460Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="sed">
 <meta name="twitter:card" content="summary">
@@ -105,28 +105,28 @@
       
         <p>这次重温一下Linux&#x2F;Unix下一个很老（反正比我老）很有用的流编辑器：sed（stream editor）。要是不经常使用，很容易忘记。可以把本文当成一个例子库，有用的时候来查一下。后来还写了篇<a href="/awk">看例子学awk</a>。</p>
 <p>假设我们有一个csv文件如下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csvGavo,35Jane,21Bill,25Jimmy,42EOF</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> staff.csv</span><br><span class="line">Gavo,35</span><br><span class="line">Jane,21</span><br><span class="line">Bill,25</span><br><span class="line">Jimmy,42</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
 
-<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><h3 id="在文件头-尾增加一行"><a href="#在文件头-尾增加一行" class="headerlink" title="在文件头&#x2F;尾增加一行"></a>在文件头&#x2F;尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1i Name,Age&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+<h2 id="增"><a href="#增" class="headerlink" title="增"></a>增</h2><h3 id="在文件头-尾增加一行"><a href="#在文件头-尾增加一行" class="headerlink" title="在文件头&#x2F;尾增加一行"></a>在文件头&#x2F;尾增加一行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1i Name,Age&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>如果没有<code>-i</code>，第一行命令会输出新的文件内容但不会改变<code>staff.csv</code>。<code>1i</code>中的<code>1</code>是指第1行，<code>i</code>是指在读取文件此行前增加（include）记录。如果把<code>i</code>换成<code>a</code>，指的是读取文件此行后增加（append）记录。是不是有点vi的感觉？下面这条命令的结果就会把新行插入到第三行：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2a Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>要是想在文件尾增加一行的话，用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;$a Hetty,29&#x27;</span> staff.csv    <span class="comment"># 指定行内容sed $&#x27;$a \\\n&#x27; staff.csv       # 增加空行</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;$a Hetty,29&#x27;</span> staff.csv    <span class="comment"># 指定行内容</span></span><br><span class="line">sed $<span class="string">&#x27;$a \\\n&#x27;</span> staff.csv       <span class="comment"># 增加空行</span></span><br></pre></td></tr></table></figure>
 
 <p>其中的<code>$</code>指最后一行。如果要在倒数第二行增加一行呢？把<code>a</code>换成<code>i</code>吧。倒数第三行呢？你确认你真的有这么奇葩的需求么…</p>
 <h3 id="在匹配的地方增加一行"><a href="#在匹配的地方增加一行" class="headerlink" title="在匹配的地方增加一行"></a>在匹配的地方增加一行</h3><p>如果我们要在Jane上面增加一行，这么做：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i Hetty,29&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>意思是当匹配到<code>Jane</code>的时候，便做后面的操作。接下来的<code>i</code>不用说了吧，也能替换成<code>a</code>。这里的匹配指的是部分匹配，也能匹配多行。如果需要插入的行以空格开头，就用反斜杠<code>\</code>来转义这个空格。试试下列命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i \ \ Hetty,29&#x27;</span> staff.csv    <span class="comment"># 行头插入两个空格sed &#x27;/21/i Hetty,29&#x27; staff.csv          # 部分匹配sed &#x27;/J/i Hetty,29&#x27; staff.csv           # 匹配了两行</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/i \ \ Hetty,29&#x27;</span> staff.csv    <span class="comment"># 行头插入两个空格</span></span><br><span class="line">sed <span class="string">&#x27;/21/i Hetty,29&#x27;</span> staff.csv          <span class="comment"># 部分匹配</span></span><br><span class="line">sed <span class="string">&#x27;/J/i Hetty,29&#x27;</span> staff.csv           <span class="comment"># 匹配了两行</span></span><br></pre></td></tr></table></figure>
 
 <p>下面这个命令可以在Gavo后面增加两行：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/a Hetty,29\nEmma,45&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <h2 id="删"><a href="#删" class="headerlink" title="删"></a>删</h2><h3 id="删除特定行"><a href="#删除特定行" class="headerlink" title="删除特定行"></a>删除特定行</h3><p>删（delete）和<a href="/sed/#u589E">増</a>很相似，区别是把<code>i</code>或<code>a</code>换成<code>d</code>即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1d&#x27;</span> staff.csv         <span class="comment"># 删除第一行sed &#x27;$d&#x27; staff.csv         # 删除最后一行sed &#x27;/Jane/d&#x27; staff.csv    # 删除包含Jane的一行sed &#x27;/21/d&#x27; staff.csv      # 删除包含21的一行sed &#x27;/J/d&#x27; staff.csv       # 删除包含J的两行</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1d&#x27;</span> staff.csv         <span class="comment"># 删除第一行</span></span><br><span class="line">sed <span class="string">&#x27;$d&#x27;</span> staff.csv         <span class="comment"># 删除最后一行</span></span><br><span class="line">sed <span class="string">&#x27;/Jane/d&#x27;</span> staff.csv    <span class="comment"># 删除包含Jane的一行</span></span><br><span class="line">sed <span class="string">&#x27;/21/d&#x27;</span> staff.csv      <span class="comment"># 删除包含21的一行</span></span><br><span class="line">sed <span class="string">&#x27;/J/d&#x27;</span> staff.csv       <span class="comment"># 删除包含J的两行</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="删除关联行"><a href="#删除关联行" class="headerlink" title="删除关联行"></a>删除关联行</h3><p>下面这个命令把Gavo这一行和下一行都删掉：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;d;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
@@ -135,33 +135,30 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Gavo/&#123;N;s/\n.*//;&#125;&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>相当于匹配了两行也就是<code>Gavo,35\nJane,21</code>之后，再把<code>\n</code>之后的所有文本替换成空白，即删除。替换的命令在下面的<a href="/sed/#u6539">改</a>中会详细介绍。</p>
-<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><h3 id="所有行头-尾增加项目"><a href="#所有行头-尾增加项目" class="headerlink" title="所有行头&#x2F;尾增加项目"></a>所有行头&#x2F;尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/^/China,/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+<h2 id="改"><a href="#改" class="headerlink" title="改"></a>改</h2><h3 id="所有行头-尾增加项目"><a href="#所有行头-尾增加项目" class="headerlink" title="所有行头&#x2F;尾增加项目"></a>所有行头&#x2F;尾增加项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/^/China,/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>其中的<code>s</code>表示替换（substitute），<code>^</code>表示开头，相对应的<code>$</code>表示结尾。</p>
-<h3 id="所有行修改项目"><a href="#所有行修改项目" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/China/US/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+<h3 id="所有行修改项目"><a href="#所有行修改项目" class="headerlink" title="所有行修改项目"></a>所有行修改项目</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/China/US/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>这样就能把所有的China换成US。如果想把所有的名字后面都加上一个<code>-dev</code>呢？运行：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/,[A-Z][a-z]*/&amp;-dev/&#x27;</span> staff.csvsed -r <span class="string">&#x27;s/(,.*),/\1-dev,/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/,[A-Z][a-z]*/&amp;-dev/&#x27;</span> staff.csv</span><br><span class="line">sed -r <span class="string">&#x27;s/(,.*),/\1-dev,/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>其中第一条命令的正则表达式<code>,[A-Z][a-z]*</code>匹配逗号和名字，<code>&amp;</code>表示匹配上的内容，比如对于第二行来说，是<code>,Gavo</code>。第二条命令略微麻烦点，<code>-r</code>表示扩展的正则表达式（extended regular expressions），圆括号表示分组，第一个圆括号中间是第一组，替换的时候用<code>\1</code>表示匹配上的内容。所以<code>\1</code>就是<code>,</code>之前的文本。文件的每一行都有两个逗号，sed会匹配最远的那一个。比如对于第二行来说，匹配到了第二个逗号，所以<code>\1</code>的值就是<code>US,Gavo</code>。加完<code>-dev</code>之后要再补上逗号。所以sed是非常灵活的，可以用多种办法来实现一个功能。</p>
 <h3 id="正则替换"><a href="#正则替换" class="headerlink" title="正则替换"></a>正则替换</h3><p>给所有的项目都加上引号：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[^,]+/&quot;&amp;&quot;/g&#x27;</span> staff.csvsed -e <span class="string">&#x27;s/^\|$/&quot;/g&#x27;</span> -e <span class="string">&#x27;s/,/&quot;,&quot;/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[^,]+/&quot;&amp;&quot;/g&#x27;</span> staff.csv</span><br><span class="line">sed -e <span class="string">&#x27;s/^\|$/&quot;/g&#x27;</span> -e <span class="string">&#x27;s/,/&quot;,&quot;/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>上面的命令是实现的两种方式。第一条命令的意思是除了逗号以外的所有匹配文本都加双引号。对于第二行来说，匹配到了三个文本：<code>US</code>，<code>Gavo</code>和<code>35</code>。第二条命令的思路则完全不同，是先在首尾都加上双引号，然后再把所有的<code>,</code>都替换成<code>&quot;,&quot;</code>。中间的竖线<code>|</code>用反斜杠转义后就是正则表达式中的“或”的意思。如果不想用正则的方式，只想做完全匹配的字符串替换，可以用<code>perl</code>，例如：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[name]/ggg/g&#x27;</span> hello [name]EOF# hgggllo [gggggggggggg]perl -pe <span class="string">&#x27;s/\Q[name]/ggg/g&#x27;</span> hello [name]EOF# hello ggg</span><br></pre></td></tr></table></figure>
-
-<h3 id="全局替换"><a href="#全局替换" class="headerlink" title="全局替换"></a>全局替换</h3><p>把所有的<code>l</code>改成<code>L</code>：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">&#x27;s/[name]/ggg/g&#x27;</span> 全局替换</span><br><span class="line">把所有的`l`改成`L`：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">sed <span class="string">&#x27;s/l/L/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>后面的<code>/g</code>代表整行范围内的所有匹配全部替换，不加<code>g</code>的话就会被替换成<code>BiLl</code>。可以换成<code>2</code>只替换第二个匹配项。还可以选择<code>i</code>来忽略大小写，也可以一起用。它们都是正则表达式的范畴。</p>
 <p>同时替换<code>l</code>和<code>m</code>，以下两种方式都可以：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g; s/m/M/g&#x27;</span> staff.csvsed -e <span class="string">&#x27;s/l/L/g&#x27;</span> -e <span class="string">&#x27;s/m/M/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/l/L/g; s/m/M/g&#x27;</span> staff.csv</span><br><span class="line">sed -e <span class="string">&#x27;s/l/L/g&#x27;</span> -e <span class="string">&#x27;s/m/M/g&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
-<h3 id="大小写替换"><a href="#大小写替换" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/.*/\L&amp;/&#x27;</span> staff.csvsed <span class="string">&#x27;s/.*/\U&amp;/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<h3 id="大小写替换"><a href="#大小写替换" class="headerlink" title="大小写替换"></a>大小写替换</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;s/.*/\L&amp;/&#x27;</span> staff.csv</span><br><span class="line">sed <span class="string">&#x27;s/.*/\U&amp;/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p><code>\L</code>就是全部小写（lowercase），<code>\U</code>就是全部大写（uppercase）。<code>&amp;</code>在上文有提到，表示匹配上的内容。</p>
 <h3 id="修改指定行"><a href="#修改指定行" class="headerlink" title="修改指定行"></a>修改指定行</h3><p>现在表头的第一列也成了US，把它改成Country：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1s/US/Country/&#x27;</span> staff.csvcat staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;1s/US/Country/&#x27;</span> staff.csv</span><br><span class="line"><span class="built_in">cat</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>把第2行到4行的US替换成China：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;2,4s/US/China/&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
@@ -181,28 +178,25 @@
 <li>[:graph:]：[:alnum:]和[:punct:]</li>
 <li>[:lower:]：[a-z]</li>
 <li>[:print:]：[:alnum:]、[:punct:]和空格</li>
-<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . &#x2F; : ;  ? @ [ \ ] ^ _ &#96; { | } ~</li>
+<li>[:punct:]：符号 ! “ # $ % &amp; ‘ ( ) * + , - . &#x2F; : ; &lt; &#x3D; &gt; ? @ [ \ ] ^ _ &#96; { | } ~</li>
 <li>[:space:]：[:blank:]和回车、换行等</li>
 <li>[:upper:]：[A-Z]</li>
 <li>[:xdigit:]：16进制 [0-9A-Fa-f]</li>
 </ul>
 <h3 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h3><p>如果想用变量里的值来代替，可以这么写（注意是双引号而不是单引号了）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=gggecho <span class="variable">$namesed</span> -r <span class="string">&quot;s/name/<span class="variable">$&#123;name&#125;</span>/g&quot;</span> hello nameEOFunset name</span><br></pre></td></tr></table></figure>
-
-<h2 id="查"><a href="#查" class="headerlink" title="查"></a>查</h2><h3 id="查看特定行"><a href="#查看特定行" class="headerlink" title="查看特定行"></a>查看特定行</h3><p>查（print）也和<a href="/sed/#u589E">増</a>很类似，区别是把<code>i</code>或<code>a</code>换成<code>p</code>即可：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;1p&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">name=ggg</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$name</span></span><br><span class="line"></span><br><span class="line">sed -r <span class="string">&quot;s/name/<span class="variable">$&#123;name&#125;</span>/g&quot;</span> 查</span><br><span class="line"></span><br><span class="line"><span class="comment">### 查看特定行</span></span><br><span class="line">查（<span class="built_in">print</span>）也和[増](/sed/#u589E)很类似，区别是把`i`或`a`换成`p`即可：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">sed <span class="string">&#x27;1p&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>但是…只是把匹配的行多打一遍而已。如果想要达到<code>grep</code>般的效果，加上<code>-n</code>就可以了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1p&#x27;</span> staff.csv         <span class="comment"># 查看第一行sed -n &#x27;$p&#x27; staff.csv         # 查看最后一行sed -n &#x27;/Jane/p&#x27; staff.csv    # 查看包含Jane的一行sed -n &#x27;/21/p&#x27; staff.csv      # 查看包含21的一行sed -n &#x27;/J/p&#x27; staff.csv       # 查看包含J的两行sed -n &#x27;/21$/p&#x27; staff.csv     # 查看以21结尾的一行sed -n &#x27;/21/!p&#x27; staff.csv     # 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1p&#x27;</span> staff.csv         <span class="comment"># 查看第一行</span></span><br><span class="line">sed -n <span class="string">&#x27;$p&#x27;</span> staff.csv         <span class="comment"># 查看最后一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/Jane/p&#x27;</span> staff.csv    <span class="comment"># 查看包含Jane的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21/p&#x27;</span> staff.csv      <span class="comment"># 查看包含21的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/J/p&#x27;</span> staff.csv       <span class="comment"># 查看包含J的两行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21$/p&#x27;</span> staff.csv     <span class="comment"># 查看以21结尾的一行</span></span><br><span class="line">sed -n <span class="string">&#x27;/21/!p&#x27;</span> staff.csv     <span class="comment"># 查看包含21以外的其它行</span></span><br></pre></td></tr></table></figure>
 
 <p>倒数第二个命令中的<code>21$</code>表示以21结尾。如果要以21开头，用<code>^21</code>。最后一个命令中的<code>!</code>是取反的意思，所以21的记录就反而被隐藏了，而其他的记录倒都显示出来了。</p>
 <h3 id="查看行范围"><a href="#查看行范围" class="headerlink" title="查看行范围"></a>查看行范围</h3><p>如果想要查看直到匹配某条记录，用下面这条命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/Jane/q&#x27;</span> staff.csv</span><br></pre></td></tr></table></figure>
 
 <p>其中的<code>q</code>代表查到后退出（quit）。还有几种方式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1,/Jane/p&#x27;</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止sed -n &#x27;/Gavo/,/Jane/p&#x27; staff.csv    # 从匹配Gavo的记录开始到匹配Jane的记录为止sed -n &#x27;/Jane/,$p&#x27; staff.csv         # 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -n <span class="string">&#x27;1,/Jane/p&#x27;</span> staff.csv         <span class="comment"># 从第一行开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">&#x27;/Gavo/,/Jane/p&#x27;</span> staff.csv    <span class="comment"># 从匹配Gavo的记录开始到匹配Jane的记录为止</span></span><br><span class="line">sed -n <span class="string">&#x27;/Jane/,$p&#x27;</span> staff.csv         <span class="comment"># 从匹配Jane的记录开始到最后一行为止</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="查看奇-偶数行"><a href="#查看奇-偶数行" class="headerlink" title="查看奇&#x2F;偶数行"></a>查看奇&#x2F;偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;n;d&#x27;</span> staff.csv       <span class="comment"># 奇数行sed &#x27;1d;n;d&#x27; staff.csv    # 偶数行</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看奇-偶数行"><a href="#查看奇-偶数行" class="headerlink" title="查看奇&#x2F;偶数行"></a>查看奇&#x2F;偶数行</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;n;d&#x27;</span> staff.csv       <span class="comment"># 奇数行</span></span><br><span class="line">sed <span class="string">&#x27;1d;n;d&#x27;</span> staff.csv    <span class="comment"># 偶数行</span></span><br></pre></td></tr></table></figure>
 
 <p>第一条命令中的<code>n;</code>表示输出当前行并立即读取下一行。第二条命令先把第一行记录删除，于是再输出的奇数行就自然变成原来的偶数行了。</p>
 <h3 id="从单行中查找"><a href="#从单行中查找" class="headerlink" title="从单行中查找"></a>从单行中查找</h3><p>比如想从<strong>I am 18 years old</strong>里查找18这个年龄，可以这么做：</p>
@@ -216,7 +210,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/sed/" data-id="cuidY-zGiQgWC2XPj-6ZO8Hsz" data-title="看例子学sed" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/sed/" data-id="cuidL-cFA8RMyTrcSQrDW-wgB" data-title="看例子学sed" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

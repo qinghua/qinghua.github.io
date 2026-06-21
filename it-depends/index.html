@@ -17,7 +17,7 @@
 <meta property="og:description" content="俗话说“文无第一，武无第二”，软件开发归类于“文”，还是“武”？这个问题本身就有争议。想痛快地吵上一吵吗？进来看看吧。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-04-21T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.005Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.433Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="idea">
 <meta name="twitter:card" content="summary">
@@ -114,10 +114,10 @@
 <li><strong>用不用设计模式？</strong><br>你有没有这样的经历，学完设计模式以后，编程时总想着套到什么地方去？到底应该何时用、怎么用、用多少？</li>
 <li><strong>要不要尽量内联（inline）？</strong><br>有一种编程风格是尽量inline所有的变量，除非很不好懂，需要用变量名来解释。例如：</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String name = someService.getName();</span><br><span class="line">String result = otherService.getResult(name);</span><br><span class="line">return result;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String name = someService.getName();</span><br><span class="line">String result = otherService.getResult(name);</span><br><span class="line">return result;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>需要重构为：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return otherService.getResult(someService.getName());</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">return otherService.getResult(someService.getName());</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>因为比较简洁嘛。我原来也倾向于使用这种风格。但是新团队的风格是尽量抽变量，理由是方便调试。比如一行中要是出错了呢？调试时要是想知道返回值呢？当然可以查看<code>otherService.getResult(someService.getName())</code>，但是这个操作要是不幂等呢？似乎也有几分道理。</p>
 <ul>
@@ -153,7 +153,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/it-depends/" data-id="cuidyttDhD33rnZcyiSz5KMyp" data-title="软件开发有没有高下" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/it-depends/" data-id="cuidPj86f71HAZDbx3rM0k5Vo" data-title="软件开发有没有高下" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

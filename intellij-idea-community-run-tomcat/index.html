@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://qinghua.github.io/img/idea-debug-configurations.jpg">
 <meta property="article:published_time" content="2016-05-18T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.996Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.429Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="IntelliJ IDEA">
 <meta property="article:tag" content="tomcat">
@@ -114,7 +114,7 @@
 <li>Port：随便选一个端口就好，别跟其它端口冲突</li>
 </ul>
 <p>Tomcat的话可以用docker启动，比较方便。这里选用的是tomcat:7。复制<code>Command line arguments for running remote JVM</code>里的值，用它代替下面的<code>JAVA_OPTS</code>参数里的内容，然后运行tomcat并把war包复制到webapps目录里：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=tomcat -e JAVA_OPTS=<span class="string">&#x27;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007&#x27;</span> tomcat:7docker <span class="built_in">cp</span> ggg-webapp.war tomcat:/usr/local/tomcat/webapps/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --net=host --name=tomcat -e JAVA_OPTS=<span class="string">&#x27;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007&#x27;</span> tomcat:7</span><br><span class="line">docker <span class="built_in">cp</span> ggg-webapp.war tomcat:/usr/local/tomcat/webapps/</span><br></pre></td></tr></table></figure>
 
 <p>Tomcat启动完成后，选择菜单<code>Run</code>-&gt;<code>Debug &#39;tomcat-debug&#39;</code>，就会显示<code>Connected to the target VM, address: &#39;192.168.33.88:7007&#39;, transport: &#39;socket&#39;</code>，然后就可以顺利debug了。</p>
 <h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>附送一些调试快捷键：</p>
@@ -132,7 +132,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-community-run-tomcat/" data-id="cuidF8gJjI3wpyFQpG2rIil5T" data-title="使用IntelliJ IDEA社区版调试tomcat" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-community-run-tomcat/" data-id="cuidScQuyRuanG3rvP7e6Ww7w" data-title="使用IntelliJ IDEA社区版调试tomcat" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

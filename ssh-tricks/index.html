@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/mac_proxy.jpg">
 <meta property="og:image" content="https://qinghua.github.io/img/switchy_omega.jpg">
 <meta property="article:published_time" content="2017-11-25T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.090Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.463Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="ssh">
 <meta name="twitter:card" content="summary">
@@ -117,21 +117,7 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh remote.host.name <span class="string">&quot;hostname&quot;</span></span><br></pre></td></tr></table></figure>
 
 <p>如果命令很长，是个脚本，那就这么搞：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;ls\necho ggg&quot;</span> &gt; cmd.txtssh remote.host.name <span class="string">&quot;`cat cmd.txt`&quot;</span>ssh remote.host.name <span class="built_in">cat</span> cmd.txt | ssh remote.host.name</span><br></pre></td></tr></table></figure>
-
-<p>下面分享一段调试时查看远程日志的实用代码。如果你不知道自己的请求会被负载均衡到哪台服务器上去，可以试试下面这个ssh到所有服务器上执行<code>tail -F</code>的小脚本（当然也能用<code>cat</code>了）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bashset -eif [ -z $1 ]; then  echo &quot;usage: $(basename $0) [log path] [optional grep message]&quot;  echo &quot;sample: $(basename $0) /abc/def/application.log* Execption&quot;  exit 1filog_path=$1grep_message=$&#123;2-&quot;&#x27;&#x27;&quot;&#125;hosts=(  &quot;remote1.host.name&quot;  &quot;remote2.host.name&quot;  &quot;remote3.host.name&quot;)remote_command=&quot;tail -F $&#123;log_path&#125; | grep --line-buffered $&#123;grep_message&#125;&quot;for host in &quot;$&#123;hosts[@]&#125;&quot;do  exec &quot;ssh -fo StrictHostKeyChecking=no $&#123;host&#125; \&quot;$&#123;remote_command&#125;\&quot; &amp;&quot;done</span></span><br></pre></td></tr></table></figure>
-
-<p>当然看完日志以后，别忘了把ssh的进程杀掉：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bashkill -9 $(ps -ef | grep &quot;[s]sh -fo StrictHostKeyChecking=no&quot; | awk &#x27;&#123;print $2&#125;&#x27;)</span></span><br></pre></td></tr></table></figure>
-
-<p>稍微解释一下以上的两个参数：</p>
-<ul>
-<li><code>ssh -f</code>: 让SSH在后台执行，之所以在后面再加一个<code>&amp;</code>，是因为想让所有机器并行来tail日志。</li>
-<li><code>ssh -o StrictHostKeyChecking=no</code>: 这样就看不到由于第一次连接或是机器指纹变更而出现的<strong>Are you sure you want to continue connecting (yes&#x2F;no)?</strong></li>
-</ul>
-<h2 id="SSH隧道"><a href="#SSH隧道" class="headerlink" title="SSH隧道"></a>SSH隧道</h2><h3 id="配置SOCKS代理"><a href="#配置SOCKS代理" class="headerlink" title="配置SOCKS代理"></a>配置SOCKS代理</h3><p>超级简单：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -D 9999 remote.host.name</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;ls\necho ggg&quot;</span> &gt; cmd.txt</span><br><span class="line"></span><br><span class="line">ssh remote.host.name <span class="string">&quot;`cat cmd.txt`&quot;</span></span><br><span class="line">ssh remote.host.name SSH隧道</span><br><span class="line"></span><br><span class="line"><span class="comment">### 配置SOCKS代理</span></span><br><span class="line">超级简单：</span><br><span class="line"></span><br><span class="line">```sh</span><br><span class="line">ssh -D 9999 remote.host.name</span><br></pre></td></tr></table></figure>
 
 <p>这样便可以通过如下系统设置通过远程主机上网了（以mac为例）：<br><img src="/img/mac_proxy.jpg"></p>
 <p>浏览器代理也是一样（以chrome插件SwitchyOmega为例）：<br><img src="/img/switchy_omega.jpg"></p>
@@ -166,7 +152,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ssh-tricks/" data-id="cuid7fNGmPtmBuLMuK7nf7Gph" data-title="SSH妙用" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ssh-tricks/" data-id="cuidgpinYWt3kTpTheiN66Kyg" data-title="SSH妙用" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/idea-debug-lambda.jpg">
 <meta property="og:image" content="https://qinghua.github.io/img/idea-debug-lambda-flat-mode.jpg">
 <meta property="article:published_time" content="2018-05-05T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.998Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.431Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="IntelliJ IDEA">
 <meta name="twitter:card" content="summary">
@@ -142,9 +142,10 @@
 <h3 id="自动载入变化代码（Reload-changes）"><a href="#自动载入变化代码（Reload-changes）" class="headerlink" title="自动载入变化代码（Reload changes）"></a>自动载入变化代码（Reload changes）</h3><p>利用Java虚拟机提供的HotSwap功能，我们可以做到一边调试一边改代码。只要在修改完代码之后，点击<strong>Run</strong> -&gt; <strong>Reload Changed Classes</strong>即可。不过HotSwap有一些限制，例如不支持static的字段和方法等。</p>
 <p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes">https://www.jetbrains.com/help/idea/altering-the-program-s-execution-flow.html#reload_classes</a></p>
 <h3 id="显示方法返回值（Show-method-return-values）"><a href="#显示方法返回值（Show-method-return-values）" class="headerlink" title="显示方法返回值（Show method return values）"></a>显示方法返回值（Show method return values）</h3><p>调试窗口里的<strong>Settings</strong> -&gt; <strong>Show Method Return Values</strong>开关可以显示方法的返回值。例如以下方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">double</span> <span class="title function_">random</span><span class="params">()</span> &#123;    <span class="keyword">return</span> Math.random();&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">double</span> <span class="title function_">random</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Math.random();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>只要在<code>return</code>上设断点然后<strong>Step Over</strong>，或者在方法内部的任何地方设断点然后<strong>Step Out</strong>一下，便可以在调用处的变量窗口看到一个类似于这样的值：<code>Test.random() = 0.28735657504865864</code>。在这个方法调用没有赋值给变量时（如&#96;if (random() 调试流（Trace Current Stream Chain）<br>前面说了Visual Studio的好，但是它调试时不能看lambda的值也真是挺恶心的，据说2015版以后开始支持有限的lambda了。IDEA在这方面就做的非常到位。Java 8带来的Stream里面到底是什么，有时候很难知道。通过IDEA提供的这个功能，我们可以很轻松地看到流在各个步骤之间的变化。如下图：<br><img src="/img/idea-debug-lambda.jpg"></p>
+<p>只要在<code>return</code>上设断点然后<strong>Step Over</strong>，或者在方法内部的任何地方设断点然后<strong>Step Out</strong>一下，便可以在调用处的变量窗口看到一个类似于这样的值：<code>Test.random() = 0.28735657504865864</code>。在这个方法调用没有赋值给变量时（如<code>if (random() &lt; 10)</code>）还挺有用的。</p>
+<h3 id="调试流（Trace-Current-Stream-Chain）"><a href="#调试流（Trace-Current-Stream-Chain）" class="headerlink" title="调试流（Trace Current Stream Chain）"></a>调试流（Trace Current Stream Chain）</h3><p>前面说了Visual Studio的好，但是它调试时不能看lambda的值也真是挺恶心的，据说2015版以后开始支持有限的lambda了。IDEA在这方面就做的非常到位。Java 8带来的Stream里面到底是什么，有时候很难知道。通过IDEA提供的这个功能，我们可以很轻松地看到流在各个步骤之间的变化。如下图：<br><img src="/img/idea-debug-lambda.jpg"></p>
 <p>展平模式（Flat Mode）更是提供了全局的视角：<br><img src="/img/idea-debug-lambda-flat-mode.jpg"></p>
 <p>使用这个功能也非常简单，当程序在lambda表达式的任意处停下时，单击调试窗口的<strong>Trace Current Stream Chain</strong>按钮即可。</p>
 <p>官方文档传送门：<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html">https://www.jetbrains.com/help/idea/analyze-java-stream-operations.html</a></p>
@@ -173,7 +174,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/intellij-idea-debug/" data-id="cuidxPImcSWi7wSDVVMVi0q9U" data-title="挖掘IntelliJ IDEA的调试功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/intellij-idea-debug/" data-id="cuidXU42vYP3Io-94CpKcjxbD" data-title="挖掘IntelliJ IDEA的调试功能" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

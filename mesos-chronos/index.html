@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://qinghua.github.io/img/chronos-run-job.jpg">
 <meta property="og:image" content="https://qinghua.github.io/img/chronos-graph.png">
 <meta property="article:published_time" content="2016-02-15T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.054Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.447Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="chronos">
 <meta property="article:tag" content="mesos">
@@ -112,7 +112,7 @@
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u51C6_u5907_u5DE5_u4F5C">准备工作</a>一节，用vagrant搭建两台虚拟机<strong>master</strong>和<strong>slave</strong>。</p>
 <h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p>参考《用容器轻松搭建Marathon运行环境》的<a href="/mesos-marathon/#u642D_u5EFA_u73AF_u5883">搭建环境</a>一节，跳过marathon部分。</p>
 <p>搭建mesos master和slave环境完成后，最后在master的虚拟机上启动chronos：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \    --net=host \    --name=ch \    mesosphere/chronos:chronos-2.4.0-0.1.20150828104228.ubuntu1404-mesos-0.27.0-0.2.190.ubuntu1404 \    usr/bin/chronos \    --master zk://192.168.33.18:2181/mesos \    --zk_hosts zk://192.168.33.18:2181/marathon \    --cluster_name ggg</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">    --net=host \</span><br><span class="line">    --name=ch \</span><br><span class="line">    mesosphere/chronos:chronos-2.4.0-0.1.20150828104228.ubuntu1404-mesos-0.27.0-0.2.190.ubuntu1404 \</span><br><span class="line">    usr/bin/chronos \</span><br><span class="line">    --master zk://192.168.33.18:2181/mesos \</span><br><span class="line">    --zk_hosts zk://192.168.33.18:2181/marathon \</span><br><span class="line">    --cluster_name ggg</span><br></pre></td></tr></table></figure>
 
 <p>我们还可以打开<code>http://192.168.33.18:8080/</code>感知一下chronos：<br><img src="/img/chronos.jpg"></p>
 <h2 id="运行作业"><a href="#运行作业" class="headerlink" title="运行作业"></a>运行作业</h2><p>在chronos的页面上，点击<strong>New Job</strong>按钮，然后填入如下参数：</p>
@@ -146,7 +146,7 @@
 <li>还是页面的bug，有时候新建作业时会提示需要输入OWNER(S)，这是个Email地址，这样当作业出错时会通知这个Email。可是我们的测试应该是不需要错误通知的。当你看到这个提示的时候，随便输个自己的邮箱就好啦。</li>
 <li>像marathon一样，chronos也支持REST API，我们可以来试一下。先随便在哪台机器找个路径生成一个<code>test4.json</code>文件，内容如下：</li>
 </ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>  <span class="attr">&quot;parents&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span>    <span class="string">&quot;test&quot;</span>  <span class="punctuation">]</span><span class="punctuation">,</span>  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test4&quot;</span><span class="punctuation">,</span>  <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;echo test4 &gt;&gt; /tmp/test.txt&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;parents&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;test&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test4&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;echo test4 &gt;&gt; /tmp/test.txt&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>然后运行以下命令来发送请求给chronos：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://192.168.33.18:8080/scheduler/dependency -d @test4.json -H <span class="string">&quot;Content-type: application/json&quot;</span></span><br></pre></td></tr></table></figure>
@@ -156,7 +156,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidUIbEzDdDnYhKJrGcCFfhH" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/mesos-chronos/" data-id="cuidYrIFSz3WsyMUAgEriuL9R" data-title="用容器轻松搭建Chronos运行环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -168,19 +168,19 @@
     
 <nav id="article-nav">
   
-    <a href="/mesos-marathon/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/docker-swarm/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">前一篇</strong>
       <div class="article-nav-title">
         
-          用容器轻松搭建Marathon运行环境
+          轻松搭建Docker Swarm运行环境
         
       </div>
     </a>
   
   
-    <a href="/docker-registry-delete/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/mesos-marathon/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">删除Docker Registry里的镜像怎么那么难</div>
+      <div class="article-nav-title">用容器轻松搭建Marathon运行环境</div>
     </a>
   
 </nav>

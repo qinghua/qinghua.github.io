@@ -17,7 +17,7 @@
 <meta property="og:description" content="我们知道在软件开发中，效率是很重要的环节。结对编程时，有些手快的人想到哪里就能编到哪里，恨不得分分钟从手慢的人那儿把键盘抢过来。今天的这篇文章主要是如何用好IntelliJ IDEA这个著名的IDE，以实现：“敲最少的键，编最多的码”。虽说本文的示例是Java，其它语言区别也不大，尤其是当现在的JET BRAINS全家桶已经是如此齐备时。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-02-04T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:10.102Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.467Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="IntelliJ IDEA">
 <meta property="article:tag" content="TDD">
@@ -109,7 +109,7 @@
 <p>要是视频不清晰或看不到，就直接到<a target="_blank" rel="noopener" href="https://v.qq.com/x/page/s0545lt9r2e.html">腾讯视频</a>中看720P吧。</p>
 <p>如何才能做到”敲最少的键，编最多的码“呢？除了掌握技巧之外，就是多练习实践了。以下就是技巧的内容。</p>
 <h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>首先把环境准备一下。只要有<code>src</code>和<code>test</code>即可。我自己是一个默认的Maven新项目，在<code>pom</code>中引用了<code>junit</code>。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;    4.0.0    org.ggg    ggg    1.0-SNAPSHOT                        junit            junit            4.12</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"></span><br><span class="line">4.0.0</span><br><span class="line"></span><br><span class="line">org.ggg</span><br><span class="line">ggg</span><br><span class="line">1.0-SNAPSHOT</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">        junit</span><br><span class="line">        junit</span><br><span class="line">        4.12</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>专业版的IDEA支持项目模板，如果你对默认的模板不满意，项目模板能够节省你的一部分操作。</p>
 <h2 id="步骤分解"><a href="#步骤分解" class="headerlink" title="步骤分解"></a>步骤分解</h2><ul>
@@ -139,11 +139,13 @@
 <li>快捷键：再次用<strong>Shift+F10</strong>运行测试，依然是绿的，重构完成。</li>
 </ul>
 <h2 id="用到的IDE功能简介"><a href="#用到的IDE功能简介" class="headerlink" title="用到的IDE功能简介"></a>用到的IDE功能简介</h2><h3 id="快捷键（Shortcuts）"><a href="#快捷键（Shortcuts）" class="headerlink" title="快捷键（Shortcuts）"></a>快捷键（<a target="_blank" rel="noopener" href="https://resources.jetbrains.com/storage/products/intellij-idea/docs/IntelliJIDEA_ReferenceCard.pdf">Shortcuts</a>）</h3><p>我用的是<strong>Mac OS X</strong>的Keymap。常用的快捷键要牢记，很多时候它决定了程序员的效率如何。JET BRAINS的各种语言的IDE快捷键都比较类似，花点精力记住它决不会吃亏。</p>
-<h3 id="文件模板（File-Templates）"><a href="#文件模板（File-Templates）" class="headerlink" title="文件模板（File Templates）"></a>文件模板（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/file-and-code-templates.html">File Templates</a>）</h3><p>顾名思义，文件模板即是新建文件时使用到的模板。我们在上面的步骤中使用的<code>JUnit</code>活动模板如下：<br>123456789#if (${PACKAGE_NAME} &amp;&amp; ${PACKAGE_NAME} !&#x3D; “”)package ${PACKAGE_NAME};#endimport org.junit.Test;import static org.junit.Assert.*;#parse(“File Header.java”)public class ${NAME} {}</p>
+<h3 id="文件模板（File-Templates）"><a href="#文件模板（File-Templates）" class="headerlink" title="文件模板（File Templates）"></a>文件模板（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/file-and-code-templates.html">File Templates</a>）</h3><p>顾名思义，文件模板即是新建文件时使用到的模板。我们在上面的步骤中使用的<code>JUnit</code>活动模板如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#if ($&#123;PACKAGE_NAME&#125; &amp;&amp; $&#123;PACKAGE_NAME&#125; != &quot;&quot;)package $&#123;PACKAGE_NAME&#125;;#end</span><br><span class="line"></span><br><span class="line">import org.junit.Test;</span><br><span class="line"></span><br><span class="line">import static org.junit.Assert.*;</span><br><span class="line">#parse(&quot;File Header.java&quot;)</span><br><span class="line">public class $&#123;NAME&#125; &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>它的语法基于<a target="_blank" rel="noopener" href="http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction">Apache Velocity</a>，支持变量，如<code>${PACKAGE_NAME}</code>表示包名，<code>${NAME}</code>表示用户输入的名称，等等。</p>
 <p>可以通过在<strong>Preferences</strong>中搜索<strong>File and Code Templates</strong>，来创建或修改文件模板。也可以在一开始<strong>Ctrl+N</strong>时选择<strong>Edit File Templates…</strong>。</p>
 <h3 id="活动模板（Live-Templates）"><a href="#活动模板（Live-Templates）" class="headerlink" title="活动模板（Live Templates）"></a>活动模板（<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/live-templates.html">Live Templates</a>）</h3><p>活动模板与文件模板类似，但它不需要新建文件，可以在文件的任何地方激活，只需要输入名字后加一个<strong>TAB</strong>即可。我们在上面的步骤中使用的<code>test</code>活动模板如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Testpublic</span> <span class="keyword">void</span> $NAME$() &#123;    $END$&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> $NAME$() &#123;</span><br><span class="line">    $END$</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>其中的<code>$END$</code>表示最后光标会出现在哪里。在此，表示光标最后会出现在方法体内，以便于继续编写实现。</p>
 <p>可以通过在<strong>Preferences</strong>中搜索<strong>Live Templates</strong>，来创建或修改活动模板。</p>
@@ -155,7 +157,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/type-less-code-more/" data-id="cuidWU4idP-OQ0f0dh6Dv4LVp" data-title="敲最少的键，编最多的码" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/type-less-code-more/" data-id="cuidR8L4KK9IYWazhzXdgLU1r" data-title="敲最少的键，编最多的码" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

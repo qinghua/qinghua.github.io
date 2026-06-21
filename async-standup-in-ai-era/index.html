@@ -17,7 +17,7 @@
 <meta property="og:description" content="我们把每日站会变成了异步模式——一个Slack频道加一些简单规则。两周实践下来，效率提升明显，而且意外地打开了AI agent的输入通道。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-20T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T04:14:14.026Z">
+<meta property="article:modified_time" content="2026-06-21T04:29:09.107Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="agile">
@@ -105,28 +105,32 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>站会是敏捷开发里最基础的实践之一。每天15分钟，大家轮流说昨天做了什么、今天要做什么、有没有blocker。简单有效，对吧？</p>
+        <p>站会是敏捷开发里最基础的实践之一。每天30分钟，大家轮流说昨天做了什么、今天要做什么、有没有卡住的地方。简单有效，对吧？</p>
 <p>但说实话，传统的同步站会在AI时代有一些越来越明显的问题。</p>
 <span id="more"></span>
 
 <h2 id="同步站会的痛点"><a href="#同步站会的痛点" class="headerlink" title="同步站会的痛点"></a>同步站会的痛点</h2><ul>
-<li><strong>不是所有人都在listen。</strong> 十个人的站会，某个同事在讲他负责的模块时，其他人可能在走神。真正和你相关的信息也就几条，但你得等着听完全部。</li>
-<li><strong>时间利用率不高。</strong> 15分钟里，真正对你有价值的信息可能只有3分钟。</li>
+<li><strong>不是所有人都在听。</strong> 十个人的站会，某个同事在讲他负责的模块时，其他人可能在走神。真正和你相关的信息也就几条，但你得等着听完全部。</li>
+<li><strong>经常超时。</strong> 30分钟说短不短，但人一多就不够用。经常超时，甚至导致排在后面的同事根本没有机会发言。</li>
+<li><strong>时间利用率不高。</strong> 30分钟里，真正对你有价值的信息可能只有几分钟。</li>
 <li><strong>说过就没了。</strong> 两周前有人提过一个风险，你记得有这回事，但具体是什么已经想不起来了。没有记录，无法回顾。</li>
 <li><strong>和AI无法联动。</strong> 你的agent无法参加站会，也无法从中获取上下文。</li>
 </ul>
 <h2 id="我们做了什么"><a href="#我们做了什么" class="headerlink" title="我们做了什么"></a>我们做了什么</h2><p>很简单：建了一个Slack频道，名字叫<code>#team-standup</code>。</p>
 <p>规则：</p>
 <ul>
-<li>每天下班前，把今天的进展和明天的计划发在频道里</li>
-<li>需要特定人关注的内容，直接在消息里@对方</li>
+<li>每天上午11点前，把昨天的进展和今天的计划发在频道里</li>
 <li>不强制格式，写清楚就行</li>
+<li>重点是信息共享，不是工作量展示。简洁就好</li>
+<li>两周回顾一次，看看效果，更新规则</li>
 </ul>
+<p>PM也在频道里，可以很方便地获取团队进展，不需要额外的同步会议来对齐状态。</p>
 <p>就这样。没有新工具，没有新流程，只是把信息载体从”会议室里的声音”变成了”频道里的文字”。</p>
-<p>同时，我们保留了<strong>每周一次的同步站会</strong>。这次站会不再是念流水账，而是讨论blocker、分享观点、对齐方向。频率降低了，但质量提高了。</p>
+<p>需要强调的是：这只解决了站会中”信息共享”的部分，它不是万能钥匙。如果你需要某个人的帮助，该联系对方就得联系对方，该拉一个小会还得拉一个小会。异步频道替代的是”轮流念进展”，不是替代所有沟通。</p>
+<p>同时，我们保留了<strong>每周一次的同步站会</strong>。这次站会不再是念流水账，而是讨论遇到的阻碍、分享观点、对齐方向。频率降低了，但质量提高了。</p>
 <h2 id="两周后的改进"><a href="#两周后的改进" class="headerlink" title="两周后的改进"></a>两周后的改进</h2><p>实践两周后，我们发现了一些可以优化的地方：</p>
-<p><strong>时间问题。</strong> 一开始我们设定固定时间（比如每天下午3点）让大家更新，但发现有些人3点还在写代码，打断了心流。于是改成：<strong>下班前更新即可，第二天早上总结。</strong> 这样每个人按自己的节奏来，不会被强制中断。</p>
-<p><strong>注意力路由。</strong> 有些消息和特定的人强相关（比如”我改了X模块的接口，@张三 你那边的调用需要适配一下”）。用@就能把信息精准送达，不需要所有人都看。</p>
+<p><strong>时间问题。</strong> 一开始我们设定每天上午11点前更新，但并不是每个人都可以按时留言。于是改成：<strong>下班前更新即可，第二天早上总结。</strong> 这样每个人按自己的节奏来，不会被强制中断。</p>
+<p><strong>注意力路由。</strong> 有些消息和特定的人强相关（比如”我改了X模块的接口，@张三 你那边的调用需要适配一下”）。我们开始在消息里@对方，把信息精准送达，不需要所有人都看。</p>
 <h2 id="为什么这对AI时代特别有意义"><a href="#为什么这对AI时代特别有意义" class="headerlink" title="为什么这对AI时代特别有意义"></a>为什么这对AI时代特别有意义</h2><p>文字记录天然就是AI的输入。这个频道一旦建立，一些有意思的事情就变得可能了：</p>
 <p><strong>回顾和归档。</strong> 我们计划编写一个skill，每周自动将频道消息归档、分类、可视化。这样周报和月度回顾不再需要人从记忆里拼凑——数据就在那里。</p>
 <p><strong>Agent的上下文来源。</strong> 我们的AI agent在处理工单或做代码review时，如果能读到最近的站会更新（”张三这周在重构认证模块”），就能做出更准确的判断。异步站会无意中成了agent的知识库。</p>
@@ -136,7 +140,7 @@
 <ul>
 <li><strong>紧急协调。</strong> 线上事故、紧急发布，需要实时沟通。</li>
 <li><strong>讨论和碰撞。</strong> 技术方案讨论、design review，需要来回交流。</li>
-<li><strong>新人融入。</strong> 新同事刚加入时，同步站会帮助他们更快建立team context。</li>
+<li><strong>新人融入。</strong> 新同事刚加入时，同步站会帮助他们更快了解团队的工作全貌。</li>
 </ul>
 <p>我们的做法是：日常更新异步化，每周一次同步站会聚焦讨论。在此基础上持续迭代。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个改变很小——建个频道，约定一个规则——但它的连锁效应超出预期：</p>
@@ -146,12 +150,12 @@
 <li>为AI agent提供了团队上下文的输入通道</li>
 <li>为后续的自动化（归档、生成、分析）奠定了基础</li>
 </ol>
-<p>如果你的团队还在每天开15分钟的同步站会，不妨试试这个方法。成本为零，收益立竿见影。未来的改进空间更大——因为文字记录一旦存在，AI能在上面做的事情只会越来越多。</p>
+<p>如果你的团队还在每天物理站会，不妨试试这个方法。成本为零，收益立竿见影。未来的改进空间更大——因为文字记录一旦存在，AI能在上面做的事情只会越来越多。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/async-standup-in-ai-era/" data-id="cuid2TA-8TIp_YZVL88PsaFv_" data-title="AI时代的站会：从同步到异步" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/async-standup-in-ai-era/" data-id="cuidDjZHAq9RdKXe89ULqLYwt" data-title="AI时代的站会：从同步到异步" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

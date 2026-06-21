@@ -17,7 +17,7 @@
 <meta property="og:description" content="我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-01-26T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.959Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.407Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="network">
@@ -106,10 +106,10 @@
       
         <p>我们都知道docker支持多种网络，默认网络bridge是通过一个网桥进行容器间通信的。这篇文章从零开始，用一些Linux的命令来查看主机和容器间的网络通信，也顺带介绍一些网络的基本知识。</p>
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先安装<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">virtualBox</a>和<a target="_blank" rel="noopener" href="https://www.vagrantup.com/downloads.html">vagrant</a>。通过vagrant来驱动virtualBox搭建一个虚拟测试环境。首先在本地任意路径新建一个空文件夹比如<code>test</code>，运行以下命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> testcd testvagrant init minimum/ubuntu-trusty64-dockervi Vagrantfile</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> <span class="built_in">test</span></span><br><span class="line"><span class="built_in">cd</span> <span class="built_in">test</span></span><br><span class="line">vagrant init minimum/ubuntu-trusty64-docker</span><br><span class="line">vi Vagrantfile</span><br></pre></td></tr></table></figure>
 
 <p>里面应该有一句<code># config.vm.network &quot;private_network&quot;, ip: &quot;192.168.33.10&quot;</code>，删掉前面的<code>#</code>注释，相当于给它分配一个<code>192.168.33.10</code>的IP。这个vagrant镜像已经在ubuntu的基础上帮我们安装了docker，用起来很方便。然后运行以下命令启动并连接虚拟机。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vagrant upvagrant ssh</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vagrant up</span><br><span class="line">vagrant ssh</span><br></pre></td></tr></table></figure>
 
 <h2 id="主机和容器间的网络连接"><a href="#主机和容器间的网络连接" class="headerlink" title="主机和容器间的网络连接"></a>主机和容器间的网络连接</h2><p>进入虚拟机后，在vagrant主机上运行<code>ifconfig</code>，就能看到有4个网络设备及它们的IPv4地址：</p>
 <ul>
@@ -119,7 +119,7 @@
 <li>lo：127.0.0.1</li>
 </ul>
 <p>其中的<code>eth0</code>和<code>eth1</code>是普通的以太网卡，<code>eth1</code>就是我们解除注释的IP：<code>192.168.33.10</code>。<code>lo</code>是所谓的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Loopback">环回网卡</a>，每台机器都有。它将这台机器&#x2F;容器绑定到<code>127.0.0.1</code>的IP上，这样子就算没有真实的网卡，也能通过这个IP访问自己，对于测试来说尤其方便。最上面的<code>docker0</code>就是我们常说的网桥。怎么知道它是个网桥呢？安装<code>bridge-utils</code>的包就能看到了：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install bridge-utilsbrctl show</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install bridge-utils</span><br><span class="line">brctl show</span><br></pre></td></tr></table></figure>
 
 <p>网桥设备就好比交换机，可以和其他的网络设备相连接，就像在其他网络设备上拉根网线到这个交换机一样。那么docker怎么使用这个网桥呢，让我们来启动一个容器看看：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --name=ubuntu ubuntu:14.04 bash</span><br></pre></td></tr></table></figure>
@@ -152,7 +152,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuidZXf00o3uxnOZ6jMsyKQbA" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/docker-bridge-network/" data-id="cuid_vOoag67orevwNvLbDhHB" data-title="Docker的桥接网络是怎么工作的" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

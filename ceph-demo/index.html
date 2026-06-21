@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://docs.ceph.com/docs/master/_images/stack.png">
 <meta property="article:published_time" content="2016-01-02T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-21T03:28:09.946Z">
+<meta property="article:modified_time" content="2026-06-21T04:36:48.396Z">
 <meta property="article:author" content="Qinghua Gao">
 <meta property="article:tag" content="ceph">
 <meta property="article:tag" content="storage">
@@ -117,7 +117,7 @@
 
 <p>用的时候记得事先创建好<code>/mnt/cephfs/</code>这个文件夹，替换<code>secret</code>为你自己的<code>key</code>，再改成用你的ceph服务器ip就好了。</p>
 <h2 id="rbd方式"><a href="#rbd方式" class="headerlink" title="rbd方式"></a>rbd方式</h2><p>还有一种方式是作为rbd来加载。这边需要啰嗦几句rbd的模型：最外层是<a target="_blank" rel="noopener" href="http://docs.ceph.com/docs/master/rados/operations/pools/">pool</a>，相当于一块磁盘，默认的pool名字叫做rbd。每个pool里面可以有多个image，相当于文件夹。每个image可以映射成一个块设备，有了设备就可以加载它。下面我们来尝试一下。如果打算用另一台机器，需要先把<code>/etc/ceph</code>这个文件夹复制过去，这个文件夹里面包含了ceph的连接信息。为了运行ceph的命令，我们还需要安装<code>ceph-common</code>，自己选一个命令吧：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-commonyum install -y ceph-common</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y ceph-common</span><br><span class="line">yum install -y ceph-common</span><br></pre></td></tr></table></figure>
 
 <p>准备工作做完了，我们首先创建一个名为ggg的pool：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool create ggg 128</span><br></pre></td></tr></table></figure>
@@ -129,7 +129,7 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd create ggg/qqq --size 1024</span><br></pre></td></tr></table></figure>
 
 <p>size的单位是MB，所以这个qqq image的大小为1GB。要是这条命令一直没有响应，试着重启一下ceph&#x2F;demo容器<code>docker restart ceph</code>，说了这不适合用于生产环境…运行下列命令可以看到ggg的pool中的所有image和查看qqq image的详细信息：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rbd <span class="built_in">ls</span> gggrbd info ggg/qqq</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rbd <span class="built_in">ls</span> ggg</span><br><span class="line">rbd info ggg/qqq</span><br></pre></td></tr></table></figure>
 
 <p>接下来要把qqq image映射到块设备中，可能需要root权限：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rbd map ggg/qqq</span><br></pre></td></tr></table></figure>
@@ -141,24 +141,24 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkfs.ext4 -m0 /dev/rbd1</span><br></pre></td></tr></table></figure>
 
 <p>然后就可以加载了！里面应该有一个<code>lost+found</code>的文件夹：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /mnt/rbd/qqqsudo mount /dev/rbd1 /mnt/rbd/qqqls /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">sudo</span> mount /dev/rbd1 /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">ls</span> /mnt/rbd/qqq/</span><br></pre></td></tr></table></figure>
 
 <h2 id="还原环境"><a href="#还原环境" class="headerlink" title="还原环境"></a>还原环境</h2><p>最后把我们的环境恢复回去：卸载-&gt;解除映射-&gt;删除image-&gt;删除pool：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount /mnt/rbd/qqqsudo rbd unmap /dev/rbd1rbd <span class="built_in">rm</span> ggg/qqqceph osd pool delete ggg</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount /mnt/rbd/qqq</span><br><span class="line"><span class="built_in">sudo</span> rbd unmap /dev/rbd1</span><br><span class="line">rbd <span class="built_in">rm</span> ggg/qqq</span><br><span class="line">ceph osd pool delete ggg</span><br></pre></td></tr></table></figure>
 
 <p>如果严格按照上面的命令，你应该会在最后一步得到一个错误提示：Error EPERM: WARNING: this will <em>PERMANENTLY DESTROY</em> all data stored in pool ggg.  If you are <em>ABSOLUTELY CERTAIN</em> that is what you want, pass the pool name <em>twice</em>, followed by –yes-i-really-really-mean-it.</p>
 <p>删掉pool，里面的数据就真没有啦，所以要谨慎，除了pool名写两遍（重要的事情不应该是三遍么），还得加上<code>--yes-i-really-really-mean-it</code>的免责声明：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph osd pool delete ggg ggg --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure>
 
 <p>最后删掉ceph容器（如果你愿意，还有ceph&#x2F;demo镜像），就当一切都没有发生过：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f cephdocker rmi ceph/demo</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">rm</span> -f ceph</span><br><span class="line">docker rmi ceph/demo</span><br></pre></td></tr></table></figure>
 
 <p>悄悄的我走了，正如我悄悄的来；我挥一挥衣袖，不带走一个byte。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://qinghua.github.io/ceph-demo/" data-id="cuid7sONoERA_kB2v-WC2GNwp" data-title="用容器轻松搭建ceph实验环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://qinghua.github.io/ceph-demo/" data-id="cuid5VGolq_zy0R7rYB3s-2A-" data-title="用容器轻松搭建ceph实验环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -180,9 +180,9 @@
     </a>
   
   
-    <a href="/kubernetes-in-mesos-2/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/kubernetes-in-mesos-1/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">如果有10000台机器，你想怎么玩？（二）高可用</div>
+      <div class="article-nav-title">如果有10000台机器，你想怎么玩？（一）概述</div>
     </a>
   
 </nav>
